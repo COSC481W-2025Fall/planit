@@ -40,15 +40,6 @@ In order to get a B- or higher, students must have all peer reviews agree that t
 **Communication Standards:**
 Team members should communicate through the team discord channel. All team members are expected to turn on their discord notifications so that messages can be addressed in a timely manner. Important general messages should use the @here tag to notify all members. Important directed questions should tag those who need to answer. Messages should be answered within 24 hours. During meetings, one of the team leaders will be responsible for taking notes. Weekly meetings will be held from 8:30-9:30pm on Thursday.
 
-**Face Mask Policy:**
-Face Masks are not needed unless you have a contagious illness.
-
-**B- or higher requirement:**
-In order to get a B- or higher, students must have all peer reviews agree that they contribute fairly to the project. Peer reviews from throughout the semester will be taken into account to encourage consistent work ethic.
-
-**Communication Standards:**
-Team members should communicate through the team discord channel. All team members are expected to turn on their discord notifications so that messages can be addressed in a timely manner. Important general messages should use the @here tag to notify all members. Important directed questions should tag those who need to answer. Messages should be answered within 24 hours. During meetings, one of the team leaders will be responsible for taking notes. Weekly meetings will be held from 8:30-9:30pm on Thursday.
-
 ### Project Description
 
 **Project Name** - PlanIt
