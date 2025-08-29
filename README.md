@@ -15,18 +15,6 @@ Intentional damage or deletion, without approval, of team work will not be toler
 
 **Language Policy:**
 English is the primary language in this group
-Code/Work Modification Guidelines:
-Members are expected to communicate with others before modifying/finishing any part of someone else’s work. There should be proper comments and documentation when someone else’s work is modified or finished.
-
-**Absences Policy:**
-For an excused absence from our team weekly meeting, a team member must provide 2 days notice. A team member can have up to 3 excused absences. If multiple team members will be absent for a meeting or if the whole team decides it would be best to move the meeting, we will have our meeting on our back-up day which is Tuesdays from 8:30-9:30pm.
-
-**Ethics Policy:**
-For unintentional damage or deletion of team work, the responsible member will be expected to contribute to repairing what was lost.
-Intentional damage or deletion, without approval, of team work will not be tolerated and the team leader(s) will reach out to the Professor about removing the offender from accessing the group resources.
-
-**Language Policy:**
-English is the primary language in this group
 
 **Code/Work Modification Guidelines:**
 Members are expected to communicate with others before modifying/finishing any part of someone else’s work. There should be proper comments and documentation when someone else’s work is modified or finished.
