@@ -53,3 +53,5 @@ Team members should communicate through the team discord channel. All team membe
 **Andrew Hainsworth** (Back-end Dev) - Hello, my name is Andrew Hainsworth and I am a senior here at EMU studying Computer Science. I have experience working with Java, Python, and SQL. I enjoy traveling and working out in my free time and am looking forward to working with you all this semester!
 
 **Chris Liakos** (Back-end Dev) - Hello, my name is Chris Liakos and I am a senior at EMU majoring in Computer Science Curriculum. Most of my technical experience has been with Java and Python. In my free time, I enjoy traveling, golf, and playing video games. I’m looking forward to working with you all this semester!
+
+**Autumn Keough** (Front-end Dev) - Hello, my name is Autumn Keough and this is my last semester at EMU. My major is in Computer Science Applied. I have mostly worked with Java and Python, but also have some experience in C#. In my free time I love to hike and do anything craft related! I'm excited to work on this project with everyone!
