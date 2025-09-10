@@ -1,7 +1,7 @@
 
-export const home = (req, res) => {
-  res.send('<a href="/auth/google">Authenticate with Google</a>');
-};
+// export const home = (req, res) => {
+//   res.send('<a href="/auth/google">Authenticate with Google</a>');
+// };
 
 export const googleAuth = (req, res, next) => {
   // This route is only used to trigger passport.authenticate,
@@ -13,9 +13,9 @@ export const googleCallback = (req, res) => {
   // Passport handles redirect logic, so no body here either
 };
 
-export const dashboard = (req, res) => {
-  res.send(`Hello ${req.user.displayName}`);
-};
+// export const dashboard = (req, res) => {
+//   res.send(`Hello ${req.user.displayName}`);
+// };
 
 export const authFailure = (req, res) => {
   res.send("Failed to authenticate..");

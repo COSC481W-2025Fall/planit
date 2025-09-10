@@ -1,6 +1,6 @@
 import express from "express";
 import passport from "passport";
-import { home, googleAuth, googleCallback, dashboard, authFailure } from "../controllers/authController.js";
+import {googleAuth, googleCallback, authFailure } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -8,7 +8,7 @@ function isLoggedIn(req, res, next) {
   req.user ? next() : res.sendStatus(401);
 }
 
-router.get("/", home);
+// router.get("/", home);
 
 router.get(
   "/google",
@@ -19,13 +19,23 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    successRedirect: "/auth/dashboard",
+    successRedirect: "http://localhost:5173/trip",
     failureRedirect: "/auth/failure",
   }),
   googleCallback
 );
 
-router.get("/dashboard", isLoggedIn, dashboard);
+router.get("/user", (req, res) => {
+  if (req.user) {
+    res.json({ loggedIn: true, user: req.user });
+  } else {
+    res.json({ loggedIn: false });
+  }
+});
+
+
+
+// router.get("/dashboard", isLoggedIn, dashboard);
 
 router.get("/failure", authFailure);
 

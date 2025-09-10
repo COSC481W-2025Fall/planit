@@ -4,7 +4,8 @@
   "description": "### Team Info",
   "main": "backend/index.js",
   "scripts": {
-    "dev": "nodemon backend/index.js"
+    "dev-backend": "nodemon backend/index.js",
+    "dev": "concurrently \"npm run dev-backend\" \"npm run dev --prefix frontend\""
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,7 @@
     "passport-google-oauth20": "^2.0.0"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "nodemon": "^3.1.10"
   }
 }
