@@ -1,6 +1,6 @@
 import express from "express";
 import passport from "passport";
-import {googleAuth, googleCallback, authFailure } from "../controllers/authController.js";
+import {googleAuth, googleCallback, authFailure , loginDetails, fetchUserTrips} from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -14,6 +14,15 @@ router.get(
   "/google",
   googleAuth,
   passport.authenticate("google", { scope: ["email", "profile"] })
+);
+
+router.get(
+  "/login/details",
+  loginDetails
+);
+
+router.get("/user/trips",
+  fetchUserTrips
 );
 
 router.get(

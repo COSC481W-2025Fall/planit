@@ -8,10 +8,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div class = "parent-container">
-        <div class = "login-container">
-            <h2 class = "title">PlanIt</h2>
-            <button class = "login-with-google-button" onClick={handleLogin}>
+    <div className = "parent-container">
+        <div className = "login-container">
+            <h2 className = "title">PlanIt</h2>
+            <button className = "login-with-google-button" onClick={handleLogin}>
              Log in with Google
             </button>
         </div>
