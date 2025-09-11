@@ -49,21 +49,20 @@ useEffect(() => {
     <div className="trip_page">
         <div className="top_banner">
           <div className="name">PlanIt</div>
-          <button className="sign_out">Sign Out</button>
+          <button className="sign_out" onClick={() => window.location.href = "/"}>Sign Out</button>
           <img className="pfp" src={user.photo} alt="Profile" />
         </div>
 
         <div className="main_content">
           <div className="navigation_menu">
-            <div className="nav">My Trips</div>
-            <div className="nav">Shared With Me</div>
-            <div className="nav">Explore</div>
+            <a className="nav_link" href="trip">My Trips</a>
+            <a className="nav_link" href="url">Shared With Me</a>
+            <a className="nav_link" href="url">Explore</a>
           </div>
 
           <div className="my_trips">
             <div className="my_trips_banner">
-              <div className="trips_title">My Trips</div>
-              <span>{user.first_name} {user.last_name}</span>
+              <div className="trips_title">{user.first_name} {user.last_name}'s Trips</div>
               <button className="new_trip_button">New Trip</button>
               <button className="sort_button">Sort</button>
             </div>
@@ -75,7 +74,7 @@ useEffect(() => {
                 trips.map((trip) => (
                   <div key={trip.id} className="trip_card">
                     <div className="trip_card_title">{trip.name}</div>
-                    <div className = "trip_card_days">{trip.days} </div>
+                    <div className = "trip_card_days">{trip.days} days</div>
                   </div>
                 ))
               )}
