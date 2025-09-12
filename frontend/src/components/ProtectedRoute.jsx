@@ -6,7 +6,7 @@ export default function ProtectedRoute({ children }) {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:3000/auth/user", { credentials: "include" })
+    fetch("https://api.planit-travel.me/auth/user", { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         setLoggedIn(data.loggedIn);
