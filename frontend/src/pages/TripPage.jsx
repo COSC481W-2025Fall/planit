@@ -13,7 +13,7 @@ useEffect(() => {
     console.log("VITE_BACKEND_URL= " + import.meta.env.VITE_BACKEND_URL);
     console.log("VITE_ENV= " + import.meta.env.VITE_ENV);
   // make a request to the backend and include cookies for authentication
-  fetch("https://api.planit-travel.me/auth/login/details", { credentials: "include" })
+fetch(import.meta.env.VITE_ENV === 'production' ? "https://api.planit-travel.me/auth/login/details" : "https://localhost:3000", { credentials: "include" })
     .then((res) => res.json())
 
     // convert the server response into a javascript object
@@ -31,7 +31,7 @@ useEffect(() => {
 
 
 useEffect(() => {
-  fetch("https://api.planit-travel.me/auth/user/trips", { credentials: "include" })
+  fetch(import.meta.env.VITE_ENV === 'production' ? "https://api.planit-travel.me/auth/user/trips" : "https://localhost:3000", { credentials: "include" })
     .then((res) => res.json())
     .then((data) => {
       if (data.loggedIn === false) return;
