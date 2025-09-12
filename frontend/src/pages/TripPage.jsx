@@ -10,7 +10,7 @@ export default function TripPage() {
 // run this code when the component first loads
 useEffect(() => {
   // make a request to the backend and include cookies for authentication
-  fetch("http://localhost:3000/auth/login/details", { credentials: "include" })
+  fetch("https://api.planit-travel.me/auth/login/details", { credentials: "include" })
     .then((res) => res.json())
 
     // convert the server response into a javascript object
@@ -28,7 +28,7 @@ useEffect(() => {
 
 
 useEffect(() => {
-  fetch("http://localhost:3000/auth/user/trips", { credentials: "include" })
+  fetch("https://api.planit-travel.me/auth/user/trips", { credentials: "include" })
     .then((res) => res.json())
     .then((data) => {
       if (data.loggedIn === false) return;
