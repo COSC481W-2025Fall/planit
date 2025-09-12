@@ -11,6 +11,7 @@ export default function TripPage() {
 useEffect(() => {
     console.log("VITE_FRONTEND_URL= " + import.meta.env.VITE_FRONTEND_URL);
     console.log("VITE_BACKEND_URL= " + import.meta.env.VITE_BACKEND_URL);
+    console.log("VITE_ENV= " + import.meta.env.VITE_ENV);
   // make a request to the backend and include cookies for authentication
   fetch("https://api.planit-travel.me/auth/login/details", { credentials: "include" })
     .then((res) => res.json())
