@@ -9,7 +9,7 @@ function App() {
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route
-        path="https://www.planit-travel.me/trip"
+        path="/trip"
         element={
           <ProtectedRoute>
             <TripPage />
