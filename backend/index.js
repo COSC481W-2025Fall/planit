@@ -40,6 +40,9 @@ app.use(passport.session());
 // use auth routes
 app.use("/auth", authRoutes);
 
+// health check
+app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
+
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });
