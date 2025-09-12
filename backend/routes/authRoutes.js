@@ -28,8 +28,8 @@ router.get("/user/trips",
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    successRedirect: "http://localhost:5173/trip",
-    failureRedirect: "/auth/failure",
+    successRedirect: "https://www.planit-travel.me/trip",
+    failureRedirect: "https://www.planit-travel.me/auth/failure",
   }),
   googleCallback
 );
