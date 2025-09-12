@@ -1,5 +1,11 @@
 {
   "rewrites": [
     {"source": "/(.*)", "destination": "/index.html"}
+  ],
+  "redirects": [
+    {
+      "source": "/trip",
+      "destination": "https://www.planit-travel.me/trip"
+    }
   ]
 }
