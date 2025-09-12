@@ -33,12 +33,12 @@ html, body, #root{
 
 /*Styling for the navigation menu column on the left side of the page*/
 .navigation_menu{
-    display: block;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
 }
 
 /*Styling for each nav option, will be made into links later*/
-.nav{
+.nav_link{
     padding: 2px;
     text-align: left;
     border-bottom: 1px solid grey;
@@ -69,23 +69,31 @@ html, body, #root{
     padding-left: 2%;
 }
 
-/*Styling for the table that contains trip cards*/
+/*Styling for the table that contains trip cards, made with grid to accomodate many trip cards. 4 columns, 3 rows*/
 .trip_cards {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
     gap: 10px;
     padding: 10px;
 }
 
 /*Styling for each individual trip card*/
-.trip {
-    width: 18%;
-    height: 24%;
+.trip_card {
     background: lightgrey;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    border: 2px solid grey;
     border-radius: 6px;
+}
+
+.trip_card_title
+{
+    font-size: 18px;
+    font-weight: bold;
+    text-align: left;
 }
 
 /*Styling for buttons*/
@@ -101,10 +109,18 @@ html, body, #root{
 }
 
 .pfp{
-    margin-left: 50%;
-    margin-right: 3%;
+    place-self: center;
+    height: 50%;
     border: none;
     border-radius: 50%;
+}
+
+/*.pfp{
+    place-self: center;
+}*/
+
+.sign_out{
+    place-self: center;
 }
 
 button:hover {
