@@ -6,23 +6,19 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import TestPage from "./pages/TestPage.jsx";
 
 function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<LoginPage />} />
-      <Route
-        path="/trip"
-        element={
-          <ProtectedRoute>
-            <TripPage />
-          </ProtectedRoute>
-        }
-      />
-        <Route
-            path="/testPage"
-            element={<TestPage />}
-        />
-    </Routes>
-  );
+    return (
+        <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route
+                path="/trip"
+                element={
+                    <ProtectedRoute>
+                        <TripPage />
+                    </ProtectedRoute>
+                }
+            />
+        </Routes>
+    );
 }
 
 export default App;

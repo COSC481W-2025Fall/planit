@@ -48,9 +48,6 @@ app.use("/auth", authRoutes);
 // health check
 app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
 
-// test check for deployment demonstration
-app.get("/test", (_req, res) => res.json({ ok: true, message: "Hello World" }));
-
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });
