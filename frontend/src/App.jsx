@@ -17,10 +17,10 @@ function App() {
           </ProtectedRoute>
         }
       />
-        <Route
-            path="/testPage"
-            element={<TestPage />}
-        />
+        {/*<Route*/}
+        {/*    path="/testPage"*/}
+        {/*    element={<TestPage />}*/}
+        {/*/>*/}
     </Routes>
   );
 }
