@@ -1,5 +1,5 @@
 ---
-name: PBI
+name: "[PBI]: "
 about: PBI item template
 title: PBI
 labels: ''
