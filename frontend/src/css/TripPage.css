@@ -1,0 +1,132 @@
+/*Styling to make the app take up the entire page*/
+html, body, #root{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.name{
+    color: blue;
+    padding-left: 3%;
+    font-size: 42px;
+}
+
+/*Styling to make the trip_page take up the rest of the height*/
+.trip_page{
+    height: 100%;
+}
+
+/*Styling to format the main_content into a two column grid*/
+.main_content {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    height: 100%;
+}
+
+/*Styling for the top banner of the page*/
+.top_banner{
+    display: grid;
+    grid-template-columns: 85% 7% 8%;
+    background-color: lightgrey;
+}
+
+/*Styling for the navigation menu column on the left side of the page*/
+.navigation_menu{
+    display: flex;
+    flex-direction: column;
+}
+
+/*Styling for each nav option, will be made into links later*/
+.nav_link{
+    padding: 2px;
+    text-align: left;
+    border-bottom: 1px solid grey;
+}
+
+/*Styling for the "My Trips" section of the page*/
+.my_trips{
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    padding: 10px;
+    gap: 10px;
+    border-left: 1px solid grey;
+}
+
+/*Styling for the My Trips banner*/
+.my_trips_banner {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+}
+
+/*Styling for "My Trips" banner title*/
+.trips_title{
+    font-size: 24px;
+    font-weight: bold;
+    padding-top: 1%;
+    padding-left: 2%;
+}
+
+/*Styling for the table that contains trip cards, made with grid to accomodate many trip cards. 4 columns, 3 rows*/
+.trip_cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 10px;
+}
+
+/*Styling for each individual trip card*/
+.trip_card {
+    background: lightgrey;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid grey;
+    border-radius: 6px;
+}
+
+.trip_card_title
+{
+    font-size: 18px;
+    font-weight: bold;
+    text-align: left;
+}
+
+/*Styling for buttons*/
+.new_trip_button, .sort_button{
+    background-color: lightgrey;
+    border: none;
+    padding: 15px 30px;
+    text-align: center;
+    display: inline-block;
+    border-radius: 32px;
+    margin-right: 5%;
+    white-space: nowrap;
+}
+
+.pfp{
+    place-self: center;
+    height: 50%;
+    border: none;
+    border-radius: 50%;
+}
+
+/*.pfp{
+    place-self: center;
+}*/
+
+.sign_out{
+    place-self: center;
+}
+
+button:hover {
+    background: lightblue;
+}
+
+button:active {
+    background: blue;
+}
