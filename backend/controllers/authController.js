@@ -27,7 +27,7 @@ export const fetchUserTrips = async (req, res) => {
     const trips = await sql`
       SELECT *
       FROM trips
-      WHERE id = ${userId}
+      WHERE user_id = ${userId}
     `
 
     res.json({ loggedIn: true, trips: trips });
