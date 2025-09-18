@@ -1,0 +1,71 @@
+/* ---------- Sidebar (NavBar) ---------- */
+.sidebar {
+    width: 240px;
+    min-height: 100%;
+    background: var(--bg-surface, #ffffff);
+    border-right: 1px solid var(--border, #e5e7eb);
+    padding: 16px 12px;
+    box-sizing: border-box;
+    color: var(--text-body, #1f2937);
+    font-family: "Open Sans", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Section label ("Navigation") */
+.section_label {
+    margin: 6px 8px 10px;
+    font-size: 12px;
+    color: var(--muted, #7c8189);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Nav list */
+.nav_list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Individual nav link */
+.nav_item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text-body, #1f2937);
+    font-size: 14px;
+    border: 1px solid transparent;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+/* Hover state */
+.nav_item:hover {
+    background: var(--accent-lite, #e3ece6);
+    border-color: var(--accent-lite, #e3ece6);
+}
+
+/* Active link (green) */
+.nav_item.active {
+    background: var(--accent-lite, #e3ece6);
+    color: var(--accent, #1e7a3d);
+    font-weight: 700;
+    border-color: var(--accent, #1e7a3d);
+}
+
+/* Icons inside nav links */
+.nav_icon {
+    flex: 0 0 auto;
+    color: inherit;
+}
+
+/* Nav text */
+.nav_item span {
+    line-height: 1.2;
+    font-family: "Open Sans", sans-serif;
+}
