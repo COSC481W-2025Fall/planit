@@ -2,6 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import TripPage from "./pages/TripPage";
+import User from "./pages/UserPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="/user" element={<User />} />
     </Routes>
   );
 }
