@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import "../css/TripPage.css";
 import TopBanner from "../components/TopBanner";
 import NavBar from "../components/NavBar";
-import { useState } from "react";
-import { useEffect } from "react";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 
 export default function TripPage() {
