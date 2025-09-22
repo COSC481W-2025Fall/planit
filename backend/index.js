@@ -11,6 +11,7 @@ import { neon } from "@neondatabase/serverless";
 
 import "./auth.js";
 import authRoutes from "./routes/authRoutes.js";
+import activitiesRoutes from "./routes/activitiesRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -37,8 +38,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// use auth routes
 app.use("/auth", authRoutes);
+app.use("/activities", activitiesRoutes);
 
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
