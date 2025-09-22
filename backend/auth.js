@@ -4,11 +4,12 @@ dotenv.config();
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import {sql} from './config/db.js';
+import {VITE_BACKEND_URL, LOCAL_BACKEND_URL} from "../Constants.js";
 
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: process.env.CALLBACK_URL,
+  callbackURL: (process.env.ENVIRONMENT === "production" ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/auth/google/callback",
   passReqToCallback: true,
 },
 async function(request, accessToken, refreshToken, profile, done) {
