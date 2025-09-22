@@ -1,5 +1,5 @@
 import express from "express";
-import { searchPlaces, getNumberOfDays, addActivity } from "../controllers/activitiesController.js";
+import { searchPlaces, addActivity } from "../controllers/activitiesController.js";
 
 const router = express.Router();
 

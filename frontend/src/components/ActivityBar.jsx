@@ -134,6 +134,17 @@ export default function ActivityBar() {
                   ? `Rating: ${place.rating}`
                   : "No ratings available"}
               </p>
+                {place.websiteUri ? (
+                  <a
+                    href={place.websiteUri}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Website
+                  </a>
+                ) : (
+                  "No website available"
+                )}
               <button
                 type="button"
                 onClick={() => handleAddToTrip(place)}

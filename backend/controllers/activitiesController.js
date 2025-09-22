@@ -54,7 +54,7 @@ export const searchPlaces = async (req, res) => {
                 headers: {
                     "Content-Type": "application/json",
                     "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
-                    "X-Goog-FieldMask": "places.id,places.displayName,places.primaryType,places.priceLevel,places.addressComponents,places.photos,places.rating,places.location",
+                    "X-Goog-FieldMask": "places.id,places.displayName,places.primaryType,places.priceLevel,places.addressComponents,places.photos,places.rating,places.location,places.websiteUri",
                 },
             }
         );
