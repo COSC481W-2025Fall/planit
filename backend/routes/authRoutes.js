@@ -1,6 +1,7 @@
 import express from "express";
 import passport from "passport";
 import {googleAuth, googleCallback, authFailure , loginDetails, fetchUserTrips} from "../controllers/authController.js";
+import {LOCAL_FRONTEND_URL, VITE_FRONTEND_URL} from "../../Constants.js";
 
 const router = express.Router();
 
@@ -28,7 +29,7 @@ router.get("/user/trips",
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    successRedirect: "http://localhost:5173/trip",
+    successRedirect: (process.env.ENVIRONMENT === "production" ? VITE_FRONTEND_URL : LOCAL_FRONTEND_URL) + "/trip",
     failureRedirect: "/auth/failure",
   }),
   googleCallback
@@ -41,8 +42,6 @@ router.get("/user", (req, res) => {
     res.json({ loggedIn: false });
   }
 });
-
-
 
 // router.get("/dashboard", isLoggedIn, dashboard);
 
