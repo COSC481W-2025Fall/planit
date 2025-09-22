@@ -1,7 +1,9 @@
 /* ---------- Fonts ---------- */
+/* Import Google Fonts (Open Sans) */
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
 
 /* ---------- Theme Tokens ---------- */
+/* Reusable design tokens for colors, radius, shadows, etc. */
 :root {
     --bg-offwhite: #f5f5f5;   /* page background */
     --bg-surface:  #ffffff;   /* cards, navbar, top bar */
@@ -12,12 +14,13 @@
     --text-main:   #111827;   /* headings */
     --text-body:   #1f2937;   /* body text */
 
-    --radius: 12px;
-    --shadow-1: 0 1px 2px rgba(0,0,0,0.05);
-    --shadow-2: 0 6px 14px rgba(0,0,0,0.06);
+    --radius: 12px;           /* consistent border radius */
+    --shadow-1: 0 1px 2px rgba(0,0,0,0.05); /* small shadow */
+    --shadow-2: 0 6px 14px rgba(0,0,0,0.06); /* hover/elevated shadow */
 }
 
 /* ---------- Base ---------- */
+/* Reset + set defaults */
 html, body, #root {
     margin: 0;
     padding: 0;
@@ -44,13 +47,13 @@ body {
 /* ---------- Top Banner ---------- */
 .top_banner {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1fr auto auto; /* logo | sign out | profile photo */
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
     border-bottom: 1px solid var(--border);
     background: var(--bg-surface);
-    position: sticky;
+    position: sticky; /* keeps banner visible when scrolling */
     top: 0;
     z-index: 10;
 }
@@ -64,8 +67,8 @@ body {
 .pfp {
     height: 38px;
     width: 38px;
-    border-radius: 50%;
-    object-fit: cover;
+    border-radius: 50%;      /* circle profile photo */
+    object-fit: cover;       /* ensures correct aspect ratio */
     border: 1px solid var(--border);
     box-shadow: var(--shadow-1);
 }
@@ -95,23 +98,23 @@ body {
 
 .main_content {
     display: grid;
-    grid-template-columns: 240px 1fr; /* sidebar + main */
+    grid-template-columns: 240px 1fr; /* sidebar (240px) + main content */
     min-height: 0;
 }
 
 /* ---------- Trips Section ---------- */
 .my_trips {
     display: grid;
-    grid-template-rows: auto 1fr;
-    height: calc(100vh - 62px);
+    grid-template-rows: auto 1fr; /* header row + scrollable content */
+    height: calc(100vh - 62px);   /* full height minus banner */
     padding: 18px;
     gap: 16px;
-    overflow: auto;
+    overflow: auto; /* scroll if content overflows */
 }
 
 .my_trips_banner {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1fr auto auto; /* title | buttons */
     align-items: center;
     gap: 12px;
 }
@@ -121,13 +124,13 @@ body {
     color: var(--text-main);
 }
 
-/* Buttons */
+/* Buttons (New Trip + Sort) */
 .new_trip_button,
 .sort_button {
     background-color: var(--bg-surface);
     border: 1px solid var(--border);
     padding: 10px 16px;
-    border-radius: 999px;
+    border-radius: 999px; /* pill shape */
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
@@ -141,10 +144,10 @@ body {
 }
 .new_trip_button:active,
 .sort_button:active {
-    transform: translateY(1px);
+    transform: translateY(1px); /* pressed state */
 }
 
-/* Trip cards */
+/* Trip cards grid */
 .trip_cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -165,7 +168,7 @@ body {
 .trip_card:hover {
     box-shadow: var(--shadow-2);
     border-color: var(--accent-lite);
-    transform: translateY(-2px);
+    transform: translateY(-2px); /* subtle lift */
 }
 
 .trip_card_title {
@@ -180,9 +183,15 @@ body {
     color: var(--muted);
 }
 
-/* Optional helper */
+/* Optional helper class for accent surfaces */
 .surface-accent {
     background: var(--accent-lite);
     border: 1px solid var(--accent);
     border-radius: var(--radius);
+}
+
+/* Logo in top banner */
+.logo {
+    height: 40px;       /* controls logo height */
+    object-fit: contain; /* keeps aspect ratio */
 }
