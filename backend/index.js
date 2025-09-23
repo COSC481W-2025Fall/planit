@@ -22,7 +22,12 @@ const sql = neon(process.env.DATABASE_URL);
 // middleware
 app.use(express.json());
 app.use(cors({
-  origin: "http://localhost:5173",
+    origin: [
+        "http://localhost:5173",
+        "https://app.planit-travel.me",
+        "https://www.planit-travel.me",
+        "https://planit-travel.me"
+    ],
   credentials: true
 }));
 app.use(helmet());
@@ -48,6 +53,8 @@ app.use("/auth", authRoutes);
 
 // user routes
 app.use("/user", userRoutes);
+
+app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
 
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);

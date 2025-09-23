@@ -1,7 +1,5 @@
-/* This controller class contains four functions that handle creating username, modifying all fields in the user table,
+/* This controller class contains four functions that handle creating username, updating all fields in the user table,
 and deleting a users account.
-For users in the database. This code uses sql`` to interact with the database.
-This code uses async/await for asynchronous operations and try/catch for error handling.
 */
 import {sql} from "../config/db.js";
 
@@ -13,9 +11,15 @@ export const createUsername = async (req, res) => {
             UPDATE users
             SET username = ${createUsername}
             WHERE user_id = ${userId}
+            AND username IS NULL
             RETURNING *
         `
-        res.json("Username created successfully");
+        // If no rows were updated, it means the username already exists, send an error response
+        if (result.length === 0) {
+            return res.status(400).json({ error: "Username already exists" });
+        }
+        else
+          res.json("Username created successfully");
     } 
     catch (err) {
         console.log(err);
@@ -24,7 +28,7 @@ export const createUsername = async (req, res) => {
 };
 
 //This function handles the modification of the four desired fields in the user table.
-export const modifyUser = async (req, res) => {
+export const updateUser = async (req, res) => {
   try {
     const { userId, field, value } = req.body;
 
@@ -90,7 +94,7 @@ export const readUser = async (req, res) => {
     const userId = req.user.user_id;
 
     const result = await sql`
-    SELECT user_id, first_name, last_name, username, email
+    SELECT first_name, last_name, username, email
     FROM users
     WHERE user_id = ${userId}
     `;

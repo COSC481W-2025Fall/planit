@@ -2,6 +2,7 @@ import React from "react";
 import "../css/TripPage.css";
 import { useState } from "react";
 import { useEffect } from "react";
+import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 
 export default function TripPage() {
   const [user, setUser] = useState(null);
@@ -10,7 +11,7 @@ export default function TripPage() {
 // run this code when the component first loads
 useEffect(() => {
   // make a request to the backend and include cookies for authentication
-  fetch("http://localhost:3000/auth/login/details", { credentials: "include" })
+  fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/auth/login/details", { credentials: "include" })
     .then((res) => res.json())
 
     // convert the server response into a javascript object
@@ -28,7 +29,7 @@ useEffect(() => {
 
 
 useEffect(() => {
-  fetch("http://localhost:3000/auth/user/trips", { credentials: "include" })
+  fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/auth/user/trips", { credentials: "include" })
     .then((res) => res.json())
     .then((data) => {
       if (data.loggedIn === false) return;
