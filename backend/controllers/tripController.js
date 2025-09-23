@@ -120,7 +120,7 @@ export const readTrip = async (req, res) => {
         const result = await sql`
             SELECT *
             FROM trips
-            WHERE trips_id = ${trips_id}
+            WHERE trips_id = ${trips_id} AND user_id = ${req.user.user_id}
         `;
 
         if (result.length === 0){
