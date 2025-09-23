@@ -61,3 +61,69 @@ export const createDay = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+export const updateDay = async (req, res) => {
+    if (!req.trip) {
+        return res.status(400).json({ error: "Trip ID is required" });
+    }
+
+    const tripId = req.trip.id;
+    const dayId = req.params.id;
+    const date = String(req.body?.date);
+    const dayNumber = toInt(req.body?.day_number);
+
+    if (!isISODate(date)) {
+        return res.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
+    }
+
+    if (isNaN(dayNumber) || dayNumber <= 0) {
+        return res.status(400).json({ error: "day_number must be a positive integer" });
+    }
+
+    try {
+        const rows = await sql`
+            UPDATE days
+            SET date = ${date}, day_number = ${dayNumber}
+            WHERE id = ${dayId} AND trip_id = ${tripId}
+            RETURNING id, trip_id, date, day_number, created_at, updated_at
+        `;
+        if (rows.length === 0) {
+            return res.status(404).json({ error: "Day not found" });
+        }
+        res.json(rows[0]);
+    } catch (err) {
+        if (err.code === "23505") { // unique_violation
+            return res.status(409).json({ error: "A day with this date or day_number already exists for the trip" });
+        }
+
+        if (err.code === "23503") { // foreign_key_violation
+            return res.status(400).json({ error: "Invalid trip_id" });
+        }
+
+        console.error(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+export const deleteDay = async (req, res) => {
+    if (!req.trip) {
+        return res.status(400).json({ error: "Trip ID is required" });
+    }
+
+    const tripId = req.trip.id;
+    const dayId = req.params.id;
+    try {
+        const result = await sql`
+            DELETE FROM days
+            WHERE id = ${dayId} AND trip_id = ${tripId}
+            RETURNING id
+        `;
+        if (result.length === 0) {
+            return res.status(404).json({ error: "Day not found" });
+        }
+        res.status(204).send();
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
