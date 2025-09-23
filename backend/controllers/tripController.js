@@ -123,8 +123,9 @@ export const readTrip = async (req, res) => {
             WHERE trips_id = ${trips_id}
         `;
 
-        if (result.length === 0)
+        if (result.length === 0){
             return res.status(404).json({ error: "Trip not found, read unsuccessful" });
+        }
 
         res.json(result[0]);
     }
@@ -153,7 +154,9 @@ export const deleteTrip = async (req, res) => {
         `;
 
         if (result.length === 0)
+        {
             return res.status(404).json({ error: "Trip not found, delete unsuccessful" });
+        }
 
         res.json("Trip deleted.");
     }
