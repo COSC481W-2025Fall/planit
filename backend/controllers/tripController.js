@@ -7,19 +7,19 @@ import {sql} from "../config/db.js";
 
 //This function handles the creation of a trip.
 export const createTrip = async (req, res) => {
+    if (!req.user) return res.status(401).json({ loggedIn: false });
+
+    // Extract all required fields from the request body
+    const { days, tripName, tripStartDate, tripEndDate, tripLocation } = req.body;
+
+    // Get userId from the authenticated user in the request
+    const userId = req.user.user_id;
+
+    if (!userId === undefined) {
+        return res.status(400).json({ error: "userId is required, creation unsuccessful" });
+    }
+
     try {
-        if (!req.user) return res.status(401).json({ loggedIn: false });
-
-        // Extract all required fields from the request body
-        const { days, tripName, tripStartDate, tripEndDate, tripLocation } = req.body;
-
-        // Get userId from the authenticated user in the request
-        const userId = req.user.user_id;
-
-        if (!userId === undefined) {
-            return res.status(400).json({ error: "userId is required" });
-        }
-
         const result = await sql`
             INSERT INTO trips (days, trip_name, user_id, trip_start_date, trip_end_date, trip_location)
             VALUES (${days}, ${tripName}, ${userId}, ${tripStartDate}, ${tripEndDate}, ${tripLocation})
@@ -34,64 +34,81 @@ export const createTrip = async (req, res) => {
     }
 };
 
-//This function handles the modification of the four desired fields in the user table.
-// export const modifyUser = async (req, res) => {
-//     try {
-//         const { userId, field, value } = req.body;
-//
-//         if (!userId || !field || value === undefined) {
-//             return res.status(400).json({ error: "userId, field, and value are required" });
-//         }
-//
-//         // Use switch statement to form SQL statement dependent on field variable.
-//         let result;
-//         switch (field) {
-//             case "first_name":
-//                 result = await sql`
-//           UPDATE users
-//           SET first_name = ${value}
-//           WHERE user_id = ${userId}
-//           RETURNING *
-//         `;
-//                 break;
-//
-//             case "last_name":
-//                 result = await sql`
-//           UPDATE users
-//           SET last_name = ${value}
-//           WHERE user_id = ${userId}
-//           RETURNING *
-//         `;
-//                 break;
-//
-//             case "username":
-//                 result = await sql`
-//           UPDATE users
-//           SET username = ${value}
-//           WHERE user_id = ${userId}
-//           RETURNING *
-//         `;
-//                 break;
-//
-//             case "email":
-//                 result = await sql`
-//           UPDATE users
-//           SET email = ${value}
-//           WHERE user_id = ${userId}
-//           RETURNING *
-//         `;
-//                 break;
-//
-//             default:
-//                 return res.status(400).json({ error: "Invalid field" });
-//         }
-//     }
-//     catch (err) {
-//         console.log(err);
-//         return res.status(500).json({ error: "Internal Server Error" });
-//     }
-// };
+//This function handles the modification of all fields related to a trip.
+export const modifyTrip = async (req, res) => {
+    if (!req.user) return res.status(401).json({ loggedIn: false });
+    const { trips_id, days, tripName, tripStartDate, tripEndDate, tripLocation } = req.body;
+    const userId = req.user.user_id;
 
+    if (!userId || trips_id === undefined) {
+        return res.status(400).json({ error: "userId and trips_id are required, update unsuccessful" });
+    }
+
+    try {
+        // Build update fields and values arrays
+        const updates = [];
+        const values = [];
+        let paramCount = 1;
+
+        if (days !== undefined) {
+            updates.push(`days = $${paramCount}`);
+            values.push(days);
+            paramCount++;
+        }
+        if (tripName !== undefined) {
+            updates.push(`trip_name = $${paramCount}`);
+            values.push(tripName);
+            paramCount++;
+        }
+        if (tripStartDate !== undefined) {
+            updates.push(`trip_start_date = $${paramCount}`);
+            values.push(tripStartDate);
+            paramCount++;
+        }
+        if (tripEndDate !== undefined) {
+            updates.push(`trip_end_date = $${paramCount}`);
+            values.push(tripEndDate);
+            paramCount++;
+        }
+        if (tripLocation !== undefined) {
+            updates.push(`trip_location = $${paramCount}`);
+            values.push(tripLocation);
+            paramCount++;
+        }
+
+        if (updates.length === 0) {
+            return res.status(400).json({ error: "No fields to update, update unsuccessful" });
+        }
+
+        // Add the WHERE clause parameters for trips_id and userId
+        values.push(trips_id);
+        values.push(userId);
+
+        const query = `
+            UPDATE trips 
+            SET ${updates.join(', ')} 
+            WHERE trips_id = $${paramCount} 
+            AND user_id = $${paramCount + 1}
+            RETURNING *
+        `;
+
+        await sql.query(query, values);
+
+        const tripExists = await sql`
+        SELECT 1 FROM trips WHERE trips_id = ${trips_id}
+    `;
+
+        if (tripExists.length === 0) {
+            return res.status(404).json({ error: "Trip not found, update unsuccessful" });
+        }
+
+        res.json("Trip updated.");
+    }
+    catch (err) {
+        console.log("Error updating trip: " + err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
 
 //This function reads the information in the trips table for a specific trip.
 export const readTrip = async (req, res) => {
@@ -107,13 +124,13 @@ export const readTrip = async (req, res) => {
         `;
 
         if (result.length === 0)
-            return res.status(404).json({ error: "Trip not found" });
+            return res.status(404).json({ error: "Trip not found, read unsuccessful" });
 
         res.json(result[0]);
     }
     catch (err) {
         console.error("Error reading trip:", err);
-        res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -122,11 +139,10 @@ export const readTrip = async (req, res) => {
 export const deleteTrip = async (req, res) => {
     if (!req.user) return res.status(401).json({ loggedIn: false });
     const { trips_id } = req.body;
-
     const userId = req.user.user_id;
 
     if (!userId === undefined) {
-        return res.status(400).json({ error: "userId is required" });
+        return res.status(400).json({ error: "userId is required, delete unsuccessful" });
     }
 
     try {
@@ -137,12 +153,12 @@ export const deleteTrip = async (req, res) => {
         `;
 
         if (result.length === 0)
-            return res.status(404).json({ error: "Trip not found" });
+            return res.status(404).json({ error: "Trip not found, delete unsuccessful" });
 
         res.json("Trip deleted.");
     }
     catch (err) {
         console.error("Error deleting trip:", err);
-        res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
