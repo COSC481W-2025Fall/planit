@@ -26,7 +26,7 @@ export const createTrip = async (req, res) => {
                 RETURNING *
         `;
 
-        res.json("Trip created successfully");
+        res.json("Trip created.");
     }
     catch (err) {
         console.log("Error creating trip:", err);
@@ -98,13 +98,13 @@ export const readTrip = async (req, res) => {
     if (!req.user) return res.status(401).json({ loggedIn: false });
 
     try {
-        const tripId = req.params.tripId;
+        const trips_id = req.params.tripId;
 
         const result = await sql`
-    SELECT *
-    FROM trips
-    WHERE trips_id = ${tripId}
-    `;
+            SELECT *
+            FROM trips
+            WHERE trips_id = ${trips_id}
+        `;
 
         if (result.length === 0)
             return res.status(404).json({ error: "Trip not found" });
@@ -117,26 +117,32 @@ export const readTrip = async (req, res) => {
     }
 };
 
-// //This function handles the complete deletion of a user.
-// export const deleteUser = async (req, res) => {
-//     if (!req.user) return res.status(401).json({ loggedIn: false });
-//
-//     try {
-//         const userId = req.user.user_id;
-//
-//         const result = await sql`
-//     DELETE FROM users
-//     WHERE user_id = ${userId}
-//     RETURNING *
-//     `;
-//
-//         if (result.length === 0)
-//             return res.status(404).json({ error: "User not found" });
-//
-//         res.json({ loggedIn: false, message: "User deleted" });
-//     }
-//     catch (err) {
-//         console.error("Error deleting user:", err);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// };
+//This function handles the complete deletion of a trip.
+// Does not allow deletion of trip if user does not own it.
+export const deleteTrip = async (req, res) => {
+    if (!req.user) return res.status(401).json({ loggedIn: false });
+    const { trips_id } = req.body;
+
+    const userId = req.user.user_id;
+
+    if (!userId === undefined) {
+        return res.status(400).json({ error: "userId is required" });
+    }
+
+    try {
+        const result = await sql`
+            DELETE FROM trips
+            WHERE trips_id = ${trips_id} AND user_id = ${userId}
+                RETURNING *
+        `;
+
+        if (result.length === 0)
+            return res.status(404).json({ error: "Trip not found" });
+
+        res.json("Trip deleted.");
+    }
+    catch (err) {
+        console.error("Error deleting trip:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
