@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 import "../css/ActivityAutoComplete.css";
 
 const DAYS = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
 
 export default function ActivityBar() {
+  const { tripId } = useParams();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [selectedDay, setSelectedDay] = useState("");
@@ -62,7 +64,7 @@ export default function ActivityBar() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/activities/search",
+        "http://localhost:3000/activities/read",
         { query }
       );
       setResults(res.data.results || []);
@@ -77,8 +79,8 @@ export default function ActivityBar() {
     try {
       if (!selectedDay) return;
       const dayNumber = parseInt(selectedDay.replace("Day ", ""), 10);
-      await axios.post("http://localhost:3000/activities/add", {
-        tripId: 7,
+      await axios.post("http://localhost:3000/activities/create", {
+        tripId,
         day: selectedDay,
         activity: {
           name: place.displayName?.text,

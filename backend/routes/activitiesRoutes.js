@@ -1,12 +1,10 @@
 import express from "express";
-import { searchPlaces, addActivity } from "../controllers/activitiesController.js";
+import { searchPlaces, addActivity, deleteActivity } from "../controllers/activitiesController.js";
 
 const router = express.Router();
 
-router.post("/search", searchPlaces);
-// router.get("/details", getPlaceDetails);
-router.post("/add", addActivity);
-// router.get("/get/number/of/days" , getNumberOfDays);
-// router.post("/", saveActivity);
+router.post("/read", searchPlaces);
+router.delete("/delete", deleteActivity);
+router.post("/create", addActivity);
 
 export default router;

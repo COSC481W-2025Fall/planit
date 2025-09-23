@@ -12,13 +12,47 @@ const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
 //     res.status(500).json({ error: err.message });
 //   }
 // };
+export const deleteActivity = async (req, res) => 
+  {
+  try 
+  {
+    const { activityId } = req.body;
 
-export const addActivity = async (req, res) => {
-  try {
+    if (!activityId || isNaN(activityId))
+    {
+    return res.status(400).json({ error: "Invalid activityId" });
+    }
+
+
+    if (!activityId) 
+    {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    await sql`
+      DELETE FROM activities WHERE id = ${activityId};
+    `;
+
+    res.json(
+    {
+      message: "Activity deleted successfully",
+    });
+  } catch (err) 
+  {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const addActivity = async (req, res) => 
+  {
+  try 
+  {
     const { day, activity } = req.body;
     const { name, address, type, priceLevel, rating, longitude, latitude } = activity;
 
-    if (!day || !activity) {
+    if (!day || !activity) 
+    {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -28,19 +62,23 @@ export const addActivity = async (req, res) => {
       RETURNING *;
     `;
 
-    res.json({
+    res.json(
+    {
       message: "Activity added successfully",
       activity: newActivity[0],
     });
-  } catch (err) {
+  } catch (err) 
+  {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
 };
 
 
-export const searchPlaces = async (req, res) => {
-    try {
+export const searchPlaces = async (req, res) => 
+  {
+    try 
+    {
         const { query } = req.body;
 
         const url = "https://places.googleapis.com/v1/places:searchText";
@@ -61,7 +99,8 @@ export const searchPlaces = async (req, res) => {
 
         res.json({ results: data.places || [] });
     }
-    catch(err) {
+    catch(err) 
+    {
         console.error(err);
         res.status(500).json({ error: err.message });
     }
