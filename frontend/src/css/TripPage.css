@@ -1,138 +1,46 @@
-/* ---------- Fonts ---------- */
-/* Import Google Fonts (Open Sans) */
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
-
-/* ---------- Theme Tokens ---------- */
-/* Reusable design tokens for colors, radius, shadows, etc. */
-:root {
-    --bg-offwhite: #f5f5f5;   /* page background */
-    --bg-surface:  #ffffff;   /* cards, navbar, top bar */
-    --accent:      #1e7a3d;   /* brand green */
-    --accent-lite: #e3ece6;   /* lighter accent */
-    --muted:       #7c8189;   /* secondary text */
-    --border:      #e5e7eb;   /* light gray borders */
-    --text-main:   #111827;   /* headings */
-    --text-body:   #1f2937;   /* body text */
-
-    --radius: 12px;           /* consistent border radius */
-    --shadow-1: 0 1px 2px rgba(0,0,0,0.05); /* small shadow */
-    --shadow-2: 0 6px 14px rgba(0,0,0,0.06); /* hover/elevated shadow */
-}
-
-/* ---------- Base ---------- */
-/* Reset + set defaults */
-html, body, #root {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    background: var(--bg-offwhite);
-}
-
-body {
-    font-family: "Open Sans", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    color: var(--text-body);
-}
-
-* { box-sizing: border-box; }
-
-/* Utility class for headings/PlanIt wordmark */
-.tahoma,
-.name,
-.trips_title {
-    font-family: Tahoma, Geneva, Verdana, sans-serif;
-    font-weight: 700;
-}
-
-/* ---------- Top Banner ---------- */
-.top_banner {
-    display: grid;
-    grid-template-columns: 1fr auto auto; /* logo | sign out | profile photo */
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-surface);
-    position: sticky; /* keeps banner visible when scrolling */
-    top: 0;
-    z-index: 10;
-}
-
-.name {
-    font-size: 22px;
-    color: var(--accent);
-    letter-spacing: 0.2px;
-}
-
-.pfp {
-    height: 38px;
-    width: 38px;
-    border-radius: 50%;      /* circle profile photo */
-    object-fit: cover;       /* ensures correct aspect ratio */
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-1);
-}
-
-.sign_out {
-    padding: 8px 14px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--bg-surface);
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
-}
-.sign_out:hover {
-    background: var(--accent-lite);
-    border-color: var(--accent);
-    color: var(--accent);
-}
-
-/* ---------- Layout ---------- */
 .trip_page {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    min-height: 100dvh;  /* dynamic viewport for mobile browser chrome */
     background: var(--bg-offwhite);
 }
 
 .main_content {
     display: grid;
-    grid-template-columns: 240px 1fr; /* sidebar (240px) + main content */
+    grid-template-columns: var(--sidebar-w) 1fr;
     min-height: 0;
 }
 
-/* ---------- Trips Section ---------- */
 .my_trips {
     display: grid;
-    grid-template-rows: auto 1fr; /* header row + scrollable content */
-    height: calc(100vh - 62px);   /* full height minus banner */
-    padding: 18px;
-    gap: 16px;
-    overflow: auto; /* scroll if content overflows */
+    grid-template-rows: auto 1fr;
+    height: calc(100dvh - var(--topbar-h));
+    padding: 1.125rem;
+    gap: 1rem;
+    overflow: auto;
+    background: transparent;
 }
 
 .my_trips_banner {
     display: grid;
-    grid-template-columns: 1fr auto auto; /* title | buttons */
+    grid-template-columns: 1fr auto auto;
     align-items: center;
-    gap: 12px;
+    gap: 0.75rem;
 }
 
 .trips_title {
-    font-size: 24px;
-    color: var(--text-main);
+    font-size: clamp(1.25rem, 1.5vw, 1.5rem);
+    color: var(--text);
 }
 
-/* Buttons (New Trip + Sort) */
 .new_trip_button,
 .sort_button {
     background-color: var(--bg-surface);
     border: 1px solid var(--border);
-    padding: 10px 16px;
-    border-radius: 999px; /* pill shape */
+    padding: 0.625rem 1rem;
+    border-radius: 999px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 600;
     transition: background 120ms ease, color 120ms ease, border-color 120ms ease, transform 60ms ease;
 }
@@ -144,54 +52,46 @@ body {
 }
 .new_trip_button:active,
 .sort_button:active {
-    transform: translateY(1px); /* pressed state */
+    transform: translateY(0.0625rem);
 }
 
-/* Trip cards grid */
 .trip_cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); /* 240px -> 15rem */
+    gap: 1rem;
 }
 
 .trip_card {
     background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 16px;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0.375rem;
     box-shadow: var(--shadow-1);
     transition: box-shadow 140ms ease, transform 120ms ease, border-color 120ms ease;
 }
 .trip_card:hover {
     box-shadow: var(--shadow-2);
     border-color: var(--accent-lite);
-    transform: translateY(-2px); /* subtle lift */
+    transform: translateY(-0.125rem);
 }
 
 .trip_card_title {
     font-family: Tahoma, Geneva, Verdana, sans-serif;
     font-weight: 700;
-    font-size: 17px;
-    color: var(--text-main);
+    font-size: 1.0625rem;
+    color: var(--text);
 }
 
 .trip_card_days {
-    font-size: 13px;
+    font-size: 0.8125rem;
     color: var(--muted);
 }
 
-/* Optional helper class for accent surfaces */
 .surface-accent {
     background: var(--accent-lite);
     border: 1px solid var(--accent);
     border-radius: var(--radius);
-}
-
-/* Logo in top banner */
-.logo {
-    height: 40px;       /* controls logo height */
-    object-fit: contain; /* keeps aspect ratio */
 }
