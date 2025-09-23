@@ -64,7 +64,7 @@ export default function ActivityBar() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/activities/read",
+        "http://localhost:3000/placesAPI/search",
         { query }
       );
       setResults(res.data.results || []);
