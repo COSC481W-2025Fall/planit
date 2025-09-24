@@ -6,7 +6,8 @@ import gLogo from "../assets/google-g-logo.webp";
 export default function LoginPage() {
   const handleLogin = () => {
     // redirect to the backend route that starts the Google OAuth2 flow
-    window.location.href = "http://localhost:3000/auth/google";
+       window.location.href = "http://localhost:3000/auth/google";
+
   };
 
   return (

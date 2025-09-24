@@ -31,7 +31,7 @@ html, body {
   color: black;
   font-size: 25px;
   font-family: Tahoma, sans-serif;
-  margin-top: 25px;
+  margin-top: 15px;
   margin-bottom: 5px;
 }
 .header-container p {
@@ -93,7 +93,7 @@ html, body {
 
 /* PlanIt logo image */
 .logo {
-  width: 125px;
+  width: 150px;
   height: auto;
 }
 
