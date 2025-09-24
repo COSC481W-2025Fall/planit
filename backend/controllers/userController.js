@@ -16,7 +16,7 @@ export const createUsername = async (req, res) => {
         `
         // If no rows were updated, it means the username already exists, send an error response
         if (result.length === 0) {
-            return res.status(400).json({ error: "Username already exists" });
+            return res.status(400).json({ error: "User already has a username" });
         }
         else
           res.json("Username created successfully");
@@ -27,7 +27,7 @@ export const createUsername = async (req, res) => {
     }
 };
 
-//This function handles the modification of the four desired fields in the user table.
+//This function handles the modification of the three desired fields in the user table.
 export const updateUser = async (req, res) => {
   try {
     const { userId, field, value } = req.body;
@@ -61,15 +61,6 @@ export const updateUser = async (req, res) => {
         result = await sql`
           UPDATE users
           SET username = ${value}
-          WHERE user_id = ${userId}
-          RETURNING *
-        `;
-        break;
-
-      case "email":
-        result = await sql`
-          UPDATE users
-          SET email = ${value}
           WHERE user_id = ${userId}
           RETURNING *
         `;

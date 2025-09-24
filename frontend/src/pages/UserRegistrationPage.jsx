@@ -20,7 +20,6 @@ export default function UserRegistrationPage() {
     const [firstname, setFirstname] = useState(user?.first_name || "");
     const [lastname, setLastname] = useState(user?.last_name || "");
     const [modifyUsername, setModifyUsername] = useState(user?.username || "");
-    const [email, setEmail] = useState(user?.email || "");
 
     // run this code when the component first loads
     // useEffect hook to fetch user info to see if user is logged in
@@ -53,7 +52,10 @@ export default function UserRegistrationPage() {
 
         const response = await fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + `/user/${endpoint}`, options)
         const data = await response.json();
-
+        
+        //error handling if 400 or 500 response
+        if (!response.ok)
+            console.error(data.error);
         if (data.user) setUser(data.user);
             return data;
     };
@@ -92,13 +94,6 @@ export default function UserRegistrationPage() {
             <strong>Modify Username Here</strong>
             <div><input type="text" placeholder="Modify username" value={modifyUsername} onChange={(e) => setModifyUsername(e.target.value)}/></div>
             <div><button onClick={async() => await sendRequest("update", "PUT", { userId: user.user_id, field: "username", value: modifyUsername })}>Modify username</button></div>
-        </div>
-
-        {/* Modify email */}
-        <div>
-            <strong>Modify Email Here</strong>
-            <div><input type="text" placeholder="Modify email" value={email} onChange={(e) => setEmail(e.target.value)}/></div>
-            <div><button onClick={async() => await sendRequest("update", "PUT", { userId: user.user_id, field: "email", value: email })}>Modify email</button></div>
         </div>
 
         {/* Read user info*/}
