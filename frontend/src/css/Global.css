@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
 
 :root {
-    --bg-offwhite: rgb(245, 245, 245);
+    --bg-offwhite: #f5f5f5;
     --bg-surface: #ffffff;
     --accent: #1e7a3d;
     --accent-lite: #e3ece6;
