@@ -1,7 +1,4 @@
 import {sql} from "../config/db.js";
-// export const home = (req, res) => {
-//   res.send('<a href="/auth/google">Authenticate with Google</a>');
-// };
 
 export const googleAuth = (req, res, next) => {
   // This route is only used to trigger passport.authenticate,

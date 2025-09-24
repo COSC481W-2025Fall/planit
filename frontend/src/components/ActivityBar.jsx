@@ -93,26 +93,6 @@ export default function ActivityBar() {
     }
   };
 
-  const handleAddToTrip = async (place) => {
-    if (!selectedDay) return;
-    try {
-      await axios.post("http://localhost:3000/activities/create", {
-        tripId,
-        day: selectedDay,
-        activity: {
-          name: place.displayName?.text,
-          address: getLocationString(place),
-          type: formatType(place.primaryType),
-          priceLevel: priceLevelDisplay(place.priceLevel),
-          longitude: place.location?.longitude,
-          latitude: place.location?.latitude,
-          rating: place.rating,
-        },
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -182,13 +162,6 @@ export default function ActivityBar() {
               ) : (
                 "No website available"
               )}
-              <button
-                type="button"
-                onClick={() => handleAddToTrip(place)}
-                disabled={!selectedDay}
-              >
-                {selectedDay ? `Add to ${selectedDay}` : "Select a day first"}
-              </button>
             </li>
           ))}
         </ul>
