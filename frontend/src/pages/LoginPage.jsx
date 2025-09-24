@@ -2,12 +2,12 @@ import React from "react";
 import "../css/LoginPage.css";
 import logo from "../assets/Planit_Full_Green.png";
 import gLogo from "../assets/google-g-logo.webp";
+import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 
 export default function LoginPage() {
   const handleLogin = () => {
     // redirect to the backend route that starts the Google OAuth2 flow
-       window.location.href = "http://localhost:3000/auth/google";
-
+    window.location.href = (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/auth/google";
   };
 
   return (
