@@ -1,10 +1,44 @@
 import {sql} from "../config/db.js";
 import axios from "axios";
 const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+
+export const findCityAutocomplete = async (req, res) => {
+  try {
+    const { query } = req.body;
+
+    if (!query || query.trim().length === 0) {
+      return res.status(400).json({ error: "Query must not be empty" });
+    }
+
+    const url = "https://places.googleapis.com/v1/places:autocomplete";
+
+    const { data } = await axios.post(
+      url,
+      {
+        input: query,
+        includedPrimaryTypes: ["(cities)"],
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": process.env.GOOGLE_PLACES_API_KEY,
+        },
+      }
+    );
+
+    res.json({ result: data });
+  } catch (err) {
+    console.error("City autocomplete error:", err.response?.data || err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
 export const findPlaces = async (req, res) => 
   {
     try 
     {
+        // the value set in the search bar in the frontend was set to query *CHANGE IF NEEDED*
         const { query } = req.body;
 
         const url = "https://places.googleapis.com/v1/places:searchText";
@@ -12,6 +46,8 @@ export const findPlaces = async (req, res) =>
         const {data} = await axios.post(url, 
             {
                 textQuery: query,
+
+                // I set the results to 20, can change if needed
                 pageSize: 20,
             },
             {

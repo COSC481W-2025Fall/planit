@@ -8,7 +8,7 @@ export const deleteActivity = async (req, res) =>
   {
     const { activityId } = req.body;
 
-    if (!activityId || isNaN(activityId))
+    if (!activityId)
     {
     return res.status(400).json({ error: "Invalid activityId" });
     }
