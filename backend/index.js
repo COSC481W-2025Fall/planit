@@ -10,9 +10,7 @@ import session from "express-session";
 import { neon } from "@neondatabase/serverless";
 import "./auth.js";
 import authRoutes from "./routes/authRoutes.js";
-import activitiesRoutes from "./routes/activitiesRoutes.js";
 import placesAPIRoutes from "./routes/placesAPIRoutes.js";
-
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -45,7 +43,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", authRoutes);
-app.use("/activities", activitiesRoutes);
 app.use("/placesAPI", placesAPIRoutes);
 
 app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
