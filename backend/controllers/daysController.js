@@ -3,7 +3,6 @@ import { sql } from "../config/db.js";
 
 // constants and helper functions to validate input
 const toInt = (x) => Number.parseInt(x, 10);
-const isISODate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(String(s));
 
 // read all days for a specific trip
 export const readDays = async (req, res) => {
@@ -13,15 +12,15 @@ export const readDays = async (req, res) => {
     }
 
     // get tripId from loaded trip
-    const tripId = req.trip.id;
+    const tripId = req.trip.trips_id;
 
     // fetch days from database
     try {
         const days = await sql`
-            SELECT id, trip_id, date, day_number, created_at, updated_at
+            SELECT day_id, trip_id, day_date, day_number
             FROM days
             WHERE trip_id = ${tripId}
-            ORDER BY day_number ASC, date ASC
+            ORDER BY day_number ASC, day_date ASC NULLS LAST
         `;
         // return the list of days
         res.json(days);
@@ -39,39 +38,31 @@ export const createDay = async (req, res) => {
     }
     
     // get tripId from loaded trip
-    const tripId = req.trip.id;
+    const tripId = req.trip.trips_id;
     // validate input
-    const date = String (req.body?.date);
-    const dayNumber = toInt(req.body?.day_number);
-    if (!isISODate(date)) {
-        return res.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
-    }
+    const date = req.body?.day_date || null;
 
-    if (isNaN(dayNumber) || dayNumber <= 0) {
-        return res.status(400).json({ error: "day_number must be a positive integer" });
-    }
+    try {
+    // find current max day_number for this trip
+    const [{ max }] = await sql`
+      SELECT COALESCE(MAX(day_number), 0) as max
+      FROM days
+      WHERE trip_id = ${tripId}
+    `;
+    const nextDayNumber = Number(max) + 1;
 
     // insert new day into database
-    try {
-        const rows = await sql`
-            INSERT INTO days (trip_id, date, day_number)
-            VALUES (${tripId}, ${date}, ${toInt(dayNumber)})
-            RETURNING id, trip_id, date, day_number, created_at, updated_at
-        `;
+    const rows = await sql`
+        INSERT INTO days (trip_id, day_date, day_number)
+        VALUES (${tripId}, ${date}, ${nextDayNumber})
+        RETURNING trip_id, day_id, day_number, day_date
+    `;
         // return the newly created day
         res.status(201).json(rows[0]);
     } catch (err) {
-        if (err.code === "23505") { // unique_violation
-            return res.status(409).json({ error: "A day with this date or day_number already exists for the trip" });
-        }
-
-        if (err.code === "23503") { // foreign_key_violation
-            return res.status(400).json({ error: "Invalid trip_id" });
-        }
-
         console.error(err);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 // update an existing day for a specific trip
@@ -82,28 +73,24 @@ export const updateDay = async (req, res) => {
     }
 
     // get tripId from loaded trip
-    const tripId = req.trip.id;
+    const tripId = req.trip.trips_id;
     // get dayId from URL params
     const dayId = req.params.id;
     // validate input
-    const date = String(req.body?.date);
-    const dayNumber = toInt(req.body?.day_number);
-
-    if (!isISODate(date)) {
-        return res.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
-    }
-
-    if (isNaN(dayNumber) || dayNumber <= 0) {
-        return res.status(400).json({ error: "day_number must be a positive integer" });
-    }
+    const date = req.body?.day_date ?? null;
+  const hasDayNumber = Object.prototype.hasOwnProperty.call(req.body, "day_number");
+  const parsedDayNumber = hasDayNumber ? Number.parseInt(req.body.day_number, 10) : null;
+  if (hasDayNumber && (Number.isNaN(parsedDayNumber) || parsedDayNumber <= 0)) {
+    return res.status(400).json({ error: "day_number must be a positive integer" });
+  }
 
     // update day in database
     try {
         const rows = await sql`
             UPDATE days
-            SET date = ${date}, day_number = ${dayNumber}
-            WHERE id = ${dayId} AND trip_id = ${tripId}
-            RETURNING id, trip_id, date, day_number, created_at, updated_at
+            SET day_date = ${date}, day_number = COALESCE(${parsedDayNumber}, day_number)
+            WHERE day_id = ${dayId} AND trip_id = ${tripId}
+            RETURNING day_id, trip_id, day_number, day_date
         `;
         if (rows.length === 0) {
             return res.status(404).json({ error: "Day not found" });
@@ -111,17 +98,9 @@ export const updateDay = async (req, res) => {
         // return the updated day
         res.json(rows[0]);
     } catch (err) {
-        if (err.code === "23505") { // unique_violation
-            return res.status(409).json({ error: "A day with this date or day_number already exists for the trip" });
-        }
-
-        if (err.code === "23503") { // foreign_key_violation
-            return res.status(400).json({ error: "Invalid trip_id" });
-        }
-
         console.error(err);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 // delete a day for a specific trip
@@ -132,15 +111,15 @@ export const deleteDay = async (req, res) => {
     }
 
     // get tripId from loaded trip
-    const tripId = req.trip.id;
+    const tripId = req.trip.trips_id;
     // get dayId from URL params
     const dayId = req.params.id;
     // delete day from database
     try {
         const result = await sql`
             DELETE FROM days
-            WHERE id = ${dayId} AND trip_id = ${tripId}
-            RETURNING id
+            WHERE day_id = ${dayId} AND trip_id = ${tripId}
+            RETURNING day_id
         `;
         if (result.length === 0) {
             return res.status(404).json({ error: "Day not found" });
