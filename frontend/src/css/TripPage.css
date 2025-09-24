@@ -1,17 +1,17 @@
-.trip_page {
+.trip-page {
     display: flex;
     flex-direction: column;
     min-height: 100dvh;
     background: var(--bg-offwhite);
 }
 
-.main_content {
+.main-content {
     display: grid;
     grid-template-columns: var(--sidebar-w) 1fr;
     min-height: 0;
 }
 
-.my_trips {
+.my-trips {
     display: grid;
     grid-template-rows: auto 1fr;
     height: calc(100dvh - var(--topbar-h));
@@ -21,20 +21,20 @@
     background: transparent;
 }
 
-.my_trips_banner {
+.my-trips-banner {
     display: grid;
     grid-template-columns: 1fr auto auto;
     align-items: center;
     gap: 0.75rem;
 }
 
-.trips_title {
+.trips-title {
     font-size: clamp(1.25rem, 1.5vw, 1.5rem);
     color: var(--text);
 }
 
-.new_trip_button,
-.sort_button {
+.new-trip-button,
+.sort-button {
     background-color: var(--bg-surface);
     border: 1px solid var(--border);
     padding: 0.625rem 1rem;
@@ -44,24 +44,24 @@
     font-weight: 600;
     transition: background 120ms ease, color 120ms ease, border-color 120ms ease, transform 60ms ease;
 }
-.new_trip_button:hover,
-.sort_button:hover {
+.new-trip-button:hover,
+.sort-button:hover {
     background-color: var(--accent-lite);
     border-color: var(--accent);
     color: var(--accent);
 }
-.new_trip_button:active,
-.sort_button:active {
+.new-trip-button:active,
+.sort-button:active {
     transform: translateY(0.0625rem);
 }
 
-.trip_cards {
+.trip-cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
     gap: 1rem;
 }
 
-.trip_card {
+.trip-card {
     background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -72,20 +72,20 @@
     box-shadow: var(--shadow-1);
     transition: box-shadow 140ms ease, transform 120ms ease, border-color 120ms ease;
 }
-.trip_card:hover {
+.trip-card:hover {
     box-shadow: var(--shadow-2);
     border-color: var(--accent-lite);
     transform: translateY(-0.125rem);
 }
 
-.trip_card_title {
+.trip-card-title {
     font-family: Tahoma, Geneva, Verdana, sans-serif;
     font-weight: 700;
     font-size: 1.0625rem;
     color: var(--text);
 }
 
-.trip_card_days {
+.trip-card-days {
     font-size: 0.8125rem;
     color: var(--muted);
 }

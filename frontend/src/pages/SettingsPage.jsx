@@ -1,4 +1,3 @@
-// src/pages/SettingsPage.jsx
 import React, { useEffect, useState } from "react";
 import "../css/TripPage.css";
 import TopBanner from "../components/TopBanner";
@@ -23,19 +22,19 @@ export default function SettingsPage() {
     if (!user) return <div>Loading...</div>;
 
     return (
-        <div className="trip_page">
+        <div className="trip-page">
             <TopBanner
                 user={user}
                 onSignOut={() => (window.location.href = "/")}
             />
 
-            <div className="main_content">
+            <div className="main-content">
                 <NavBar />
-                <div className="my_trips">
-                    <div className="my_trips_banner">
-                        <div className="trips_title">Settings</div>
+                <div className="my-trips">
+                    <div className="my-trips-banner">
+                        <div className="trips-title">Settings</div>
                     </div>
-                    <div className="trip_cards">
+                    <div className="trip-cards">
                         <p>This is the settings page. Content will go here later.</p>
                     </div>
                 </div>

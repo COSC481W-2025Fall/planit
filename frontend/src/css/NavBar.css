@@ -10,13 +10,13 @@
     flex-direction: column;
 }
 
-.nav_list {
+.nav-list {
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
 }
 
-.nav_item {
+.nav-item {
     display: flex;
     align-items: center;
     gap: 0.625rem;
@@ -29,24 +29,24 @@
     transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
 }
 
-.nav_item:hover {
+.nav-item:hover {
     background: var(--accent-lite);
     border-color: var(--accent-lite);
 }
 
-.nav_item.active {
+.nav-item.active {
     background: var(--accent-lite);
     color: var(--accent);
     font-weight: 700;
     border-color: var(--accent);
 }
 
-.nav_icon {
+.nav-icon {
     flex: 0 0 auto;
     color: inherit;
 }
 
-.nav_item span {
+.nav-item span {
     line-height: 1.2;
     font-family: "Open Sans", sans-serif;
 }

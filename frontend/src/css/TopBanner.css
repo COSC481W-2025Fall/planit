@@ -1,23 +1,30 @@
-.top_banner {
-    display: flex;
+.top-banner {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
     align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem 1rem;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    min-height: var(--topbar-h);
+    border-bottom: 1px solid var(--border);
     background: var(--bg-surface);
+    position: sticky;
+    top: 0;
+    z-index: 10;
     box-shadow: var(--shadow-1);
 }
 
 .logo {
-    height: 40px;
+    height: 2.25rem;
+    object-fit: contain;
 }
 
-.right_section {
+.right-section {
     display: flex;
     align-items: center;
     gap: 0.75rem;
 }
 
-.sign_out {
+.sign-out {
     background: var(--bg-surface);
     color: var(--accent);
     border: 1px solid var(--accent);
@@ -32,18 +39,26 @@
             box-shadow 0.15s ease;
 }
 
-.sign_out:hover {
+.sign-out:hover {
     background: var(--accent);
     color: var(--bg-surface);
     transform: scale(1.05);
     box-shadow: var(--shadow-2);
 }
 
+.name {
+    font-size: clamp(1.125rem, 1.5vw, 1.375rem);
+    color: var(--accent);
+    letter-spacing: 0.0125rem;
+}
+
 .pfp {
-    width: 32px;
-    height: 32px;
+    height: 2.375rem;
+    width: 2.375rem;
     border-radius: 50%;
     object-fit: cover;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-1);
 }
 
 .pfp.placeholder {

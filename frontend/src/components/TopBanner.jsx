@@ -4,11 +4,11 @@ import "../css/TopBanner.css";
 
 export default function TopBanner({ user, onSignOut }) {
     return (
-        <div className="top_banner">
+        <div className="top-banner">
             <img src={logo} alt="PlanIt Logo" className="logo" />
 
-            <div className="right_section">
-                <button className="sign_out" onClick={onSignOut}>
+            <div className="right-section">
+                <button className="sign-out" onClick={onSignOut}>
                     Sign Out
                 </button>
 
