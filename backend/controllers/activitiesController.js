@@ -65,4 +65,36 @@ export const addActivity = async (req, res) =>
 };
 
 
+export const updateActivity = async (req, res) => {
+  try {
+    const { activityId, activity } = req.body;
+    const { name, priceLevel, } = activity || {};
+
+    if (!activityId || !activity) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const updated = await sql`
+      UPDATE activities
+      SET activity_name = ${name},
+          activity_price_level = ${priceLevel},
+      WHERE id = ${activityId}
+      RETURNING *;
+    `;
+
+    if (updated.length === 0) {
+      return res.status(404).json({ error: "Activity not found" });
+    }
+
+    res.json({
+      message: "Activity updated successfully",
+      activity: updated[0],
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
 
