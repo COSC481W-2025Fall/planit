@@ -10,7 +10,7 @@ export const createTrip = async (req, res) => {
     if (!req.user) return res.status(401).json({ loggedIn: false });
 
     // Extract all required fields from the request body
-    const { days, tripName, tripStartDate, tripEndDate, tripLocation } = req.body;
+    const { days, tripName, tripStartDate, tripLocation } = req.body;
 
     // Get userId from the authenticated user in the request
     const userId = req.user.user_id;
@@ -21,8 +21,8 @@ export const createTrip = async (req, res) => {
 
     try {
         const result = await sql`
-            INSERT INTO trips (days, trip_name, user_id, trip_start_date, trip_end_date, trip_location)
-            VALUES (${days}, ${tripName}, ${userId}, ${tripStartDate}, ${tripEndDate}, ${tripLocation})
+            INSERT INTO trips (days, trip_name, user_id, trip_start_date, trip_location)
+            VALUES (${days}, ${tripName}, ${userId}, ${tripStartDate}, ${tripLocation})
                 RETURNING *
         `;
 
@@ -37,7 +37,7 @@ export const createTrip = async (req, res) => {
 //This function handles the modification of all fields related to a trip.
 export const updateTrip = async (req, res) => {
     if (!req.user) return res.status(401).json({ loggedIn: false });
-    const { trips_id, days, tripName, tripStartDate, tripEndDate, tripLocation } = req.body;
+    const { trips_id, days, tripName, tripStartDate, tripLocation } = req.body;
     const userId = req.user.user_id;
 
     if (!userId || trips_id === undefined) {
@@ -63,11 +63,6 @@ export const updateTrip = async (req, res) => {
         if (tripStartDate !== undefined) {
             updates.push(`trip_start_date = $${paramCount}`);
             values.push(tripStartDate);
-            paramCount++;
-        }
-        if (tripEndDate !== undefined) {
-            updates.push(`trip_end_date = $${paramCount}`);
-            values.push(tripEndDate);
             paramCount++;
         }
         if (tripLocation !== undefined) {
