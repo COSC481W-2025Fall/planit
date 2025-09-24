@@ -2,13 +2,11 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/LandingPage.css";
 import logo from "../assets/Planit_Full_Green.png";
+import { Users, MapPin, Calendar, Heart, Star } from "lucide-react";
 
 export default function LandingPage() {
     const navigate = useNavigate();
-
-    const handleStartPlanning = () => {
-        navigate("/login");
-    };
+    const handleStartPlanning = () => navigate("/login");
 
     return (
         <div className="landing">
@@ -16,10 +14,14 @@ export default function LandingPage() {
                 <div className="brand">
                     <img src={logo} alt="PlanIt Logo" className="logo-img" />
                 </div>
-
                 <nav className="nav-links">
                     <a href="/login" className="login-link">Log In</a>
-                    <button className="btn btn-primary">Get Started</button>
+                    <button
+                        className="btn btn-primary"
+                        onClick={handleStartPlanning}
+                    >
+                        Get Started
+                    </button>
                 </nav>
             </header>
 
@@ -29,12 +31,10 @@ export default function LandingPage() {
                         The most effective way to <br />
                         plan <span className="accent">trips</span>
                     </h1>
-
                     <p className="hero-sub">
                         Create incredible travel experiences with friends. Plan together,
                         explore together, and make memories that last a lifetime.
                     </p>
-
                     <button
                         className="btn btn-primary hero-cta"
                         onClick={handleStartPlanning}
@@ -54,6 +54,119 @@ export default function LandingPage() {
                     </p>
                 </div>
             </section>
+
+            <section className="features">
+                <div className="features-grid">
+                    <div className="feature-card">
+                        <Users className="feature-icon" size={32} />
+                        <h3 className="feature-title">Plan With Friends</h3>
+                        <p className="feature-text">
+                            Invite friends to collaborate on your trip itinerary in real-time
+                        </p>
+                    </div>
+                    <div className="feature-card">
+                        <MapPin className="feature-icon" size={32} />
+                        <h3 className="feature-title">Discover Places</h3>
+                        <p className="feature-text">
+                            Find amazing destinations and activities recommended by fellow travelers
+                        </p>
+                    </div>
+                    <div className="feature-card">
+                        <Calendar className="feature-icon" size={32} />
+                        <h3 className="feature-title">Smart Scheduling</h3>
+                        <p className="feature-text">
+                            Organize your days with intelligent scheduling that considers travel time
+                        </p>
+                    </div>
+                    <div className="feature-card">
+                        <Heart className="feature-icon" size={32} />
+                        <h3 className="feature-title">Save Favorites</h3>
+                        <p className="feature-text">
+                            Bookmark places you love and share them with your travel companions
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section className="loved">
+                <h2 className="loved-title">
+                    Loved by <span className="accent">Travelers</span> Worldwide
+                </h2>
+                <p className="loved-sub">
+                    Join thousands of happy travelers who use PlanIt to create unforgettable experiences
+                </p>
+            </section>
+
+            <section className="testimonials">
+                <div className="testimonials-grid">
+                    <div className="testimonial-card">
+                        <div className="stars">
+                            <Star className="star" size={16} fill="currentColor" />
+                            <Star className="star" size={16} fill="currentColor" />
+                            <Star className="star" size={16} fill="currentColor" />
+                            <Star className="star" size={16} fill="currentColor" />
+                            <Star className="star" size={16} fill="currentColor" />
+                        </div>
+                        <p className="quote">
+                            “Plan It made organizing our group trip to Japan so much easier.
+                            Everyone could contribute ideas and we never missed a detail!”
+                        </p>
+                        <div className="person">
+                            <div className="avatar">SJ</div>
+                            <div>
+                                <div className="name">Sarah Johnson</div>
+                                <div className="role">Travel Enthusiast</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="testimonial-card">
+                        <div className="stars">
+                            <Star className="star" size={16} fill="currentColor" />
+                            <Star className="star" size={16} fill="currentColor" />
+                            <Star className="star" size={16} fill="currentColor" />
+                            <Star className="star" size={16} fill="currentColor" />
+                            <Star className="star" size={16} fill="currentColor" />
+                        </div>
+                        <p className="quote">
+                            “The collaborative features are amazing. We planned a 2-week European
+                            adventure with 6 friends and it was seamless.”
+                        </p>
+                        <div className="person">
+                            <div className="avatar">MC</div>
+                            <div>
+                                <div className="name">Mike Chen</div>
+                                <div className="role">Adventure Seeker</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="testimonial-card">
+                        <div className="stars">
+                            <Star className="star" size={16} fill="currentColor" />
+                            <Star className="star" size={16} fill="currentColor" />
+                            <Star className="star" size={16} fill="currentColor" />
+                            <Star className="star" size={16} fill="currentColor" />
+                            <Star className="star" size={16} fill="currentColor" />
+                        </div>
+                        <p className="quote">
+                            “Perfect for both quick weekend getaways and long vacations. The interface
+                            is intuitive and my friends love it too.”
+                        </p>
+                        <div className="person">
+                            <div className="avatar">ER</div>
+                            <div>
+                                <div className="name">Emma Rodriguez</div>
+                                <div className="role">Weekend Warrior</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer className="footer">
+                <p>© 2025 PlanIt. All rights reserved.</p>
+            </footer>
         </div>
     );
 }
