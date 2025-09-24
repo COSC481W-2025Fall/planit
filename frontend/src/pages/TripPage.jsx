@@ -44,7 +44,6 @@ useEffect(() => {
 
     return (
         <div className="trip_page">
-            {/* Top banner */}
             <TopBanner
                 user={user}
                 onSignOut={() => {
@@ -53,10 +52,8 @@ useEffect(() => {
             />
 
             <div className="main_content">
-                {/* Left sidebar NavBar */}
                 <NavBar />
 
-                {/* Main trips content */}
                 <div className="my_trips">
                     <div className="my_trips_banner">
                         <div className="trips_title">

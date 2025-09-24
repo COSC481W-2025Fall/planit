@@ -1,7 +1,7 @@
 .trip_page {
     display: flex;
     flex-direction: column;
-    min-height: 100dvh;  /* dynamic viewport for mobile browser chrome */
+    min-height: 100dvh;
     background: var(--bg-offwhite);
 }
 
@@ -57,7 +57,7 @@
 
 .trip_cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); /* 240px -> 15rem */
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
     gap: 1rem;
 }
 

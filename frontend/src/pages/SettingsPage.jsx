@@ -16,7 +16,7 @@ export default function SettingsPage() {
             .then((res) => res.json())
             .then((data) => {
                 if (data.loggedIn === false) return;
-                setUser(data); // data should include .photo from your Google login
+                setUser(data);
             });
     }, []);
 
