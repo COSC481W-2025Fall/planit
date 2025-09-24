@@ -1,3 +1,6 @@
+/* Import "Open Sans" for font use */
+@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
+
 html, body {
   height: 100%;
   width: 100%;
@@ -7,37 +10,96 @@ html, body {
 
 .parent-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #d3d3d3;
+  background-color: #e3ece6;
+  text-align: center;
 }
 
+/* Header of logo and welcome message */
+.header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.header-container h1 {
+  color: black;
+  font-size: 25px;
+  font-family: Tahoma, sans-serif;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.header-container p {
+  color: #7c8189;
+  font-size: 15px;
+  margin-top: 5px;
+  font-family: 'Open Sans', sans-serif;
+}
+
+/* Login box */
 .login-container {
   background-color: #f2f2f2;
-  padding: 40px;
+  padding: 15px;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
-  width: 350px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: px;
+
+  width: 400px;
+  height: 140px;
 }
 
-.title {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #333;
+.login-container h1 {
+  font-family: Tahoma, sans-serif;
+  font-size: 20px;
+  margin-top: 8px;
 }
 
-.login-with-google-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: white;
-  color: #444;
-  border: 1px solid #ccc;
+/* Button styling */
+.login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  font-size: 12px;
+  font-weight: 400;
+  background-color: #1e7a3d;
+  color: white;
+
+  border: none;
   border-radius: 4px;
+  padding: 10px 24px;
+
   cursor: pointer;
+  width: 350px;
+  height: 40px;
+  font-family: 'Open Sans', sans-serif;
 }
 
-.login-with-google-button:hover {
-  background-color: #eee;
+/* Hover effect for button */
+.login-button:hover {
+  background-color: #16582c;
 }
+
+/* PlanIt logo image */
+.login-logo {
+  width: 200px;
+  height: auto;
+}
+
+/* Google G logo image inside button */
+.google-g {
+  width: 20px;
+  height: auto;
+}
+
