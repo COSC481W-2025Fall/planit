@@ -1,132 +1,97 @@
-/*Styling to make the app take up the entire page*/
-html, body, #root{
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-}
-
-.name{
-    color: blue;
-    padding-left: 3%;
-    font-size: 42px;
-}
-
-/*Styling to make the trip_page take up the rest of the height*/
-.trip_page{
-    height: 100%;
-}
-
-/*Styling to format the main_content into a two column grid*/
-.main_content {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    height: 100%;
-}
-
-/*Styling for the top banner of the page*/
-.top_banner{
-    display: grid;
-    grid-template-columns: 85% 7% 8%;
-    background-color: lightgrey;
-}
-
-/*Styling for the navigation menu column on the left side of the page*/
-.navigation_menu{
+.trip-page {
     display: flex;
     flex-direction: column;
+    min-height: 100dvh;
+    background: var(--bg-offwhite);
 }
 
-/*Styling for each nav option, will be made into links later*/
-.nav_link{
-    padding: 2px;
-    text-align: left;
-    border-bottom: 1px solid grey;
+.main-content {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) 1fr;
+    min-height: 0;
 }
 
-/*Styling for the "My Trips" section of the page*/
-.my_trips{
+.my-trips {
     display: grid;
     grid-template-rows: auto 1fr;
-    height: 100%;
-    padding: 10px;
-    gap: 10px;
-    border-left: 1px solid grey;
+    height: calc(100dvh - var(--topbar-h));
+    padding: 1.125rem;
+    gap: 1rem;
+    overflow: auto;
+    background: transparent;
 }
 
-/*Styling for the My Trips banner*/
-.my_trips_banner {
+.my-trips-banner {
     display: grid;
     grid-template-columns: 1fr auto auto;
     align-items: center;
+    gap: 0.75rem;
 }
 
-/*Styling for "My Trips" banner title*/
-.trips_title{
-    font-size: 24px;
-    font-weight: bold;
-    padding-top: 1%;
-    padding-left: 2%;
+.trips-title {
+    font-size: clamp(1.25rem, 1.5vw, 1.5rem);
+    color: var(--text);
 }
 
-/*Styling for the table that contains trip cards, made with grid to accomodate many trip cards. 4 columns, 3 rows*/
-.trip_cards {
+.new-trip-button,
+.sort-button {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    padding: 0.625rem 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease, transform 60ms ease;
+}
+.new-trip-button:hover,
+.sort-button:hover {
+    background-color: var(--accent-lite);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.new-trip-button:active,
+.sort-button:active {
+    transform: translateY(0.0625rem);
+}
+
+.trip-cards {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
-    gap: 10px;
-    padding: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 1rem;
 }
 
-/*Styling for each individual trip card*/
-.trip_card {
-    background: lightgrey;
+.trip-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid grey;
-    border-radius: 6px;
+    gap: 0.375rem;
+    box-shadow: var(--shadow-1);
+    transition: box-shadow 140ms ease, transform 120ms ease, border-color 120ms ease;
+}
+.trip-card:hover {
+    box-shadow: var(--shadow-2);
+    border-color: var(--accent-lite);
+    transform: translateY(-0.125rem);
 }
 
-.trip_card_title
-{
-    font-size: 18px;
-    font-weight: bold;
-    text-align: left;
+.trip-card-title {
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 1.0625rem;
+    color: var(--text);
 }
 
-/*Styling for buttons*/
-.new_trip_button, .sort_button{
-    background-color: lightgrey;
-    border: none;
-    padding: 15px 30px;
-    text-align: center;
-    display: inline-block;
-    border-radius: 32px;
-    margin-right: 5%;
-    white-space: nowrap;
+.trip-card-days {
+    font-size: 0.8125rem;
+    color: var(--muted);
 }
 
-.pfp{
-    place-self: center;
-    height: 50%;
-    border: none;
-    border-radius: 50%;
-}
-
-/*.pfp{
-    place-self: center;
-}*/
-
-.sign_out{
-    place-self: center;
-}
-
-button:hover {
-    background: lightblue;
-}
-
-button:active {
-    background: blue;
+.surface-accent {
+    background: var(--accent-lite);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
 }
