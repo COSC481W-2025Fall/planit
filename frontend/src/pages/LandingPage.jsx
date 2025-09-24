@@ -19,9 +19,7 @@ export default function LandingPage() {
 
                 <nav className="nav-links">
                     <a href="/login" className="login-link">Log In</a>
-                    <button className="btn btn-primary" onClick={() => navigate("/login")}>
-                        Get Started
-                    </button>
+                    <button className="btn btn-primary">Get Started</button>
                 </nav>
             </header>
 
