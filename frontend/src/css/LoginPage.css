@@ -31,7 +31,7 @@ html, body {
   color: black;
   font-size: 25px;
   font-family: Tahoma, sans-serif;
-  margin-top: 15px;
+  margin-top: 5px;
   margin-bottom: 5px;
 }
 .header-container p {
@@ -55,7 +55,7 @@ html, body {
   gap: px;
 
   width: 400px;
-  height: 100px;
+  height: 140px;
 }
 
 .login-container h1 {
@@ -92,8 +92,8 @@ html, body {
 }
 
 /* PlanIt logo image */
-.logo {
-  width: 150px;
+.login-logo {
+  width: 200px;
   height: auto;
 }
 

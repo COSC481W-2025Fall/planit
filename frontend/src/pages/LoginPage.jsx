@@ -14,7 +14,7 @@ export default function LoginPage() {
     <div className = "parent-container">
       {/* Header section with app logo and welcome message */}
       <div className="header-container">
-          <img src={logo} alt="PlanIt Logo" className="logo"/>    
+          <img src={logo} alt="PlanIt Logo" className="login-logo"/>    
           <h1>Welcome to PlanIt</h1>
            <p>Sign in to start planning your trips</p>
       </div>
