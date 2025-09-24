@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import TripPage from "./pages/TripPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Days from "./pages/TripDaysPage"
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="/days" element={<Days/>}/>
     </Routes>
   );
 }
