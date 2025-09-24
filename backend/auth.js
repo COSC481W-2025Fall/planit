@@ -63,6 +63,13 @@ async function(request, accessToken, refreshToken, profile, done) {
    }
 }));
 
+export function isLoggedIn(req, res, next) {
+  if(!req.user) {
+    return res.status(401).json({ loggedIn: false });
+  }
+  next();
+}
+
 passport.serializeUser(function(user, done) {
   done(null, user);
 });
