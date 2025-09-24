@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
+
+:root {
+    --bg-offwhite: #f5f5f5;
+    --bg-surface: #ffffff;
+    --accent: #1e7a3d;
+    --accent-lite: #e3ece6;
+    --muted: #7c8189;
+    --border: #e5e7eb;
+
+    --text: #111111;
+
+    --radius: 0.75rem;
+    --shadow-1: 0 0.0625rem 0.125rem rgba(0,0,0,0.05);
+    --shadow-2: 0 0.375rem 0.875rem rgba(0,0,0,0.06);
+
+    --topbar-h: 3.5rem;
+    --sidebar-w: 15rem;
+}
+
+/* Base */
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background: var(--bg-offwhite);
+}
+
+html {
+    font-size: 100%;
+}
+
+body {
+    font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.tahoma,
+.name,
+.trips-title {
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 700;
+}
