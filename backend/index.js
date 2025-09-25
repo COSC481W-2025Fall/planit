@@ -11,6 +11,8 @@ import { neon } from "@neondatabase/serverless";
 import "./auth.js";
 import authRoutes from "./routes/authRoutes.js";
 import placesAPIRoutes from "./routes/placesAPIRoutes.js";
+import daysRoutes from "./routes/daysRoutes.js";
+import tripRoutes from "./routes/tripRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,6 +46,8 @@ app.use(passport.session());
 
 app.use("/auth", authRoutes);
 app.use("/placesAPI", placesAPIRoutes);
+app.use("/days", daysRoutes);
+app.use("/trip", tripRoutes);
 
 app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
 
