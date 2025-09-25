@@ -11,6 +11,7 @@ import { neon } from "@neondatabase/serverless";
 
 import "./auth.js";
 import authRoutes from "./routes/authRoutes.js";
+import tripRoutes from "./routes/tripRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,6 +45,9 @@ app.use(passport.session());
 
 // use auth routes
 app.use("/auth", authRoutes);
+
+// trip routes
+app.use("/trip", tripRoutes);
 
 app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
 
