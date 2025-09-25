@@ -82,7 +82,7 @@ export default function LandingPage() {
                         <PiggyBank className="feature-icon" size={32} />
                         <h3 className="feature-title">Budget Friendly</h3>
                         <p className="feature-text">
-                            keep track of spending across your entire trip
+                            Keep track of spending across your entire trip
                         </p>
                     </div>
                 </div>
