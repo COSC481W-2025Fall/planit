@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/LandingPage.css";
 import logo from "../assets/Planit_Full_Green.png";
-import { Users, MapPin, Calendar, Heart, Star } from "lucide-react";
+import { Users, MapPin, Calendar, PiggyBank, Star } from "lucide-react";
 
 export default function LandingPage() {
     const navigate = useNavigate();
@@ -79,10 +79,10 @@ export default function LandingPage() {
                         </p>
                     </div>
                     <div className="feature-card">
-                        <Heart className="feature-icon" size={32} />
-                        <h3 className="feature-title">Save Favorites</h3>
+                        <PiggyBank className="feature-icon" size={32} />
+                        <h3 className="feature-title">Budget Friendly</h3>
                         <p className="feature-text">
-                            Bookmark places you love and share them with your travel companions
+                            keep track of spending across your entire trip
                         </p>
                     </div>
                 </div>
@@ -112,9 +112,9 @@ export default function LandingPage() {
                             Everyone could contribute ideas and we never missed a detail!”
                         </p>
                         <div className="person">
-                            <div className="avatar">SJ</div>
+                            <div className="avatar">HM</div>
                             <div>
-                                <div className="name">Sarah Johnson</div>
+                                <div className="name">Hunter Martin</div>
                                 <div className="role">Travel Enthusiast</div>
                             </div>
                         </div>
@@ -133,9 +133,9 @@ export default function LandingPage() {
                             adventure with 6 friends and it was seamless.”
                         </p>
                         <div className="person">
-                            <div className="avatar">MC</div>
+                            <div className="avatar">HM</div>
                             <div>
-                                <div className="name">Mike Chen</div>
+                                <div className="name">Hass Mouzaihem</div>
                                 <div className="role">Adventure Seeker</div>
                             </div>
                         </div>
@@ -154,9 +154,9 @@ export default function LandingPage() {
                             is intuitive and my friends love it too.”
                         </p>
                         <div className="person">
-                            <div className="avatar">ER</div>
+                            <div className="avatar">OM</div>
                             <div>
-                                <div className="name">Emma Rodriguez</div>
+                                <div className="name">Oliver McMillen </div>
                                 <div className="role">Weekend Warrior</div>
                             </div>
                         </div>
