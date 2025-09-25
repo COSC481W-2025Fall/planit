@@ -4,31 +4,21 @@ import LoginPage from "./pages/LoginPage";
 import TripPage from "./pages/TripPage";
 import SettingsPage from "./pages/SettingsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import Test from "./pages/Test";
 function App() {
-    return (
-        <Routes>
-            <Route path="/" element={<LoginPage />} />
-
-            <Route
-                path="/trip"
-                element={
-                    <ProtectedRoute>
-                        <TripPage />
-                    </ProtectedRoute>
-                }
-            />
-
-            <Route
-                path="/settings"
-                element={
-                    <ProtectedRoute>
-                        <SettingsPage />
-                    </ProtectedRoute>
-                }
-            />
-        </Routes>
-    );
+  return (
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+      <Route path="/testing" element={<Test />} />
+        path="/trip"
+        element={
+          <ProtectedRoute>
+            <TripPage />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
 }
 
 export default App;
