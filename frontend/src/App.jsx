@@ -5,7 +5,6 @@ import TripPage from "./pages/TripPage";
 import SettingsPage from "./pages/SettingsPage";
 import LandingPage from "./pages/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
-
 function App() {
     return (
         <Routes>
@@ -21,7 +20,6 @@ function App() {
                     </ProtectedRoute>
                 }
             />
-
             <Route
                 path="/settings"
                 element={
