@@ -1,3 +1,8 @@
+/* 
+This component is identical to ProtectedRoute.jsx except it redirects to "/login" if logged in, instead of "/" 
+if user is not logged in.
+This will bypass the landing page for logged-in users.
+*/
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -17,7 +22,7 @@ export default function ProtectedRoute({ children }) {
   }, []);
 
   if (loading) return <div>Loading...</div>;
-  if (!loggedIn) return <Navigate to="/" />;
+  if (loggedIn) return <Navigate to="/login" />;
 
   return children;
 }

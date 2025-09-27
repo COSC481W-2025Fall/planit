@@ -12,6 +12,7 @@ import { neon } from "@neondatabase/serverless";
 import "./auth.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import daysRoutes from "./routes/daysRoutes.js";
 import tripRoutes from "./routes/tripRoutes.js";
 
 const app = express();
@@ -38,7 +39,7 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       httpOnly: true,
       secure: false,
@@ -51,6 +52,8 @@ app.use(passport.session());
 
 // use auth routes
 app.use("/auth", authRoutes);
+// days routes
+app.use("/days", daysRoutes);
 
 // trip routes
 app.use("/trip", tripRoutes);

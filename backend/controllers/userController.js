@@ -33,7 +33,7 @@ export const updateUser = async (req, res) => {
     const { userId, field, value } = req.body;
 
     if (!userId || !field || value === undefined) {
-    return res.status(400).json({ error: "userId, field, and value are required" });
+      return res.status(400).json({ error: "userId, field, and value are required" });
     }
 
     // Use switch statement to form SQL statement dependent on field variable.
