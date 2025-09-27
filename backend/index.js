@@ -8,10 +8,10 @@ import cors from "cors";
 import passport from "passport";
 import session from "express-session";
 import { neon } from "@neondatabase/serverless";
-
 import "./auth.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import placesAPIRoutes from "./routes/placesAPIRoutes.js";
 import daysRoutes from "./routes/daysRoutes.js";
 import tripRoutes from "./routes/tripRoutes.js";
 
@@ -50,9 +50,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// use auth routes
 app.use("/auth", authRoutes);
 // days routes
+app.use("/placesAPI", placesAPIRoutes);
 app.use("/days", daysRoutes);
 
 // trip routes
