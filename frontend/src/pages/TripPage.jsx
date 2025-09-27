@@ -23,7 +23,7 @@ export default function TripPage() {
 
     useEffect(() => {
         fetch(
-            (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/auth/user/trips",
+            (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/trip/readAll",
             { credentials: "include" }
         )
             .then((res) => res.json())

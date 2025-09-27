@@ -5,6 +5,33 @@ This code uses async/await for asynchronous operations and try/catch for error h
 */
 import {sql} from "../config/db.js";
 
+//This function reads the information from multiple trips for a single user.
+export const fetchUserTrips = async (req, res) => {
+    if (!req.user)
+    {
+        return res.status(401).json({ loggedIn: false });
+    }
+
+    try
+    {
+        const userId = req.user.user_id;
+
+        // query the database for trips associated with the logged-in user
+        const trips = await sql`
+      SELECT *
+      FROM trips
+      WHERE user_id = ${userId}
+    `
+
+        res.json({ loggedIn: true, trips: trips });
+    }
+    catch (err)
+    {
+        console.log(err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
 //This function handles the creation of a trip.
 export const createTrip = async (req, res) => {
     if (!req.user) return res.status(401).json({ loggedIn: false });
