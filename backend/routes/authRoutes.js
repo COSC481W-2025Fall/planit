@@ -1,6 +1,6 @@
 import express from "express";
 import passport from "passport";
-import {googleAuth, googleCallback, authFailure , loginDetails, fetchUserTrips} from "../controllers/authController.js";
+import {googleAuth, googleCallback, authFailure , loginDetails} from "../controllers/authController.js";
 import {LOCAL_FRONTEND_URL, VITE_FRONTEND_URL} from "../../Constants.js";
 
 const router = express.Router();
@@ -20,10 +20,6 @@ router.get(
 router.get(
   "/login/details",
   loginDetails
-);
-
-router.get("/user/trips",
-  fetchUserTrips
 );
 
 router.get(

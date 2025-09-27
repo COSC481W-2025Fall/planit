@@ -47,8 +47,6 @@ app.use(passport.session());
 app.use("/auth", authRoutes);
 app.use("/placesAPI", placesAPIRoutes);
 app.use("/days", daysRoutes);
-
-// trip routes
 app.use("/trip", tripRoutes);
 
 app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
