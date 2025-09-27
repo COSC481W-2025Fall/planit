@@ -2,15 +2,28 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import TripPage from "./pages/TripPage";
-import SettingsPage from "./pages/SettingsPage";
 import LandingPage from "./pages/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+//import Registration from "./pages/UserRegistrationPage";
+import SettingsPage from "./pages/SettingsPage";
+
 function App() {
     return (
         <Routes>
-            <Route path="/" element={<LandingPage />} />
+
+            <Route
+                path="/"
+                element={
+                    <PublicRoute>
+                        <LandingPage />
+                    </PublicRoute>
+                }
+            />
 
             <Route path="/login" element={<LoginPage />} />
+
+            {/*<Route path="/registration" element={<Registration />} />*/}
 
             <Route
                 path="/trip"
@@ -28,8 +41,8 @@ function App() {
                     </ProtectedRoute>
                 }
             />
-        </Routes>
-    );
+    </Routes>
+  );
 }
 
 export default App;
