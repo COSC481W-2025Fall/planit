@@ -54,8 +54,6 @@ app.use("/auth", authRoutes);
 // days routes
 app.use("/placesAPI", placesAPIRoutes);
 app.use("/days", daysRoutes);
-
-// trip routes
 app.use("/trip", tripRoutes);
 
 // user routes
