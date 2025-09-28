@@ -5,7 +5,6 @@ import TripPage from "./pages/TripPage";
 import LandingPage from "./pages/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
-//import Registration from "./pages/UserRegistrationPage";
 import SettingsPage from "./pages/SettingsPage";
 
 function App() {
@@ -22,8 +21,6 @@ function App() {
             />
 
             <Route path="/login" element={<LoginPage />} />
-
-            {/*<Route path="/registration" element={<Registration />} />*/}
 
             <Route
                 path="/trip"

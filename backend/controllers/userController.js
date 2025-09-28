@@ -19,7 +19,7 @@ export const createUsername = async (req, res) => {
             return res.status(400).json({ error: "User already has a username" });
         }
         else
-          res.json("Username created successfully");
+          return res.json("Username created successfully");
     } 
     catch (err) {
         console.log(err);
@@ -30,45 +30,30 @@ export const createUsername = async (req, res) => {
 //This function handles the modification of the three desired fields in the user table.
 export const updateUser = async (req, res) => {
   try {
-    const { userId, field, value } = req.body;
+    const { userId, firstname, lastname, username} = req.body;
 
-    if (!userId || !field || value === undefined) {
-      return res.status(400).json({ error: "userId, field, and value are required" });
+    if (!userId || firstname === undefined || lastname === undefined || username === undefined) {
+      return res.status(400).json({ error: "userId, first name, last name, and username are required" });
     }
 
-    // Use switch statement to form SQL statement dependent on field variable.
-    let result;
-    switch (field) {
-      case "first_name":
-        result = await sql`
-          UPDATE users
-          SET first_name = ${value}
-          WHERE user_id = ${userId}
-          RETURNING *
-        `;
-        break;
+    const result = await sql`
+    UPDATE users
+    SET first_name = ${firstname},
+      last_name = ${lastname},
+      username = ${username}
+      WHERE user_id = ${userId}
+      RETURNING *`;
 
-      case "last_name":
-        result = await sql`
-          UPDATE users
-          SET last_name = ${value}
-          WHERE user_id = ${userId}
-          RETURNING *
-        `;
-        break;
+    const updatedUser = result[0];
 
-      case "username":
-        result = await sql`
-          UPDATE users
-          SET username = ${value}
-          WHERE user_id = ${userId}
-          RETURNING *
-        `;
-        break;
-
-      default:
-        return res.status(400).json({ error: "Invalid field" });
-    }
+    //Refresh session with updated user, this ensures that req.user contains the updated information, preventing a stale session.
+    req.login(updatedUser, (err) => {
+      if (err) {
+        console.error("Error refreshing session after update:", err);
+        return next(err);
+      }
+        return res.json({ success: true, user: updatedUser });
+    });
   }
   catch (err) {
     console.log(err);
