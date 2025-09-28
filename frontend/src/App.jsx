@@ -10,10 +10,8 @@ import SettingsPage from "./pages/SettingsPage";
 function App() {
     return (
         <Routes>
-<<<<<<< HEAD
-            <Route path="/" element={<LoginPage />} />
-=======
 
+   
             <Route
                 path="/"
                 element={
@@ -22,8 +20,6 @@ function App() {
                     </PublicRoute>
                 }
             />
-
->>>>>>> origin/planit-v1
             <Route path="/login" element={<LoginPage />} />
             <Route path="/testing" element={<Test />} />
 
@@ -43,13 +39,8 @@ function App() {
                     </ProtectedRoute>
                 }
             />
-<<<<<<< HEAD
-        </Routes>
-    );
-=======
     </Routes>
   );
->>>>>>> origin/planit-v1
 }
 
 export default App;
