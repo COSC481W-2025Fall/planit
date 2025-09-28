@@ -1,4 +1,3 @@
-// backend/tests/placesAPIController.test.js
 import request from "supertest";
 import app from "../app.js";
 import axios from "axios";
