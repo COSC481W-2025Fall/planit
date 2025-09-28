@@ -4,6 +4,8 @@ const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
 
 export const findCityAutocomplete = async (req, res) => {
   try {
+
+    // in the activity bar component, we send a json attribute of 'query' 
     const { query } = req.body;
 
     if (!query || query.trim().length === 0) {
@@ -38,7 +40,6 @@ export const findPlaces = async (req, res) =>
   {
     try 
     {
-        // the value set in the search bar in the frontend was set to query *CHANGE IF NEEDED*
         const { query } = req.body;
 
         const url = "https://places.googleapis.com/v1/places:searchText";
@@ -54,7 +55,7 @@ export const findPlaces = async (req, res) =>
                 headers: {
                     "Content-Type": "application/json",
                     "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
-                    "X-Goog-FieldMask": "places.id,places.displayName,places.primaryType,places.priceLevel,places.addressComponents,places.photos,places.rating,places.location,places.websiteUri",
+                    "X-Goog-FieldMask": "places.id,places.displayName,places.primaryType,places.priceLevel,places.addressComponents,places.rating,places.location,places.websiteUri",
                 },
             }
         );
