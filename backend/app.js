@@ -7,6 +7,7 @@ import session from "express-session";
 import { neon } from "@neondatabase/serverless";
 import "./auth.js";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import placesAPIRoutes from "./routes/placesAPIRoutes.js";
 import daysRoutes from "./routes/daysRoutes.js";
 import tripRoutes from "./routes/tripRoutes.js";
@@ -36,7 +37,12 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+      maxAge: 1000 * 60 * 60 * 24 * 7, // This is the lifetime of the cookie in milliseconds (1 week)
+    },
   })
 );
 app.use(passport.initialize());
@@ -47,7 +53,6 @@ app.use("/auth", authRoutes);
 app.use("/placesAPI", placesAPIRoutes);
 app.use("/days", daysRoutes);
 app.use("/trip", tripRoutes);
-
 app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
 
 export default app; // <- export the app for tests
