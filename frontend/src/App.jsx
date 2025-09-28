@@ -6,6 +6,8 @@ import LandingPage from "./pages/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import SettingsPage from "./pages/SettingsPage";
+import PlacesTest from "./pages/PlacesTest";
+
 
 function App() {
     return (
@@ -21,7 +23,7 @@ function App() {
                 }
             />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/testing" element={<Test />} />
+            <Route path="/places-test" element={<PlacesTest />} />
 
             <Route
                 path="/trip"

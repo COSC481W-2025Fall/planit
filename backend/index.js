@@ -14,6 +14,8 @@ import userRoutes from "./routes/userRoutes.js";
 import placesAPIRoutes from "./routes/placesAPIRoutes.js";
 import daysRoutes from "./routes/daysRoutes.js";
 import tripRoutes from "./routes/tripRoutes.js";
+import activitiesRoutes from "./routes/activitiesRoutes.js";
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
