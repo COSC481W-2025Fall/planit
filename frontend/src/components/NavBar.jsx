@@ -28,7 +28,7 @@ export default function NavBar() {
                     <Settings className="nav-icon" size={20} />
                     <span>Settings</span>
                 </NavLink>
-
+                
             </nav>
         </aside>
     );
