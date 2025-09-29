@@ -177,10 +177,14 @@ body,
 }
 
 .trip-cards {
-    display: flex;
-    gap: 24px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px;
     padding: 0 1rem;
     color: #ffffff;
+    max-height: 700px;
+    overflow-y: auto;
+    overflow-x: hidden;
     
 }
 
@@ -232,7 +236,7 @@ body,
     width: 300px;
     position: relative;
     overflow: visible;
-    border-radius: 20px;
+    border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -243,11 +247,11 @@ body,
 }
 
 .trip-card-image {
-    background-color: #d3d8e0;
+    background-color: var(--accent-lite);
     position: relative;
     height: 180px;
     overflow: hidden;
-    border-radius: 20px 20px 0 0;
+    border-radius: 15px 15px 0 0;
 }
 
 .trip-card-image img {
@@ -342,6 +346,8 @@ body,
     padding: 60px 20px;
     color: #666;
     grid-column: 1 / -1;
+    text-align: center;
+
     /* Make it span all columns */
 }
 
