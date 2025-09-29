@@ -6,7 +6,7 @@ const router = express.Router();
 router.delete("/delete", deleteActivity);
 router.post("/create", addActivity);
 router.update("/update", updateActivity);
-router.read("/read", readSingleActivity);
-router.read("/read", readAllActivities);
+router.read("/read/single", readSingleActivity);
+router.read("/read/all", readAllActivities);
 
 export default router;
