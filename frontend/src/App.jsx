@@ -6,6 +6,7 @@ import LandingPage from "./pages/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import SettingsPage from "./pages/SettingsPage";
+import Registration from "./pages/NewUserSignUpPage";
 
 function App() {
     return (
@@ -38,6 +39,15 @@ function App() {
                     </ProtectedRoute>
                 }
             />
+
+            <Route 
+            path="/registration" 
+            element={
+            <Registration />
+            } 
+            />
+
+
     </Routes>
   );
 }
