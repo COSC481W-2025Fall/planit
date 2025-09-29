@@ -42,7 +42,7 @@
 /* White box for username */
 .username-box {
   background: white;
-  padding: 15px;
+  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
@@ -64,7 +64,6 @@
   font-size: 15px;
   border: 1px solid white ;
   border-radius: 8px;
-  margin-bottom: 20px;
   outline: none;
   transition: border-color 0.2s ease;
   border-color: #1e7a3d;
@@ -90,6 +89,18 @@
 
 .save-button:hover {
   background-color: #16582c;
+}
+
+.error-message {
+    color: red;
+    font-size: 13px;
+    text-align: left;
+    margin: 5px;
+}
+
+.error-container {
+    min-height: 20px;
+    margin: 5px 0;
 }
 
 @media (max-width: 600px) {

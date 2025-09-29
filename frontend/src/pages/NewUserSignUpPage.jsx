@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import "../css/NewUserSignUpPage.css";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import logo from "../assets/Planit_Full_Green.png";
+import { useNavigate } from "react-router-dom";
 
 export default function UserRegistrationPage() {
   const [user, setUser] = useState(null); // store logged-in user
   const [createUsername, setCreateUsername] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   // run this code when the component first loads
   useEffect(() => {
@@ -37,7 +40,16 @@ export default function UserRegistrationPage() {
     );
     const data = await response.json();
 
-    if (!response.ok) console.error(data.error);
+    if (!response.ok) {
+        let message = data.error || "Something went wrong";
+
+        if (message == "Internal Server Error"){
+            message = "Username already taken, try again";
+        }
+        setErrorMessage(message);
+    } else{
+        setErrorMessage("");
+    }
     if (data.user) {
         setUser(data.user);
     }
@@ -67,18 +79,27 @@ export default function UserRegistrationPage() {
           value={createUsername}
           onChange={(e) => setCreateUsername(e.target.value)}
         />
+        
+        <div className="error-container">
+            {errorMessage && <p className ="error-message">{errorMessage}</p>}
+        </div>
 
-        <button
+       <button
           className="save-button"
-          onClick={async () =>
-            await sendRequest("create", "POST", {
+          onClick={async () => {
+            const result = await sendRequest("create", "POST", {
               userId: user.user_id,
               createUsername,
-            })
-          }
+            });
+
+            if (typeof result === "string" && result.includes("successfully")) {
+              navigate("/trip");
+            }
+          }}
         >
           Save
         </button>
+
       </div>
     </div>
   );
