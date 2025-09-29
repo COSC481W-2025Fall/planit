@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, Pencil } from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2 } from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/Popup.css";
@@ -157,9 +157,6 @@ export default function TripDaysPage() {
                                     <EllipsisVertical className="day-actions-ellipsis" onClick={() => toggleMenu(day.day_id)} />
                                     {openMenu === day.day_id && (
                                         <div className="day-menu">
-                                            <button onClick={() => setEditDay(day)}>
-                                                <Pencil className="pencil-icon" /> Edit
-                                            </button>
                                             <button onClick={() => handleDeleteDay(day.day_id)}>
                                                 <Trash2 className="trash-icon" /> Delete
                                             </button>
