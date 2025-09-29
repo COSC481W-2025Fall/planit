@@ -1,15 +1,39 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import "../css/styles.css"; // keep using your old styling
+import "../css/styles.css";
 
 const DAYS = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
 
-// ✅ read env vars from Vite (.env inside frontend/)
 const BASE_URL = import.meta.env.PROD
-  ? import.meta.env.VITE_BACKEND_URL   // deployed backend
-  : import.meta.env.VITE_LOCAL_BACKEND_URL; // local backend
+  ? import.meta.env.VITE_BACKEND_URL
+  : import.meta.env.VITE_LOCAL_BACKEND_URL;
 
 export default function PlacesTest() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="trip-page">
+      {!open && (
+        <div className="expand-container">
+          <button className="expand-btn" onClick={() => setOpen(true)}>
+            Search Activities
+          </button>
+        </div>
+      )}
+      {open && (
+        <>
+          {/* Overlay */}
+          <div className="overlay" onClick={() => setOpen(false)} />
+
+          {/* Drawer */}
+          <ActivitiesSearch onClose={() => setOpen(false)} />
+        </>
+      )}
+    </div>
+  );
+}
+
+function ActivitiesSearch({ onClose }) {
   const [query, setQuery] = useState("");
   const [cityQuery, setCityQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -20,12 +44,18 @@ export default function PlacesTest() {
 
   const priceLevelDisplay = (level) => {
     switch (level) {
-      case "PRICE_LEVEL_FREE": return "Free";
-      case "PRICE_LEVEL_INEXPENSIVE": return "$";
-      case "PRICE_LEVEL_MODERATE": return "$$";
-      case "PRICE_LEVEL_EXPENSIVE": return "$$$";
-      case "PRICE_LEVEL_VERY_EXPENSIVE": return "$$$$";
-      default: return "N/A";
+      case "PRICE_LEVEL_FREE":
+        return "Free";
+      case "PRICE_LEVEL_INEXPENSIVE":
+        return "$";
+      case "PRICE_LEVEL_MODERATE":
+        return "$$";
+      case "PRICE_LEVEL_EXPENSIVE":
+        return "$$$";
+      case "PRICE_LEVEL_VERY_EXPENSIVE":
+        return "$$$$";
+      default:
+        return "N/A";
     }
   };
 
@@ -66,12 +96,12 @@ export default function PlacesTest() {
           query: cityQuery,
         });
         const suggestions = res.data.result?.suggestions || [];
-        setCityResults(suggestions.slice(0, 1));
+        setCityResults(suggestions.slice(0, 5));
         prevCityQuery.current = cityQuery;
       } catch (err) {
         console.error("Autocomplete error:", err.message);
       }
-    }, 1100);
+    }, 800);
 
     return () => clearTimeout(debounceTimeout.current);
   }, [cityQuery]);
@@ -95,38 +125,51 @@ export default function PlacesTest() {
   };
 
   return (
-    <div className="activities-search">
+    <div className="drawer">
+      <button className="collapse-btn" onClick={onClose}>
+        ×
+      </button>
+
       <h2 className="search-title">Add Activities</h2>
 
       <form onSubmit={handleSubmit}>
         <div className="search-bar">
           <input
             type="text"
-            placeholder="Search for activity..."
+            placeholder="Search activity type..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <input
-            type="text"
-            placeholder="Search in city..."
-            value={cityQuery}
-            onChange={(e) => setCityQuery(e.target.value)}
-          />
-          {cityResults.length > 0 && (
-            <ul className="city-results-dropdown">
-              <li
-                onClick={() => {
-                  const selectedCity =
-                    cityResults[0].placePrediction?.text?.text || "";
-                  setCityQuery(selectedCity);
-                  setCityResults([]);
-                  prevCityQuery.current = selectedCity;
-                }}
-              >
-                {cityResults[0].placePrediction?.text?.text || ""}
-              </li>
-            </ul>
-          )}
+
+          <div className="city-autocomplete-wrapper">
+            <input
+              type="text"
+              placeholder="Enter location..."
+              value={cityQuery}
+              onChange={(e) => setCityQuery(e.target.value)}
+            />
+            {cityResults.length > 0 && (
+              <ul className="city-results-dropdown">
+                {cityResults.map((suggestion, idx) => (
+                  <li
+                    key={idx}
+                    onClick={() => {
+                      const selectedCity =
+                        suggestion.placePrediction?.text?.text || "";
+                      setCityQuery(selectedCity);
+                      setCityResults([]);
+                      prevCityQuery.current = selectedCity;
+                    }}
+                  >
+                    {suggestion.placePrediction?.text?.text || ""}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+
+        <div className="search-actions">
           <select
             value={selectedDay}
             onChange={(e) => setSelectedDay(Number(e.target.value))}
@@ -147,27 +190,33 @@ export default function PlacesTest() {
       <div className="search-results">
         {results.map((place, idx) => (
           <div key={idx} className="activity-card">
-            <h3>{place.displayName?.text}</h3>
-            <p className="detail">{getLocationString(place)}</p>
-            <p className="detail">Type: {formatType(place.primaryType)}</p>
-            <p className="price">{priceLevelDisplay(place.priceLevel)}</p>
-            <p className="detail">
-              {place.rating !== undefined
-                ? `★ ${place.rating}`
-                : "No ratings available"}
-            </p>
-            {place.websiteUri ? (
-              <a
-                href={place.websiteUri}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Website
-              </a>
-            ) : (
-              <span>No website available</span>
-            )}
-            <button className="add-btn">+ Add to Trip</button>
+            <div className="card-content">
+              <h3>{place.displayName?.text}</h3>
+              <p className="detail">{getLocationString(place)}</p>
+              <p className="detail">Type: {formatType(place.primaryType)}</p>
+              <p className="price">{priceLevelDisplay(place.priceLevel)}</p>
+              <p className="detail">
+                {place.rating !== undefined
+                  ? `★ ${place.rating}`
+                  : "No ratings available"}
+              </p>
+            </div>
+
+            <div className="card-actions">
+              {place.websiteUri ? (
+                <a
+                  href={place.websiteUri}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="website-link"
+                >
+                  Website
+                </a>
+              ) : (
+                <span className="website-link disabled">No website</span>
+              )}
+              <button className="add-btn"> Add to Trip</button>
+            </div>
           </div>
         ))}
       </div>
