@@ -1,31 +1,202 @@
+/*Styling to make the app take up the entire page*/
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.name {
+    color: #1e7a3d;
+    padding-left: 3%;
+    font-size: 42px;
+    font-weight: bold;
+}
+
+.sidebar {
+    width: 250px;
+    /* adjust to your liking */
+    background: #f8f8f8;
+    /* just to visualize */
+    height: 100%;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+/*Styling to format the main_content into a two column grid*/
+.main-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    grid-template-columns: 240px 1fr;
+    height: 100%;
+    width: 100%;
+}
+
+.content-with-sidebar {
+    display: flex;
+    flex: 1;
+    overflow: visible;
+}
+
 .trip-page {
     display: flex;
     flex-direction: column;
+    height: 100vh;
+}
+
+.trips-section {
+    position: static;
+    padding: 20px;
     min-height: 100dvh;
     background: var(--bg-offwhite);
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto; 
+
+    overflow: visible;
+    z-index: 0;
 }
 
-.main-content {
-    display: grid;
-    grid-template-columns: var(--sidebar-w) 1fr;
-    min-height: 0;
+.my_trips {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    padding: 10px;
+    gap: 10px;
+    border-left: 1px solid grey
 }
 
-.my-trips {
+
+.trips-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 20px;
+    width: 100%;
+    position: relative;
+    top: auto;
+    background: var(--bg-offwhite);
+    z-index: 1;
+    padding: 10px 20px;
+}
+
+
+.trips-title-section {
+    flex: 1;
+}
+
+/*Styling for "My Trips" banner title*/
+.trips-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 8px 0;
+}
+
+.trips-subtitle {
+    font-size: 16px;
+    margin: 0 0 24px 0;
+    color: #666;
+    text-align: left;
+}
+
+
+.banner-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+
+.new-trip-button {
+    background: var(--bg-surface);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    transition:
+            background 0.2s ease,
+            color 0.2s ease,
+            transform 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.new-trip-button:hover {
+    background: var(--accent);
+    color: var(--bg-surface);
+    transform: scale(1.05);
+    box-shadow: var(--shadow-2);
+}
+
+.filter-button {
+    background: var(--bg-surface);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    transition:
+            background 0.2s ease,
+            color 0.2s ease,
+            transform 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.filter-button:hover {
+    background: var(--accent);
+    color: var(--bg-surface);
+    transform: scale(1.05);
+    box-shadow: var(--shadow-2);
+}
+
+.filter-icon {
+    font-size: 14px;
+}
+.trip-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 120px;
+    overflow: hidden;
+    z-index: 1000;
+    border: 2px solid;
+}
+
+.trip-cards {
     display: grid;
-    grid-template-rows: auto 1fr;
-    height: calc(100dvh - var(--topbar-h));
-    padding: 1.125rem;
-    gap: 1rem;
-    overflow: auto;
-    background: transparent;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px;
+    padding: 0 1rem;
+    color: #ffffff;
+    max-height: 700px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    
 }
 
 .my-trips-banner {
     display: grid;
-    grid-template-columns: 1fr auto auto;
-    align-items: center;
-    gap: 0.75rem;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 0 1rem;
 }
 
 .trips-title {
@@ -33,65 +204,267 @@
     color: var(--text);
 }
 
-.new-trip-button,
-.sort-button {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    padding: 0.625rem 1rem;
-    border-radius: 999px;
-    cursor: pointer;
-    font-size: 0.875rem;
+.trip-duration-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
     font-weight: 600;
-    transition: background 120ms ease, color 120ms ease, border-color 120ms ease, transform 60ms ease;
+    color: white;
+    font-family: Tahoma, sans-serif;
 }
-.new-trip-button:hover,
-.sort-button:hover {
-    background-color: var(--accent-lite);
-    border-color: var(--accent);
-    color: var(--accent);
-}
-.new-trip-button:active,
-.sort-button:active {
-    transform: translateY(0.0625rem);
+.trip-card-location{
+    margin-top: 0;
 }
 
-.trip-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-    gap: 1rem;
+
+.trip-card-title {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: left;
+    color: #000000;
+    font-family: Tahoma, sans-serif;
+    margin-top: 10px;
+    margin-bottom: 2px;
 }
 
 .trip-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem;
+    flex: 0 0 auto;
+    width: 300px;
+    position: relative;
+    overflow: visible;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.trip-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: #f5f5f5;
+}
+
+.trip-card-image {
+    background-color: var(--accent-lite);
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+    border-radius: 15px 15px 0 0;
+}
+
+.trip-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.trip-card-content {
+    padding: 8px 16px;
+    color: white;
+}
+
+.trip-location {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+/* Trip menu dropdown */
+.trip-menu {
+    position: relative;
+    z-index: 1000;
+    display: inline-block;
+    color: #000000;
+    font: Tahoma;
+    font-weight: bold;
+    padding-left: 20px;
+
+}
+
+.trip-menu-button {
+    background: none;
+    border: none;
+    border-radius: 0;
+    width: auto;
+    height: auto;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    z-index: 1000;
+    transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.trip-menu-button:hover {
+    background: #f5f5f5;
+    transform: scale(1.15);
+
+}
+
+.dropdown-item {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.dropdown_item:hover {
+    background-color: #f3f4f6;
+    transform: scale(1.02);
+}
+
+.edit-item:hover {
+    background-color: #f5f5f5;
+
+}
+
+.delete-item:hover {
+    background-color: #f5f5f5;
+
+}
+
+/* Empty state styling */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+    grid-column: 1 / -1;
+    text-align: center;
+
+    /* Make it span all columns */
+}
+
+
+.empty-state h3 {
+    font-size: 24px;
+    margin: 16px 0 8px 0;
+    color: #333;
+}
+
+/* Modal Styles */
+.modal_overlay {
+    position: fixed;
+    inset: 0; 
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    overflow: visible;
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-content h2 {
+    margin: 0 0 20px 0;
+    color: #333;
+}
+
+.modal-content form {
     display: flex;
     flex-direction: column;
-    gap: 0.375rem;
-    box-shadow: var(--shadow-1);
-    transition: box-shadow 140ms ease, transform 120ms ease, border-color 120ms ease;
-}
-.trip-card:hover {
-    box-shadow: var(--shadow-2);
-    border-color: var(--accent-lite);
-    transform: translateY(-0.125rem);
+    gap: 16px;
 }
 
-.trip-card-title {
-    font-family: Tahoma, Geneva, Verdana, sans-serif;
-    font-weight: 700;
-    font-size: 1.0625rem;
-    color: var(--text);
+.modal-content input {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
 }
 
-.trip-card-days {
-    font-size: 0.8125rem;
-    color: var(--muted);
+.modal-content input:focus {
+    outline: none;
+
 }
 
-.surface-accent {
-    background: var(--accent-lite);
-    border: 1px solid var(--accent);
-    border-radius: var(--radius);
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.save_button {
+    background: #1e7a3d;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.save_button:hover {
+    background: #16a34a;
+}
+
+.cancel_button {
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cancel_button:hover {
+    background: #e9ecef;
+}
+
+.pfp {
+    place-self: center;
+    height: 50%;
+    border: none;
+    border-radius: 50%;
+}
+
+/*.pfp{
+    place-self: center;
+}*/
+@media (max-width: 768px) {
+    .trip-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .trips-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 32px;
+        /* Change from 30px to 32px */
+        gap: 24px;
+        ;
+    }
+
+    .banner-controls {
+        order: -1;
+        /* Put buttons above title on mobile */
+        justify-content: flex-end;
+    }
+
 }
