@@ -21,7 +21,7 @@ export const fetchUserTrips = async (req, res) => {
  
   try
   {
-    const userId = req.user.id;
+    const userId = req.user.user_id;
 
     // query the database for trips associated with the logged-in user
     const trips = await sql`

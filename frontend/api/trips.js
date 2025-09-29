@@ -1,31 +1,53 @@
-import { VITE_BACKEND_URL, LOCAL_BACKEND_URL } from "../../Constants"; 
+import { VITE_BACKEND_URL, LOCAL_BACKEND_URL } from "../../Constants";
 
-const API_BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL + "/trips";
+const API_BASE_URL =
+  (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/trip";
 
-// Frontend function to create a new trip
-export async function createTrip({ days, tripName, tripStartDate, tripLocation }) {
-  const res = await fetch(`${API_BASE_URL}/create`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+// Get all trips for user
+export async function getTrips(user_id) {
+  const res = await fetch(`${API_BASE_URL}/readAll?user_id=${user_id}`, {
+    method: "GET",
     credentials: "include",
-    body: JSON.stringify({ days, tripName, tripStartDate, tripLocation }),
   });
 
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.error||  "Failed to create trip");
+    throw new Error(error.error || "Failed to fetch trips");
   }
-  console.log("JSON String",res.body);
   return await res.json();
 }
 
-// Frontend function to update an existing trip
-export async function updateTrip({ id, days, tripName, tripStartDate, tripLocation }) {
+// Create new trip
+export async function createTrip(trip) {
+  const payload = {
+    tripName: trip.trip_name,
+    tripLocation: trip.trip_location,
+    tripStartDate: trip.trip_start_date,
+    days: trip.days,
+  };
+
+  const res = await fetch(`${API_BASE_URL}/create`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to create trip");
+  }
+
+  return await res.json();
+}
+
+// Update existing trip
+export async function updateTrip({ trips_id, trip_name, trip_location, trip_start_date, days }) {
   const res = await fetch(`${API_BASE_URL}/update`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ id, days, tripName, tripStartDate, tripLocation }),
+    body: JSON.stringify({ trips_id, trip_name, trip_location, trip_start_date, days }),
   });
 
   if (!res.ok) {
@@ -35,27 +57,13 @@ export async function updateTrip({ id, days, tripName, tripStartDate, tripLocati
   return await res.json();
 }
 
-// Frontend function to read a trip given trip id
-export async function readTrip(tripId) {
-  const res = await fetch(`${API_BASE_URL}/read/${tripId}`, {
-    method: "GET",
-    credentials: "include",
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || "Failed to fetch trip");
-  }
-  return await res.json();
-}
-
-// Frontend function to delete a trip given trip id
-export async function deleteTrip(id) {
+// Delete trip
+export async function deleteTrip(trips_id) {
   const res = await fetch(`${API_BASE_URL}/delete`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ id }),
+    body: JSON.stringify({ trips_id }),
   });
 
   if (!res.ok) {
