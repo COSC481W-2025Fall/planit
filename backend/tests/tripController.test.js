@@ -1,7 +1,7 @@
 // backend/tests/tripController.supertest.test.js
 import request from "supertest";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { makeApp } from "./appFactory.js";
+import {makeApp, makeAppUndefinedUserId} from "./appFactory.js";
 import { sql } from "../config/db.js";
 
 // Mock DB
@@ -14,15 +14,41 @@ vi.mock("../config/db.js", () => {
 describe("Trip Controller Unit Tests", () => {
     beforeEach(() => vi.clearAllMocks());
 
-    // READ TRIP TESTING
-    describe("Read/trip_id testing", () => {
+    // CREATE TRIP TESTING
+    describe("create/ testing", () => {
+        it("returns 200 when user logged in", async () => {
+            const app = makeApp({ injectUser: true }); // no injectUser
+            const res = await request(app).post("/trip/create").send({
+                trip_name: "Test Trip",
+                days: 5,
+                start_date: "2022-01-01",
+            })
+            // expect(res.status).toBe(401);
+            expect(res.body).toEqual("Trip created.");
+            expect(res.status).toBe(200);
+        });
+
+        it("returns 400 when user is logged in but no userId defined", async () => {
+            const app = makeAppUndefinedUserId({ injectUser: true }); // no injectUser
+            const res = await request(app).post("/trip/create").send({
+                trip_name: "Test Trip",
+                start_date: "2022-01-01",
+            })
+            expect(res.body).toEqual({error: "userId is required, creation unsuccessful" });
+            expect(res.status).toBe(400);
+        });
+
         it("returns 401 when user is not logged in", async () => {
             const app = makeApp({ injectUser: false }); // no injectUser
-            const res = await request(app).get("/trip/read/8");
+            const res = await request(app).post("/trip/create");
             expect(res.status).toBe(401);
             expect(res.body).toEqual({ loggedIn: false });
         });
+    })
 
+
+    // READ TRIP TESTING
+    describe("Read/trip_id testing", () => {
         it("returns 200 and single trip for logged-in user", async () => {
             const app = makeApp({ injectUser: true });
 
@@ -35,6 +61,13 @@ describe("Trip Controller Unit Tests", () => {
             expect(res.body).toEqual(
                 { trips_id: 10, user_id: 123, trip_name: "Test Trip" }
             );
+        });
+
+        it("returns 401 when user is not logged in", async () => {
+            const app = makeApp({ injectUser: false }); // no injectUser
+            const res = await request(app).get("/trip/read/8");
+            expect(res.status).toBe(401);
+            expect(res.body).toEqual({ loggedIn: false });
         });
 
         it("returns 404 and nothing for logged-in user with no trips created", async () => {
@@ -54,13 +87,6 @@ describe("Trip Controller Unit Tests", () => {
 
     // FETCH ALL TRIPS TESTING
     describe("fetchAllTrips testing", () => {
-        it("returns 401 when user is not logged in", async () => {
-            const app = makeApp({ injectUser: false }); // no injectUser
-            const res = await request(app).get("/trip/readAll");
-            expect(res.status).toBe(401);
-            expect(res.body).toEqual({ loggedIn: false });
-        });
-
         it("returns 200 and trips for logged-in user", async () => {
             const app = makeApp({ injectUser: true });
 
@@ -90,6 +116,13 @@ describe("Trip Controller Unit Tests", () => {
                 loggedIn: true,
                 trips: [],
             });
+        });
+
+        it("returns 401 when user is not logged in", async () => {
+            const app = makeApp({ injectUser: false }); // no injectUser
+            const res = await request(app).get("/trip/readAll");
+            expect(res.status).toBe(401);
+            expect(res.body).toEqual({ loggedIn: false });
         });
     })
 });

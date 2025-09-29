@@ -42,7 +42,7 @@ export const createTrip = async (req, res) => {
     // Get userId from the authenticated user in the request
     const userId = req.user.user_id;
 
-    if (!userId === undefined) {
+    if (userId === undefined) {
         return res.status(400).json({ error: "userId is required, creation unsuccessful" });
     }
 
