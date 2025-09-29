@@ -7,6 +7,7 @@ import Popup from "../components/Popup";
 import "../css/Popup.css";
 import { createTrip, updateTrip, getTrips, deleteTrip } from "../../api/trips";
 import { MapPin, Pencil, Trash } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function TripPage() {
   //constants for data  
@@ -17,6 +18,7 @@ export default function TripPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTrip, setEditingTrip] = useState(null);
   const [openDropdownId, setOpenDropdownId] = useState(null);
+  const navigate = useNavigate();
 
   // Get user details
   useEffect(() => {
@@ -92,6 +94,10 @@ export default function TripPage() {
     setIsModalOpen(true);
   };
 
+   const handleTripRedirect = (tripId) => {
+    navigate(`/days/${tripId}`);
+  };
+
   return (
     <div className="trip-page">
       <TopBanner />
@@ -135,7 +141,7 @@ export default function TripPage() {
                 </div>
               ) : (
                 trips.map((trip) => (
-                  <div key={trip.trips_id} className="trip-card">
+                  <div key={trip.trips_id} className="trip-card" onClick={() => handleTripRedirect(trip.trips_id)}>
                     <div className="trip-card-image">
                       <div className="trip-duration-badge">{trip.days} days</div>
                     </div>

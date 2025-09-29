@@ -40,7 +40,7 @@ function App() {
                 }
             />
             <Route
-                path="/days"
+                path="/days/:tripId"
                 element={
                     <ProtectedRoute>
                         <TripDaysPage />

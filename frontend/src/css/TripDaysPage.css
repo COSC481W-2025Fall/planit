@@ -14,7 +14,36 @@ body {
   overflow-y: auto;
   min-width: 0;
   padding: 0rem;
+  padding: 1rem;
+  padding-bottom: 0rem;
   color: var(--muted);
+}
+
+.loading-screen {
+  text-align: center;
+  margin-top: 10rem;
+}
+
+.loading-screen p {
+  text-align: center;
+  color: var(--accent);
+  font-family: Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: bold;
+  font-size: 2em;
+}
+
+.empty-state-text {
+  font-size: 1.1em;
+  margin: auto;
+  padding-top: 1.5rem;
+  text-align: center;
+  width: 20rem;
+}
+
+.empty-state-text span {
+  color: var(--accent);
+  font-weight: bold;
+  font-family: Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .page-layout {
@@ -107,7 +136,7 @@ body {
 .trip-info {
   display: flex;
   align-items: center;
-  font-size: 0.8em;
+  font-size: 0.8rem;
   gap: 1.25rem;
 }
 
@@ -119,6 +148,12 @@ body {
 .trip-location {
   display: flex;
   align-items: center;
+  margin: 0px
+}
+
+.trip-location-text, .trip-dates-text {
+  font-size: 0.8rem;
+  align-self: center;
 }
 
 .button-level-bar {
