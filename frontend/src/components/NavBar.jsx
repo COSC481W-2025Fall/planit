@@ -30,6 +30,7 @@ export default function NavBar() {
                 </NavLink>
 
                 <NavLink
+                //Temporary way to get to /days page while Trips UI is being completed
                     to="/days"
                     className={({ isActive }) =>
                         "nav-item" + (isActive ? " active" : "")

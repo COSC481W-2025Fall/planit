@@ -19,8 +19,9 @@ export default function TripDaysPage() {
     const [editDay, setEditDay] = useState(null);
     const [newDay, setOpenNewDay] = useState(null);
 
-    //temporary constant to get tripId
-    const tripId = 43;
+    //temporary constant to get tripId while Trips UI is being finished
+    //this needs to be a tripId for whatever user you are logged in as 
+    const tripId = 50;
 
     //get the user
     useEffect(() => {
