@@ -164,7 +164,7 @@ export const deleteTrip = async (req, res) => {
     const { trips_id } = req.body;
     const userId = req.user.user_id;
 
-    if (!userId === undefined) {
+    if (userId === undefined) {
         return res.status(400).json({ error: "userId is required, delete unsuccessful" });
     }
 

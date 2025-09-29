@@ -14,6 +14,48 @@ vi.mock("../config/db.js", () => {
 describe("Trip Controller Unit Tests", () => {
     beforeEach(() => vi.clearAllMocks());
 
+    // DELETE TRIP TESTING
+    describe("delete/ testing", () => {
+        it("returns 200 when trip is deleted", async () => {
+            const app = makeApp({ injectUser: true }); // no injectUser
+            sql.mockResolvedValueOnce([
+                { trips_id: 10, user_id: 123, trip_name: "Test Trip 1" }
+            ]);
+
+            const res = await request(app).delete("/trip/delete").send({
+                trips_id: 10
+            });
+
+            expect(res.body).toEqual("Trip deleted.");
+            expect(res.status).toBe(200);
+        });
+
+        it("returns 400 when user is logged in yet user_id is undefined", async () => {
+            const app = makeAppUndefinedUserId({ injectUser: true }); // no injectUser
+            const res = await request(app).delete("/trip/delete").send({
+            });
+            expect(res.status).toBe(400);
+            expect(res.body).toEqual({ error: "userId is required, delete unsuccessful" });
+        });
+
+        it("returns 401 when user is not logged in.", async () => {
+            const app = makeApp({ injectUser: false }); // no injectUser
+            const res = await request(app).delete("/trip/delete").send({
+            });
+            expect(res.status).toBe(401);
+            expect(res.body).toEqual({ loggedIn: false });
+        });
+
+        it("returns 404 when trip is not found", async () => {
+            const app = makeApp({ injectUser: true }); // no injectUser
+            const res = await request(app).delete("/trip/delete").send({
+            })
+            expect(res.body).toEqual({error: "Trip not found, delete unsuccessful"});
+            expect(res.status).toBe(404);
+        });
+    })
+
+
     // CREATE TRIP TESTING
     describe("create/ testing", () => {
         it("returns 200 when user logged in", async () => {
