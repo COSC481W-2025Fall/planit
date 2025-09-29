@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "../css/styles.css";
+import { Star } from "lucide-react";
 
 const DAYS = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
 
@@ -196,9 +197,14 @@ function ActivitiesSearch({ onClose }) {
               <p className="detail">Type: {formatType(place.primaryType)}</p>
               <p className="price">{priceLevelDisplay(place.priceLevel)}</p>
               <p className="detail">
-                {place.rating !== undefined
-                  ? `★ ${place.rating}`
-                  : "No ratings available"}
+                {place.rating !== undefined ? (
+                  <span className="stars">
+                    <Star className="star" size={16} fill="currentColor" />
+                    {` ${place.rating}`}
+                  </span>
+                ) : (
+                  "No ratings available"
+                )}
               </p>
             </div>
 
@@ -215,7 +221,7 @@ function ActivitiesSearch({ onClose }) {
               ) : (
                 <span className="website-link disabled">No website</span>
               )}
-              <button className="add-btn"> Add to Trip</button>
+              <button className="add-btn">Add to Trip</button>
             </div>
           </div>
         ))}
