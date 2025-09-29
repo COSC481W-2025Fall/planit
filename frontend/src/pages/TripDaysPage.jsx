@@ -1,131 +1,206 @@
-import React from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, Pencil} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, Pencil } from "lucide-react";
+import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
-import "../css/Popup.css"; 
-import Popup from "../pages/Popup";
-
-
-const days = [
-    { id: 1, date: new Date("2025-10-01"), activities: [] },
-    { id: 2, date: new Date("2025-10-02"), activities: [] },
-    { id: 3, date: new Date("2025-10-03"), activities: [] },
-    { id: 4, date: new Date("2025-10-01"), activities: [] },
-    { id: 5, date: new Date("2025-10-02"), activities: [] },
-];
-
-const trip = { id: 1, location: "Paris, France", title: "Trip to Paris" };
+import "../css/Popup.css";
+import Popup from "../components/Popup";
+import NavBar from "../components/NavBar";
+import TopBanner from "../components/TopBanner";
+import { getDays, createDay, deleteDay } from "../../api/days";
 
 export default function TripDaysPage() {
-    const [openMenu, setOpenMenu] = React.useState(null);
-    const [editDay, setEditDay] = React.useState(null);
-    const [newDay, setOpenNewDay] = React.useState(null);
+    //constants for data
+    const [user, setUser] = useState(null);
+    const [trip, setTrip] = useState(null);
+    const [days, setDays] = useState([]);
+
+    //constants for UI components
+    const [openMenu, setOpenMenu] = useState(null);
+    const [editDay, setEditDay] = useState(null);
+    const [newDay, setOpenNewDay] = useState(null);
+
+    //temporary constant to get tripId
+    const tripId = 43;
+
+    //get the user
+    useEffect(() => {
+        fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/auth/login/details", { credentials: "include" })
+            .then((res) => res.json())
+            .then((data) => { if (data.loggedIn !== false) setUser(data); })
+            .catch((err) => console.error("User fetch error:", err));
+    }, []);
+
+    //get the trip
+    useEffect(() => {
+        fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + `/trip/read/${tripId}`, { credentials: "include" })
+            .then((res) => res.json())
+            .then((data) => setTrip(data))
+            .catch((err) => console.error("Trip fetch error:", err));
+    }, []);
+
+    //get the days for the trip
+    const fetchDays = async () => {
+        if (!tripId) return;
+        try {
+            const data = await getDays(tripId);
+            setDays(data.map((day) => ({
+                ...day,
+                day_id: day.day_id,
+                day_date: day.day_date,
+            })));
+        } catch (err) {
+            console.error("Error fetching days:", err);
+        }
+    };
+
+    useEffect(() => { fetchDays(); }, [tripId]);
+
+    //add a new day
+    const handleAddDay = async () => {
+        try {
+            let nextDate;
+            if (days.length > 0) {
+                const lastDayDate = new Date(days[days.length - 1].day_date);
+                nextDate = new Date(lastDayDate);
+                nextDate.setDate(lastDayDate.getDate() + 1);
+            } else {
+                nextDate = new Date(trip.trip_start_date);
+            }
+
+            const formatted = nextDate.toISOString().split("T")[0];
+            await createDay(tripId, { day_date: formatted });
+
+            await fetchDays();
+            setOpenNewDay(false);
+        } catch (err) {
+            console.error("Error creating day:", err);
+        }
+    };
+
+    //delete a day
+    const handleDeleteDay = async (dayId) => {
+        try {
+            if (openMenu === dayId) setOpenMenu(null);
+            await deleteDay(tripId, dayId);
+            await fetchDays();
+        } catch (err) {
+            console.error("Error deleting day:", err);
+        }
+    };
 
     const toggleMenu = (dayId) => {
         setOpenMenu(openMenu === dayId ? null : dayId);
     };
 
     return (
-        <div className="TripDaysPage">
-            <h1 className="trip-title">{trip.title}</h1>
+        <div className="page-layout">
+            <TopBanner user={user} onSignOut={() => console.log("Signed out")} />
 
-            <div className="trip-info">
-                <div className="trip-location">
-                    <MapPin className="trip-info-icon" />
-                    <p className="trip-location-text">{trip.location}</p>
-                </div>
+            <div className="content-with-sidebar">
+                <NavBar />
 
-                <div className="trip-dates">
-                    <Calendar className="trip-info-icon" />
-                    <p className="trip-dates-text">
-                        {days[0].date.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
-                        {" "}-{" "}
-                        {days[days.length - 1].date.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
-                    </p>
-                </div>
-            </div>
+                <main className="TripDaysPage">
+                    <h1 className="trip-title">{trip ? trip.trip_name : "Loading trip..."}</h1>
 
-            <img
-                className="image-banner"
-                src="https://www.earthtrekkers.com/wp-content/uploads/2023/11/Paris-Header-Photo.jpg.optimal.jpg"
-            />
-
-            <div className="button-level-bar">
-                <h1 className="itinerary-text">Itinerary</h1>
-                <button onClick={() => setOpenNewDay(true)} id="new-day-button">+ New Day</button>
-            </div>
-
-            <div className="days-container">
-                {days.map((day, index) => (
-                    <div key={day.id} className="day-card">
-                        <div className="top-of-day-card">
-                            <p className="day-title">Day {index + 1}</p>
-                            <p className="day-name">{day.name}</p>
-                        </div>
-                        <p className="day-date">
-                            {day.date.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", })}
-                        </p>
-
-                        <div className="number-of-activities">
-                            <p>{day.activities.length} Activities</p>
+                    <div className="trip-info">
+                        <div className="trip-location">
+                            <MapPin className="trip-info-icon" />
+                            <p className="trip-location-text">{trip ? trip.trip_location : "Loading trip..."}</p>
                         </div>
 
-                        {day.activities.length === 0 ? (
-                            <p className="add-activity-blurb">
-                                No activities planned. Add an activity from the sidebar
-                            </p>
-                        ) : (
-                            <div className="activities"></div>
+                        {days.length > 0 && (
+                            <div className="trip-dates">
+                                <Calendar className="trip-info-icon" />
+                                <p className="trip-dates-text">
+                                    {new Date(days[0].day_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+                                    {" - "}
+                                    {new Date(days[days.length - 1].day_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+                                </p>
+                            </div>
                         )}
-
-                        <div className="day-actions">
-                            <EllipsisVertical
-                                className="day-actions-ellipsis"
-                                onClick={() => toggleMenu(day.id)}
-                            />
-                            {openMenu === day.id && (
-                                <div className="day-menu">
-                                    <button onClick={() => setEditDay(day)}>
-                                        <Pencil className="pencil-icon" />
-                                        <p>Edit</p>
-                                    </button>
-                                    <button>
-                                        <Trash2 className="trash-icon" />
-                                        <p>Delete</p>
-                                    </button>
-                                </div>
-                            )}
-                        </div>
                     </div>
-                ))}
+
+                    <div
+                        className="image-banner"
+                    />
+
+                    <div className="button-level-bar">
+                        <h1 className="itinerary-text">Itinerary</h1>
+                        <button onClick={() => setOpenNewDay(true)} id="new-day-button">+ New Day</button>
+                    </div>
+
+                    <div className="days-container">
+                        {days.map((day, index) => (
+                            <div key={day.day_id} className="day-card">
+                                <div className="top-of-day-card">
+                                    <p className="day-title">Day {index + 1}</p>
+                                </div>
+
+                                <p className="day-date">
+                                    {new Date(day.day_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+                                </p>
+
+                                <div className="number-of-activities">
+                                    <p>{day.activities?.length ?? 0} Activities</p>
+                                </div>
+
+                                {(day.activities?.length ?? 0) === 0 ? (
+                                    <p className="add-activity-blurb">
+                                        No activities planned. Add an activity from the sidebar
+                                    </p>
+                                ) : (
+                                    <div className="activities">{/* Render activities here */}</div>
+                                )}
+
+                                <div className="day-actions">
+                                    <EllipsisVertical className="day-actions-ellipsis" onClick={() => toggleMenu(day.day_id)} />
+                                    {openMenu === day.day_id && (
+                                        <div className="day-menu">
+                                            <button onClick={() => setEditDay(day)}>
+                                                <Pencil className="pencil-icon" /> Edit
+                                            </button>
+                                            <button onClick={() => handleDeleteDay(day.day_id)}>
+                                                <Trash2 className="trash-icon" /> Delete
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {editDay && (
+                        <Popup
+                            title={`Day ${days.indexOf(editDay) + 1}`}
+                            buttons={
+                                <>
+                                    <button type="button" onClick={() => setEditDay(null)}>Cancel</button>
+                                    <button type="button" onClick={() => setEditDay(null)}>Save</button>
+                                </>
+                            }
+                        >
+                            <label className="popup-input">
+                                <span>Date:</span>
+                                <input type="date" />
+                            </label>
+                        </Popup>
+                    )}
+
+                    {newDay && (
+                        <Popup
+                            title="New Day"
+                            buttons={
+                                <>
+                                    <button type="button" onClick={() => setOpenNewDay(null)}>Cancel</button>
+                                    <button type="button" onClick={handleAddDay}>+ Add</button>
+                                </>
+                            }
+                        >
+                            <p className="popup-body-text">Do you want to add a new day to {trip?.trip_name}?</p>
+                        </Popup>
+                    )}
+                </main>
             </div>
-            {editDay && (
-                <Popup
-                    title={`Day ${days.indexOf(editDay) + 1}`}
-                    buttons={
-                        <>
-                            <button type="button" onClick={() => setEditDay(null)}>Cancel</button>
-                            <button type="button" onClick={() => setEditDay(null)}>Save</button>
-                        </>
-                    }
-                >
-                    <label className="popup-input">
-                        <span>Date:</span>
-                        <input type="date" />
-                    </label>
-                </Popup>
-            )}
-            {newDay && (
-                <Popup title="New Day"
-                    buttons={
-                        <>
-                            <button type="button" onClick={() => setOpenNewDay(null)}>Cancel</button>
-                            <button type="button" onClick={() => setOpenNewDay(null)}>+ Add</button>
-                        </>
-                    }
-                >
-                    <p className="popup-body-text">Do you want to add a new day to {trip.title}?</p>
-                </Popup>
-            )}
         </div>
     );
 }

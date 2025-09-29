@@ -29,6 +29,16 @@ export default function NavBar() {
                     <span>Settings</span>
                 </NavLink>
 
+                <NavLink
+                    to="/days"
+                    className={({ isActive }) =>
+                        "nav-item" + (isActive ? " active" : "")
+                    }
+                >
+                    <Settings className="nav-icon" size={20} />
+                    <span>Days</span>
+                </NavLink>
+
             </nav>
         </aside>
     );

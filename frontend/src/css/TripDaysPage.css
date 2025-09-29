@@ -9,18 +9,36 @@ body {
 }
 
 .TripDaysPage {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
   padding: 20px;
   color: #7c8189;
+}
+
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.content-with-sidebar {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
 
 .day-title {
   color: black;
   font-weight: bold;
   font-size: 0.95em;
+  margin: 0px;
+  margin-top: 0.5em;
 }
 
 .day-date {
   font-size: 0.8em;
+  margin-top: 0.5em;
 }
 
 .day-card {
@@ -68,17 +86,20 @@ body {
   height: 200px;
   border-radius: 15px;
   object-fit: cover;
+  background-color: lightgray;
 }
 
 .trip-title {
   font-family: Tahoma;
-  color: black
+  color: black;
+  margin: 0px;
 }
 
 .itinerary-text {
   color: black;
   font-weight: bold;
   font-size: 1.5em;
+  margin: 2px;
 }
 
 .trip-info {
@@ -107,7 +128,7 @@ body {
 
 #new-day-button {
   background-color: white;
-  border-radius: 15px;
+  border-radius: var(--radius);
   height: 30px;
   border: 1px solid #1e7a3d;
   color: #1e7a3d;
