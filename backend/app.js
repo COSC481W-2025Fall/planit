@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -14,26 +11,25 @@ import userRoutes from "./routes/userRoutes.js";
 import placesAPIRoutes from "./routes/placesAPIRoutes.js";
 import daysRoutes from "./routes/daysRoutes.js";
 import tripRoutes from "./routes/tripRoutes.js";
-import activitiesRoutes from "./routes/activitiesRoutes.js";
-
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // connect to Neon
-const sql = neon(process.env.DATABASE_URL);
+export const sql = neon(process.env.DATABASE_URL);
 
 // middleware
 app.use(express.json());
-app.use(cors({
+app.use(
+  cors({
     origin: [
-        "http://localhost:5173",
-        "https://app.planit-travel.me",
-        "https://www.planit-travel.me",
-        "https://planit-travel.me"
+      "http://localhost:5173",
+      "https://app.planit-travel.me",
+      "https://www.planit-travel.me",
+      "https://planit-travel.me",
     ],
-  credentials: true
-}));
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(morgan("dev"));
 
@@ -52,17 +48,11 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+// routes
 app.use("/auth", authRoutes);
-// days routes
 app.use("/placesAPI", placesAPIRoutes);
 app.use("/days", daysRoutes);
 app.use("/trip", tripRoutes);
-
-// user routes
-app.use("/user", userRoutes);
-
 app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
 
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+export default app; // <- export the app for tests
