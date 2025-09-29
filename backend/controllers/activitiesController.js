@@ -6,6 +6,7 @@ export const deleteActivity = async (req, res) =>
   {
     try 
       {
+        // Extract activityId from request body
     const { activityId } = req.body;
 
     if (!activityId)
@@ -13,12 +14,13 @@ export const deleteActivity = async (req, res) =>
         return res.status(400).json({ error: "Invalid activityId" });
         }
 
-
+        // Validate required fields
     if (!activityId) 
         {
       return res.status(400).json({ error: "Missing required fields" });
         }
 
+        // Delete the activity from the database
     await sql`
       DELETE FROM activities WHERE id = ${activityId};
     `;
@@ -38,14 +40,18 @@ export const addActivity = async (req, res) =>
   {
   try 
   {
+    //Get day that we are adding activity to 
     const { day, activity } = req.body;
+    //Variables that store values for new we are creating
     const { name, address, type, priceLevel, rating, longitude, latitude } = activity;
 
     if (!day || !activity) 
     {
+      //Error handling if fields missing
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    //Query for inserting new activity into db and values of each field in table
     const newActivity = await sql`
       INSERT INTO activities (day_id, activity_name, activity_types, activity_price_level, activity_address, activity_rating, longitude, latitude)
       VALUES(${day}, ${name}, ${type}, ${priceLevel}, ${address}, ${rating}, ${longitude}, ${latitude})
@@ -67,13 +73,17 @@ export const addActivity = async (req, res) =>
 
 export const updateActivity = async (req, res) => {
   try {
+    //Pull current values of activity we updating
     const { activityId, activity } = req.body;
+    //Variables to store fields we want to edit in activity
     const { name, priceLevel, } = activity || {};
 
     if (!activityId || !activity) {
+      //Error handling if fields for updating activity are empty
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    //Query to replace activity values with new ones we took above
     const updated = await sql`
       UPDATE activities
       SET activity_name = ${name},
@@ -96,14 +106,16 @@ export const updateActivity = async (req, res) => {
   }
 };
 
-export const readActivity = async (req, res) => {
+export const readSingleActivity = async (req, res) => {
   try {
+    //Grab activity ID of activity we want to read
     const { activityId } = req.body;
 
     if (!activityId || !activity) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    //Query to return Activity we want to read
     const returned = await sql`
       SELECT * FROM activities WHERE id = ${activityId};
       `;
@@ -122,3 +134,25 @@ export const readActivity = async (req, res) => {
   } 
 }
 
+
+export const readAllActivities = async (req, res) => {
+  try {
+    const { dayId } = req.body; 
+
+    if (!dayId) {
+      return res.status(400).json({ error: "Missing required dayId" });
+    }
+
+    const activities = await sql`
+      SELECT * FROM activities WHERE day_id = ${dayId};
+    `;
+
+    res.json({
+      message: "Activities retrieved successfully",
+      activities,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
