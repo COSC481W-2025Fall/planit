@@ -6,6 +6,7 @@ import LandingPage from "./pages/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import SettingsPage from "./pages/SettingsPage";
+import TripDaysPage from "./pages/TripDaysPage"
 
 function App() {
     return (
@@ -35,6 +36,14 @@ function App() {
                 element={
                     <ProtectedRoute>
                         <SettingsPage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/days/:tripId"
+                element={
+                    <ProtectedRoute>
+                        <TripDaysPage />
                     </ProtectedRoute>
                 }
             />
