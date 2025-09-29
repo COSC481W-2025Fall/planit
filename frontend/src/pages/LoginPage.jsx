@@ -1,5 +1,7 @@
 import React from "react";
 import "../css/LoginPage.css";
+import logo from "../assets/Planit_Full_Green.png";
+import gLogo from "../assets/google-g-logo.webp";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 
 export default function LoginPage() {
@@ -10,12 +12,21 @@ export default function LoginPage() {
 
   return (
     <div className = "parent-container">
+      {/* Header section with app logo and welcome message */}
+      <div className="header-container">
+          <img src={logo} alt="PlanIt Logo" className="login-logo"/>    
+          <h1>Welcome to PlanIt</h1>
+           <p>Sign in to start planning your trips</p>
+      </div>
+      
+      {/* Login box with sign in title and Google login button */}
         <div className = "login-container">
-            <h2 className = "title">PlanIt</h2>
-            <button className = "login-with-google-button" onClick={handleLogin}>
-             Log in with Google
-            </button>
+          <h1>Sign in</h1>
+          <button className="login-button" onClick={handleLogin}>
+            <img src={gLogo} alt="Google G" className="google-g"/>
+            <span>Login with Google</span>
+          </button>
         </div>
-    </div>
+  </div>
   );
 }

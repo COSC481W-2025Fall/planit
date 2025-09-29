@@ -31,7 +31,6 @@ body,
     display: flex;
     flex-direction: column;
     flex: 1;
-    overflow-y: auto;
     min-width: 0;
     grid-template-columns: 240px 1fr;
     height: 100%;
@@ -51,12 +50,17 @@ body,
 }
 
 .trips-section {
+    position: static;
     padding: 20px;
     min-height: 100dvh;
     background: var(--bg-offwhite);
     width: 100%;
     box-sizing: border-box;
     position: relative;
+    overflow-x: hidden;
+    overflow-y: auto; 
+
+    overflow: visible;
     z-index: 0;
 }
 
@@ -77,6 +81,11 @@ body,
     margin-bottom: 30px;
     gap: 20px;
     width: 100%;
+    position: relative;
+    top: auto;
+    background: var(--bg-offwhite);
+    z-index: 1;
+    padding: 10px 20px;
 }
 
 
@@ -154,7 +163,6 @@ body,
 .filter-icon {
     font-size: 14px;
 }
-
 .trip-dropdown {
     position: absolute;
     top: 100%;
@@ -168,12 +176,12 @@ body,
     border: 2px solid;
 }
 
-/*Styling for the table that contains trip cards, made with grid to accommodate many trip cards*/
 .trip-cards {
     display: flex;
     gap: 24px;
     padding: 0 1rem;
     color: #ffffff;
+    
 }
 
 .my-trips-banner {
@@ -210,7 +218,7 @@ body,
 
 
 .trip-card-title {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
     text-align: left;
     color: #000000;
@@ -223,12 +231,12 @@ body,
     flex: 0 0 auto;
     width: 300px;
     position: relative;
+    overflow: visible;
     border-radius: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-
 }
 
-.trip_card:hover {
+.trip-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     background: #f5f5f5;
@@ -239,7 +247,7 @@ body,
     position: relative;
     height: 180px;
     overflow: hidden;
-    border-radius: 4px 4px 0 0;
+    border-radius: 20px 20px 0 0;
 }
 
 .trip-card-image img {
@@ -254,22 +262,7 @@ body,
     color: white;
 }
 
-.trip_card_title {
-    font-size: 18px;
-    font-weight: bold;
-    color: #000000;
-    margin: 0;
-    margin-bottom: 2px;
-    font-family: Tahoma, sans-serif;
-}
-
 .trip-location {
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 6px;
-}
-
-.trip_dates {
     color: #666;
     font-size: 14px;
     margin-bottom: 6px;
@@ -305,11 +298,12 @@ body,
     bottom: 12px;
     right: 12px;
     z-index: 1000;
+    transition: transform 0.15s ease, background 0.2s ease;
 }
 
 .trip-menu-button:hover {
     background: #f5f5f5;
-    transform: scale(1.1);
+    transform: scale(1.15);
 
 }
 
@@ -321,13 +315,15 @@ body,
     text-align: left;
     cursor: pointer;
     font-size: 14px;
-    display: block;
+    display: flex;
     align-items: center;
     gap: 8px;
+    transition: background 0.2s ease, transform 0.15s ease;
 }
 
 .dropdown_item:hover {
     background-color: #f3f4f6;
+    transform: scale(1.02);
 }
 
 .edit-item:hover {
@@ -359,18 +355,17 @@ body,
 /* Modal Styles */
 .modal_overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0; 
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 99999;
+    overflow: visible;
 }
 
 .modal-content {
+    position: relative;
     background: white;
     padding: 24px;
     border-radius: 8px;
