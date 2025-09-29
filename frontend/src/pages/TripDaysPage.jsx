@@ -142,7 +142,7 @@ export default function TripDaysPage() {
                                 </p>
 
                                 <div className="number-of-activities">
-                                    <p>{day.activities?.length ?? 0} Activities</p>
+                                    {day.activities?.length ?? 0} Activities
                                 </div>
 
                                 {(day.activities?.length ?? 0) === 0 ? (

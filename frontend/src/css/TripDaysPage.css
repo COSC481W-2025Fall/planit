@@ -1,19 +1,20 @@
 body {
-  background: #f5f5f5; 
+  background: var(--bg-offwhite);
   margin: 0;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   font-family: 'Open Sans', sans-serif;
+  font-size: 1rem;
 }
 
 .TripDaysPage {
   flex: 1;
   overflow-y: auto;
   min-width: 0;
-  padding: 20px;
-  color: #7c8189;
+  padding: 1.25rem;
+  color: var(--muted);
 }
 
 .page-layout {
@@ -29,45 +30,46 @@ body {
 }
 
 .day-title {
-  color: black;
+  color: var(--text);
   font-weight: bold;
   font-size: 0.95em;
-  margin: 0px;
+  margin: 0;
   margin-top: 0.5em;
 }
 
 .day-date {
   font-size: 0.8em;
   margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
 
 .day-card {
   position: relative;
-  background-color: white;
-  padding: 10px;
-  margin: 10px;
-  border-radius: 15px;
-  border: 1px solid #d3d8e0;
-  box-shadow: 0px 2px 7px #d3d8e0;
-  width: 200px;
-  min-height: 250px;
+  background-color: var(--bg-surface);
+  padding: 0.625rem;
+  margin: 0.625rem;
+  border-radius: 0.94rem;
+  border: 0.06rem solid var(--border);
+  box-shadow: 0 0.125rem 0.44rem var(--border);
+  width: 12.5rem;
+  min-height: 15.6rem;
   flex: 0 0 auto;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .day-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0px 6px 14px rgba(0, 0, 0, 0.15);
+  transform: translateY(-0.25rem);
+  box-shadow: var(--shadow-2);
 }
 
 .top-of-day-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .day-name {
-    font-size: 0.8em;
+  font-size: 0.8em;
 }
 
 .days-container {
@@ -83,37 +85,38 @@ body {
 
 .image-banner {
   width: 100%;
-  height: 200px;
-  border-radius: 15px;
+  height: 12.5rem;
+  border-radius: 0.94rem;
   object-fit: cover;
-  background-color: lightgray;
+  background-color: var(--accent-lite);
 }
 
 .trip-title {
   font-family: Tahoma;
-  color: black;
-  margin: 0px;
+  color: var(--text);
+  margin: 0;
 }
 
 .itinerary-text {
-  color: black;
+  color: var(--text);
   font-weight: bold;
   font-size: 1.5em;
-  margin: 2px;
+  margin: 0.125rem;
 }
 
 .trip-info {
   display: flex;
   align-items: center;
   font-size: 0.8em;
-  gap: 20px;
+  gap: 1.25rem;
 }
 
 .trip-info-icon {
-  height: 13px;
+  height: 0.8rem;
 }
 
-.trip-dates, .trip-location  {
+.trip-dates,
+.trip-location {
   display: flex;
   align-items: center;
 }
@@ -123,23 +126,22 @@ body {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  margin-top: 0.5rem;
 }
 
-
 #new-day-button {
-  background-color: white;
+  background-color: var(--bg-surface);
   border-radius: var(--radius);
-  height: 30px;
-  border: 1px solid #1e7a3d;
-  color: #1e7a3d;
+  height: 1.875rem;
+  border: 0.06rem solid var(--accent);
+  color: var(--accent);
   transition: all 0.2s ease-in-out;
-
 }
 
 #new-day-button:hover {
-  background-color: #1e7a3d;
+  background-color: var(--accent);
   color: #ffffff;
-  transform: scale(1.03); 
+  transform: scale(1.03);
   cursor: pointer;
 }
 
@@ -147,29 +149,28 @@ body {
   transform: scale(0.8);
 }
 
-.number-of-activities{
+.number-of-activities {
   display: inline-flex;
   align-items: center;
-  color: black;
+  color: var(--text);
   font-size: 0.7em;
   font-weight: bold;
-  border: 1px solid #d3d8e0;
-  border-radius: 15px;
-  padding-left: 5px;
-  padding-right: 5px;
+  border: 0.06rem solid var(--border);
+  border-radius: 0.94rem;
+  padding: 0 0.3rem;
   justify-self: left;
-  height: 25px;
+  height: 1.55rem;
 }
 
 .day-actions-ellipsis {
   position: absolute;
-  top: 10px;
-  right: 4px;
+  top: 0.625rem;
+  right: 0.25rem;
   opacity: 0;
-  stroke: #7c8189;
+  stroke: var(--muted);
   transition: opacity 0.2s ease;
   cursor: pointer;
-  height: 18px;
+  height: 1.125rem;
   transition: all 0.2s ease-in-out;
 }
 
@@ -186,49 +187,49 @@ body {
 }
 
 .day-actions {
-    display: inline-block;
+  display: inline-block;
 }
 
 .day-menu {
-    position: absolute;
-    top: 30px;
-    right: 10px;
-    background: white;
-    border: 1px solid #d3d8e0;
-    border-radius: 8px;
-    padding: 5px;
-    box-shadow: 0 4px 6px #d3d8e0;
-    z-index: 10;
+  position: absolute;
+  top: 1.875rem;
+  right: 0.625rem;
+  background: var(--bg-surface);
+  border: 0.06rem solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.3125rem;
+  box-shadow: var(--shadow-1);
+  z-index: 10;
 }
 
 .day-menu button {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    height: 35px;
-    border: none;
-    border-radius: 5px;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-    padding: 5px;
-    padding-right: 10px;
-    transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 2.2rem;
+  border: none;
+  border-radius: 0.3125rem;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  padding: 0.3125rem 0.625rem;
+  transition: all 0.2s ease-in-out;
 }
 
-.day-menu .trash-icon, .pencil-icon{
-    height: 11px;
+.day-menu .trash-icon,
+.pencil-icon {
+  height: 0.7rem;
 }
 
 .day-menu button:hover {
-    background-color: #e8eaec;
-    color: #000000;
+  background-color: var(--accent-lite);
+  color: var(--text);
 }
 
 .day-menu button p {
-    font-size: 0.9em;
+  font-size: 0.9em;
 }
 
 .day-menu button:active {
-    transform: scale(0.9);
+  transform: scale(0.9);
 }
