@@ -79,7 +79,7 @@ export default function UserRegistrationPage() {
           value={createUsername}
           onChange={(e) => setCreateUsername(e.target.value)}
         />
-        
+
         <div className="error-container">
             {errorMessage && <p className ="error-message">{errorMessage}</p>}
         </div>
@@ -92,8 +92,17 @@ export default function UserRegistrationPage() {
               createUsername,
             });
 
-            if (typeof result === "string" && result.includes("successfully")) {
-              navigate("/trip");
+            if (result.error){
+                let message = result.error;
+
+                 // override generic error with something more user-friendly
+                if (message === "Internal Server Error") {
+                 message = "Username already taken. Try again.";
+                }
+
+                setErrorMessage(message);
+            } else{
+                navigate("/trip");
             }
           }}
         >

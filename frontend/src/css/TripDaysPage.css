@@ -1,0 +1,270 @@
+body {
+  background: var(--bg-offwhite);
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 1rem;
+}
+
+.TripDaysPage {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+  padding: 0rem;
+  padding: 1rem;
+  padding-bottom: 0rem;
+  color: var(--muted);
+}
+
+.loading-screen {
+  text-align: center;
+  margin-top: 10rem;
+}
+
+.loading-screen p {
+  text-align: center;
+  color: var(--accent);
+  font-family: Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: bold;
+  font-size: 2em;
+}
+
+.empty-state-text {
+  font-size: 1.1em;
+  margin: auto;
+  padding-top: 1.5rem;
+  text-align: center;
+  width: 20rem;
+}
+
+.empty-state-text span {
+  color: var(--accent);
+  font-weight: bold;
+  font-family: Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.content-with-sidebar {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.day-title {
+  color: var(--text);
+  font-weight: bold;
+  font-size: 0.95em;
+  margin: 0;
+  margin-top: 0.5em;
+}
+
+.day-date {
+  font-size: 0.8em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.day-card {
+  position: relative;
+  background-color: var(--bg-surface);
+  padding: 0.625rem;
+  margin: 0.625rem;
+  border-radius: 0.94rem;
+  border: 0.06rem solid var(--border);
+  box-shadow: 0 0.125rem 0.44rem var(--border);
+  width: 12.5rem;
+  min-height: 15.6rem;
+  flex: 0 0 auto;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.day-card:hover {
+  transform: translateY(-0.25rem);
+  box-shadow: var(--shadow-2);
+}
+
+.top-of-day-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.day-name {
+  font-size: 0.8em;
+}
+
+.days-container {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.add-activity-blurb {
+  font-size: 0.7em;
+  text-align: center;
+}
+
+.image-banner {
+  width: 100%;
+  height: 12.5rem;
+  border-radius: 0.94rem;
+  object-fit: cover;
+  background-color: var(--accent-lite);
+}
+
+.trip-title {
+  font-family: Tahoma;
+  color: var(--text);
+  margin: 0;
+}
+
+.itinerary-text {
+  color: var(--text);
+  font-weight: bold;
+  font-size: 1.5em;
+  margin: 0.125rem;
+}
+
+.trip-info {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  gap: 1.25rem;
+}
+
+.trip-info-icon {
+  height: 0.8rem;
+}
+
+.trip-dates,
+.trip-location {
+  display: flex;
+  align-items: center;
+  margin: 0px
+}
+
+.trip-location-text, .trip-dates-text {
+  font-size: 0.8rem;
+  align-self: center;
+}
+
+.button-level-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+#new-day-button {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius);
+  height: 1.875rem;
+  border: 0.06rem solid var(--accent);
+  color: var(--accent);
+  transition: all 0.2s ease-in-out;
+}
+
+#new-day-button:hover {
+  background-color: var(--accent);
+  color: #ffffff;
+  transform: scale(1.03);
+  cursor: pointer;
+}
+
+#new-day-button:active {
+  transform: scale(0.8);
+}
+
+.number-of-activities {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text);
+  font-size: 0.7em;
+  font-weight: bold;
+  border: 0.06rem solid var(--border);
+  border-radius: 0.94rem;
+  padding: 0 0.3rem;
+  justify-self: left;
+  height: 1.55rem;
+}
+
+.day-actions-ellipsis {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.25rem;
+  opacity: 0;
+  stroke: var(--muted);
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+  height: 1.125rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.day-card:hover .day-actions-ellipsis {
+  opacity: 1;
+}
+
+.day-actions-ellipsis:hover {
+  transform: scale(1.15);
+}
+
+.day-actions-ellipsis:active {
+  transform: scale(0.7);
+}
+
+.day-actions {
+  display: inline-block;
+}
+
+.day-menu {
+  position: absolute;
+  top: 1.875rem;
+  right: 0.625rem;
+  background: var(--bg-surface);
+  border: 0.06rem solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.3125rem;
+  box-shadow: var(--shadow-1);
+  z-index: 10;
+}
+
+.day-menu button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 2.2rem;
+  border: none;
+  border-radius: 0.3125rem;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  padding: 0.3125rem 0.625rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.day-menu .trash-icon,
+.pencil-icon {
+  height: 0.7rem;
+}
+
+.day-menu button:hover {
+  background-color: var(--accent-lite);
+  color: var(--text);
+}
+
+.day-menu button p {
+  font-size: 0.9em;
+}
+
+.day-menu button:active {
+  transform: scale(0.9);
+}
