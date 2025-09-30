@@ -42,7 +42,7 @@ export const createTrip = async (req, res) => {
     // Get userId from the authenticated user in the request
     const userId = req.user.user_id;
 
-    if (!userId === undefined) {
+    if (userId === undefined) {
         return res.status(400).json({ error: "userId is required, creation unsuccessful" });
     }
 
@@ -67,7 +67,7 @@ export const updateTrip = async (req, res) => {
     const { trips_id, days, tripName, tripStartDate, tripLocation } = req.body;
     const userId = req.user.user_id;
 
-    if (!userId || trips_id === undefined) {
+    if (userId  === undefined || trips_id === undefined) {
         return res.status(400).json({ error: "userId and trips_id are required, update unsuccessful" });
     }
 
@@ -164,7 +164,7 @@ export const deleteTrip = async (req, res) => {
     const { trips_id } = req.body;
     const userId = req.user.user_id;
 
-    if (!userId === undefined) {
+    if (userId === undefined) {
         return res.status(400).json({ error: "userId is required, delete unsuccessful" });
     }
 

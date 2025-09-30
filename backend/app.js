@@ -11,6 +11,8 @@ import userRoutes from "./routes/userRoutes.js";
 import placesAPIRoutes from "./routes/placesAPIRoutes.js";
 import daysRoutes from "./routes/daysRoutes.js";
 import tripRoutes from "./routes/tripRoutes.js";
+import activitiesRoutes from "./routes/activitiesRoutes.js";
+
 
 const app = express();
 
@@ -53,6 +55,9 @@ app.use("/auth", authRoutes);
 app.use("/placesAPI", placesAPIRoutes);
 app.use("/days", daysRoutes);
 app.use("/trip", tripRoutes);
+app.use("/activities", activitiesRoutes);
+app.use("/user", userRoutes);
 app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
+app.use("/activities", activitiesRoutes);
 
 export default app; // <- export the app for tests
