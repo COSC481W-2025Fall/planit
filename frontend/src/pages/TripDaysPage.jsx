@@ -111,6 +111,31 @@ export default function TripDaysPage() {
         }
     };
 
+    const handleDeleteActivity = async (activityId) => {
+  try {
+    const response = await fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + `/activities/delete`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ activityId }),
+    });
+
+    if (!response.ok) throw new Error("Failed to delete activity");
+
+    // Update the days state by removing the deleted activity
+    setDays(prevDays =>
+      prevDays.map(day => ({
+        ...day,
+        activities: day.activities?.filter(a => a.activity_id !== activityId) || []
+      }))
+    );
+
+  } catch (error) {
+    console.error("Error deleting activity:", error);
+    alert("Failed to delete activity. Please try again.");
+  }
+};
+
+
     const toggleMenu = (dayId) => {
         setOpenMenu(openMenu === dayId ? null : dayId);
     };
@@ -197,7 +222,7 @@ export default function TripDaysPage() {
                                     ) : (
                                         <div className="activities">
                                             {day.activities.map(activity => (
-                                                <ActivityCard key={activity.activity_id} activity={activity} />
+                                                <ActivityCard key={activity.activity_id} activity={activity} onDelete={handleDeleteActivity} />
                                             ))}
                                         </div>
                                     )}

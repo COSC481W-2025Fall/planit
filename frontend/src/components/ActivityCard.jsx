@@ -1,12 +1,40 @@
 import React, { useState } from "react";
 import "../css/ActivityCard.css";
 import { Clock, MapPin, EllipsisVertical, Trash2, Pencil } from "lucide-react";
+import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 
 export default function ActivityCard({ activity, onDelete }) {
     const [openMenu, setOpenMenu] = useState(false);
     const startTime = activity.activity_startTime ? new Date(activity.activity_startTime) : null;
 
     const toggleMenu = () => setOpenMenu(prev => !prev);
+
+    const deleteActivity = async (activityId) => {
+        try {
+            const response = await fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + `/activities/delete`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ activityId: activityId }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete activity");
+            }
+
+            setDays(prevDays =>
+                prevDays.map(day => ({
+                    ...day,
+                    activities: day.activities?.filter(a => a.activity_id !== activityId) || []
+                }))
+            );
+        } catch (error) {
+            console.error("Error deleting activity:", error);
+            alert("Failed to delete activity. Please try again.");
+        }
+    };
+
 
     return (
         <div className="activity-container">
@@ -19,7 +47,7 @@ export default function ActivityCard({ activity, onDelete }) {
                             <Trash2 className="trash-icon" /> Delete
                         </button>
                         <button onClick={() => onEdit(activity.activity_id)}>
-                            <Pencil class = "pencil-icon" /> Edit
+                            <Pencil className="pencil-icon" /> Edit
                         </button>
                     </div>
                 )}
@@ -41,8 +69,19 @@ export default function ActivityCard({ activity, onDelete }) {
 
             <p className="duration-of-activity">
                 <Clock className="icon" />
-                {activity.activity_duration?.hours != null ? `${activity.activity_duration.hours}h` : "?"}
+                {activity.activity_duration ? (
+                    <>
+                        {activity.activity_duration.hours ? `${activity.activity_duration.hours}h` : ""}
+                        {activity.activity_duration.hours && activity.activity_duration.minutes ? " " : ""}
+                        {activity.activity_duration.minutes ? `${activity.activity_duration.minutes}m` : ""}
+                        {!activity.activity_duration.hours && !activity.activity_duration.minutes ? "0h:0m" : ""}
+                    </>
+                ) : (
+                    "0h:0m"
+                )}
             </p>
+
+
 
             <div className="cost-container">
                 <p className="estimated-cost-of-activity">
