@@ -40,7 +40,7 @@ function App() {
                     </ProtectedRoute>
                 }
             />
-            <Route
+                <Route
                 path="/days/:tripId"
                 element={
                     <ProtectedRoute>
@@ -55,7 +55,7 @@ function App() {
             <Registration />
             } 
             />
-        </Routes>
+    </Routes>
     );
 }
 
