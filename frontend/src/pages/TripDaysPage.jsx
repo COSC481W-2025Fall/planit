@@ -19,7 +19,6 @@ export default function TripDaysPage() {
 
     //constants for UI components
     const [openMenu, setOpenMenu] = useState(null);
-    const [editDay, setEditDay] = useState(null);
     const [newDay, setOpenNewDay] = useState(null);
     const [openActivitySearch, setOpenActivitySearch] = useState(false);
 
@@ -119,7 +118,7 @@ export default function TripDaysPage() {
 
     return (
         <div className="page-layout">
-            <TopBanner user={user} onSignOut={() => { console.log("Signed out"); window.location.href = "/"; }} />
+            <TopBanner user={user} onSignOut={() => { console.log("Signed out"); window.location.href = "/";}}/>
 
             <div className="content-with-sidebar">
                 <NavBar />

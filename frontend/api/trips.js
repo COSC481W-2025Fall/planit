@@ -54,7 +54,7 @@ export async function updateTrip(trip) {
   const res = await fetch(`${API_BASE_URL}/update`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    credentials: "include", // ensures session cookies so req.user works
+    credentials: "include",
     body: JSON.stringify(payload),
   });
 
@@ -62,7 +62,6 @@ export async function updateTrip(trip) {
     const error = await res.json();
     throw new Error(error.error || "Failed to update trip");
   }
-
   return await res.json();
 }
 
