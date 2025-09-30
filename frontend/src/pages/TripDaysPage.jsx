@@ -22,6 +22,11 @@ export default function TripDaysPage() {
     const [editDay, setEditDay] = useState(null);
     const [newDay, setOpenNewDay] = useState(null);
     const [openActivitySearch, setOpenActivitySearch] = useState(false);
+    const [editActivity, setEditActivity] = useState(null);
+    const [editStartTime, setEditStartTime] = useState("");
+    const [editDuration, setEditDuration] = useState("");
+    const [editCost, setEditCost] = useState("");
+
 
     const { tripId } = useParams();
 
@@ -40,6 +45,15 @@ export default function TripDaysPage() {
             .then((data) => setTrip(data))
             .catch((err) => console.error("Trip fetch error:", err));
     }, []);
+
+    useEffect(() => {
+        if (editActivity) {
+            setEditStartTime(editActivity.activity_startTime?.slice(0, 5) || "");
+            setEditDuration(editActivity.activity_duration || "");
+            setEditCost(editActivity.activity_estimated_cost || "");
+        }
+    }, [editActivity]);
+
 
     //initial fetch of days
     useEffect(() => {
@@ -111,29 +125,63 @@ export default function TripDaysPage() {
         }
     };
 
+    // update an activity
+    const handleUpdateActivity = async (activityId, activity) => {
+        try {
+            const response = await fetch(
+                (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + `/activities/update`,
+                {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        activityId, 
+                        activity: {
+                            startTime: activity.activity_startTime, 
+                            duration: Number(activity.activity_duration), 
+                            estimatedCost: Number(activity.activity_estimated_cost), 
+                        },
+                    }),
+                }
+            );
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || "Failed to update activity");
+            }
+
+            await fetchDays();
+            setEditActivity(null);
+        } catch (error) {
+            console.error("Error updating activity:", error);
+            alert("Failed to update activity. Please try again.");
+        }
+    };
+
+
     const handleDeleteActivity = async (activityId) => {
-  try {
-    const response = await fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + `/activities/delete`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ activityId }),
-    });
+        try {
+            const response = await fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + `/activities/delete`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ activityId }),
+            });
 
-    if (!response.ok) throw new Error("Failed to delete activity");
+            if (!response.ok) throw new Error("Failed to delete activity");
 
-    // Update the days state by removing the deleted activity
-    setDays(prevDays =>
-      prevDays.map(day => ({
-        ...day,
-        activities: day.activities?.filter(a => a.activity_id !== activityId) || []
-      }))
-    );
+            // Update the days state by removing the deleted activity
+            setDays(prevDays =>
+                prevDays.map(day => ({
+                    ...day,
+                    activities: day.activities?.filter(a => a.activity_id !== activityId) || []
+                }))
+            );
 
-  } catch (error) {
-    console.error("Error deleting activity:", error);
-    alert("Failed to delete activity. Please try again.");
-  }
-};
+        } catch (error) {
+            console.error("Error deleting activity:", error);
+            alert("Failed to delete activity. Please try again.");
+        }
+    };
 
 
     const toggleMenu = (dayId) => {
@@ -159,7 +207,7 @@ export default function TripDaysPage() {
 
     return (
         <div className="page-layout">
-            <TopBanner user={user} onSignOut={() => {console.log("Signed out"); window.location.href = "/";}}/>
+            <TopBanner user={user} onSignOut={() => { console.log("Signed out"); window.location.href = "/"; }} />
 
             <div className="content-with-sidebar">
                 <NavBar />
@@ -222,7 +270,7 @@ export default function TripDaysPage() {
                                     ) : (
                                         <div className="activities">
                                             {day.activities.map(activity => (
-                                                <ActivityCard key={activity.activity_id} activity={activity} onDelete={handleDeleteActivity} />
+                                                <ActivityCard key={activity.activity_id} activity={activity} onDelete={handleDeleteActivity} onEdit={() => setEditActivity(activity)} />
                                             ))}
                                         </div>
                                     )}
@@ -273,15 +321,67 @@ export default function TripDaysPage() {
                             <p className="popup-body-text">Do you want to add a new day to {trip?.trip_name}?</p>
                         </Popup>
                     )}
+
+                    {editActivity && (
+                        <Popup
+                            title={`Edit Activity`}
+                            buttons={
+                                <>
+                                    <button type="button" onClick={() => setEditActivity(null)}>Cancel</button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            handleUpdateActivity(editActivity.activity_id, {
+                                                activity_startTime: editStartTime,
+                                                activity_duration: editDuration,
+                                                activity_estimated_cost: editCost,
+                                            });
+                                        }}
+                                    >
+                                        Save
+                                    </button>
+
+                                </>
+                            }
+                        >
+                            <label className="popup-input">
+                                <span>Start Time:</span>
+                                <input
+                                    type="time"
+                                    value={editStartTime}
+                                    onChange={(e) => setEditStartTime(e.target.value)}
+                                />
+                            </label>
+
+                            <label className="popup-input">
+                                <span>Duration (minutes):</span>
+                                <input
+                                    type="number"
+                                    value={editDuration}
+                                    onChange={(e) => setEditDuration(e.target.value)}
+                                />
+                            </label>
+
+                            <label className="popup-input">
+                                <span>Estimated Budget ($):</span>
+                                <input
+                                    type="number"
+                                    value={editCost}
+                                    onChange={(e) => setEditCost(e.target.value)}
+                                />
+                            </label>
+
+                        </Popup>
+                    )}
                 </main>
                 <div className="activity-search-sidebar" >
                     {openActivitySearch &&
-                      <ActivitySearch
-                        onClose={() => setOpenActivitySearch(false)}
-                        days={Array.isArray(days) ? days.length : days}   // count
-                        dayIds={Array.isArray(days) ? days.map(d => d.day_id) : []}  // ids
-                        onActivityAdded={fetchDays}                       // refresh after save
-                    />
+                        <ActivitySearch
+                            onClose={() => setOpenActivitySearch(false)}
+                            days={Array.isArray(days) ? days.length : days}   // count
+                            dayIds={Array.isArray(days) ? days.map(d => d.day_id) : []}  // ids
+                            onActivityAdded={fetchDays}                       // refresh after save
+                        />
 
                     }
                 </div>
