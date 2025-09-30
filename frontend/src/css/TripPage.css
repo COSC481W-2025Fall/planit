@@ -172,20 +172,20 @@ body,
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     min-width: 120px;
     overflow: hidden;
-    z-index: 1000;
+    z-index: 9999;
     border: 2px solid;
 }
 
 .trip-cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); 
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
     gap: 15px;
     padding: 0 1rem;
     color: #ffffff;
     max-height: 700px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    
+    overflow: visible; 
 }
 
 .my-trips-banner {
@@ -274,7 +274,7 @@ body,
 
 /* Trip menu dropdown */
 .trip-menu {
-    position: relative;
+    position: absolute;
     z-index: 1000;
     display: inline-block;
     color: #000000;
@@ -453,7 +453,7 @@ body,
 
     .trips-header {
         display: flex;
-        justify-content: space-between;
+        flex-direction: column-reverse;
         align-items: flex-start;
         margin-bottom: 32px;
         /* Change from 30px to 32px */
