@@ -118,7 +118,7 @@ export default function TripDaysPage() {
 
     return (
         <div className="page-layout">
-            <TopBanner user={user} onSignOut={() => console.log("Signed out")} />
+            <TopBanner user={user} onSignOut={() => {console.log("Signed out"); window.location.href = "/";}}/>
 
             <div className="content-with-sidebar">
                 <NavBar />
