@@ -47,8 +47,8 @@ function App() {
                     </ProtectedRoute>
                 }
             />
-    </Routes>
-  );
+        </Routes>
+    );
 }
 
 export default App;
