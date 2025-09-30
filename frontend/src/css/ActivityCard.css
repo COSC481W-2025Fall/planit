@@ -1,0 +1,74 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.activity-container {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #d3d8e0;
+  padding-top: 12px;
+  padding-right: 16px;
+  padding-bottom: 12px;
+  padding-left: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  font-family: "Open Sans", sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title-and-edit-button-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-of-activity {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1e7a3d;
+}
+
+.edit-activity-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #7c8189;
+  font-size: 0.9rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.edit-activity-button:hover {
+  background: #e3ece6;
+  color: #1e7a3d;
+}
+
+.time-duration-and-location-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #7c8189;
+}
+
+.time-of-activity,
+.duration-of-activity,
+.location-of-activity {
+  display: flex;
+  align-items: center;
+}
+
+.cost-container {
+  font-size: 0.9rem;
+  color: #7c8189;
+  text-align: right;
+}
+
+.estimated-cost-of-activity {
+  font-weight: 500;
+}
