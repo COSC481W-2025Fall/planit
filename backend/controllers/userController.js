@@ -50,7 +50,7 @@ export const updateUser = async (req, res) => {
     req.login(updatedUser, (err) => {
       if (err) {
         console.error("Error refreshing session after update:", err);
-        return next(err);
+        return res.status(500).json({error: "Error refreshing session after update:"});
       }
         return res.json({ success: true, user: updatedUser });
     });
@@ -64,7 +64,7 @@ export const updateUser = async (req, res) => {
 
 //This function reads the information in the user table for a specific user.
 export const readUser = async (req, res) => {
-  if (!req.user) return res.status(401).json({ loggedIn: false });
+  if (!req.user) return res.status(400).json({ loggedIn: false });
 
   try {
     const userId = req.user.user_id;
@@ -76,7 +76,7 @@ export const readUser = async (req, res) => {
     `;
 
     if (result.length === 0)
-      return res.status(404).json({ error: "User not found" });
+      return res.status(400).json({ error: "User not found" });
 
     res.json({ loggedIn: true, user: result[0] });
   } 
@@ -88,7 +88,7 @@ export const readUser = async (req, res) => {
 
 //This function handles the complete deletion of a user.
 export const deleteUser = async (req, res) => {
-  if (!req.user) return res.status(401).json({ loggedIn: false });
+  if (!req.user) return res.status(400).json({ loggedIn: false });
 
   try {
     const userId = req.user.user_id;
@@ -100,7 +100,7 @@ export const deleteUser = async (req, res) => {
     `;
 
     if (result.length === 0)
-    return res.status(404).json({ error: "User not found" });
+    return res.status(400).json({ error: "User not found" });
 
     res.json({ loggedIn: false, message: "User deleted" });
   } 
