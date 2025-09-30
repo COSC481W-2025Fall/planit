@@ -55,8 +55,8 @@ function App() {
             <Registration />
             } 
             />
-    </Routes>
-  );
+        </Routes>
+    );
 }
 
 export default App;
