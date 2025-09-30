@@ -242,6 +242,73 @@ describe("Days Controller Unit Tests", () => {
                         expect(sql).toHaveBeenCalledTimes(2); // One for trip check, one for fetching days
                     });
                 });
-});
+
+                //Tests for Deleting a Day from a Trip
+                    describe("DELETE /trip/trips/:tripId/days/:id", () => {
+                        it("should delete a day for an owned trip", async () => {
+                            const app = appWithUser();
+                            mockOwnedTrip(1);
+                            sql.mockResolvedValueOnce([{ days_id: 5 }]); // Day exists
+                
+                            const res = await request(app).delete("/trip/trips/1/days/5");
+                            expect(res.status).toBe(204);
+                            expect(res.text).toBe('');
+                            expect(sql).toHaveBeenCalledTimes(2); // One for trip check, one for delete
+                        });
+                
+                        it("should return 404 when day does not exist", async () => {
+                            const app = appWithUser();
+                            mockOwnedTrip(1);
+                            sql.mockResolvedValueOnce([]); // No day found
+                
+                            const res = await request(app).delete("/trip/trips/1/days/999");
+                            expect(res.status).toBe(404);
+                            expect(res.body).toEqual({ error: "Day not found" });
+                            expect(sql).toHaveBeenCalledTimes(2); // One for trip check, one for delete
+                        });
+                
+                        it("should return 401 when user is not logged in", async () => {
+                            const app = appNoUser();
+                
+                            const res = await request(app).delete("/trip/trips/1/days/5");
+                            expect(res.status).toBe(401);
+                            expect(res.body).toEqual({ error: "Unauthorized" });
+                            expect(sql).not.toHaveBeenCalled();
+                        });
+                
+                        it("should return 404 when trip is not found or not owned", async () => {
+                            const app = appWithUser();
+                            sql.mockResolvedValueOnce([]); // No trip found
+                
+                            const res = await request(app).delete("/trip/trips/1/days/5");
+                            expect(res.status).toBe(404);
+                            expect(res.body).toEqual({ error: "Trip not found or access denied" });
+                            expect(sql).toHaveBeenCalledTimes(1); // Only the trip check
+                        });
+                
+                        it("should return 500 when DB error occurs", async () => {
+                            const app = appWithUser();
+                            mockOwnedTrip(1);
+                            sql.mockRejectedValueOnce(new Error("DB Error"));
+                
+                            const res = await request(app).delete("/trip/trips/1/days/5");
+                            expect(res.status).toBe(500);
+                            expect(res.body).toEqual({ error: "Internal Server Error" });
+                            expect(sql).toHaveBeenCalledTimes(2); // One for trip check, one for delete
+                        });
+                    });
+                
+                    //Tests for Unauthorized when user_id is undefined
+                    describe("Auth Edge Cases with undefined user_id", () => {
+                        it("should return 401 for creating a day when user_id is undefined", async () => {
+                            const app = appWithUndefinedUserId();
+                
+                            const res = await request(app).post("/trip/trips/1/days");
+                            expect(res.status).toBe(401);
+                            expect(res.body).toEqual({ error: "Unauthorized" });
+                            expect(sql).not.toHaveBeenCalled();
+                        });
+                    });
+                });
 
    
