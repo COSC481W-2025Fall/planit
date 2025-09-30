@@ -67,7 +67,7 @@ export const updateTrip = async (req, res) => {
     const { trips_id, days, tripName, tripStartDate, tripLocation } = req.body;
     const userId = req.user.user_id;
 
-    if (!userId || trips_id === undefined) {
+    if (userId  === undefined || trips_id === undefined) {
         return res.status(400).json({ error: "userId and trips_id are required, update unsuccessful" });
     }
 
