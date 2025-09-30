@@ -100,7 +100,7 @@ export default function TripPage() {
 
   return (
     <div className="trip-page">
-      <TopBanner />
+      <TopBanner user={user} onSignOut={() => {console.log("Signed out"); window.location.href = "/";}}/>
       <div className="content-with-sidebar">
         <NavBar />
         <div className="main-content">
