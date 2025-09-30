@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
-import app from '../path/to/your/express/app'; // Adjust this path
+import app from '../app.js'; // Adjust this path
 
 describe('Activities Endpoints', () => {
   it('should add a new activity', async () => {
@@ -16,8 +16,8 @@ describe('Activities Endpoints', () => {
           rating: 5,
           longitude: 0,
           latitude: 0,
-          startTime: '10:00',
-          duration: 60,
+          startTime: '2025-09-30 14:00:00',
+          duration: '01:00:00',
           estimatedCost: 20
         }
       });
@@ -34,5 +34,5 @@ describe('Activities Endpoints', () => {
     expect(Array.isArray(res.body.activities)).toBe(true);
   });
 
-  // Add more tests for update, delete, and read single as needed
+  
 });
