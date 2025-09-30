@@ -61,6 +61,9 @@ app.use("/trip", tripRoutes);
 // user routes
 app.use("/user", userRoutes);
 
+// test
+app.use("/activities", activitiesRoutes);
+
 app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
 
 app.listen(PORT, () => {
