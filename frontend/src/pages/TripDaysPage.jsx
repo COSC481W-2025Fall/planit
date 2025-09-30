@@ -134,7 +134,7 @@ export default function TripDaysPage() {
 
     return (
         <div className="page-layout">
-            <TopBanner user={user} onSignOut={() => console.log("Signed out")} />
+            <TopBanner user={user} onSignOut={() => {console.log("Signed out"); window.location.href = "/";}}/>
 
             <div className="content-with-sidebar">
                 <NavBar />
@@ -251,10 +251,13 @@ export default function TripDaysPage() {
                 </main>
                 <div className="activity-search-sidebar" >
                     {openActivitySearch &&
-                        <ActivitySearch
-                            onClose={() => setOpenActivitySearch(false)}
-                            days={days.length}
-                        />
+                      <ActivitySearch
+                        onClose={() => setOpenActivitySearch(false)}
+                        days={Array.isArray(days) ? days.length : days}   // count
+                        dayIds={Array.isArray(days) ? days.map(d => d.day_id) : []}  // ids
+                        onActivityAdded={fetchDays}                       // refresh after save
+                    />
+
                     }
                 </div>
             </div>

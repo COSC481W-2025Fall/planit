@@ -55,6 +55,7 @@ app.use("/placesAPI", placesAPIRoutes);
 app.use("/days", daysRoutes);
 app.use("/trip", tripRoutes);
 app.use("/activities", activitiesRoutes);
+app.use("/user", userRoutes);
 app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
 
 export default app; // <- export the app for tests
