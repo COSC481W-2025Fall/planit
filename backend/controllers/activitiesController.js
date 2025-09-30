@@ -43,7 +43,7 @@ export const addActivity = async (req, res) =>
     //Get day that we are adding activity to 
     const { day, activity } = req.body;
     //Variables that store values for new we are creating
-    const { name, address, type, priceLevel, rating, longitude, latitude } = activity;
+    const { name, address, type, priceLevel, rating, longitude, latitude, startTime, duration, estimatedCost } = activity;
 
     if (!day || !activity) 
     {
@@ -53,8 +53,8 @@ export const addActivity = async (req, res) =>
 
     //Query for inserting new activity into db and values of each field in table
     const newActivity = await sql`
-      INSERT INTO activities (day_id, activity_name, activity_types, activity_price_level, activity_address, activity_rating, longitude, latitude)
-      VALUES(${day}, ${name}, ${type}, ${priceLevel}, ${address}, ${rating}, ${longitude}, ${latitude})
+      INSERT INTO activities (day_id, activity_name, activity_types, activity_price_level, activity_address, activity_rating, longitude, latitude, activity_startTime, activity_duration, activity_price_estimated)
+      VALUES(${day}, ${name}, ${type}, ${priceLevel}, ${address}, ${rating}, ${longitude}, ${latitude}, ${startTime}, ${duration} , ${estimatedCost})
       RETURNING *;
     `;
 
@@ -76,7 +76,7 @@ export const updateActivity = async (req, res) => {
     //Pull current values of activity we updating
     const { activityId, activity } = req.body;
     //Variables to store fields we want to edit in activity
-    const { name, priceLevel, } = activity || {};
+    const { startTime, duration, estimatedCost} = activity || {};
 
     if (!activityId || !activity) {
       //Error handling if fields for updating activity are empty
@@ -86,8 +86,9 @@ export const updateActivity = async (req, res) => {
     //Query to replace activity values with new ones we took above
     const updated = await sql`
       UPDATE activities
-      SET activity_name = ${name},
-          activity_price_level = ${priceLevel},
+      SET activity_startTime = ${startTime},
+          activity_duration = ${duration},
+          activity_price_estimated = ${estimatedCost}
       WHERE id = ${activityId}
       RETURNING *;
     `;
