@@ -194,6 +194,54 @@ describe("Days Controller Unit Tests", () => {
                     expect(sql).toHaveBeenCalledTimes(2); // One for trip check, one for update
                 });
             });
+
+            //Tests for Reading all Days of a Trip
+                describe("GET /trip/trips/:tripId/days", () => {
+                    it("should get all days for an owned trip", async () => {
+                        const app = appWithUser();
+                        mockOwnedTrip(1);
+                        const days = [
+                            { days_id: 1, trip_id: 1, day_date: '2025-10-01' },
+                            { days_id: 2, trip_id: 1, day_date: '2025-10-02' }
+                        ];
+                        sql.mockResolvedValueOnce(days);
+            
+                        const res = await request(app).get("/trip/trips/1/days");
+                        expect(res.status).toBe(200);
+                        expect(res.body).toEqual(days);
+                        expect(sql).toHaveBeenCalledTimes(2); // One for trip check, one for fetching days
+                    });
+            
+                    it("should return 401 when user is not logged in", async () => {
+                        const app = appNoUser();
+            
+                        const res = await request(app).get("/trip/trips/1/days");
+                        expect(res.status).toBe(401);
+                        expect(res.body).toEqual({ error: "Unauthorized" });
+                        expect(sql).not.toHaveBeenCalled();
+                    });
+            
+                    it("should return 404 when trip is not found or not owned", async () => {
+                        const app = appWithUser();
+                        sql.mockResolvedValueOnce([]);
+            
+                        const res = await request(app).get("/trip/trips/1/days");
+                        expect(res.status).toBe(404);
+                        expect(res.body).toEqual({ error: "Trip not found or access denied" });
+                        expect(sql).toHaveBeenCalledTimes(1); // Only the trip check
+                    });
+            
+                    it("should return 500 when DB error occurs", async () => {
+                        const app = appWithUser();
+                        mockOwnedTrip(1);
+                        sql.mockRejectedValueOnce(new Error("DB Error"));
+            
+                        const res = await request(app).get("/trip/trips/1/days");
+                        expect(res.status).toBe(500);
+                        expect(res.body).toEqual({ error: "Internal Server Error" });
+                        expect(sql).toHaveBeenCalledTimes(2); // One for trip check, one for fetching days
+                    });
+                });
 });
 
    
