@@ -1,13 +1,27 @@
 import axios from "axios";
 import { sql } from "../config/db.js";
 
-// Convert "HH:MM" (24h) to a JS Date anchored to 1970-01-01 (UTC)
-function toTimestampFromHHMM(hhmm) {
-  if (!hhmm || typeof hhmm !== "string" || !hhmm.includes(":")) return null;
-  const [hh, mm] = hhmm.split(":").map((v) => Number(v));
-  if (Number.isNaN(hh) || Number.isNaN(mm)) return null;
-  return new Date(Date.UTC(1970, 0, 1, hh, mm, 0));
+// convert "HH:MM" (24h) to a JS Date anchored to 1970-01-01 (UTC)
+function toTimestampFromHHMM(value) {
+  if (!value) return null;
+
+  // already an ISO string or Date → just return Date
+  const asDate = new Date(value);
+  if (!isNaN(asDate.getTime())) {
+    return asDate;
+  }
+
+  // otherwise assume HH:MM string
+  if (typeof value === "string" && value.includes(":")) {
+    const [hh, mm] = value.split(":").map(Number);
+    if (!Number.isNaN(hh) && !Number.isNaN(mm)) {
+      return new Date(Date.UTC(1970, 0, 1, hh, mm, 0));
+    }
+  }
+
+  return null;
 }
+
 
 // Map undefined → null so inserts/updates send proper NULLs to Postgres
 const v = (x) => (x === undefined ? null : x);
