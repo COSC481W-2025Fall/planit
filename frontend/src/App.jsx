@@ -6,15 +6,12 @@ import LandingPage from "./pages/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import SettingsPage from "./pages/SettingsPage";
-import PlacesTest from "./pages/PlacesTest";
-
 import TripDaysPage from "./pages/TripDaysPage"
 
 function App() {
     return (
         <Routes>
 
-   
             <Route
                 path="/"
                 element={
@@ -23,8 +20,8 @@ function App() {
                     </PublicRoute>
                 }
             />
+
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/places-test" element={<PlacesTest />} />
 
             <Route
                 path="/trip"
@@ -39,6 +36,14 @@ function App() {
                 element={
                     <ProtectedRoute>
                         <SettingsPage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/days/:tripId"
+                element={
+                    <ProtectedRoute>
+                        <TripDaysPage />
                     </ProtectedRoute>
                 }
             />
