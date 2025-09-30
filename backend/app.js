@@ -55,6 +55,8 @@ app.use("/auth", authRoutes);
 app.use("/placesAPI", placesAPIRoutes);
 app.use("/days", daysRoutes);
 app.use("/trip", tripRoutes);
+app.use("/activities", activitiesRoutes);
+app.use("/user", userRoutes);
 app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
 app.use("/activities", activitiesRoutes);
 

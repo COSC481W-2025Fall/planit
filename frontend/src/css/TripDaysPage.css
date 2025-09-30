@@ -17,6 +17,7 @@ body {
   padding: 1rem;
   padding-bottom: 0rem;
   color: var(--muted);
+  height: 100vh;
 }
 
 .loading-screen {
@@ -54,6 +55,7 @@ body {
 
 .content-with-sidebar {
   display: flex;
+  height: 100vh;
   flex: 1;
   overflow: hidden;
 }
@@ -267,4 +269,28 @@ body {
 
 .day-menu button:active {
   transform: scale(0.9);
+}
+.itinerary-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#add-activity-button {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius);
+  height: 1.875rem;
+  border: 0.06rem solid var(--accent);
+  color: var(--accent);
+  transition: all 0.2s ease-in-out;
+}
+
+#add-activity-button:hover {
+  background-color: var(--accent);
+  color: #ffffff;
+  transform: scale(1.03);
+  cursor: pointer;
+}
+
+main {
+  padding: 0px;
 }

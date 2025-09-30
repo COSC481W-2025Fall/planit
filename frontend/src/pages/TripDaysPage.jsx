@@ -4,6 +4,7 @@ import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/Popup.css";
 import Popup from "../components/Popup";
+import ActivitySearch from "../components/ActivitySearch.jsx";
 import NavBar from "../components/NavBar";
 import TopBanner from "../components/TopBanner";
 import { getDays, createDay, deleteDay } from "../../api/days";
@@ -19,6 +20,7 @@ export default function TripDaysPage() {
     const [openMenu, setOpenMenu] = useState(null);
     const [editDay, setEditDay] = useState(null);
     const [newDay, setOpenNewDay] = useState(null);
+    const [openActivitySearch, setOpenActivitySearch] = useState(false);
 
     const { tripId } = useParams();
 
@@ -116,7 +118,7 @@ export default function TripDaysPage() {
 
     return (
         <div className="page-layout">
-            <TopBanner user={user} onSignOut={() => console.log("Signed out")} />
+            <TopBanner user={user} onSignOut={() => {console.log("Signed out"); window.location.href = "/";}}/>
 
             <div className="content-with-sidebar">
                 <NavBar />
@@ -146,7 +148,12 @@ export default function TripDaysPage() {
 
                     <div className="button-level-bar">
                         <h1 className="itinerary-text">Itinerary</h1>
-                        <button onClick={() => setOpenNewDay(true)} id="new-day-button">+ New Day</button>
+                        <div className="itinerary-buttons">
+                            <button onClick={() => setOpenNewDay(true)} id="new-day-button">+ New Day</button>
+                            {openActivitySearch === false &&
+                                <button onClick={() => setOpenActivitySearch(true)} id="add-activity-button">+ Add Activity</button>
+                        }
+                        </div>
                     </div>
 
                     <div className="days-container">
@@ -221,6 +228,17 @@ export default function TripDaysPage() {
                         </Popup>
                     )}
                 </main>
+                <div className="activity-search-sidebar" >
+                    {openActivitySearch &&
+                      <ActivitySearch
+                        onClose={() => setOpenActivitySearch(false)}
+                        days={Array.isArray(days) ? days.length : days}   // count
+                        dayIds={Array.isArray(days) ? days.map(d => d.day_id) : []}  // ids
+                        onActivityAdded={fetchDays}                       // refresh after save
+                    />
+
+                    }
+                </div>
             </div>
         </div>
     );
