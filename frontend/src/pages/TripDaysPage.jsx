@@ -8,6 +8,7 @@ import ActivitySearch from "../components/ActivitySearch.jsx";
 import NavBar from "../components/NavBar";
 import TopBanner from "../components/TopBanner";
 import { getDays, createDay, deleteDay } from "../../api/days";
+import ActivityCard from "../components/ActivityCard.jsx";
 import { useParams } from "react-router-dom";
 
 export default function TripDaysPage() {
@@ -43,23 +44,38 @@ export default function TripDaysPage() {
     //initial fetch of days
     useEffect(() => {
         fetchDays();
-    }, []);
+    }, [tripId]);
 
-    //get the days for the trip
-    const fetchDays = () => {
+    const fetchDays = async () => {
         if (!tripId) return;
 
-        getDays(tripId)
-            .then((data) =>
-                setDays(
-                    data.map((day) => ({
-                        ...day,
-                        day_id: day.day_id,
-                        day_date: day.day_date,
-                    }))
-                )
-            )
-            .catch((err) => console.error("Error fetching days:", err));
+        try {
+            const data = await getDays(tripId);
+
+            const daysWithActivities = await Promise.all(
+                data.map(async (day) => {
+                    const res = await fetch(`${LOCAL_BACKEND_URL}/activities/read/all`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ dayId: day.day_id })
+                    });
+                    const { activities } = await res.json();
+
+                    // sort activities by start time
+                    const sortedActivities = (activities || []).sort((a, b) => {
+                        const timeA = new Date(a.activity_startTime).getTime();
+                        const timeB = new Date(b.activity_startTime).getTime();
+                        return timeA - timeB;
+                    });
+
+                    return { ...day, activities: sortedActivities };
+                })
+            );
+
+            setDays(daysWithActivities);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     //add a new day
@@ -152,7 +168,7 @@ export default function TripDaysPage() {
                             <button onClick={() => setOpenNewDay(true)} id="new-day-button">+ New Day</button>
                             {openActivitySearch === false &&
                                 <button onClick={() => setOpenActivitySearch(true)} id="add-activity-button">+ Add Activity</button>
-                        }
+                            }
                         </div>
                     </div>
 
@@ -179,8 +195,13 @@ export default function TripDaysPage() {
                                             No activities planned. Add an activity from the sidebar
                                         </p>
                                     ) : (
-                                        <div className="activities">{/* Render activities here */}</div>
+                                        <div className="activities">
+                                            {day.activities.map(activity => (
+                                                <ActivityCard key={activity.activity_id} activity={activity} />
+                                            ))}
+                                        </div>
                                     )}
+
 
                                     <div className="day-actions">
                                         <EllipsisVertical className="day-actions-ellipsis" onClick={() => toggleMenu(day.day_id)} />
@@ -230,9 +251,9 @@ export default function TripDaysPage() {
                 </main>
                 <div className="activity-search-sidebar" >
                     {openActivitySearch &&
-                        <ActivitySearch 
-                        onClose={() => setOpenActivitySearch(false)} 
-                        days={days.length}
+                        <ActivitySearch
+                            onClose={() => setOpenActivitySearch(false)}
+                            days={days.length}
                         />
                     }
                 </div>
