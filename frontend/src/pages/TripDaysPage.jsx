@@ -81,11 +81,14 @@ export default function TripDaysPage() {
 
             const daysWithActivities = await Promise.all(
                 data.map(async (day) => {
-                    const res = await fetch(`${LOCAL_BACKEND_URL}/activities/read/all`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ dayId: day.day_id })
-                    });
+                    const res = await fetch(
+                        `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/read/all`,
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ dayId: day.day_id })
+                        }
+                    );
                     const { activities } = await res.json();
 
                     // sort activities by start time
@@ -220,7 +223,7 @@ export default function TripDaysPage() {
 
     return (
         <div className="page-layout">
-            <TopBanner user={user} onSignOut={() => {  console.log("Signed out"); window.location.href = "/"; }} />
+            <TopBanner user={user} onSignOut={() => { console.log("Signed out"); window.location.href = "/"; }} />
 
             <div className="content-with-sidebar">
                 <NavBar />
@@ -351,7 +354,7 @@ export default function TripDaysPage() {
                                         onClick={() => {
                                             if (!editStartTime || !editDuration || !editCost) {
                                                 alert("Please fill in all fields before saving.");
-                                                return; 
+                                                return;
                                             }
                                             handleUpdateActivity(editActivity.activity_id, {
                                                 activity_startTime: editStartTime,
