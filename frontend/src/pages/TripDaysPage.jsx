@@ -25,8 +25,7 @@ export default function TripDaysPage() {
     const [editActivity, setEditActivity] = useState(null);
     const [editStartTime, setEditStartTime] = useState("");
     const [editDuration, setEditDuration] = useState("");
-    const [editCost, setEditCost] = useState("");
-
+    const [editCost, setEditCost] = useState(0);
 
     const { tripId } = useParams();
 
@@ -48,12 +47,26 @@ export default function TripDaysPage() {
 
     useEffect(() => {
         if (editActivity) {
-            setEditStartTime(editActivity.activity_startTime?.slice(0, 5) || "");
-            setEditDuration(editActivity.activity_duration || "");
-            setEditCost(editActivity.activity_estimated_cost || "");
+            // format start time
+            let start = "";
+            if (editActivity.activity_startTime) {
+                const date = new Date(editActivity.activity_startTime);
+                const h = String(date.getHours()).padStart(2, "0");
+                const m = String(date.getMinutes()).padStart(2, "0");
+                start = `${h}:${m}`;
+            }
+            setEditStartTime(start);
+
+            // need to convert time into minutes from db
+            const durationObj = editActivity.activity_duration || { hours: 0, minutes: 0 };
+            const totalMinutes = (durationObj.hours || 0) * 60 + (durationObj.minutes || 0);
+
+            setEditDuration(totalMinutes);
+
+            // cost
+            setEditCost(editActivity.activity_price_estimated ?? "");
         }
     }, [editActivity]);
-
 
     //initial fetch of days
     useEffect(() => {
@@ -135,11 +148,11 @@ export default function TripDaysPage() {
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
                     body: JSON.stringify({
-                        activityId, 
+                        activityId,
                         activity: {
-                            startTime: activity.activity_startTime, 
-                            duration: Number(activity.activity_duration), 
-                            estimatedCost: Number(activity.activity_estimated_cost), 
+                            startTime: activity.activity_startTime,
+                            duration: Number(activity.activity_duration),
+                            estimatedCost: Number(activity.activity_estimated_cost),
                         },
                     }),
                 }
@@ -270,7 +283,7 @@ export default function TripDaysPage() {
                                     ) : (
                                         <div className="activities">
                                             {day.activities.map(activity => (
-                                                <ActivityCard key={activity.activity_id} activity={activity} onDelete={handleDeleteActivity} onEdit={() => setEditActivity(activity)} />
+                                                <ActivityCard key={activity.activity_id} activity={activity} onDelete={handleDeleteActivity} onEdit={(activity) => setEditActivity(activity)} />
                                             ))}
                                         </div>
                                     )}
@@ -331,6 +344,10 @@ export default function TripDaysPage() {
                                     <button
                                         type="button"
                                         onClick={() => {
+                                            if (!editStartTime || !editDuration || !editCost) {
+                                                alert("Please fill in all fields before saving.");
+                                                return; 
+                                            }
                                             handleUpdateActivity(editActivity.activity_id, {
                                                 activity_startTime: editStartTime,
                                                 activity_duration: editDuration,

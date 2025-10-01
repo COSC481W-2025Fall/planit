@@ -9,33 +9,6 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
 
     const toggleMenu = () => setOpenMenu(prev => !prev);
 
-    // const deleteActivity = async (activityId) => {
-    //     try {
-    //         const response = await fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + `/activities/delete`, {
-    //             method: "DELETE",
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //             },
-    //             body: JSON.stringify({ activityId: activityId }),
-    //         });
-
-    //         if (!response.ok) {
-    //             throw new Error("Failed to delete activity");
-    //         }
-
-    //         setDays(prevDays =>
-    //             prevDays.map(day => ({
-    //                 ...day,
-    //                 activities: day.activities?.filter(a => a.activity_id !== activityId) || []
-    //             }))
-    //         );
-    //     } catch (error) {
-    //         console.error("Error deleting activity:", error);
-    //         alert("Failed to delete activity. Please try again.");
-    //     }
-    // };
-
-
     return (
         <div className="activity-container">
             <div className="title-and-edit-button-container" style={{ position: "relative" }}>
@@ -46,7 +19,7 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
                         <button onClick={() => onDelete(activity.activity_id)}>
                             <Trash2 className="trash-icon" /> Delete
                         </button>
-                        <button onClick={() => onEdit(activity.activity_id, activity)}>
+                        <button onClick={() => onEdit(activity)}>
                             <Pencil className="pencil-icon" /> Edit
                         </button>
                     </div>

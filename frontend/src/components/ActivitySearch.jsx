@@ -216,21 +216,10 @@ export default function ActivitySearch({
   // Save details
   const handleSaveDetails = async () => {
     try {
-      let startTimeValue = "";
-      if (formStartTime) {
-        // combine with today's date
-        const today = new Date();
-       
-        // formstatetime format ex would be 14:30
-        const [hours, minutes] = formStartTime.split(":");
-        today.setHours(Number(hours), Number(minutes), 0, 0);
-        startTimeValue = today.toISOString(); 
-      }
-
       const updatePayload = {
         activityId: newActivityId,
         activity: {
-          startTime: startTimeValue || null,
+          startTime: formStartTime || null,
           duration: formDuration === "" ? null : Number(formDuration),
           estimatedCost: formCost === "" ? null : Number(formCost),
         },

@@ -4,21 +4,12 @@ import { sql } from "../config/db.js";
 // convert "HH:MM" (24h) to a JS Date anchored to 1970-01-01 (UTC)
 function toTimestampFromHHMM(value) {
   if (!value) return null;
-
-  // already an ISO string or Date → just return Date
-  const asDate = new Date(value);
-  if (!isNaN(asDate.getTime())) {
-    return asDate;
+  const [hh, mm] = value.split(":").map(Number);
+  if (!isNaN(hh) && !isNaN(mm)) {
+    const d = new Date();
+    d.setHours(hh, mm, 0, 0);  // local time
+    return d;
   }
-
-  // otherwise assume HH:MM string
-  if (typeof value === "string" && value.includes(":")) {
-    const [hh, mm] = value.split(":").map(Number);
-    if (!Number.isNaN(hh) && !Number.isNaN(mm)) {
-      return new Date(Date.UTC(1970, 0, 1, hh, mm, 0));
-    }
-  }
-
   return null;
 }
 
