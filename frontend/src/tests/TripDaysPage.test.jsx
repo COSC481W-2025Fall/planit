@@ -13,13 +13,17 @@ global.fetch = vi.fn((url) => {
     if (url.includes("/trip/read/1")) {
         return Promise.resolve({
             json: () =>
-                //mock results for trip details
                 Promise.resolve({
                     trip_id: "1",
                     trip_name: "Summer Vacation",
                     trip_location: "Hawaii",
                     trip_start_date: "2025-07-01"
                 }),
+        });
+    }
+    if (url.includes("/activities/read/all")) {
+        return Promise.resolve({
+            json: () => Promise.resolve({ activities: [] }),
         });
     }
     return Promise.reject(new Error("Unhandled fetch: " + url));
