@@ -52,6 +52,7 @@ app.use(passport.session());
 
 // routes
 app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
 app.use("/placesAPI", placesAPIRoutes);
 app.use("/days", daysRoutes);
 app.use("/trip", tripRoutes);

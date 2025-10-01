@@ -1,0 +1,116 @@
+/* Import "Open Sans" for font use */
+@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
+
+.parent-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #e3ece6;
+  gap:5px;
+}
+
+.login-logo {
+  width: 200px;
+  height: auto;
+}
+
+.header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.header-container h1 {
+  color: black;
+  font-size: 25px;
+  font-family: Tahoma, sans-serif;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.header-container p {
+  color: #7c8189;
+  font-size: 15px;
+  margin-top: 5px;
+  font-family: 'Open Sans', sans-serif;
+}
+
+/* White box for username */
+.username-box {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 400px;
+}
+
+/* Username label */
+.username-box h3 {
+  font-family: Tahoma, sans-serif;
+  font-size: 20px;
+  margin-top: 5px;
+  font-weight: 100;
+}
+
+/* Input field */
+.username-box input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  border: 1px solid white ;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  border-color: #1e7a3d;
+  background-color: #f2f2f2;
+}
+
+.username-box input[type="text"]:focus {
+  border-color: #1e7a3d;
+}
+
+/* Save button */
+.save-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #1e7a3d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background-color: #16582c;
+}
+
+.error-message {
+    color: red;
+    font-size: 13px;
+    text-align: left;
+    margin: 5px;
+}
+
+.error-container {
+    min-height: 20px;
+    margin: 5px 0;
+}
+
+@media (max-width: 600px) {
+  .username-box {
+    width: 90%;     
+    margin: 20px;   
+  }
+
+  .save-button {
+    width: 100%;    
+    font-size: 16px;
+  }
+}

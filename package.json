@@ -27,6 +27,8 @@
     "passport-google-oauth20": "^2.0.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.0",
+    "@testing-library/react": "^16.3.0",
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.4",
