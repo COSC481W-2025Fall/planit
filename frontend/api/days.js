@@ -1,6 +1,6 @@
 import { VITE_BACKEND_URL, LOCAL_BACKEND_URL } from "../../Constants";
 
-const API_BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL + "/days";
+const API_BASE_URL = (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/days";
 
 async function handleResponse(res) {
   if (!res.ok) {
