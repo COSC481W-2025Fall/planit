@@ -94,13 +94,13 @@ export default function TripPage() {
     setIsModalOpen(true);
   };
 
-   const handleTripRedirect = (tripId) => {
+  const handleTripRedirect = (tripId) => {
     navigate(`/days/${tripId}`);
   };
 
   return (
     <div className="trip-page">
-      <TopBanner user={user} onSignOut={() => {console.log("Signed out"); window.location.href = "/";}}/>
+      <TopBanner user={user} onSignOut={() => { console.log("Signed out"); window.location.href = "/"; }} />
       <div className="content-with-sidebar">
         <NavBar />
         <div className="main-content">
@@ -141,8 +141,8 @@ export default function TripPage() {
                 </div>
               ) : (
                 trips.map((trip) => (
-                  <div key={trip.trips_id} className="trip-card" onClick={() => handleTripRedirect(trip.trips_id)}>
-                    <div className="trip-card-image">
+                  <div key={trip.trips_id} className="trip-card">
+                    <div className="trip-card-image" onClick={() => handleTripRedirect(trip.trips_id)}>
                       <div className="trip-duration-badge">{trip.days} days</div>
                     </div>
 
@@ -169,7 +169,7 @@ export default function TripPage() {
                             setOpenDropdownId(null);
                           }}
                         >
-                          <Pencil size={16}/>Edit Trip
+                          <Pencil size={16} />Edit Trip
                         </button>
                         <button
                           className="dropdown-item delete-item"
@@ -178,12 +178,12 @@ export default function TripPage() {
                             setOpenDropdownId(null);
                           }}
                         >
-                          <Trash size={16}/> Delete Trip
+                          <Trash size={16} /> Delete Trip
                         </button>
                       </div>
                     )}
 
-                    <div className="trip-card-content">
+                    <div className="trip-card-content" onClick={() => handleTripRedirect(trip.trips_id)}>
                       <h3 className="trip-card-title">{trip.trip_name}</h3>
                       <div className="trip-location">
                         <MapPin size={16} style={{ marginRight: "4px" }} />
@@ -226,31 +226,39 @@ export default function TripPage() {
                       user_id: user.user_id
                     };
                     if (editingTrip) tripData.trips_id = editingTrip.trips_id;
+                    console.log(tripData)
                     await handleSaveTrip(tripData);
                   }}
                 >
                   <input
                     name="name"
                     placeholder="Trip Name"
+                    maxLength="30"
                     defaultValue={editingTrip?.trip_name || ""}
                     required
                   />
                   <input
                     name="location"
                     placeholder="Location"
+                    maxLength="30"
                     defaultValue={editingTrip?.trip_location || ""}
                     required
                   />
                   <input
                     name="startDate"
                     type="date"
-                    defaultValue={editingTrip?.trip_start_date || ""}
+                    defaultValue={
+                      editingTrip?.trip_start_date
+                        ? new Date(editingTrip.trip_start_date).toISOString().split("T")[0]
+                        : ""
+                    }
                     required
                   />
                   <input
                     name="days"
                     type="number"
                     placeholder="Number of Days"
+                    min="0"
                     defaultValue={editingTrip?.days || ""}
                     required
                   />

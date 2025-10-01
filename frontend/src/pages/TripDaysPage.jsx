@@ -15,10 +15,10 @@ export default function TripDaysPage() {
     const [user, setUser] = useState(null);
     const [trip, setTrip] = useState(null);
     const [days, setDays] = useState([]);
+    const [deleteDayId, setDeleteDayId] = useState(null);
 
     //constants for UI components
     const [openMenu, setOpenMenu] = useState(null);
-    const [editDay, setEditDay] = useState(null);
     const [newDay, setOpenNewDay] = useState(null);
     const [openActivitySearch, setOpenActivitySearch] = useState(false);
 
@@ -118,7 +118,7 @@ export default function TripDaysPage() {
 
     return (
         <div className="page-layout">
-            <TopBanner user={user} onSignOut={() => {console.log("Signed out"); window.location.href = "/";}}/>
+            <TopBanner user={user} onSignOut={() => { console.log("Signed out"); window.location.href = "/";}}/>
 
             <div className="content-with-sidebar">
                 <NavBar />
@@ -152,7 +152,7 @@ export default function TripDaysPage() {
                             <button onClick={() => setOpenNewDay(true)} id="new-day-button">+ New Day</button>
                             {openActivitySearch === false &&
                                 <button onClick={() => setOpenActivitySearch(true)} id="add-activity-button">+ Add Activity</button>
-                        }
+                            }
                         </div>
                     </div>
 
@@ -186,7 +186,7 @@ export default function TripDaysPage() {
                                         <EllipsisVertical className="day-actions-ellipsis" onClick={() => toggleMenu(day.day_id)} />
                                         {openMenu === day.day_id && (
                                             <div className="day-menu">
-                                                <button onClick={() => handleDeleteDay(day.day_id)}>
+                                                <button onClick={() => setDeleteDayId(day.day_id)}>
                                                     <Trash2 className="trash-icon" /> Delete
                                                 </button>
                                             </div>
@@ -196,24 +196,6 @@ export default function TripDaysPage() {
                             ))
                         )}
                     </div>
-
-                    {editDay && (
-                        <Popup
-                            title={`Day ${days.indexOf(editDay) + 1}`}
-                            buttons={
-                                <>
-                                    <button type="button" onClick={() => setEditDay(null)}>Cancel</button>
-                                    <button type="button" onClick={() => setEditDay(null)}>Save</button>
-                                </>
-                            }
-                        >
-                            <label className="popup-input">
-                                <span>Date:</span>
-                                <input type="date" />
-                            </label>
-                        </Popup>
-                    )}
-
                     {newDay && (
                         <Popup
                             title="New Day"
@@ -227,15 +209,38 @@ export default function TripDaysPage() {
                             <p className="popup-body-text">Do you want to add a new day to {trip?.trip_name}?</p>
                         </Popup>
                     )}
+                    {deleteDayId && (
+                        <Popup
+                            title="Delete Day"
+                            buttons={
+                                <>
+                                    <button type="button" onClick={() => setDeleteDayId(null)}>Cancel</button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            handleDeleteDay(deleteDayId);
+                                            setDeleteDayId(null);
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+                                </>
+                            }
+                        >
+                            <p className="popup-body-text">
+                                Are you sure you want to delete this day? You will lose all activities for this
+                            </p>
+                        </Popup>
+                    )}
                 </main>
                 <div className="activity-search-sidebar" >
                     {openActivitySearch &&
-                      <ActivitySearch
-                        onClose={() => setOpenActivitySearch(false)}
-                        days={Array.isArray(days) ? days.length : days}   // count
-                        dayIds={Array.isArray(days) ? days.map(d => d.day_id) : []}  // ids
-                        onActivityAdded={fetchDays}                       // refresh after save
-                    />
+                        <ActivitySearch
+                            onClose={() => setOpenActivitySearch(false)}
+                            days={Array.isArray(days) ? days.length : days}   // count
+                            dayIds={Array.isArray(days) ? days.map(d => d.day_id) : []}  // ids
+                            onActivityAdded={fetchDays}                       // refresh after save
+                        />
 
                     }
                 </div>
