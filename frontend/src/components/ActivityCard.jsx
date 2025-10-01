@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../css/ActivityCard.css";
-import { Clock, MapPin, EllipsisVertical, Trash2, Pencil } from "lucide-react";
+import { Clock, MapPin, EllipsisVertical, Trash2, Pencil, Timer} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 
 export default function ActivityCard({ activity, onDelete, onEdit }) {
@@ -41,7 +41,7 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
             </div>
 
             <p className="duration-of-activity">
-                <Clock className="icon" />
+                <Timer className="icon" />
                 {activity.activity_duration ? (
                     <>
                         {activity.activity_duration.hours ? `${activity.activity_duration.hours}h` : ""}
