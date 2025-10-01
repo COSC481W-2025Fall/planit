@@ -107,6 +107,7 @@ body {
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
+  align-items: flex-start;
 }
 
 .add-activity-blurb {

@@ -1,0 +1,88 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.activity-container {
+    position: relative;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #d3d8e0;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.05);
+    font-family: "Open Sans", sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.title-and-edit-button-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.title-of-activity {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #1e7a3d;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.time-and-location-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.8rem;
+    color: #7c8189;
+}
+
+.time-of-activity,
+.location-of-activity {
+    display: flex;
+    align-items: center;
+}
+
+.duration-of-activity {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #7c8189;
+    margin-top: 2px;
+}
+
+.cost-container {
+    font-size: 0.8rem;
+    color: #7c8189;
+    text-align: right;
+}
+
+.estimated-cost-of-activity {
+    font-weight: 500;
+}
+
+.icon {
+    display: inline-block;
+    width: 0.7rem;
+    margin-right: 4px;
+    color: #1e7a3d;
+    text-align: center;
+}
+
+.ellipis {
+    position: absolute;
+    right: -0.5rem;
+    cursor: pointer;
+    height: 1.125rem;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease-in-out;
+}
+
+.activity-container:hover .ellipis {
+    opacity: 1;
+    transform: scale(1.15);
+}
