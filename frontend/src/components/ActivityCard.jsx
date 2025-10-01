@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import "../css/ActivityCard.css";
-import { Clock, MapPin, EllipsisVertical, Trash2, Pencil, Timer} from "lucide-react";
-import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
+import { Clock, MapPin, EllipsisVertical, Trash2, Pencil, Timer } from "lucide-react";
+import LocalTime from "./LocalTime";
 
 export default function ActivityCard({ activity, onDelete, onEdit }) {
     const [openMenu, setOpenMenu] = useState(false);
-    const startTime = activity.activity_startTime ? new Date(activity.activity_startTime) : null;
-
     const toggleMenu = () => setOpenMenu(prev => !prev);
+
+    const startRaw = activity?.activity_start_time ?? activity?.activity_startTime ?? null;
+    const isTimestamp = typeof startRaw === "string" && (startRaw.includes("T") || /Z$|[+-]\d{2}:\d{2}$/.test(startRaw));
 
     return (
         <div className="activity-container">
@@ -29,9 +30,17 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
             <div className="time-and-location-container">
                 <p className="time-of-activity">
                     <Clock className="icon" />
-                    {startTime
-                        ? startTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                        : "No time"}
+                    {startRaw ? (
+                        isTimestamp ? (
+                            // Full timestamp from API (e.g., "2025-10-01T16:00:00Z")
+                            <LocalTime variant="timestamp" value={startRaw} />
+                        ) : (
+                            // Plain time-of-day from API (e.g., "14:30")
+                            <LocalTime variant="time" value={String(startRaw)} />
+                        )
+                    ) : (
+                        "No time"
+                    )}
                 </p>
 
                 <p className="location-of-activity">
