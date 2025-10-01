@@ -82,19 +82,29 @@ export default function ActivitySearch({
       .join(" ");
   };
 
-  const getLocationString = (place) => {
-    const city =
-      place.addressComponents?.find((c) => c.types.includes("locality"))
-        ?.longText || "N/A";
-    const state =
-      place.addressComponents?.find((c) =>
-        c.types.includes("administrative_area_level_1")
-      )?.shortText || "N/A";
-    const country =
-      place.addressComponents?.find((c) => c.types.includes("country"))
-        ?.shortText || "N/A";
-    return `${city}, ${state}, ${country}`;
-  };
+const getLocationString = (place) => {
+  const addr = place.addressComponents || [];
+
+  const country =
+    addr.find((c) => c && c.types?.includes("country"))?.shortText || "N/A";
+
+  const region =
+    addr.find((c) => c && c.types?.includes("administrative_area_level_1"))?.shortText ||
+    addr.find((c) => c && c.types?.includes("administrative_area_level_2"))?.shortText ||
+    addr.find((c) => c && c.types?.includes("sublocality"))?.shortText ||
+    "N/A";
+
+  const city =
+    addr.find((c) => c && c.types?.includes("locality"))?.longText ||
+    addr.find((c) => c && c.types?.includes("sublocality"))?.longText ||
+    addr.find((c) => c && c.types?.includes("neighborhood"))?.longText ||
+    region; 
+
+  // only include parts that are not "N/A"
+  return [city, region, country].filter((v) => v && v !== "N/A").join(", ");
+};
+
+
 
   // City autocomplete
   useEffect(() => {
@@ -216,21 +226,10 @@ export default function ActivitySearch({
   // Save details
   const handleSaveDetails = async () => {
     try {
-      let startTimeValue = "";
-      if (formStartTime) {
-        // combine with today's date
-        const today = new Date();
-       
-        // formstatetime format ex would be 14:30
-        const [hours, minutes] = formStartTime.split(":");
-        today.setHours(Number(hours), Number(minutes), 0, 0);
-        startTimeValue = today.toISOString(); 
-      }
-
       const updatePayload = {
         activityId: newActivityId,
         activity: {
-          startTime: startTimeValue || null,
+          startTime: formStartTime || null,
           duration: formDuration === "" ? null : Number(formDuration),
           estimatedCost: formCost === "" ? null : Number(formCost),
         },
