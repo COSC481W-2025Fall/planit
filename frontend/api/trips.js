@@ -42,12 +42,20 @@ export async function createTrip(trip) {
 }
 
 // Update existing trip
-export async function updateTrip({ trips_id, trip_name, trip_location, trip_start_date, days }) {
+export async function updateTrip(trip) {
+  const payload = {
+    trips_id: trip.trips_id,
+    tripName: trip.trip_name,
+    tripLocation: trip.trip_location,
+    tripStartDate: trip.trip_start_date,
+    days: trip.days,
+  };
+
   const res = await fetch(`${API_BASE_URL}/update`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ trips_id, trip_name, trip_location, trip_start_date, days }),
+    body: JSON.stringify(payload),
   });
 
   if (!res.ok) {
