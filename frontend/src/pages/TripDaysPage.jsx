@@ -141,6 +141,10 @@ export default function TripDaysPage() {
         }
     };
 
+    // grbb the users timezone!!
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    //console.log(userTimeZone);
+
     // update an activity
     const handleUpdateActivity = async (activityId, activity) => {
         try {
@@ -156,6 +160,7 @@ export default function TripDaysPage() {
                             startTime: activity.activity_startTime,
                             duration: Number(activity.activity_duration),
                             estimatedCost: Number(activity.activity_estimated_cost),
+                            userTimeZone,
                         },
                     }),
                 }
