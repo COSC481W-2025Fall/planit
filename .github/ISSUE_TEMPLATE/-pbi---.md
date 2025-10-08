@@ -9,8 +9,14 @@ assignees: ''
 
 **User Story**
 
-**Personal**
+**Who:**
+**What:**
+**Why:**
 
-**Feature**
+**Estimated Workload**
 
-**Business Value**
+**Tasks**
+
+**Acceptance Criteria**
+
+**Dependencies**
