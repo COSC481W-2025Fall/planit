@@ -7,6 +7,7 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
+import LoadingSpinner from "./LoadingSpinner.jsx";
 
 export default function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true);
@@ -21,7 +22,7 @@ export default function ProtectedRoute({ children }) {
       });
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <LoadingSpinner visible={true} />;
   if (loggedIn) return <Navigate to="/login" />;
 
   return children;

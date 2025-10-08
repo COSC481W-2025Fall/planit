@@ -10,6 +10,7 @@ import TopBanner from "../components/TopBanner";
 import { getDays, createDay, deleteDay } from "../../api/days";
 import ActivityCard from "../components/ActivityCard.jsx";
 import { useParams } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner.jsx";
 
 export default function TripDaysPage() {
     //constants for data
@@ -218,7 +219,7 @@ export default function TripDaysPage() {
                     <NavBar />
                     <main className="TripDaysPage">
                         <div className="loading-screen">
-                            <p>Loading...</p>
+                            <LoadingSpinner visible={true} />
                         </div>
                     </main>
                 </div>

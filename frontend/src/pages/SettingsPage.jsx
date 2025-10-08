@@ -3,6 +3,7 @@ import "../css/TripPage.css";
 import TopBanner from "../components/TopBanner";
 import NavBar from "../components/NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function SettingsPage() {
     const [user, setUser] = useState(null);
@@ -19,7 +20,21 @@ export default function SettingsPage() {
             });
     }, []);
 
-    if (!user) return <div>Loading...</div>;
+    if (!user) {
+        return (
+            <div className="page-layout">
+                <TopBanner user={user} onSignOut={() => console.log("Signed out")} />
+                <div className="content-with-sidebar">
+                    <NavBar />
+                    <main className="SettingsPage">
+                        <div className="loading-screen">
+                            <LoadingSpinner visible={true} />
+                        </div>
+                    </main>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="trip-page">
