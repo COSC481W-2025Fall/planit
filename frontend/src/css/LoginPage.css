@@ -1,6 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
 
-/* ===== Base ===== */
 html,
 body {
   height: 100%;
@@ -11,7 +10,6 @@ body {
   font-family: "Open Sans", sans-serif;
 }
 
-/* ===== Main Page Container ===== */
 .login-page {
   display: flex;
   flex-direction: column;
@@ -23,7 +21,6 @@ body {
   padding: 1rem;
 }
 
-/* ===== Header Section ===== */
 .header-container {
   display: flex;
   flex-direction: column;
@@ -50,7 +47,6 @@ body {
   margin: 0.25rem 0 1rem;
 }
 
-/* ===== Login Box ===== */
 .login-container {
   background: var(--bg-surface, #f2f2f2);
   padding: 1.5rem;
@@ -71,7 +67,6 @@ body {
   color: #111;
 }
 
-/* ===== Login Button ===== */
 .login-button {
   display: flex;
   align-items: center;

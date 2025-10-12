@@ -1,4 +1,3 @@
-/* ===== Base Vertical Sidebar ===== */
 .sidebar {
     width: 11.5rem;
     min-height: 100%;
@@ -57,7 +56,7 @@
     font-family: "Open Sans", sans-serif;
 }
 
-/* ===== Mobile Drawer Behavior ===== */
+/* Mobile*/
 @media (max-width: 900px) {
     .sidebar {
         transform: translateX(-100%);

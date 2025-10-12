@@ -24,7 +24,6 @@
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-/* Title bar */
 .title-and-edit-button-container {
     display: flex;
     justify-content: space-between;
@@ -41,7 +40,6 @@
     white-space: nowrap;
 }
 
-/* Info sections */
 .time-and-location-container {
     display: flex;
     flex-direction: column;
@@ -78,7 +76,6 @@
     color: var(--text);
 }
 
-/* Icons */
 .icon {
     display: inline-block;
     width: 0.9rem;
@@ -88,7 +85,6 @@
     flex-shrink: 0;
 }
 
-/* Three-dot menu */
 .ellipis {
     position: absolute;
     right: 0;
@@ -103,7 +99,6 @@
     transform: scale(1.15);
 }
 
-/* Dropdown menu */
 .day-menu {
     position: absolute;
     top: 1.5rem;
@@ -141,7 +136,7 @@
     height: 0.9rem;
 }
 
-/* ========== MOBILE RESPONSIVE ========== */
+/*MOBILE RESPONSIVE*/
 @media (max-width: 768px) {
     .activity-container {
         padding: 12px;

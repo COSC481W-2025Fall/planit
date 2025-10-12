@@ -67,7 +67,7 @@
     color: var(--muted);
 }
 
-/* ===== Hamburger Button ===== */
+/*Hamburger Button*/
 .hamburger {
     display: none;
     background: none;

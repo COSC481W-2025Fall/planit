@@ -1,7 +1,5 @@
-/* ===== Font Import ===== */
 @import url("https://fonts.googleapis.com/css?family=Open+Sans&display=swap");
 
-/* ===== Base ===== */
 html,
 body {
   margin: 0;
@@ -11,7 +9,6 @@ body {
   background-color: #e3ece6;
 }
 
-/* ===== Parent Container ===== */
 .parent-container {
   display: flex;
   flex-direction: column;
@@ -24,13 +21,11 @@ body {
   gap: 0.75rem;
 }
 
-/* ===== Logo ===== */
 .login-logo {
   width: clamp(140px, 30vw, 220px);
   height: auto;
 }
 
-/* ===== Header Section ===== */
 .header-container {
   display: flex;
   flex-direction: column;
@@ -53,7 +48,6 @@ body {
   font-family: "Open Sans", sans-serif;
 }
 
-/* ===== Username Box ===== */
 .username-box {
   background: #fff;
   padding: 25px 30px;
@@ -67,7 +61,6 @@ body {
   align-items: center;
 }
 
-/* ===== Input Field ===== */
 .username-box input[type="text"] {
   width: 100%;
   padding: 12px;
@@ -85,7 +78,6 @@ body {
   box-shadow: 0 0 4px rgba(30, 122, 61, 0.4);
 }
 
-/* ===== Save Button ===== */
 .save-button {
   width: 100%;
   padding: 12px;
@@ -104,7 +96,6 @@ body {
   transform: scale(1.03);
 }
 
-/* ===== Error Section ===== */
 .error-container {
   min-height: 20px;
   margin: 5px 0;
@@ -118,7 +109,7 @@ body {
   margin-top: 5px;
 }
 
-/* ===== Tablet View ===== */
+/*Tablet View*/
 @media (max-width: 900px) {
   .username-box {
     width: 80%;
@@ -134,7 +125,7 @@ body {
   }
 }
 
-/* ===== Mobile View ===== */
+/*Mobile View*/
 @media (max-width: 600px) {
   .parent-container {
     padding: 1.5rem;

@@ -20,7 +20,6 @@
     font-size: clamp(14px, 1vw, 18px);
 }
 
-/* Base */
 html,
 body,
 #root {

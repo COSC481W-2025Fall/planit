@@ -9,7 +9,6 @@ body {
   min-height: 100vh;
 }
 
-/* ============ Animations ============ */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -28,7 +27,6 @@ body {
   }
 }
 
-/* ============ Drawer ============ */
 .drawer {
   width: 400px;
   height: 100vh;
@@ -46,7 +44,6 @@ body {
   right: 0;
 }
 
-/* Close button */
 .collapse-btn {
   position: absolute;
   top: 12px;
@@ -71,7 +68,6 @@ body {
   color: var(--text);
 }
 
-/* ============ Search bar ============ */
 .search-bar {
   display: flex;
   gap: 8px;
@@ -86,7 +82,6 @@ body {
   font-size: 14px;
 }
 
-/* ============ Autocomplete ============ */
 .city-autocomplete-wrapper {
   position: relative;
   flex: 1;
@@ -114,7 +109,6 @@ body {
   background-color: #f0f0f0;
 }
 
-/* ============ Search actions ============ */
 .search-actions {
   display: flex;
   gap: 8px;
@@ -141,7 +135,6 @@ body {
   background: #145c2d;
 }
 
-/* ============ Results ============ */
 .search-results {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -151,7 +144,6 @@ body {
   margin-bottom: 1rem;
 }
 
-/* ============ Activity Cards ============ */
 .activity-card {
   border: 1px solid #d3d8e0;
   border-radius: 10px;
@@ -194,7 +186,6 @@ body {
   gap: 6px;
 }
 
-/* Website link */
 .website-link {
   font-size: 13px;
   font-weight: 600;
@@ -209,7 +200,6 @@ body {
   pointer-events: none;
 }
 
-/* Add button */
 .add-btn {
   background: var(--accent);
   color: #fff;
@@ -225,7 +215,7 @@ body {
   background: #145c2d;
 }
 
-/* ============ Responsive ============ */
+/*Responsive*/
 @media (max-width: 1024px) {
   .drawer {
     width: 320px;
