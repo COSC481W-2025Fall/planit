@@ -3,11 +3,10 @@ import { NavLink } from "react-router-dom";
 import "../css/NavBar.css";
 import { Map, Settings } from "lucide-react";
 
-export default function NavBar() {
+export default function NavBar({ isOpen }) {
     return (
-        <aside className="sidebar">
+        <aside className={`sidebar ${isOpen ? "open" : ""}`}>
             <nav className="nav-list">
-
                 <NavLink
                     to="/trip"
                     end
@@ -28,7 +27,6 @@ export default function NavBar() {
                     <Settings className="nav-icon" size={20} />
                     <span>Settings</span>
                 </NavLink>
-                
             </nav>
         </aside>
     );
