@@ -68,8 +68,7 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
                 </div>
             ) : (
                 <div className="website-container">
-                    <Globe className="icon" />
-                    <span className="website-link-disabled">N/A</span>
+                    &nbsp;
                 </div>
             )}
 
