@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2 } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/Popup.css";
@@ -12,13 +12,12 @@ import ActivityCard from "../components/ActivityCard.jsx";
 import { useParams } from "react-router-dom";
 
 export default function TripDaysPage() {
-    //constants for data
+
     const [user, setUser] = useState(null);
     const [trip, setTrip] = useState(null);
     const [days, setDays] = useState([]);
     const [deleteDayId, setDeleteDayId] = useState(null);
 
-    //constants for UI components
     const [openMenu, setOpenMenu] = useState(null);
     const [newDay, setOpenNewDay] = useState(null);
     const [openActivitySearch, setOpenActivitySearch] = useState(false);
@@ -27,71 +26,82 @@ export default function TripDaysPage() {
     const [editDuration, setEditDuration] = useState("");
     const [editCost, setEditCost] = useState(0);
 
+    const [expandedDay, setExpandedDay] = useState(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+
+    const menuRefs = useRef({});
     const { tripId } = useParams();
 
-    //get the user
+    //responsive
     useEffect(() => {
-        fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/auth/login/details", { credentials: "include" })
+        const handleResize = () => setIsMobile(window.innerWidth <= 600);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    //outside Click Close
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            const clickedInside = Object.values(menuRefs.current).some(
+                (ref) => ref && ref.contains(e.target)
+            );
+            if (!clickedInside) setOpenMenu(null);
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        fetch(
+            (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+            "/auth/login/details",
+            { credentials: "include" }
+        )
             .then((res) => res.json())
-            .then((data) => { if (data.loggedIn !== false) setUser(data); })
+            .then((data) => {
+                if (data.loggedIn !== false) setUser(data);
+            })
             .catch((err) => console.error("User fetch error:", err));
     }, []);
 
-    //get the trip
     useEffect(() => {
-        fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + `/trip/read/${tripId}`, { credentials: "include" })
+        fetch(
+            (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+            `/trip/read/${tripId}`,
+            { credentials: "include" }
+        )
             .then((res) => res.json())
             .then((data) => setTrip(data))
             .catch((err) => console.error("Trip fetch error:", err));
     }, []);
 
-    useEffect(() => {
-        if (editActivity) {
-            // format start time
-            let start = "";
-            if (editActivity.activity_startTime) {
-                const date = new Date(editActivity.activity_startTime);
-                const h = String(date.getHours()).padStart(2, "0");
-                const m = String(date.getMinutes()).padStart(2, "0");
-                start = `${h}:${m}`;
-            }
-            setEditStartTime(start);
-
-            // need to convert time into minutes from db
-            const durationObj = editActivity.activity_duration || { hours: 0, minutes: 0 };
-            const totalMinutes = (durationObj.hours || 0) * 60 + (durationObj.minutes || 0);
-
-            setEditDuration(totalMinutes);
-
-            // cost
-            setEditCost(editActivity.activity_price_estimated ?? "");
-        }
-    }, [editActivity]);
-
-    //initial fetch of days
+    // ===== Fetch Days =====
     useEffect(() => {
         fetchDays();
     }, [tripId]);
 
     const fetchDays = async () => {
         if (!tripId) return;
-
         try {
             const data = await getDays(tripId);
 
             const daysWithActivities = await Promise.all(
                 data.map(async (day) => {
                     const res = await fetch(
-                        `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/read/all`,
+                        `${
+                            import.meta.env.PROD
+                                ? VITE_BACKEND_URL
+                                : LOCAL_BACKEND_URL
+                        }/activities/read/all`,
                         {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ dayId: day.day_id })
+                            body: JSON.stringify({ dayId: day.day_id }),
                         }
                     );
                     const { activities } = await res.json();
 
-                    // sort activities by start time
                     const sortedActivities = (activities || []).sort((a, b) => {
                         const timeA = new Date(a.activity_startTime).getTime();
                         const timeB = new Date(b.activity_startTime).getTime();
@@ -108,7 +118,6 @@ export default function TripDaysPage() {
         }
     };
 
-    //add a new day
     const handleAddDay = async () => {
         try {
             let nextDate;
@@ -122,7 +131,6 @@ export default function TripDaysPage() {
 
             const formatted = nextDate.toISOString().split("T")[0];
             await createDay(tripId, { day_date: formatted });
-
             await fetchDays();
             setOpenNewDay(false);
         } catch (err) {
@@ -130,7 +138,6 @@ export default function TripDaysPage() {
         }
     };
 
-    //delete a day
     const handleDeleteDay = async (dayId) => {
         try {
             if (openMenu === dayId) setOpenMenu(null);
@@ -141,15 +148,13 @@ export default function TripDaysPage() {
         }
     };
 
-    // grbb the users timezone!!
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    //console.log(userTimeZone);
 
-    // update an activity
     const handleUpdateActivity = async (activityId, activity) => {
         try {
             const response = await fetch(
-                (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + `/activities/update`,
+                (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+                `/activities/update`,
                 {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
@@ -179,41 +184,37 @@ export default function TripDaysPage() {
         }
     };
 
-
     const handleDeleteActivity = async (activityId) => {
         try {
-            const response = await fetch((import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + `/activities/delete`, {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ activityId }),
-            });
+            const response = await fetch(
+                (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+                `/activities/delete`,
+                {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ activityId }),
+                }
+            );
 
             if (!response.ok) throw new Error("Failed to delete activity");
 
-            // Update the days state by removing the deleted activity
-            setDays(prevDays =>
-                prevDays.map(day => ({
-                    ...day,
-                    activities: day.activities?.filter(a => a.activity_id !== activityId) || []
-                }))
-            );
-
+            await fetchDays();
         } catch (error) {
             console.error("Error deleting activity:", error);
             alert("Failed to delete activity. Please try again.");
         }
     };
 
-
     const toggleMenu = (dayId) => {
         setOpenMenu(openMenu === dayId ? null : dayId);
     };
 
-    // Loading state
+    // ===== Loading State =====
     if (!user || !trip) {
         return (
             <div className="page-layout">
-                <TopBanner user={user} onSignOut={() => console.log("Signed out")} />
+                <TopBanner user={user} />
                 <div className="content-with-sidebar">
                     <NavBar />
                     <main className="TripDaysPage">
@@ -228,7 +229,12 @@ export default function TripDaysPage() {
 
     return (
         <div className="page-layout">
-            <TopBanner user={user} onSignOut={() => { console.log("Signed out"); window.location.href = "/"; }} />
+            <TopBanner
+                user={user}
+                onSignOut={() => {
+                    window.location.href = "/";
+                }}
+            />
 
             <div className="content-with-sidebar">
                 <NavBar />
@@ -246,9 +252,19 @@ export default function TripDaysPage() {
                             <div className="trip-dates">
                                 <Calendar className="trip-info-icon" />
                                 <p className="trip-dates-text">
-                                    {new Date(days[0].day_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
-                                    {" - "}
-                                    {new Date(days[days.length - 1].day_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+                                    {new Date(days[0].day_date).toLocaleDateString("en-US", {
+                                        weekday: "long",
+                                        month: "short",
+                                        day: "numeric",
+                                    })}{" "}
+                                    -{" "}
+                                    {new Date(
+                                        days[days.length - 1].day_date
+                                    ).toLocaleDateString("en-US", {
+                                        weekday: "long",
+                                        month: "short",
+                                        day: "numeric",
+                                    })}
                                 </p>
                             </div>
                         )}
@@ -259,77 +275,178 @@ export default function TripDaysPage() {
                     <div className="button-level-bar">
                         <h1 className="itinerary-text">Itinerary</h1>
                         <div className="itinerary-buttons">
-                            <button onClick={() => setOpenNewDay(true)} id="new-day-button">+ New Day</button>
-                            {openActivitySearch === false &&
-                                <button onClick={() => setOpenActivitySearch(true)} id="add-activity-button">+ Add Activity</button>
-                            }
+                            <button onClick={() => setOpenNewDay(true)} id="new-day-button">
+                                + New Day
+                            </button>
+                            {!openActivitySearch && (
+                                <button
+                                    onClick={() => setOpenActivitySearch(true)}
+                                    id="add-activity-button"
+                                >
+                                    + Add Activity
+                                </button>
+                            )}
                         </div>
                     </div>
 
                     <div className="days-container">
                         {days.length === 0 ? (
-                            <p className="empty-state-text">No days added to your itinerary yet. Click <span>+ New Day</span> to get started!</p>
+                            <p className="empty-state-text">
+                                No days added to your itinerary yet. Click{" "}
+                                <span>+ New Day</span> to get started!
+                            </p>
                         ) : (
-                            days.map((day, index) => (
-                                <div key={day.day_id} className="day-card">
-                                    <div className="top-of-day-card">
-                                        <p className="day-title">Day {index + 1}</p>
-                                    </div>
-
-                                    <p className="day-date">
-                                        {new Date(day.day_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
-                                    </p>
-
-                                    <div className="number-of-activities">
-                                        {day.activities?.length ?? 0} Activities
-                                    </div>
-
-                                    {(day.activities?.length ?? 0) === 0 ? (
-                                        <p className="add-activity-blurb">
-                                            No activities planned. Add an activity from the sidebar
-                                        </p>
-                                    ) : (
-                                        <div className="activities">
-                                            {day.activities.map(activity => (
-                                                <ActivityCard key={activity.activity_id} activity={activity} onDelete={handleDeleteActivity} onEdit={(activity) => setEditActivity(activity)} />
-                                            ))}
-                                        </div>
-                                    )}
-
-
-                                    <div className="day-actions">
-                                        <EllipsisVertical className="day-actions-ellipsis" onClick={() => toggleMenu(day.day_id)} />
-                                        {openMenu === day.day_id && (
-                                            <div className="day-menu">
-                                                <button onClick={() => setDeleteDayId(day.day_id)}>
-                                                    <Trash2 className="trash-icon" /> Delete
-                                                </button>
+                            days.map((day, index) => {
+                                const isExpanded = expandedDay === day.day_id;
+                                return (
+                                    <div
+                                        key={day.day_id}
+                                        className={`day-card ${
+                                            isMobile
+                                                ? isExpanded
+                                                    ? "expanded"
+                                                    : "collapsed"
+                                                : ""
+                                        }`}
+                                    >
+                                        <div
+                                            className="day-header"
+                                            onClick={() =>
+                                                isMobile &&
+                                                setExpandedDay(
+                                                    isExpanded ? null : day.day_id
+                                                )
+                                            }
+                                        >
+                                            <div>
+                                                <p className="day-title">Day {index + 1}</p>
+                                                <p className="day-date">
+                                                    {new Date(
+                                                        day.day_date
+                                                    ).toLocaleDateString("en-US", {
+                                                        weekday: "long",
+                                                        month: "short",
+                                                        day: "numeric",
+                                                    })}
+                                                </p>
                                             </div>
+                                            {isMobile && (
+                                                <span className="collapse-icon">
+                                                    {isExpanded ? (
+                                                        <ChevronUp />
+                                                    ) : (
+                                                        <ChevronDown />
+                                                    )}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {(!isMobile || isExpanded) && (
+                                            <>
+                                                <div className="number-of-activities">
+                                                    {day.activities?.length ?? 0} Activities
+                                                </div>
+
+                                                {(day.activities?.length ?? 0) === 0 ? (
+                                                    <p className="add-activity-blurb">
+                                                        No activities planned. Add an activity from
+                                                        the sidebar
+                                                    </p>
+                                                ) : (
+                                                    <div className="activities">
+                                                        {day.activities.map((activity) => (
+                                                            <ActivityCard
+                                                                key={activity.activity_id}
+                                                                activity={activity}
+                                                                onDelete={() =>
+                                                                    handleDeleteActivity(
+                                                                        activity.activity_id
+                                                                    )
+                                                                }
+                                                                onEdit={(a) =>
+                                                                    setEditActivity(a)
+                                                                }
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {/* ===== Three-dot menu ===== */}
+                                                <div
+                                                    className="day-actions"
+                                                    ref={(el) =>
+                                                        (menuRefs.current[day.day_id] = el)
+                                                    }
+                                                >
+                                                    <button
+                                                        type="button"
+                                                        className="day-actions-ellipsis"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            toggleMenu(day.day_id);
+                                                        }}
+                                                    >
+                                                        <EllipsisVertical />
+                                                    </button>
+
+                                                    {openMenu === day.day_id && (
+                                                        <div className="day-menu">
+                                                            <button
+                                                                onClick={() =>
+                                                                    setDeleteDayId(day.day_id)
+                                                                }
+                                                            >
+                                                                <Trash2 className="trash-icon" />{" "}
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </>
                                         )}
                                     </div>
-                                </div>
-                            ))
+                                );
+                            })
                         )}
                     </div>
+
                     {newDay && (
                         <Popup
                             title="New Day"
                             buttons={
                                 <>
-                                    <button type="button" onClick={() => setOpenNewDay(null)}>Cancel</button>
-                                    <button type="button" onClick={handleAddDay}>+ Add</button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setOpenNewDay(null)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleAddDay}
+                                    >
+                                        + Add
+                                    </button>
                                 </>
                             }
                         >
-                            <p className="popup-body-text">Do you want to add a new day to {trip?.trip_name}?</p>
+                            <p className="popup-body-text">
+                                Do you want to add a new day to {trip?.trip_name}?
+                            </p>
                         </Popup>
                     )}
+
                     {deleteDayId && (
                         <Popup
                             title="Delete Day"
                             buttons={
                                 <>
-                                    <button type="button" onClick={() => setDeleteDayId(null)}>Cancel</button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDeleteDayId(null)}
+                                    >
+                                        Cancel
+                                    </button>
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -343,22 +460,30 @@ export default function TripDaysPage() {
                             }
                         >
                             <p className="popup-body-text">
-                                Are you sure you want to delete this day? You will lose all activities for this
+                                Are you sure you want to delete this day? You will
+                                lose all activities for this day.
                             </p>
                         </Popup>
                     )}
 
                     {editActivity && (
                         <Popup
-                            title={`Edit Activity`}
+                            title="Edit Activity"
                             buttons={
                                 <>
-                                    <button type="button" onClick={() => setEditActivity(null)}>Cancel</button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditActivity(null)}
+                                    >
+                                        Cancel
+                                    </button>
                                     <button
                                         type="button"
                                         onClick={() => {
                                             if (!editStartTime || !editDuration || !editCost) {
-                                                alert("Please fill in all fields before saving.");
+                                                alert(
+                                                    "Please fill in all fields before saving."
+                                                );
                                                 return;
                                             }
                                             handleUpdateActivity(editActivity.activity_id, {
@@ -370,7 +495,6 @@ export default function TripDaysPage() {
                                     >
                                         Save
                                     </button>
-
                                 </>
                             }
                         >
@@ -379,7 +503,9 @@ export default function TripDaysPage() {
                                 <input
                                     type="time"
                                     value={editStartTime}
-                                    onChange={(e) => setEditStartTime(e.target.value)}
+                                    onChange={(e) =>
+                                        setEditStartTime(e.target.value)
+                                    }
                                 />
                             </label>
 
@@ -388,7 +514,9 @@ export default function TripDaysPage() {
                                 <input
                                     type="number"
                                     value={editDuration}
-                                    onChange={(e) => setEditDuration(e.target.value)}
+                                    onChange={(e) =>
+                                        setEditDuration(e.target.value)
+                                    }
                                 />
                             </label>
 
@@ -400,21 +528,22 @@ export default function TripDaysPage() {
                                     onChange={(e) => setEditCost(e.target.value)}
                                 />
                             </label>
-
                         </Popup>
                     )}
                 </main>
-                <div className="activity-search-sidebar" >
-                    {openActivitySearch &&
+
+                {openActivitySearch && (
+                    <div className="activity-search-sidebar">
                         <ActivitySearch
                             onClose={() => setOpenActivitySearch(false)}
-                            days={Array.isArray(days) ? days.length : days}   // count
-                            dayIds={Array.isArray(days) ? days.map(d => d.day_id) : []}  // ids
-                            onActivityAdded={fetchDays}                       // refresh after save
+                            days={Array.isArray(days) ? days.length : days}
+                            dayIds={Array.isArray(days)
+                                ? days.map((d) => d.day_id)
+                                : []}
+                            onActivityAdded={fetchDays}
                         />
-
-                    }
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );
