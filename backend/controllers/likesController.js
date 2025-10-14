@@ -31,7 +31,7 @@ export const deleteLike = async (req, res) => {
         }
 
         const deletedLike = await sql`
-            DELETE FROM Likes
+            DELETE FROM likes
             WHERE user_id = ${userId} AND trip_id = ${tripId}
             RETURNING *
         `;
@@ -80,6 +80,30 @@ export const getTopLikedTrips = async (req, res) => {
 
         return res.status(200).json(topLikedTripsAllTime);
 
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+export const getTrendingTrips = async (req, res) => {
+    try{
+        // grab the top 5 most liked trips in the past week as "trending"
+
+        //WHERE l.liked_at >= date_trunc('week', CURRENT_DATE)
+        //only include likes that occurred since the start of the current week (Monday)
+          const trendingTrips = await sql`
+            SELECT t.trips_id, t.trip_name, t.trip_location, t.days, t.trip_start_date, t.trip_updated_at,
+            COUNT(l.like_id) AS like_count
+            FROM trips t
+            JOIN likes l ON t.trips_id = l.trip_id
+            WHERE l.liked_at >= date_trunc('week', CURRENT_DATE)
+            GROUP BY t.trips_id
+            ORDER BY like_count DESC
+            LIMIT 5;
+        `;
+
+        return res.status(200).json(trendingTrips);
     } catch (err) {
         console.log(err);
         return res.status(500).json({ error: "Internal Server Error" });
