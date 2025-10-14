@@ -6,7 +6,7 @@ import "./css/Global.css";
 import "./css/TripPage.css";
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, Flip, Bounce , Zoom } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 createRoot(document.getElementById('root')).render(
@@ -15,13 +15,15 @@ createRoot(document.getElementById('root')).render(
     <App />
       <ToastContainer 
         position="top-right"
-        autoClose={5000}
+        autoClose={2000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
+        theme="light"
         draggable={false}
+        transition={Zoom}
         pauseOnHover
       />
     </BrowserRouter>

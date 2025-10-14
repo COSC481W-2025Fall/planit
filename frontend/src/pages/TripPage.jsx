@@ -8,6 +8,7 @@ import "../css/Popup.css";
 import { createTrip, updateTrip, getTrips, deleteTrip } from "../../api/trips";
 import { MapPin, Pencil, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function TripPage() {
   //constants for data  
@@ -53,8 +54,10 @@ export default function TripPage() {
       try {
         await deleteTrip(trips_id);
         setTrips(trips.filter((trip) => trip.trips_id !== trips_id));
+        toast.success("Trip deleted successfully!");
       } catch (err) {
         console.error("Delete trip failed:", err);
+        toast.error("Failed to delete trip. Please try again.");
       }
     }
   };
@@ -64,8 +67,10 @@ export default function TripPage() {
     try {
       if (editingTrip) {
         await updateTrip({ ...tripData, trips_id: editingTrip.trips_id });
+        toast.success("Trip updated successfully!");
       } else {
         await createTrip(tripData);
+        toast.success("Trip created successfully!");
       }
 
       if (user && user.user_id) {
@@ -78,7 +83,7 @@ export default function TripPage() {
       setIsModalOpen(false);
     } catch (err) {
       console.error("Save trip failed:", err);
-      alert("Could not save trip. Please try again.");
+      toast.error("Could not save trip. Please try again.");
     }
   };
 
