@@ -5,6 +5,8 @@ import "../css/Popup.css";
 import Popup from "../components/Popup";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import { Star } from "lucide-react";
+import { toast } from "react-toastify";
+
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -156,7 +158,7 @@ const getLocationString = (place) => {
   // Add to Trip, create then open popup
   const handleAddToTrip = async (place) => {
     if (!selectedDay) {
-      alert("Please choose a day first.");
+      toast.error("Please choose a day first.");
       return;
     }
 
@@ -165,7 +167,7 @@ const getLocationString = (place) => {
     const dayId = dayIds[idx];
 
     if (!dayId) {
-      alert("Could not resolve the selected day. Please refresh and try again.");
+      toast.error("Could not resolve the selected day. Please refresh and try again.");
       return;
     }
 
@@ -205,8 +207,7 @@ const getLocationString = (place) => {
       // backend returns activity_id 
       const id = created?.activity_id ?? created?.id;
       if (!id) {
-        console.warn("Created activity but did not receive an ID:", created);
-        alert("Activity created, but could not open details.");
+        toast.warn("Activity created, but could not open details.");
         setCreating(false);
         return;
       }
@@ -219,7 +220,7 @@ const getLocationString = (place) => {
       setShowDetails(true);
     } catch (err) {
       console.error("Error adding activity:", err?.response?.data || err.message);
-      alert("Failed to add activity. Check server logs for details.");
+      toast.error("Failed to add activity. Check server logs for details.");
     } finally {
       setCreating(false);
     }
@@ -243,13 +244,14 @@ const getLocationString = (place) => {
         { withCredentials: true }
       );
 
+      toast.success("Activity details saved!");
       setShowDetails(false);
       setNewActivityId(null);
 
       onActivityAdded && onActivityAdded();
     } catch (err) {
       console.error("Error updating activity:", err?.response?.data || err.message);
-      alert("Failed to save details. Please try again.");
+      toast.error("Failed to save details. Please try again.");
     }
   };
 

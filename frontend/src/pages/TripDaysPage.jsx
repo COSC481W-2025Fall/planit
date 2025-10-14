@@ -10,6 +10,7 @@ import TopBanner from "../components/TopBanner";
 import { getDays, createDay, deleteDay } from "../../api/days";
 import ActivityCard from "../components/ActivityCard.jsx";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function TripDaysPage() {
     //constants for data
@@ -125,8 +126,10 @@ export default function TripDaysPage() {
 
             await fetchDays();
             setOpenNewDay(false);
+            toast.success("New day added successfully!");
         } catch (err) {
             console.error("Error creating day:", err);
+            toast.error("Failed to add day. Please try again.");
         }
     };
 
@@ -136,8 +139,10 @@ export default function TripDaysPage() {
             if (openMenu === dayId) setOpenMenu(null);
             await deleteDay(tripId, dayId);
             await fetchDays();
+            toast.success("Day has been deleted.");
         } catch (err) {
             console.error("Error deleting day:", err);
+            toast.error("Failed to delete day. Please try again.");
         }
     };
 
@@ -173,9 +178,10 @@ export default function TripDaysPage() {
 
             await fetchDays();
             setEditActivity(null);
+            toast.success("Activity updated successfully!");
         } catch (error) {
             console.error("Error updating activity:", error);
-            alert("Failed to update activity. Please try again.");
+            toast.error("Failed to update activity. Please try again.");
         }
     };
 
@@ -198,9 +204,10 @@ export default function TripDaysPage() {
                 }))
             );
 
+            toast.success("Activity deleted successfully!");
         } catch (error) {
             console.error("Error deleting activity:", error);
-            alert("Failed to delete activity. Please try again.");
+            toast.error("Failed to delete activity. Please try again.");
         }
     };
 
