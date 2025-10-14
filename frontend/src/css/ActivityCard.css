@@ -15,7 +15,6 @@
     font-family: "Open Sans", sans-serif;
     display: flex;
     flex-direction: column;
-    gap: 4px;
 }
 
 .title-and-edit-button-container {
@@ -85,4 +84,21 @@
 .activity-container:hover .ellipis {
     opacity: 1;
     transform: scale(1.15);
+}
+
+.website-link-disabled{
+    font-size: 0.8rem;
+    color: #1e7a3d;
+    cursor: not-allowed;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.website-container{
+    display: flex;
+    flex-direction: row;
+}
+
+.website-link {
+    margin-top: 2px;
 }

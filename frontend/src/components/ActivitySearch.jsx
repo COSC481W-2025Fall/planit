@@ -176,6 +176,7 @@ const getLocationString = (place) => {
     const rating = place.rating ?? null;
     const lat = place.location?.lat ?? place.location?.latitude ?? null;
     const lng = place.location?.lng ?? place.location?.longitude ?? null;
+    const website = place.websiteUri || null;
 
     const payload = {
       day: dayId,
@@ -187,6 +188,7 @@ const getLocationString = (place) => {
         rating,
         longitude: lng,
         latitude: lat,
+        website,
         // time/duration/cost will be set in popup via /activities/update
       },
     };

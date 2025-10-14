@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../css/ActivityCard.css";
-import { Clock, MapPin, EllipsisVertical, Trash2, Pencil, Timer} from "lucide-react";
+import { Clock, MapPin, EllipsisVertical, Trash2, Pencil, Timer, Globe } from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 
 export default function ActivityCard({ activity, onDelete, onEdit }) {
@@ -54,6 +54,23 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
                 )}
             </p>
 
+            {activity.activity_website ? (
+                <div className="website-container">
+                    <Globe className="icon" />
+                    <a
+                        href={activity.activity_website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="website-link"
+                    >
+                        Website
+                    </a>
+                </div>
+            ) : (
+                <div className="website-container">
+                    &nbsp;
+                </div>
+            )}
 
 
             <div className="cost-container">
