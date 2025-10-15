@@ -1,47 +1,43 @@
 import { sql } from "../config/db.js";
 
-export const createLike = async (req, res) => {
-    try {
-        //the params that are needed to pass to this function is userId and tripId
-        const { userId, tripId } = req.body;
+export const toggleLike = async (req, res) => {
+  try {
+    const { userId, tripId } = req.body;
 
-        if (!userId || !tripId) {
-            return res.status(400).json({ error: "userId and tripId are required" });
-        }
-
-        //insert a like into db
-        const newLike = await sql`
-            INSERT INTO likes (user_id, trip_id)
-            VALUES (${userId}, ${tripId})
-            RETURNING *
-        `;
-
-    } catch (err) {
-        console.log(err);
-        return res.status(500).json({ error: "Internal Server Error" });
+    if (!userId || !tripId) {
+      return res.status(400).json({ error: "userId and tripId are required" });
     }
-}
 
-export const deleteLike = async (req, res) => {
-    try {
-        const { userId, tripId } = req.body;
+    //check if the like already exists
+    const existingLike = await sql`
+      SELECT like_id FROM likes
+      WHERE user_id = ${userId} AND trip_id = ${tripId};
+    `;
 
-        if (!userId || !tripId) {
-            return res.status(400).json({ error: "userId and tripId are required" });
-        }
-
-        const deletedLike = await sql`
-            DELETE FROM likes
-            WHERE user_id = ${userId} AND trip_id = ${tripId}
-            RETURNING *
-        `;
-    } catch (err) {
-        console.log(err);
-        return res.status(500).json({ error: "Internal Server Error" });
+    if (existingLike.length > 0) {
+      // if like exists just remove it
+      await sql`
+        DELETE FROM likes
+        WHERE user_id = ${userId} AND trip_id = ${tripId};
+      `;
+      return res.status(200).json({ liked: false, message: "Trip unliked" });
+    } else {
+      const newLike = await sql`
+        INSERT INTO likes (user_id, trip_id)
+        VALUES (${userId}, ${tripId})
+        RETURNING *;
+      `;
+      return res.status(201).json({ liked: true, message: "Trip liked", like: newLike[0] });
     }
-}
 
-export const getLikesByUser = async (req, res) => {
+  } catch (err) {
+    console.error("Error toggling like:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+export const getAllLikesByUser = async (req, res) => {
     try {
         const { userId } = req.body;
 
