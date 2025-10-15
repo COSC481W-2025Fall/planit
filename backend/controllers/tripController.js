@@ -187,20 +187,3 @@ export const deleteTrip = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
-
-export const getAllTripLocations = async (req, res) => {
-    if (!req.user) return res.status(401).json({ loggedIn: false });
-
-    try {
-        const locations = await sql`
-            SELECT DISTINCT trip_location
-            FROM trips
-        `;
-
-        return res.status(200).json(locations);
-    }
-    catch (err) {
-        console.error("Error fetching trip locations:", err);
-        return res.status(500).json({ error: "Internal Server Error" });
-    }
-};
