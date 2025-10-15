@@ -62,3 +62,25 @@ export const getTrendingTrips = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
+export const searchTrips = async (req, res) => {
+    try{
+        const { city } = req.body;
+
+          const searchResults = await sql`
+            SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, COUNT(l.like_id) AS like_count
+            FROM trips t
+            LEFT JOIN likes l ON t.trips_id = l.trip_id
+            WHERE LOWER(t.trip_location) LIKE LOWER(${`%${city}%`})
+            GROUP BY t.trips_id
+            ORDER BY like_count DESC;
+        `;
+
+        return res.status(200).json(searchResults);
+
+
+    } catch(err){
+        console.log(err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
