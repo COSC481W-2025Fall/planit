@@ -37,7 +37,7 @@ export const toggleLike = async (req, res) => {
 };
 
 
-export const getAllTripDetailsOfATripLikedByUser = async (req, res) => {
+export const getAllTripDetailsOfTripsLikedByUser = async (req, res) => {
     try {
         const { userId } = req.body;
 
