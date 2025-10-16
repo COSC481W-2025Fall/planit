@@ -211,3 +211,25 @@ export const readAllActivities = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const updateNotesForActivity = async (req, res) => {
+  try{
+    const { activityId, notes } = req.body;
+    
+    if (!activityId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    await sql`
+      UPDATE activities 
+      SET notes = ${v(notes)}
+      WHERE activity_id = ${activityId};
+    `
+
+    res.status(200).json({ message: "Notes updated successfully" });
+
+  } catch (err){
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
