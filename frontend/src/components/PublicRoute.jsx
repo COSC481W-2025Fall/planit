@@ -22,7 +22,8 @@ export default function ProtectedRoute({ children }) {
       });
   }, []);
 
-  if (loading) return <LoadingSpinner visible={true} />;
+
+  if (loading) return <LoadingSpinner />;
   if (loggedIn) return <Navigate to="/login" />;
 
   return children;

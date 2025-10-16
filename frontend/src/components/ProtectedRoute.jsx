@@ -19,8 +19,9 @@ export default function ProtectedRoute({ children }) {
         });
   }, []);
 
-  if (loading) return <LoadingSpinner visible={true} />;
-  if (!loggedIn) return <Navigate to="/" />;
+
+    if (loading) return <LoadingSpinner />;
+    if (!loggedIn) return <Navigate to="/" />;
 
   return children;
 }

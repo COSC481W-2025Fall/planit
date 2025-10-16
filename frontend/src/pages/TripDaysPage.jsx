@@ -10,7 +10,7 @@ import TopBanner from "../components/TopBanner";
 import { getDays, createDay, deleteDay } from "../../api/days";
 import ActivityCard from "../components/ActivityCard.jsx";
 import { useParams } from "react-router-dom";
-import LoadingSpinner from "../components/LoadingSpinner.jsx";
+import { MoonLoader } from "react-spinners";
 
 export default function TripDaysPage() {
     //constants for data
@@ -213,19 +213,24 @@ export default function TripDaysPage() {
     // Loading state
     if (!user || !trip) {
         return (
-            <div className="page-layout">
-                <TopBanner user={user} onSignOut={() => console.log("Signed out")} />
+            <div className="setting-page">
+                <TopBanner user={user} onSignOut={() => (window.location.href = "/")} />
                 <div className="content-with-sidebar">
                     <NavBar />
-                    <main className="TripDaysPage">
-                        <div className="loading-screen">
-                            <LoadingSpinner visible={true} />
+                    <div className="main-content">
+                        <div className="page-loading-container">
+                            <MoonLoader
+                                color="var(--accent)"
+                                size={70}
+                                speedMultiplier={0.9}
+                            />
                         </div>
-                    </main>
+                    </div>
                 </div>
             </div>
         );
     }
+
 
     return (
         <div className="page-layout">

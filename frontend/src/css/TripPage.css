@@ -58,8 +58,7 @@ body,
     box-sizing: border-box;
     position: relative;
     overflow-x: hidden;
-    overflow-y: auto; 
-
+    overflow-y: auto;
     overflow: visible;
     z-index: 0;
 }
@@ -443,9 +442,6 @@ body,
     border-radius: 50%;
 }
 
-/*.pfp{
-    place-self: center;
-}*/
 @media (max-width: 768px) {
     .trip-cards {
         grid-template-columns: 1fr;
@@ -456,15 +452,20 @@ body,
         flex-direction: column-reverse;
         align-items: flex-start;
         margin-bottom: 32px;
-        /* Change from 30px to 32px */
         gap: 24px;
         ;
     }
 
     .banner-controls {
         order: -1;
-        /* Put buttons above title on mobile */
         justify-content: flex-end;
     }
 
+}
+.page-loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 80px);
+    width: 100%;
 }
