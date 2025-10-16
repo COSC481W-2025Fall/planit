@@ -24,6 +24,7 @@ export async function createTrip(trip) {
     tripLocation: trip.trip_location,
     tripStartDate: trip.trip_start_date,
     days: trip.days,
+    imageid: trip.image_id,
   };
 
   const res = await fetch(`${API_BASE_URL}/create`, {

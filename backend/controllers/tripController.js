@@ -37,7 +37,7 @@ export const createTrip = async (req, res) => {
     if (!req.user) return res.status(401).json({ loggedIn: false });
 
     // Extract all required fields from the request body
-    const { days, tripName, tripStartDate, tripLocation } = req.body;
+    const { days, tripName, tripStartDate, tripLocation, imageid} = req.body;
 
     // Get userId from the authenticated user in the request
     const userId = req.user.user_id;
@@ -48,8 +48,8 @@ export const createTrip = async (req, res) => {
 
     try {
         const result = await sql`
-            INSERT INTO trips (days, trip_name, user_id, trip_start_date, trip_location)
-            VALUES (${days}, ${tripName}, ${userId}, ${tripStartDate}, ${tripLocation})
+            INSERT INTO trips (days, trip_name, user_id, trip_start_date, trip_location, image_id)
+            VALUES (${days}, ${tripName}, ${userId}, ${tripStartDate}, ${tripLocation}, ${imageid})
                 RETURNING *
         `;
 

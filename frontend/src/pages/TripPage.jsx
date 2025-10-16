@@ -21,6 +21,10 @@ export default function TripPage() {
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const navigate = useNavigate();
 
+  const [images, setImages] = useState([]);
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
   // Get user details
   useEffect(() => {
     fetch(
@@ -47,6 +51,25 @@ export default function TripPage() {
       })
       .catch((err) => console.error("Failed to fetch trips:", err));
   }, [user?.user_id]);
+
+  // Fetch images when the picker is opened
+  useEffect(() => {
+    if (!showImagePicker) return;
+    const fetchImages = async () => {
+      try {
+        const res = await fetch(
+          (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+            "/image/readAll",
+          { credentials: "include" }
+        );
+        const data = await res.json();
+        setImages(data);
+      } catch (err) {
+        console.error("Error fetching images:", err);
+      }
+    };
+    fetchImages();
+    }, [showImagePicker]);
 
   // Delete trip
   const handleDeleteTrip = async (trips_id) => {
@@ -228,7 +251,7 @@ export default function TripPage() {
                       trip_location: formData.get("location"),
                       trip_start_date: formData.get("startDate"),
                       days: (parseInt(formData.get("days"), 10)),
-                      user_id: user.user_id
+                      image_id: selectedImage ? selectedImage.image_id : 0
                     };
                     if (editingTrip) tripData.trips_id = editingTrip.trips_id;
                     console.log(tripData)
@@ -267,8 +290,74 @@ export default function TripPage() {
                     defaultValue={editingTrip?.days || ""}
                     required
                   />
+
+                  {/* Button to open image picker */}
+                  <button
+                    type="button"
+                    onClick={() => setShowImagePicker(true)}
+                    style={{ marginTop: "10px" }}
+                  >
+                    View Images
+                  </button>
+
+                  {/* Display selected image preview */}
+                  {selectedImage && (
+                    <div style={{ marginTop: "10px" }}>
+                      <img
+                        src={selectedImage.imageUrl}
+                        alt={selectedImage.image_name}
+                        width="120"
+                        height="120"
+                        style={{ objectFit: "cover", borderRadius: "6px" }}
+                      />
+                      <p>{selectedImage.image_name}</p>
+                    </div>
+                  )}
                 </form>
               </div>
+                  {/* Image picker popup */}
+                  {showImagePicker && (
+                    <Popup
+                      title="Select an Image"
+                      buttons={
+                        <>
+                          <button type="button" onClick={() => setShowImagePicker(false)}>
+                            Done
+                          </button>
+                        </>
+                      }
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "1rem",
+                          maxHeight: "300px",
+                          overflowY: "auto",
+                        }}
+                      >
+                        {images.map((img) => (
+                          <img
+                            key={img.image_id}
+                            src={img.imageUrl}
+                            alt={img.image_name}
+                            width="120"
+                            height="120"
+                            style={{
+                              objectFit: "cover",
+                              border:
+                                selectedImage?.image_id === img.image_id
+                                  ? "3px solid blue"
+                                  : "1px solid gray",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => setSelectedImage(img)}
+                          />
+                        ))}
+                      </div>
+                    </Popup>
+                  )}
             </Popup>
           )}
         </div>
