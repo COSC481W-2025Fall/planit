@@ -5,7 +5,7 @@ export const getAllTripLocations = async (req, res) => {
         const locations = await sql`
             SELECT DISTINCT trip_location
             FROM trips
-            WHERE isprivate = false
+            WHERE is_private = false
         `;
 
         return res.status(200).json(locations);
@@ -25,7 +25,7 @@ export const getTopLikedTrips = async (req, res) => {
             COUNT(l.like_id) AS like_count
             FROM trips AS t
             LEFT JOIN likes AS l ON t.trips_id = l.trip_id
-            WHERE t.isprivate = false
+            WHERE t.is_private = false
             GROUP BY t.trips_id
             ORDER BY like_count DESC
             LIMIT 10;
@@ -51,7 +51,7 @@ export const getTrendingTrips = async (req, res) => {
             FROM trips t
             JOIN likes l ON t.trips_id = l.trip_id
             WHERE l.liked_at >= date_trunc('week', CURRENT_DATE)
-            AND t.isprivate = false
+            AND t.is_private = false
             GROUP BY t.trips_id
             ORDER BY like_count DESC
             LIMIT 5;
@@ -73,7 +73,7 @@ export const searchTrips = async (req, res) => {
             FROM trips t
             LEFT JOIN likes l ON t.trips_id = l.trip_id
             WHERE LOWER(t.trip_location) LIKE LOWER(${`%${location}%`})
-            AND t.isprivate = false
+            AND t.is_private = false
             GROUP BY t.trips_id
             ORDER BY like_count DESC;
         `;
