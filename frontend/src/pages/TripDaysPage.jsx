@@ -73,7 +73,7 @@ export default function TripDaysPage() {
             setEditCost(editActivity.activity_price_estimated ?? "");
 
             setNotes(editActivity.notes || "");
-        }
+        } 
     }, [editActivity]);
 
     //initial fetch of days
@@ -320,7 +320,7 @@ export default function TripDaysPage() {
                         <div className="itinerary-buttons">
                             <button onClick={() => setOpenNewDay(true)} id="new-day-button">+ New Day</button>
                             {openActivitySearch === false &&
-                                <button onClick={() => setOpenActivitySearch(true)} id="add-activity-button">+ Add Activity</button>
+                                <button onClick={() => {setNotes(""); setOpenActivitySearch(true)}} id="add-activity-button">+ Add Activity</button>
                             }
                         </div>
                     </div>

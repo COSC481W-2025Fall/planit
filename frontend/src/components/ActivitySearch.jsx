@@ -218,6 +218,7 @@ export default function ActivitySearch({
       setFormStartTime("");
       setFormDuration("");
       setFormCost("");
+      setNotes("");
       setShowDetails(true);
     } catch (err) {
       console.error("Error adding activity:", err?.response?.data || err.message);
