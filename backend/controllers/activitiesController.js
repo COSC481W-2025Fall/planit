@@ -63,6 +63,7 @@ export const addActivity = async (req, res) => {
       rating,
       longitude,
       latitude,
+      website,
       userTimeZone
     } = activity || {};
 
@@ -76,7 +77,8 @@ export const addActivity = async (req, res) => {
          "activity_address",
          "activity_rating",
          "longitude",
-         "latitude")
+         "latitude",
+         "activity_website")
       VALUES
         (${day},
          ${v(name)},
@@ -85,7 +87,8 @@ export const addActivity = async (req, res) => {
          ${v(address)},
          ${v(rating)},
          ${v(longitude)},
-         ${v(latitude)});
+         ${v(latitude)},
+         ${v(website)});
     `;
 
     // Return the most recently inserted row for this day/name

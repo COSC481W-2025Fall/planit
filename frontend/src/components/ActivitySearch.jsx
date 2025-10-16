@@ -6,6 +6,8 @@ import Popup from "../components/Popup";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import { Star } from "lucide-react";
 import { MoonLoader } from "react-spinners";
+import { toast } from "react-toastify";
+
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -164,7 +166,7 @@ export default function ActivitySearch({
   // Add to Trip
   const handleAddToTrip = async (place) => {
     if (!selectedDay) {
-      alert("Please choose a day first.");
+      toast.error("Please choose a day first.");
       return;
     }
 
@@ -172,6 +174,7 @@ export default function ActivitySearch({
     const dayId = dayIds[idx];
     if (!dayId) {
       alert("Could not resolve selected day. Please refresh and try again.");
+      toast.error("Could not resolve the selected day. Please refresh and try again.");
       return;
     }
 
@@ -182,6 +185,7 @@ export default function ActivitySearch({
     const rating = place.rating ?? null;
     const lat = place.location?.lat ?? place.location?.latitude ?? null;
     const lng = place.location?.lng ?? place.location?.longitude ?? null;
+    const website = place.websiteUri || null;
 
     const payload = {
       day: dayId,
@@ -193,6 +197,8 @@ export default function ActivitySearch({
         rating,
         longitude: lng,
         latitude: lat,
+        website,
+        // time/duration/cost will be set in popup via /activities/update
       },
     };
 
@@ -208,6 +214,7 @@ export default function ActivitySearch({
       const id = created?.activity_id ?? created?.id;
       if (!id) {
         alert("Activity created, but could not open details.");
+        toast.warn("Activity created, but could not open details.");
         setCreating(false);
         return;
       }
@@ -219,7 +226,7 @@ export default function ActivitySearch({
       setShowDetails(true);
     } catch (err) {
       console.error("Error adding activity:", err?.response?.data || err.message);
-      alert("Failed to add activity. Check server logs for details.");
+      toast.error("Failed to add activity. Check server logs for details.");
     } finally {
       setCreating(false);
     }
@@ -240,12 +247,13 @@ export default function ActivitySearch({
         withCredentials: true,
       });
 
+      toast.success("Activity details saved!");
       setShowDetails(false);
       setNewActivityId(null);
       onActivityAdded && onActivityAdded();
     } catch (err) {
       console.error("Error updating activity:", err?.response?.data || err.message);
-      alert("Failed to save details. Please try again.");
+      toast.error("Failed to save details. Please try again.");
     }
   };
 
