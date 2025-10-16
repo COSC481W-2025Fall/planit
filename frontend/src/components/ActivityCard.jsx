@@ -13,6 +13,7 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
         <div className="activity-container">
             <div className="title-and-edit-button-container" style={{ position: "relative" }}>
                 <div className="title-of-activity">{activity.activity_name}</div>
+                {/* <div>{activity.notes}</div> */}
                 <EllipsisVertical className="ellipis" onClick={toggleMenu} />
                 {openMenu && (
                     <div className="day-menu">

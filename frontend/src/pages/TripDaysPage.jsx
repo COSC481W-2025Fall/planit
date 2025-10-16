@@ -27,6 +27,7 @@ export default function TripDaysPage() {
     const [editStartTime, setEditStartTime] = useState("");
     const [editDuration, setEditDuration] = useState("");
     const [editCost, setEditCost] = useState(0);
+    const [notes, setNotes] = useState("");
 
     const { tripId } = useParams();
 
@@ -66,6 +67,8 @@ export default function TripDaysPage() {
 
             // cost
             setEditCost(editActivity.activity_price_estimated ?? "");
+
+            setNotes(editActivity.notes || "");
         }
     }, [editActivity]);
 
@@ -166,6 +169,7 @@ export default function TripDaysPage() {
                             duration: Number(activity.activity_duration),
                             estimatedCost: Number(activity.activity_estimated_cost),
                             userTimeZone,
+                            notesForActivity: activity.notesForActivity || ""
                         },
                     }),
                 }
@@ -365,13 +369,14 @@ export default function TripDaysPage() {
                                         type="button"
                                         onClick={() => {
                                             if (!editStartTime || !editDuration || !editCost) {
-                                                alert("Please fill in all fields before saving.");
+                                                toast.error("Please fill in all fields before saving.");
                                                 return;
                                             }
                                             handleUpdateActivity(editActivity.activity_id, {
                                                 activity_startTime: editStartTime,
                                                 activity_duration: editDuration,
                                                 activity_estimated_cost: editCost,
+                                                notesForActivity: notes || ""
                                             });
                                         }}
                                     >
@@ -397,6 +402,20 @@ export default function TripDaysPage() {
                                     value={editDuration}
                                     onChange={(e) => setEditDuration(e.target.value)}
                                 />
+                            </label>
+
+                            <label className="popup-input">
+                                <span>Notes</span>
+                                <input
+                                    type="text"
+                                    maxLength={100}
+                                    placeholder="Enter any notes you have about your activity!"
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                ></input>
+                                <div className="char-count">
+                                    {notes.length} / 100
+                                </div>
                             </label>
 
                             <label className="popup-input">
