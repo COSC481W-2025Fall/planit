@@ -232,3 +232,8 @@ body {
 .add-btn:hover {
   background: #145c2d;
 }
+
+.char-count{
+  color: #7c8189;
+  margin-top : 6px;
+}

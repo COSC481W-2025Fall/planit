@@ -53,6 +53,7 @@ export default function ActivitySearch({
   const [formStartTime, setFormStartTime] = useState("");  // "HH:MM"
   const [formDuration, setFormDuration] = useState("");    // minutes
   const [formCost, setFormCost] = useState("");            // number
+  const [notes, setNotes] = useState("");
 
   const debounceTimeout = useRef(null);
   const prevCityQuery = useRef("");
@@ -84,27 +85,27 @@ export default function ActivitySearch({
       .join(" ");
   };
 
-const getLocationString = (place) => {
-  const addr = place.addressComponents || [];
+  const getLocationString = (place) => {
+    const addr = place.addressComponents || [];
 
-  const country =
-    addr.find((c) => c && c.types?.includes("country"))?.shortText || "N/A";
+    const country =
+      addr.find((c) => c && c.types?.includes("country"))?.shortText || "N/A";
 
-  const region =
-    addr.find((c) => c && c.types?.includes("administrative_area_level_1"))?.shortText ||
-    addr.find((c) => c && c.types?.includes("administrative_area_level_2"))?.shortText ||
-    addr.find((c) => c && c.types?.includes("sublocality"))?.shortText ||
-    "N/A";
+    const region =
+      addr.find((c) => c && c.types?.includes("administrative_area_level_1"))?.shortText ||
+      addr.find((c) => c && c.types?.includes("administrative_area_level_2"))?.shortText ||
+      addr.find((c) => c && c.types?.includes("sublocality"))?.shortText ||
+      "N/A";
 
-  const city =
-    addr.find((c) => c && c.types?.includes("locality"))?.longText ||
-    addr.find((c) => c && c.types?.includes("sublocality"))?.longText ||
-    addr.find((c) => c && c.types?.includes("neighborhood"))?.longText ||
-    region; 
+    const city =
+      addr.find((c) => c && c.types?.includes("locality"))?.longText ||
+      addr.find((c) => c && c.types?.includes("sublocality"))?.longText ||
+      addr.find((c) => c && c.types?.includes("neighborhood"))?.longText ||
+      region;
 
-  // only include parts that are not "N/A"
-  return [city, region, country].filter((v) => v && v !== "N/A").join(", ");
-};
+    // only include parts that are not "N/A"
+    return [city, region, country].filter((v) => v && v !== "N/A").join(", ");
+  };
 
 
 
@@ -220,7 +221,7 @@ const getLocationString = (place) => {
       setShowDetails(true);
     } catch (err) {
       console.error("Error adding activity:", err?.response?.data || err.message);
-      toast.error("Failed to add activity. Check server logs for details.");
+      toast.error("Failed to add activity.");
     } finally {
       setCreating(false);
     }
@@ -235,6 +236,7 @@ const getLocationString = (place) => {
           startTime: formStartTime || null,
           duration: formDuration === "" ? null : Number(formDuration),
           estimatedCost: formCost === "" ? null : Number(formCost),
+          notesForActivity: notes || null
         },
       };
 
@@ -397,6 +399,20 @@ const getLocationString = (place) => {
               value={formDuration}
               onChange={(e) => setFormDuration(e.target.value)}
             />
+          </label>
+
+          <label className="popup-input">
+            <span>Notes</span>
+            <input
+              type="text"
+              maxLength={100}
+              placeholder="Enter any notes you have about your activity!"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            ></input>
+            <div className="char-count">
+              {notes.length} / 100 
+            </div>
           </label>
 
           <label className="popup-input">
