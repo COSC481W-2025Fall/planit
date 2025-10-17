@@ -1,0 +1,71 @@
+.settings-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.settings-section {
+    position: static;
+    padding: 20px;
+    min-height: 100dvh;
+    background: var(--bg-offwhite);
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overflow: visible;
+    z-index: 0;
+}
+
+.content-with-sidebar {
+    display: flex;
+    flex: 1;
+    overflow: visible;
+}
+.main-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    grid-template-columns: 240px 1fr;
+    height: 100%;
+    width: 100%;
+}
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 20px;
+    width: 100%;
+    position: relative;
+    top: auto;
+    background: var(--bg-offwhite);
+    z-index: 1;
+    padding: 10px 20px;
+}
+.Settings-title-section {
+    flex: 1;
+}
+
+.settings-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 8px 0;
+}
+
+.settings-subtitle {
+    font-size: 16px;
+    margin: 0 0 24px 0;
+    color: #666;
+    text-align: left;
+}
+.page-loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 80px);
+    width: 100%;
+}
