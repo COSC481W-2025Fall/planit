@@ -167,7 +167,6 @@ export default function TripPage() {
                     trips.map((trip) => (
                         <div key={trip.trips_id} className="trip-card">
                           <div className="trip-card-image" onClick={() => handleTripRedirect(trip.trips_id)}>
-                            <div className="trip-duration-badge">{trip.days} days</div>
                           </div>
 
                           <button
@@ -246,7 +245,6 @@ export default function TripPage() {
                       trip_name: formData.get("name"),
                       trip_location: formData.get("location"),
                       trip_start_date: formData.get("startDate"),
-                      days: (parseInt(formData.get("days"), 10)),
                       user_id: user.user_id,
                       isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
                     };
@@ -277,14 +275,6 @@ export default function TripPage() {
                         ? new Date(editingTrip.trip_start_date).toISOString().split("T")[0]
                         : ""
                     }
-                    required
-                  />
-                  <input
-                    name="days"
-                    type="number"
-                    placeholder="Number of Days"
-                    min="0"
-                    defaultValue={editingTrip?.days || ""}
                     required
                   />
                 </form>
