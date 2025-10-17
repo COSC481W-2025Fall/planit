@@ -25,6 +25,9 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
                         <button onClick={() => onEdit(activity)}>
                             <Pencil className="pencil-icon" /> Edit
                         </button>
+                        <button onClick={() => onViewNotes(activity)}>
+                            <NotebookText className="notebook-icon" /> View Notes
+                        </button>
                     </div>
                 )}
             </div>
@@ -56,11 +59,6 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
                     "0h:0m"
                 )}
             </p>
-
-            <div className="notes-button" onClick={() => onViewNotes(activity)}>
-                <NotebookText className="icon" />
-                <span class ="notes-span">Notes</span>
-            </div>
 
             {activity.activity_website ? (
                 <div className="website-container">
