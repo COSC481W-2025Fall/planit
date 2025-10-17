@@ -1,20 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../css/ActivityCard.css";
-import { Clock, MapPin, EllipsisVertical, Trash2, Pencil, Timer } from "lucide-react";
+import {Clock, MapPin, EllipsisVertical, Trash2, Pencil, Timer, Globe,} from "lucide-react";
+import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 
 export default function ActivityCard({ activity, onDelete, onEdit }) {
     const [openMenu, setOpenMenu] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false); // 👈 new state
+    const [isDeleting, setIsDeleting] = useState(false);
     const menuRef = useRef(null);
     const buttonRef = useRef(null);
 
-    const startTime = activity.activity_startTime ? new Date(activity.activity_startTime) : null;
+    const startTime = activity.activity_startTime
+        ? new Date(activity.activity_startTime)
+        : null;
 
+    // Toggle three-dot menu
     const toggleMenu = (e) => {
         e.stopPropagation();
         setOpenMenu((prev) => !prev);
     };
 
+    // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (e) => {
             const menuEl = menuRef.current;
@@ -28,16 +33,17 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    // Delete with fade-out transition
     const handleDeleteClick = () => {
         setIsDeleting(true);
         setTimeout(() => {
-            onDelete(); // call parent delete after animation
-        }, 250); // must match CSS transition
+            onDelete();
+        }, 250); // Match CSS transition duration
     };
 
     return (
         <div className={`activity-container ${isDeleting ? "fade-out" : ""}`}>
-            <div className="title-and-edit-button-container" style={{ position: "relative" }}>
+            <div className="title-and-edit-button-container">
                 <div className="title-of-activity">{activity.activity_name}</div>
 
                 <button
@@ -72,7 +78,10 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
                 <p className="time-of-activity">
                     <Clock className="icon" />
                     {startTime
-                        ? startTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                        ? startTime.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })
                         : "No time"}
                 </p>
 
@@ -86,10 +95,19 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
                 <Timer className="icon" />
                 {activity.activity_duration ? (
                     <>
-                        {activity.activity_duration.hours ? `${activity.activity_duration.hours}h` : ""}
-                        {activity.activity_duration.hours && activity.activity_duration.minutes ? " " : ""}
-                        {activity.activity_duration.minutes ? `${activity.activity_duration.minutes}m` : ""}
-                        {!activity.activity_duration.hours && !activity.activity_duration.minutes ? "0h:0m" : ""}
+                        {activity.activity_duration.hours
+                            ? `${activity.activity_duration.hours}h`
+                            : ""}
+                        {activity.activity_duration.hours &&
+                        activity.activity_duration.minutes
+                            ? " "
+                            : ""}
+                        {activity.activity_duration.minutes
+                            ? `${activity.activity_duration.minutes}m`
+                            : ""}
+                        {!activity.activity_duration.hours &&
+                            !activity.activity_duration.minutes &&
+                            "0h:0m"}
                     </>
                 ) : (
                     "0h:0m"
@@ -109,18 +127,16 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
                     </a>
                 </div>
             ) : (
-                <div className="website-container">
-                    &nbsp;
-                </div>
+                <div className="website-container">&nbsp;</div>
             )}
-
 
             <div className="cost-container">
                 <p className="estimated-cost-of-activity">
-                    {activity.activity_price_estimated != null ? `$${activity.activity_price_estimated}` : "N/A"}
+                    {activity.activity_price_estimated != null
+                        ? `$${activity.activity_price_estimated}`
+                        : "N/A"}
                 </p>
             </div>
         </div>
     );
 }
-
