@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../css/TripPage.css";
 import TopBanner from "../components/TopBanner";
 import NavBar from "../components/NavBar";
@@ -17,9 +17,21 @@ export default function TripPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTrip, setEditingTrip] = useState(null);
   const [openDropdownId, setOpenDropdownId] = useState(null);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  // Fetch user details
+  // Close dropdown if click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpenDropdownId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Get user details
   useEffect(() => {
     fetch(
         (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
@@ -34,7 +46,7 @@ export default function TripPage() {
         .catch((err) => console.error("User fetch error:", err));
   }, []);
 
-  // Fetch trips
+  // Fetch trips once user is loaded
   useEffect(() => {
     if (!user?.user_id) return;
 
@@ -46,12 +58,29 @@ export default function TripPage() {
         .catch((err) => console.error("Failed to fetch trips:", err));
   }, [user?.user_id]);
 
+  // Show loader while fetching
+  if (!user || !trips) {
+    return (
+        <div className="trip-page">
+          <TopBanner user={user} onSignOut={() => (window.location.href = "/")} />
+          <div className="content-with-sidebar">
+            <NavBar />
+            <div className="main-content">
+              <div className="page-loading-container">
+                <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} />
+              </div>
+            </div>
+          </div>
+        </div>
+    );
+  }
+
   // Delete trip
   const handleDeleteTrip = async (trips_id) => {
     if (confirm("Are you sure you want to delete this trip?")) {
       try {
         await deleteTrip(trips_id);
-        setTrips((prev) => prev.filter((trip) => trip.trips_id !== trips_id));
+        setTrips(trips.filter((trip) => trip.trips_id !== trips_id));
         toast.success("Trip deleted successfully!");
       } catch (err) {
         console.error("Delete trip failed:", err);
@@ -60,7 +89,7 @@ export default function TripPage() {
     }
   };
 
-  // Create or update trip
+  // Save trip (create/update)
   const handleSaveTrip = async (tripData) => {
     try {
       if (editingTrip) {
@@ -71,9 +100,11 @@ export default function TripPage() {
         toast.success("Trip created successfully!");
       }
 
-      const updatedTrips = await getTrips(user.user_id);
-      let tripsArray = updatedTrips.trips || [];
-      setTrips(tripsArray.sort((a, b) => a.trips_id - b.trips_id));
+      if (user && user.user_id) {
+        const updatedTrips = await getTrips(user.user_id);
+        let tripsArray = updatedTrips.trips || [];
+        setTrips(tripsArray.sort((a, b) => a.trips_id - b.trips_id));
+      }
 
       setEditingTrip(null);
       setIsModalOpen(false);
@@ -97,27 +128,12 @@ export default function TripPage() {
     navigate(`/days/${tripId}`);
   };
 
-  if (!user || !trips) {
-    return (
-        <div className="trip-page">
-          <TopBanner user={user} onSignOut={() => (window.location.href = "/")} />
-          <div className="content-with-sidebar">
-            <NavBar />
-            <div className="main-content">
-              <div className="page-loading-container">
-                <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} />
-              </div>
-            </div>
-          </div>
-        </div>
-    );
-  }
-
   return (
       <div className="trip-page">
         <TopBanner
             user={user}
             onSignOut={() => {
+              console.log("Signed out");
               window.location.href = "/";
             }}
         />
@@ -125,13 +141,15 @@ export default function TripPage() {
           <NavBar />
           <div className="main-content">
             <div className="trips-section">
-              {/* Header */}
+              {/* Header row */}
               <div className="trips-header">
                 <div className="trips-title-section">
                   <div className="trips-title">
-                    {user
-                        ? `${user.first_name} ${user.last_name}'s Trips`
-                        : "Loading..."}
+                    {user ? (
+                        `${user.first_name} ${user.last_name}'s Trips`
+                    ) : (
+                        <MoonLoader color="var(--accent)" size={30} />
+                    )}
                   </div>
                   <div className="trips-subtitle">
                     Plan and manage your upcoming trips
@@ -148,15 +166,17 @@ export default function TripPage() {
                 </div>
               </div>
 
-              {/* Trip Cards */}
+              {/* Trip cards */}
               <div className="trip-cards">
                 {trips.length === 0 ? (
                     <div className="empty-state">
                       <h3>No trips yet!</h3>
                       <div>
-                        {user
-                            ? `${user.first_name}, you haven't created any trips! PlanIt now!`
-                            : "Loading..."}
+                        {user ? (
+                            `${user.first_name}, you haven't created any trips! PlanIt now!`
+                        ) : (
+                            <MoonLoader color="var(--accent)" size={25} />
+                        )}
                       </div>
                     </div>
                 ) : (
@@ -174,9 +194,7 @@ export default function TripPage() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenDropdownId(
-                                    openDropdownId === trip.trips_id
-                                        ? null
-                                        : trip.trips_id
+                                    openDropdownId === trip.trips_id ? null : trip.trips_id
                                 );
                               }}
                           >
@@ -184,11 +202,10 @@ export default function TripPage() {
                           </button>
 
                           {openDropdownId === trip.trips_id && (
-                              <div className="trip-dropdown">
+                              <div className="trip-dropdown" ref={dropdownRef}>
                                 <button
                                     className="dropdown-item edit-item"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
+                                    onClick={() => {
                                       handleEditTrip(trip);
                                       setOpenDropdownId(null);
                                     }}
@@ -197,8 +214,7 @@ export default function TripPage() {
                                 </button>
                                 <button
                                     className="dropdown-item delete-item"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
+                                    onClick={() => {
                                       handleDeleteTrip(trip.trips_id);
                                       setOpenDropdownId(null);
                                     }}
@@ -224,7 +240,7 @@ export default function TripPage() {
               </div>
             </div>
 
-            {/* Modal */}
+            {/* Modal for creating/editing trips */}
             {isModalOpen && (
                 <Popup
                     title=""
@@ -239,7 +255,10 @@ export default function TripPage() {
                       </>
                     }
                 >
-                  <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                  <div
+                      className="modal-content"
+                      onClick={(e) => e.stopPropagation()}
+                  >
                     <h2>{editingTrip ? "Edit Trip" : "Create New Trip"}</h2>
                     <form
                         id="trip-form"
@@ -252,6 +271,7 @@ export default function TripPage() {
                             trip_start_date: formData.get("startDate"),
                             days: parseInt(formData.get("days"), 10),
                             user_id: user.user_id,
+                            isPrivate: true,
                           };
                           if (editingTrip) tripData.trips_id = editingTrip.trips_id;
                           await handleSaveTrip(tripData);
@@ -276,9 +296,9 @@ export default function TripPage() {
                           type="date"
                           defaultValue={
                             editingTrip?.trip_start_date
-                                ? new Date(
-                                    editingTrip.trip_start_date
-                                ).toISOString().split("T")[0]
+                                ? new Date(editingTrip.trip_start_date)
+                                    .toISOString()
+                                    .split("T")[0]
                                 : ""
                           }
                           required
