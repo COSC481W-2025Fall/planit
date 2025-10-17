@@ -228,7 +228,8 @@ export default function TripPage() {
                       trip_location: formData.get("location"),
                       trip_start_date: formData.get("startDate"),
                       days: (parseInt(formData.get("days"), 10)),
-                      user_id: user.user_id
+                      user_id: user.user_id,
+                      isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
                     };
                     if (editingTrip) tripData.trips_id = editingTrip.trips_id;
                     console.log(tripData)
