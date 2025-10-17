@@ -418,13 +418,13 @@ export default function ActivitySearch({
             <span>Notes</span>
             <textarea
               class = "textarea-notes"
-              maxLength={100}
+              maxLength={200}
               placeholder="Enter any notes you have about your activity!"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             ></textarea>
             <div className="char-count">
-              {notes.length} / 100 
+              {notes.length} / 200
             </div>
           </label>
 
