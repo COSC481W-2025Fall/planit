@@ -10,6 +10,8 @@ import TopBanner from "../components/TopBanner";
 import { getDays, createDay, deleteDay } from "../../api/days";
 import ActivityCard from "../components/ActivityCard.jsx";
 import { useParams } from "react-router-dom";
+import { MoonLoader } from "react-spinners";
+import { toast } from "react-toastify";
 
 export default function TripDaysPage() {
 
@@ -133,8 +135,10 @@ export default function TripDaysPage() {
             await createDay(tripId, { day_date: formatted });
             await fetchDays();
             setOpenNewDay(false);
+            toast.success("New day added successfully!");
         } catch (err) {
             console.error("Error creating day:", err);
+            toast.error("Failed to add day. Please try again.");
         }
     };
 
@@ -143,8 +147,10 @@ export default function TripDaysPage() {
             if (openMenu === dayId) setOpenMenu(null);
             await deleteDay(tripId, dayId);
             await fetchDays();
+            toast.success("Day has been deleted.");
         } catch (err) {
             console.error("Error deleting day:", err);
+            toast.error("Failed to delete day. Please try again.");
         }
     };
 
@@ -178,9 +184,10 @@ export default function TripDaysPage() {
 
             await fetchDays();
             setEditActivity(null);
+            toast.success("Activity updated successfully!");
         } catch (error) {
             console.error("Error updating activity:", error);
-            alert("Failed to update activity. Please try again.");
+            toast.error("Failed to update activity. Please try again.");
         }
     };
 
@@ -199,10 +206,19 @@ export default function TripDaysPage() {
 
             if (!response.ok) throw new Error("Failed to delete activity");
 
+            // Update the days state by removing the deleted activity
+            setDays(prevDays =>
+                prevDays.map(day => ({
+                    ...day,
+                    activities: day.activities?.filter(a => a.activity_id !== activityId) || []
+                }))
+            );
+
+            toast.success("Activity deleted successfully!");
             await fetchDays();
         } catch (error) {
             console.error("Error deleting activity:", error);
-            alert("Failed to delete activity. Please try again.");
+            toast.error("Failed to delete activity. Please try again.");
         }
     };
 
@@ -217,15 +233,20 @@ export default function TripDaysPage() {
                 <TopBanner user={user} />
                 <div className="content-with-sidebar">
                     <NavBar />
-                    <main className="TripDaysPage">
-                        <div className="loading-screen">
-                            <p>Loading...</p>
+                    <div className="main-content">
+                        <div className="page-loading-container">
+                            <MoonLoader
+                                color="var(--accent)"
+                                size={70}
+                                speedMultiplier={0.9}
+                            />
                         </div>
-                    </main>
+                    </div>
                 </div>
             </div>
         );
     }
+
 
     return (
         <div className="page-layout">

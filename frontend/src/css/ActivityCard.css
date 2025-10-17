@@ -109,6 +109,23 @@
     transform: scale(1.15);
 }
 
+.website-link-disabled{
+    font-size: 0.8rem;
+    color: #1e7a3d;
+    cursor: not-allowed;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.website-container{
+    display: flex;
+    flex-direction: row;
+}
+
+.website-link {
+    margin-top: 2px;
+}
+
 .day-menu {
     position: absolute;
     top: 1.5rem;

@@ -214,6 +214,17 @@ body {
 .add-btn:hover {
   background: #145c2d;
 }
+.loading-container {
+  position: absolute;
+  top: 50%;
+  left: 200px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 734px;
+}
 
 /*Responsive*/
 @media (max-width: 1024px) {

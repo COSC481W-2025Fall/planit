@@ -8,8 +8,11 @@ import "../css/Popup.css";
 import { createTrip, updateTrip, getTrips, deleteTrip } from "../../api/trips";
 import { MapPin, Pencil, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { MoonLoader } from "react-spinners";
+import { toast } from "react-toastify";
 
 export default function TripPage() {
+  //constants for data
   const [user, setUser] = useState(null);
   const [trips, setTrips] = useState([]);
 
@@ -57,13 +60,34 @@ export default function TripPage() {
         .catch((err) => console.error("Failed to fetch trips:", err));
   }, [user?.user_id]);
 
+  //Show Loader while fetching user or trips
+  if (!user || !trips) {
+    return (
+        <div className="trip-page">
+          <TopBanner user={user} onSignOut={() => (window.location.href = "/")} />
+          <div className="content-with-sidebar">
+            <NavBar />
+            <div className="main-content">
+              <div className="page-loading-container">
+                <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} />
+              </div>
+            </div>
+          </div>
+        </div>
+    );
+  }
+
+
+  // Delete trip
   const handleDeleteTrip = async (trips_id) => {
     if (confirm("Are you sure you want to delete this trip?")) {
       try {
         await deleteTrip(trips_id);
         setTrips(trips.filter((trip) => trip.trips_id !== trips_id));
+        toast.success("Trip deleted successfully!");
       } catch (err) {
         console.error("Delete trip failed:", err);
+        toast.error("Failed to delete trip. Please try again.");
       }
     }
   };
@@ -72,8 +96,10 @@ export default function TripPage() {
     try {
       if (editingTrip) {
         await updateTrip({ ...tripData, trips_id: editingTrip.trips_id });
+        toast.success("Trip updated successfully!");
       } else {
         await createTrip(tripData);
+        toast.success("Trip created successfully!");
       }
 
       if (user && user.user_id) {
@@ -86,7 +112,7 @@ export default function TripPage() {
       setIsModalOpen(false);
     } catch (err) {
       console.error("Save trip failed:", err);
-      alert("Could not save trip. Please try again.");
+      toast.error("Could not save trip. Please try again.");
     }
   };
 
@@ -107,40 +133,35 @@ export default function TripPage() {
 
   return (
       <div className="trip-page">
-        <TopBanner
-            user={user}
-            onSignOut={() => {
-              console.log("Signed out");
-              window.location.href = "/";
-            }}
-        />
+        <TopBanner user={user} onSignOut={() => { console.log("Signed out"); window.location.href = "/"; }} />
         <div className="content-with-sidebar">
           <NavBar />
           <div className="main-content">
             <div className="trips-section">
-              {/* ===== Header ===== */}
+              {/* Header row */}
               <div className="trips-header">
                 <div className="trips-title-section">
                   <div className="trips-title">
                     {user
                         ? `${user.first_name} ${user.last_name}'s Trips`
-                        : "Loading..."}
+                        : <MoonLoader color="var(--accent)" size={30} />}
                   </div>
                   <div className="trips-subtitle">
                     Plan and manage your upcoming trips
                   </div>
                 </div>
 
-                <div className="banner-controls">
-                  <button className="new-trip-button" onClick={handleNewTrip}>
-                    + New Trip
-                  </button>
-                  <button className="filter-button">
-                    <span className="filter-icon"></span> Filter
-                  </button>
-                </div>
+              <div className="banner-controls">
+                <button className="new-trip-button" onClick={handleNewTrip}>
+                  + New Trip
+                </button>
+                <button className="filter-button">
+                  <span className="filter-icon"></span> Filter
+                </button>
               </div>
+            </div>
 
+              {/* Trip cards */}
               <div className="trip-cards">
                 {trips.length === 0 ? (
                     <div className="empty-state">
@@ -148,20 +169,13 @@ export default function TripPage() {
                       <div>
                         {user
                             ? `${user.first_name}, you haven't created any trips! PlanIt now!`
-                            : "Loading..."}
+                            : <MoonLoader color="var(--accent)" size={25} />} {/* ✅ replaces text */}
                       </div>
                     </div>
                 ) : (
                     trips.map((trip) => (
-                        <div
-                            key={trip.trips_id}
-                            className="trip-card"
-                            ref={(el) => (dropdownRefs.current[trip.trips_id] = el)}
-                        >
-                          <div
-                              className="trip-card-image"
-                              onClick={() => handleTripRedirect(trip.trips_id)}
-                          >
+                        <div key={trip.trips_id} className="trip-card">
+                          <div className="trip-card-image" onClick={() => handleTripRedirect(trip.trips_id)}>
                             <div className="trip-duration-badge">{trip.days} days</div>
                           </div>
 
@@ -202,10 +216,7 @@ export default function TripPage() {
                               </div>
                           )}
 
-                          <div
-                              className="trip-card-content"
-                              onClick={() => handleTripRedirect(trip.trips_id)}
-                          >
+                          <div className="trip-card-content" onClick={() => handleTripRedirect(trip.trips_id)}>
                             <h3 className="trip-card-title">{trip.trip_name}</h3>
                             <div className="trip-location">
                               <MapPin size={16} style={{ marginRight: "4px" }} />
@@ -218,78 +229,79 @@ export default function TripPage() {
               </div>
             </div>
 
-            {isModalOpen && (
-                <Popup
-                    title=""
-                    buttons={
-                      <>
-                        <button type="submit" form="trip-form">
-                          Save
-                        </button>
-                        <button type="button" onClick={() => setIsModalOpen(false)}>
-                          Cancel
-                        </button>
-                      </>
-                    }
+          {/* Modal for creating/editing trips */}
+          {isModalOpen && (
+            <Popup
+              title=""
+              buttons={
+                <>
+                  <button type="submit" form="trip-form">
+                    Save
+                  </button>
+                  <button type="button" onClick={() => setIsModalOpen(false)}>
+                    Cancel
+                  </button>
+                </>
+              }
+            >
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <h2>{editingTrip ? "Edit Trip" : "Create New Trip"}</h2>
+                <form
+                  id="trip-form"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const tripData = {
+                      trip_name: formData.get("name"),
+                      trip_location: formData.get("location"),
+                      trip_start_date: formData.get("startDate"),
+                      days: (parseInt(formData.get("days"), 10)),
+                      user_id: user.user_id,
+                      isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
+                    };
+                    if (editingTrip) tripData.trips_id = editingTrip.trips_id;
+                    console.log(tripData)
+                    await handleSaveTrip(tripData);
+                  }}
                 >
-                  <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                    <h2>{editingTrip ? "Edit Trip" : "Create New Trip"}</h2>
-                    <form
-                        id="trip-form"
-                        onSubmit={async (e) => {
-                          e.preventDefault();
-                          const formData = new FormData(e.target);
-                          const tripData = {
-                            trip_name: formData.get("name"),
-                            trip_location: formData.get("location"),
-                            trip_start_date: formData.get("startDate"),
-                            days: parseInt(formData.get("days"), 10),
-                            user_id: user.user_id,
-                          };
-                          if (editingTrip) tripData.trips_id = editingTrip.trips_id;
-                          await handleSaveTrip(tripData);
-                        }}
-                    >
-                      <input
-                          name="name"
-                          placeholder="Trip Name"
-                          maxLength="30"
-                          defaultValue={editingTrip?.trip_name || ""}
-                          required
-                      />
-                      <input
-                          name="location"
-                          placeholder="Location"
-                          maxLength="30"
-                          defaultValue={editingTrip?.trip_location || ""}
-                          required
-                      />
-                      <input
-                          name="startDate"
-                          type="date"
-                          defaultValue={
-                            editingTrip?.trip_start_date
-                                ? new Date(editingTrip.trip_start_date)
-                                    .toISOString()
-                                    .split("T")[0]
-                                : ""
-                          }
-                          required
-                      />
-                      <input
-                          name="days"
-                          type="number"
-                          placeholder="Number of Days"
-                          min="0"
-                          defaultValue={editingTrip?.days || ""}
-                          required
-                      />
-                    </form>
-                  </div>
-                </Popup>
-            )}
-          </div>
+                  <input
+                    name="name"
+                    placeholder="Trip Name"
+                    maxLength="30"
+                    defaultValue={editingTrip?.trip_name || ""}
+                    required
+                  />
+                  <input
+                    name="location"
+                    placeholder="Location"
+                    maxLength="30"
+                    defaultValue={editingTrip?.trip_location || ""}
+                    required
+                  />
+                  <input
+                    name="startDate"
+                    type="date"
+                    defaultValue={
+                      editingTrip?.trip_start_date
+                        ? new Date(editingTrip.trip_start_date).toISOString().split("T")[0]
+                        : ""
+                    }
+                    required
+                  />
+                  <input
+                    name="days"
+                    type="number"
+                    placeholder="Number of Days"
+                    min="0"
+                    defaultValue={editingTrip?.days || ""}
+                    required
+                  />
+                </form>
+              </div>
+            </Popup>
+          )}
         </div>
       </div>
+    </div>
   );
 }

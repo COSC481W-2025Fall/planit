@@ -31,6 +31,34 @@ body,
     background: var(--bg-offwhite);
 }
 
+.Toastify__toast--success {
+    background: var(--bg-offwhite) !important;
+    color: var(--text) !important;
+    font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+.Toastify__toast--success .Toastify__toast-icon svg {
+    fill: var(--accent) !important;
+}
+
+.Toastify__toast--success .Toastify__progress-bar {
+    background: var(--accent) !important;
+}
+
+.Toastify__toast--error {
+    background: var(--bg-offwhite) !important;
+    color: var(--text) !important;
+    font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+.Toastify__toast--error .Toastify__toast-icon svg {
+  fill: tomato !important;
+}
+
+.Toastify__toast--error .Toastify__progress-bar {
+  background: tomato !important;
+}
+
 html {
     scroll-behavior: smooth;
 }

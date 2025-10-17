@@ -96,6 +96,25 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
                 )}
             </p>
 
+            {activity.activity_website ? (
+                <div className="website-container">
+                    <Globe className="icon" />
+                    <a
+                        href={activity.activity_website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="website-link"
+                    >
+                        Website
+                    </a>
+                </div>
+            ) : (
+                <div className="website-container">
+                    &nbsp;
+                </div>
+            )}
+
+
             <div className="cost-container">
                 <p className="estimated-cost-of-activity">
                     {activity.activity_price_estimated != null ? `$${activity.activity_price_estimated}` : "N/A"}

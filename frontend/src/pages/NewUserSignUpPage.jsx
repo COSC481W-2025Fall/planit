@@ -3,6 +3,7 @@ import "../css/NewUserSignUpPage.css";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import logo from "../assets/Planit_Full_Green.png";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function UserRegistrationPage() {
   const [user, setUser] = useState(null); // store logged-in user
@@ -47,8 +48,10 @@ export default function UserRegistrationPage() {
             message = "Username already taken, try again";
         }
         setErrorMessage(message);
+        toast.error(message);
     } else{
         setErrorMessage("");
+        toast.success("Username created successfully!");
     }
     if (data.user) {
         setUser(data.user);
