@@ -220,78 +220,79 @@ export default function TripPage() {
               </div>
             </div>
 
-            {/* Modal for creating/editing trips */}
-            {isModalOpen && (
-                <Popup
-                    title=""
-                    buttons={
-                      <>
-                        <button type="submit" form="trip-form">
-                          Save
-                        </button>
-                        <button type="button" onClick={() => setIsModalOpen(false)}>
-                          Cancel
-                        </button>
-                      </>
-                    }
+          {/* Modal for creating/editing trips */}
+          {isModalOpen && (
+            <Popup
+              title=""
+              buttons={
+                <>
+                  <button type="submit" form="trip-form">
+                    Save
+                  </button>
+                  <button type="button" onClick={() => setIsModalOpen(false)}>
+                    Cancel
+                  </button>
+                </>
+              }
+            >
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <h2>{editingTrip ? "Edit Trip" : "Create New Trip"}</h2>
+                <form
+                  id="trip-form"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const tripData = {
+                      trip_name: formData.get("name"),
+                      trip_location: formData.get("location"),
+                      trip_start_date: formData.get("startDate"),
+                      days: (parseInt(formData.get("days"), 10)),
+                      user_id: user.user_id,
+                      isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
+                    };
+                    if (editingTrip) tripData.trips_id = editingTrip.trips_id;
+                    console.log(tripData)
+                    await handleSaveTrip(tripData);
+                  }}
                 >
-                  <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                    <h2>{editingTrip ? "Edit Trip" : "Create New Trip"}</h2>
-                    <form
-                        id="trip-form"
-                        onSubmit={async (e) => {
-                          e.preventDefault();
-                          const formData = new FormData(e.target);
-                          const tripData = {
-                            trip_name: formData.get("name"),
-                            trip_location: formData.get("location"),
-                            trip_start_date: formData.get("startDate"),
-                            days: (parseInt(formData.get("days"), 10)),
-                            user_id: user.user_id
-                          };
-                          if (editingTrip) tripData.trips_id = editingTrip.trips_id;
-                          console.log(tripData)
-                          await handleSaveTrip(tripData);
-                        }}
-                    >
-                      <input
-                          name="name"
-                          placeholder="Trip Name"
-                          maxLength="30"
-                          defaultValue={editingTrip?.trip_name || ""}
-                          required
-                      />
-                      <input
-                          name="location"
-                          placeholder="Location"
-                          maxLength="30"
-                          defaultValue={editingTrip?.trip_location || ""}
-                          required
-                      />
-                      <input
-                          name="startDate"
-                          type="date"
-                          defaultValue={
-                            editingTrip?.trip_start_date
-                                ? new Date(editingTrip.trip_start_date).toISOString().split("T")[0]
-                                : ""
-                          }
-                          required
-                      />
-                      <input
-                          name="days"
-                          type="number"
-                          placeholder="Number of Days"
-                          min="0"
-                          defaultValue={editingTrip?.days || ""}
-                          required
-                      />
-                    </form>
-                  </div>
-                </Popup>
-            )}
-          </div>
+                  <input
+                    name="name"
+                    placeholder="Trip Name"
+                    maxLength="30"
+                    defaultValue={editingTrip?.trip_name || ""}
+                    required
+                  />
+                  <input
+                    name="location"
+                    placeholder="Location"
+                    maxLength="30"
+                    defaultValue={editingTrip?.trip_location || ""}
+                    required
+                  />
+                  <input
+                    name="startDate"
+                    type="date"
+                    defaultValue={
+                      editingTrip?.trip_start_date
+                        ? new Date(editingTrip.trip_start_date).toISOString().split("T")[0]
+                        : ""
+                    }
+                    required
+                  />
+                  <input
+                    name="days"
+                    type="number"
+                    placeholder="Number of Days"
+                    min="0"
+                    defaultValue={editingTrip?.days || ""}
+                    required
+                  />
+                </form>
+              </div>
+            </Popup>
+          )}
         </div>
       </div>
+    </div>
   );
 }
