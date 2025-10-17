@@ -1,24 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/LandingPage.css";
 import logo from "../assets/Planit_Full_Green.png";
 import { Users, MapPin, Calendar, PiggyBank, Star } from "lucide-react";
+import LoadingSpinner from "../components/LoadingSpinner.jsx";
 
 export default function LandingPage() {
     const navigate = useNavigate();
-    const handleStartPlanning = () => navigate("/login");
+    const [loading, setLoading] = useState(false);
+
+    const handleRedirect = (path) => {
+        // start navigation first
+        navigate(path);
+        // show loader after navigation triggered
+        setLoading(true);
+    };
 
     return (
         <div className="landing">
+            {loading && <LoadingSpinner />}
+
             <header className="top-bar">
                 <div className="brand">
                     <img src={logo} alt="PlanIt Logo" className="logo-img" />
                 </div>
                 <nav className="nav-links">
-                    <a href="/login" className="login-link">Log In</a>
+                    <a href="/login" className="login-link" onClick={(e) => {
+                        e.preventDefault();
+                        handleRedirect("/login");
+                    }}>
+                        Log In
+                    </a>
                     <button
                         className="btn btn-primary"
-                        onClick={handleStartPlanning}
+                        onClick={() => handleRedirect("/login")}
                     >
                         Get Started
                     </button>
@@ -37,7 +52,7 @@ export default function LandingPage() {
                     </p>
                     <button
                         className="btn btn-primary hero-cta"
-                        onClick={handleStartPlanning}
+                        onClick={() => handleRedirect("/login")}
                     >
                         Start Planning
                     </button>
@@ -101,11 +116,9 @@ export default function LandingPage() {
                 <div className="testimonials-grid">
                     <div className="testimonial-card">
                         <div className="stars">
-                            <Star className="star" size={16} fill="currentColor" />
-                            <Star className="star" size={16} fill="currentColor" />
-                            <Star className="star" size={16} fill="currentColor" />
-                            <Star className="star" size={16} fill="currentColor" />
-                            <Star className="star" size={16} fill="currentColor" />
+                            {[...Array(5)].map((_, i) => (
+                                <Star key={i} className="star" size={16} fill="currentColor" />
+                            ))}
                         </div>
                         <p className="quote">
                             “Plan It made organizing our group trip to Japan so much easier.
@@ -122,11 +135,9 @@ export default function LandingPage() {
 
                     <div className="testimonial-card">
                         <div className="stars">
-                            <Star className="star" size={16} fill="currentColor" />
-                            <Star className="star" size={16} fill="currentColor" />
-                            <Star className="star" size={16} fill="currentColor" />
-                            <Star className="star" size={16} fill="currentColor" />
-                            <Star className="star" size={16} fill="currentColor" />
+                            {[...Array(5)].map((_, i) => (
+                                <Star key={i} className="star" size={16} fill="currentColor" />
+                            ))}
                         </div>
                         <p className="quote">
                             “The collaborative features are amazing. We planned a 2-week European
@@ -143,11 +154,9 @@ export default function LandingPage() {
 
                     <div className="testimonial-card">
                         <div className="stars">
-                            <Star className="star" size={16} fill="currentColor" />
-                            <Star className="star" size={16} fill="currentColor" />
-                            <Star className="star" size={16} fill="currentColor" />
-                            <Star className="star" size={16} fill="currentColor" />
-                            <Star className="star" size={16} fill="currentColor" />
+                            {[...Array(5)].map((_, i) => (
+                                <Star key={i} className="star" size={16} fill="currentColor" />
+                            ))}
                         </div>
                         <p className="quote">
                             “Perfect for both quick weekend getaways and long vacations. The interface
@@ -156,7 +165,7 @@ export default function LandingPage() {
                         <div className="person">
                             <div className="avatar">OM</div>
                             <div>
-                                <div className="name">Oliver McMillen </div>
+                                <div className="name">Oliver McMillen</div>
                                 <div className="role">Weekend Warrior</div>
                             </div>
                         </div>
