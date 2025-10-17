@@ -47,10 +47,9 @@ export const createTrip = async (req, res) => {
     }
 
     try {
-        const placeholderImageId = 1;
         const result = await sql`
-            INSERT INTO trips (days, trip_name, user_id, trip_start_date, trip_location, image_id, is_private)
-            VALUES (${days}, ${tripName}, ${userId}, ${tripStartDate}, ${tripLocation}, ${placeholderImageId}, ${isPrivate})
+            INSERT INTO trips (days, trip_name, user_id, trip_start_date, trip_location, is_private)
+            VALUES (${days}, ${tripName}, ${userId}, ${tripStartDate}, ${tripLocation}, ${isPrivate})
                 RETURNING *
         `;
 
