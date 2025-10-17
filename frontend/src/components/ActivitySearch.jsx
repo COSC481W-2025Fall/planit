@@ -141,7 +141,7 @@ export default function ActivitySearch({
     return () => clearTimeout(debounceTimeout.current);
   }, [cityQuery]);
 
-  // ✅ Search submit with loader
+  //  Search submit with loader
   const handleSubmit = async (e) => {
     e.preventDefault();
     const combinedQuery = cityQuery ? `${query} in ${cityQuery}` : query;
@@ -324,7 +324,7 @@ export default function ActivitySearch({
             </div>
           </form>
 
-          {/* ✅ Loader integrated here */}
+          {/*  Loader integrated here */}
           <div className="search-results">
             {loading ? (
                 <div className="loading-container">
@@ -416,13 +416,13 @@ export default function ActivitySearch({
 
           <label className="popup-input">
             <span>Notes</span>
-            <input
-              type="text"
+            <textarea
+              class = "textarea-notes"
               maxLength={100}
               placeholder="Enter any notes you have about your activity!"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-            ></input>
+            ></textarea>
             <div className="char-count">
               {notes.length} / 100 
             </div>

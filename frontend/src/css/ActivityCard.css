@@ -117,3 +117,22 @@
 .website-link {
     margin-top: 2px;
 }
+
+.notes-button{
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #7c8189;
+    margin-top: 2px;
+}
+
+.notes-span{
+    color: #1e7a3d;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.notes-button:hover {
+    text-decoration: underline;
+}

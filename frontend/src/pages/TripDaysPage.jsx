@@ -398,12 +398,12 @@ export default function TripDaysPage() {
                                 value={editableNote}
                                 onChange={(e) => setEditableNote(e.target.value)}
                                 placeholder="Enter your notes here"
-                                maxLength={100}
+                                maxLength={200}
                                 className="textarea-notes"
                                 rows={5}
                             />
                             <div className="char-count">
-                                {editableNote.length} / 100
+                                {editableNote.length} / 200
                             </div>
                         </Popup>
                     )}
@@ -493,15 +493,15 @@ export default function TripDaysPage() {
 
                             <label className="popup-input">
                                 <span>Notes</span>
-                                <input
-                                    type="text"
-                                    maxLength={100}
+                                <textarea
+                                    className="textarea-notes"
+                                    maxLength={200}
                                     placeholder="Enter any notes you have about your activity!"
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
-                                ></input>
+                                ></textarea>
                                 <div className="char-count">
-                                    {notes.length} / 100
+                                    {notes.length} / 200
                                 </div>
                             </label>
 

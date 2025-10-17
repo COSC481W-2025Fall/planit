@@ -15,7 +15,6 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
             <div className="title-notes-edit-button-container" style={{ position: "relative" }}>
                 <div className="left-side">
                     <div className="title-of-activity">{activity.activity_name}</div>
-                    <NotebookText className="notes-icon" title="View notes" onClick={() => onViewNotes(activity)} />
                 </div>
                 <EllipsisVertical className="ellipis" onClick={toggleMenu} />
                 {openMenu && (
@@ -57,6 +56,11 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
                     "0h:0m"
                 )}
             </p>
+
+            <div className="notes-button" onClick={() => onViewNotes(activity)}>
+                <NotebookText className="icon" />
+                <span class ="notes-span">Notes</span>
+            </div>
 
             {activity.activity_website ? (
                 <div className="website-container">
