@@ -56,6 +56,7 @@ export default function ActivitySearch({
   const [formStartTime, setFormStartTime] = useState("");
   const [formDuration, setFormDuration] = useState("");
   const [formCost, setFormCost] = useState("");
+  const [notes, setNotes] = useState("");
 
   const debounceTimeout = useRef(null);
   const prevCityQuery = useRef("");
@@ -88,25 +89,25 @@ export default function ActivitySearch({
         .join(" ");
   };
 
-  const getLocationString = (place) => {
-    const addr = place.addressComponents || [];
+    const getLocationString = (place) => {
+      const addr = place.addressComponents || [];
 
-    const country =
-        addr.find((c) => c && c.types?.includes("country"))?.shortText || "N/A";
+      const country =
+          addr.find((c) => c && c.types?.includes("country"))?.shortText || "N/A";
 
-    const region =
-        addr.find((c) => c && c.types?.includes("administrative_area_level_1"))
+      const region =
+          addr.find((c) => c && c.types?.includes("administrative_area_level_1"))
             ?.shortText ||
-        addr.find((c) => c && c.types?.includes("administrative_area_level_2"))
+          addr.find((c) => c && c.types?.includes("administrative_area_level_2"))
             ?.shortText ||
-        addr.find((c) => c && c.types?.includes("sublocality"))?.shortText ||
-        "N/A";
+          addr.find((c) => c && c.types?.includes("sublocality"))?.shortText ||
+          "N/A";
 
     const city =
-        addr.find((c) => c && c.types?.includes("locality"))?.longText ||
-        addr.find((c) => c && c.types?.includes("sublocality"))?.longText ||
-        addr.find((c) => c && c.types?.includes("neighborhood"))?.longText ||
-        region;
+      addr.find((c) => c && c.types?.includes("locality"))?.longText ||
+      addr.find((c) => c && c.types?.includes("sublocality"))?.longText ||
+      addr.find((c) => c && c.types?.includes("neighborhood"))?.longText ||
+      region;
 
     return [city, region, country]
         .filter((v) => v && v !== "N/A")
@@ -140,7 +141,7 @@ export default function ActivitySearch({
     return () => clearTimeout(debounceTimeout.current);
   }, [cityQuery]);
 
-  // ✅ Search submit with loader
+  //  Search submit with loader
   const handleSubmit = async (e) => {
     e.preventDefault();
     const combinedQuery = cityQuery ? `${query} in ${cityQuery}` : query;
@@ -223,10 +224,11 @@ export default function ActivitySearch({
       setFormStartTime("");
       setFormDuration("");
       setFormCost("");
+      setNotes("");
       setShowDetails(true);
     } catch (err) {
       console.error("Error adding activity:", err?.response?.data || err.message);
-      toast.error("Failed to add activity. Check server logs for details.");
+      toast.error("Failed to add activity.");
     } finally {
       setCreating(false);
     }
@@ -240,6 +242,7 @@ export default function ActivitySearch({
           startTime: formStartTime || null,
           duration: formDuration === "" ? null : Number(formDuration),
           estimatedCost: formCost === "" ? null : Number(formCost),
+          notesForActivity: notes || null
         },
       };
 
@@ -321,7 +324,7 @@ export default function ActivitySearch({
             </div>
           </form>
 
-          {/* ✅ Loader integrated here */}
+          {/*  Loader integrated here */}
           <div className="search-results">
             {loading ? (
                 <div className="loading-container">
@@ -400,16 +403,30 @@ export default function ActivitySearch({
                 />
               </label>
 
-              <label className="popup-input">
-                <span>Duration (minutes)</span>
-                <input
-                    type="number"
-                    min="0"
-                    placeholder="e.g. 90"
-                    value={formDuration}
-                    onChange={(e) => setFormDuration(e.target.value)}
-                />
-              </label>
+          <label className="popup-input">
+            <span>Duration (minutes)</span>
+            <input
+              type="number"
+              min="0"
+              placeholder="e.g. 90"
+              value={formDuration}
+              onChange={(e) => setFormDuration(e.target.value)}
+            />
+          </label>
+
+          <label className="popup-input">
+            <span>Notes</span>
+            <textarea
+              class = "textarea-notes"
+              maxLength={200}
+              placeholder="Enter any notes you have about your activity!"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            ></textarea>
+            <div className="char-count">
+              {notes.length} / 200
+            </div>
+          </label>
 
               <label className="popup-input">
                 <span>Estimated cost ($)</span>

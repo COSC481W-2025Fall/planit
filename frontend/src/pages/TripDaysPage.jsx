@@ -28,6 +28,11 @@ export default function TripDaysPage() {
     const [editStartTime, setEditStartTime] = useState("");
     const [editDuration, setEditDuration] = useState("");
     const [editCost, setEditCost] = useState(0);
+    const [notes, setNotes] = useState("");
+    const [openNotesPopup, setOpenNotesPopup] = useState(false);
+    const [selectedActivity, setSelectedActivity] = useState(null);
+    const [editableNote, setEditableNote] = useState("");
+
 
     const { tripId } = useParams();
 
@@ -67,7 +72,9 @@ export default function TripDaysPage() {
 
             // cost
             setEditCost(editActivity.activity_price_estimated ?? "");
-        }
+
+            setNotes(editActivity.notes || "");
+        } 
     }, [editActivity]);
 
     //initial fetch of days
@@ -167,6 +174,7 @@ export default function TripDaysPage() {
                             duration: Number(activity.activity_duration),
                             estimatedCost: Number(activity.activity_estimated_cost),
                             userTimeZone,
+                            notesForActivity: activity.notesForActivity || ""
                         },
                     }),
                 }
@@ -211,6 +219,50 @@ export default function TripDaysPage() {
             toast.error("Failed to delete activity. Please try again.");
         }
     };
+
+   const updateNotesForActivity = async (id, newNote) => {
+    try {
+        console.log("Updating notes for activity ID:", id, "to:", newNote);
+
+        const url = `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/updateNotes`;
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                activityId: id,
+                notes: newNote
+            }),
+        });
+
+        console.log("afteer fetch");
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || "Failed to update notes");
+        }
+
+        // Update local state safely
+        setDays(prevDays =>
+            prevDays.map(day => ({
+                ...day,
+                activities: day.activities?.map(act =>
+                    String(act.activity_id) === String(id)
+                        ? { ...act, notes: newNote }
+                        : act
+                ) || []
+            }))
+        );
+        console.log("state updated");
+
+        toast.success("Notes updated successfully!");
+        return true;
+    } catch (err) {
+        console.error("Error updating notes:", err);
+        toast.error("Failed to update notes. Please try again.");
+        return false;
+    }
+};
 
 
     const toggleMenu = (dayId) => {
@@ -274,7 +326,7 @@ export default function TripDaysPage() {
                         <div className="itinerary-buttons">
                             <button onClick={() => setOpenNewDay(true)} id="new-day-button">+ New Day</button>
                             {openActivitySearch === false &&
-                                <button onClick={() => setOpenActivitySearch(true)} id="add-activity-button">+ Add Activity</button>
+                                <button onClick={() => {setNotes(""); setOpenActivitySearch(true)}} id="add-activity-button">+ Add Activity</button>
                             }
                         </div>
                     </div>
@@ -304,7 +356,7 @@ export default function TripDaysPage() {
                                     ) : (
                                         <div className="activities">
                                             {day.activities.map(activity => (
-                                                <ActivityCard key={activity.activity_id} activity={activity} onDelete={handleDeleteActivity} onEdit={(activity) => setEditActivity(activity)} />
+                                                <ActivityCard key={activity.activity_id} activity={activity} onDelete={handleDeleteActivity} onEdit={(activity) => setEditActivity(activity)} onViewNotes={(activity) => { setSelectedActivity(activity); setOpenNotesPopup(true); setEditableNote(activity.notes || ""); }} />
                                             ))}
                                         </div>
                                     )}
@@ -324,6 +376,39 @@ export default function TripDaysPage() {
                             ))
                         )}
                     </div>
+
+                    {openNotesPopup && selectedActivity && (
+                        <Popup
+                            title={"Notes for: " + selectedActivity.activity_name}
+                            buttons={
+                                <>
+                                    <button onClick={() => setOpenNotesPopup(false)}>Cancel</button>
+                                    <button
+                                        onClick={() => {
+                                            updateNotesForActivity(selectedActivity.activity_id, editableNote);
+                                            setOpenNotesPopup(false);
+                                        }}
+                                    >
+                                        Save
+                                    </button>
+                                </>
+                            }
+                        >
+                            <textarea
+                                value={editableNote}
+                                onChange={(e) => setEditableNote(e.target.value)}
+                                placeholder="Enter your notes here"
+                                maxLength={200}
+                                className="textarea-notes"
+                                rows={5}
+                            />
+                            <div className="char-count">
+                                {editableNote.length} / 200
+                            </div>
+                        </Popup>
+                    )}
+
+
                     {newDay && (
                         <Popup
                             title="New Day"
@@ -371,13 +456,14 @@ export default function TripDaysPage() {
                                         type="button"
                                         onClick={() => {
                                             if (!editStartTime || !editDuration || !editCost) {
-                                                alert("Please fill in all fields before saving.");
+                                                toast.error("Please fill in all fields before saving.");
                                                 return;
                                             }
                                             handleUpdateActivity(editActivity.activity_id, {
                                                 activity_startTime: editStartTime,
                                                 activity_duration: editDuration,
                                                 activity_estimated_cost: editCost,
+                                                notesForActivity: notes || ""
                                             });
                                         }}
                                     >
@@ -403,6 +489,20 @@ export default function TripDaysPage() {
                                     value={editDuration}
                                     onChange={(e) => setEditDuration(e.target.value)}
                                 />
+                            </label>
+
+                            <label className="popup-input">
+                                <span>Notes</span>
+                                <textarea
+                                    className="textarea-notes"
+                                    maxLength={200}
+                                    placeholder="Enter any notes you have about your activity!"
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                ></textarea>
+                                <div className="char-count">
+                                    {notes.length} / 200
+                                </div>
                             </label>
 
                             <label className="popup-input">

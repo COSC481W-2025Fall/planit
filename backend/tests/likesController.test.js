@@ -64,7 +64,7 @@ describe("Likes Controller", () => {
   });
 
   // -------------------------
-  // getAllTripDetailsOfATripLikedByUser
+  // getAllTripDetailsOfTripsLikedByUser
   // -------------------------
   it("should return all trip details liked by a user", async () => {
     const req = { body: { userId: 1 } };
@@ -74,7 +74,7 @@ describe("Likes Controller", () => {
     ];
     sql.mockResolvedValue(mockData);
 
-    await likesController.getAllTripDetailsOfATripLikedByUser(req, res);
+    await likesController.getAllTripDetailsOfTripsLikedByUser(req, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(mockData);
@@ -84,7 +84,7 @@ describe("Likes Controller", () => {
     const req = { body: {} };
     const res = mockRes();
 
-    await likesController.getAllTripDetailsOfATripLikedByUser(req, res);
+    await likesController.getAllTripDetailsOfTripsLikedByUser(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({ error: "userId is required" });

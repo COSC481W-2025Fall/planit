@@ -17,11 +17,16 @@
     flex-direction: column;
 }
 
-.title-and-edit-button-container {
+.title-notes-edit-button-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: relative;
+}
+
+.left-side {
+    display: flex;
+    flex-direction: row;
 }
 
 .title-of-activity {
@@ -30,6 +35,7 @@
     color: #1e7a3d;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-right: 4px;
 }
 
 .time-and-location-container {
@@ -101,4 +107,8 @@
 
 .website-link {
     margin-top: 2px;
+}
+
+.notebook-icon{
+    height: 0.7rem;
 }
