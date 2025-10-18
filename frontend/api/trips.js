@@ -25,6 +25,7 @@ export async function createTrip(trip) {
     tripStartDate: trip.trip_start_date,
     days: trip.days,
     imageid: trip.image_id,
+    isPrivate: trip.isPrivate
   };
 
   const res = await fetch(`${API_BASE_URL}/create`, {
@@ -51,6 +52,7 @@ export async function updateTrip(trip) {
     tripStartDate: trip.trip_start_date,
     days: trip.days,
     imageid: trip.image_id,
+    isPrivate: trip.isPrivate
   };
 
   const res = await fetch(`${API_BASE_URL}/update`, {

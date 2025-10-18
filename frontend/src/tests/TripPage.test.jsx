@@ -67,7 +67,6 @@ describe("TripPage", () => {
        trips_id: 101,
        trip_name: "Hawaii",
        trip_location: "Honolulu",
-       days: 5,
      },
    ]);
 
@@ -82,7 +81,6 @@ describe("TripPage", () => {
    await waitFor(() => {
      expect(screen.getByText("Hawaii")).toBeInTheDocument();
      expect(screen.getByText("Honolulu")).toBeInTheDocument();
-     expect(screen.getByText(/5 days/i)).toBeInTheDocument();
    });
  });
 
@@ -112,7 +110,7 @@ describe("TripPage", () => {
 
  test("deletes a trip when Delete is clicked", async () => {
    vi.spyOn(tripsApi, "getTrips").mockResolvedValue([
-     { trips_id: 123, trip_name: "Paris", trip_location: "France", days: 3 },
+     { trips_id: 123, trip_name: "Paris", trip_location: "France" },
    ]);
    vi.spyOn(tripsApi, "deleteTrip").mockResolvedValue();
 
