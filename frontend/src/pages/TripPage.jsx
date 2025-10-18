@@ -21,9 +21,11 @@ export default function TripPage() {
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const navigate = useNavigate();
 
+  //constants for image selection
   const [images, setImages] = useState([]);
-  const [showImagePicker, setShowImagePicker] = useState(false);
+  const [showImageSelector, setShowImageSelector] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [imageUrls, setImageUrls] = useState({});
 
   // Get user details
   useEffect(() => {
@@ -52,9 +54,9 @@ export default function TripPage() {
       .catch((err) => console.error("Failed to fetch trips:", err));
   }, [user?.user_id]);
 
-  // Fetch images when the picker is opened
+  // Fetch images when the selector is opened
   useEffect(() => {
-    if (!showImagePicker) return;
+    if (!showImageSelector) return;
     const fetchImages = async () => {
       try {
         const res = await fetch(
@@ -69,7 +71,35 @@ export default function TripPage() {
       }
     };
     fetchImages();
-    }, [showImagePicker]);
+  }, [showImageSelector]);
+
+  // Fetch image URLs for trips when component loads or trips change
+  useEffect(() => {
+    if (!trips || trips.length === 0) return;
+
+    const fetchImages = async () => {
+      const newImageUrls = {};
+
+      for (const trip of trips) {
+        if (!trip.image_id || trip.image_id === 0) continue;
+
+        try {
+          const res = await fetch(
+            `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
+            { credentials: "include" }
+          );
+
+          const data = await res.json();
+          newImageUrls[trip.trips_id] = data.imageUrl;
+        } catch (err) {
+          console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
+        }
+      }
+      setImageUrls(newImageUrls);
+    };
+
+    fetchImages();
+  }, [trips]);
 
   // Delete trip
   const handleDeleteTrip = async (trips_id) => {
@@ -171,6 +201,11 @@ export default function TripPage() {
                 trips.map((trip) => (
                   <div key={trip.trips_id} className="trip-card">
                     <div className="trip-card-image" onClick={() => handleTripRedirect(trip.trips_id)}>
+                      <img
+                        src={imageUrls[trip.trips_id]}
+                        alt={trip.trip_name}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
                       <div className="trip-duration-badge">{trip.days} days</div>
                     </div>
 
@@ -291,10 +326,10 @@ export default function TripPage() {
                     required
                   />
 
-                  {/* Button to open image picker */}
+                  {/* Button to open image selector */}
                   <button
                     type="button"
-                    onClick={() => setShowImagePicker(true)}
+                    onClick={() => setShowImageSelector(true)}
                     style={{ marginTop: "10px" }}
                   >
                     View Images
@@ -315,49 +350,49 @@ export default function TripPage() {
                   )}
                 </form>
               </div>
-                  {/* Image picker popup */}
-                  {showImagePicker && (
-                    <Popup
-                      title="Select an Image"
-                      buttons={
-                        <>
-                          <button type="button" onClick={() => setShowImagePicker(false)}>
-                            Done
-                          </button>
-                        </>
-                      }
-                    >
-                      <div
+              {/* Image selector popup */}
+              {showImageSelector && (
+                <Popup
+                  title="Select an Image"
+                  buttons={
+                    <>
+                      <button type="button" onClick={() => setShowImageSelector(false)}>
+                        Done
+                      </button>
+                    </>
+                  }
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "1rem",
+                      maxHeight: "300px",
+                      overflowY: "auto",
+                    }}
+                  >
+                    {images.map((img) => (
+                      <img
+                        key={img.image_id}
+                        src={img.imageUrl}
+                        alt={img.image_name}
+                        width="120"
+                        height="120"
                         style={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: "1rem",
-                          maxHeight: "300px",
-                          overflowY: "auto",
+                          objectFit: "cover",
+                          border:
+                            selectedImage?.image_id === img.image_id
+                              ? "3px solid blue"
+                              : "1px solid gray",
+                          borderRadius: "6px",
+                          cursor: "pointer",
                         }}
-                      >
-                        {images.map((img) => (
-                          <img
-                            key={img.image_id}
-                            src={img.imageUrl}
-                            alt={img.image_name}
-                            width="120"
-                            height="120"
-                            style={{
-                              objectFit: "cover",
-                              border:
-                                selectedImage?.image_id === img.image_id
-                                  ? "3px solid blue"
-                                  : "1px solid gray",
-                              borderRadius: "6px",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => setSelectedImage(img)}
-                          />
-                        ))}
-                      </div>
-                    </Popup>
-                  )}
+                        onClick={() => setSelectedImage(img)}
+                      />
+                    ))}
+                  </div>
+                </Popup>
+              )}
             </Popup>
           )}
         </div>

@@ -64,7 +64,7 @@ export const createTrip = async (req, res) => {
 //This function handles the modification of all fields related to a trip.
 export const updateTrip = async (req, res) => {
     if (!req.user) return res.status(401).json({ loggedIn: false });
-    const { trips_id, days, tripName, tripStartDate, tripLocation } = req.body;
+    const { trips_id, days, tripName, tripStartDate, tripLocation, imageid } = req.body;
     const userId = req.user.user_id;
 
     if (userId  === undefined || trips_id === undefined) {
@@ -95,6 +95,12 @@ export const updateTrip = async (req, res) => {
         if (tripLocation !== undefined) {
             updates.push(`trip_location = $${paramCount}`);
             values.push(tripLocation);
+            paramCount++;
+        }
+
+        if (tripLocation !== undefined) {
+            updates.push(`image_id = $${paramCount}`);
+            values.push(imageid);
             paramCount++;
         }
 

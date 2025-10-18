@@ -1,12 +1,11 @@
 /*
-Routes for user-related operations: create username, modify user, read user, delete user.
+Routes for necessary image CRUD operations, read all images, and read one image
 */
-import { readAllImages, assignImageToTrip, getImageById } from "../controllers/imageController.js";
+import { readAllImages, readOneImage } from "../controllers/imageController.js";
 import express from "express";
 const router = express.Router();
 
 router.get("/readall", readAllImages);
-router.post("/assign", assignImageToTrip);
-router.get("/image", getImageById);
+router.get("/readone", readOneImage);
 
 export default router;

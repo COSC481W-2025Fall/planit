@@ -1,5 +1,6 @@
-/* This controller class contains four functions that handle creating username, updating all fields in the user table,
-and deleting a users account.
+/* This controller class contains two functions.
+    1. readAllImages: Retrieves all images from the images table.
+    2. getImageById: Retrieves a specific image by its ID from the images table.
 */
 import {sql} from "../config/db.js";
 import { v2 as cloudinary } from "cloudinary";
@@ -34,42 +35,28 @@ export const readAllImages = async (req, res) => {
   }
 };
 
-//This function populates trips table fk attribute image_id with a given imageId.
-export const assignImageToTrip = async (req, res) => {
-    try {
-        const {tripId, imageId} = req.body;
-        const result = await sql`
-            UPDATE trips
-            SET image_id = ${imageId}
-            WHERE trip_id = ${tripId}
-            RETURNING *
-        `;
-        if (result.length === 0) {
-            return res.status(404).json({ error: "Trip not found" });
-        }
-        return res.json("Image assigned to trip successfully");
-    }
-    catch (err) {
-        console.log(err);
-        return res.status(500).json({ error: "Internal Server Error" });
-    }
-};
-
 // This function retrieves a specific image by its ID from the images table.
-export const getImageById = async (req, res) => {
+export const readOneImage = async (req, res) => {
   try {
-    const { imageId } = req.params;
+    const { imageId } = req.query;
     const result = await sql`
-      SELECT * FROM images
+      SELECT public_id
+      FROM images
       WHERE image_id = ${imageId}
     `;
+    console.log('SQL result:', result);
+
     if (result.length === 0) {
       return res.status(404).json({ error: "Image not found" });
     }
-    return res.json(result[0]);
-  }
-    catch (err) {
-        console.log(err);
-        return res.status(500).json({ error: "Internal Server Error" });
+
+    const image = result[0];
+    console.log("Retrieved image:", image);
+    console.log("Image URL:", cloudinary.url(image.public_id, { secure: true }));
+    res.json({ imageUrl: cloudinary.url(image.public_id, { secure: true }) });
+
+  } catch (err) {
+      console.error("Error retrieving image by ID:", err);
+      res.status(500).json({ error: "Internal Server Error" });
   }
 };
