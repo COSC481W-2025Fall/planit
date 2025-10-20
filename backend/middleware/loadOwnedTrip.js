@@ -1,6 +1,6 @@
 import { sql } from "../config/db.js";
 
-// middleware to load a trip owned by the logged-in user
+// Middleware to load a trip owned by the logged-in user
 export async function loadOwnedTrip(req, res, next) {
   if (!req.user) {
     return res.status(401).json({ error: "Unauthorized" });
