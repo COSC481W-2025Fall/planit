@@ -14,6 +14,11 @@ import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
 
 export default function TripDaysPage() {
+    const wayOfTransportationDrive = "DRIVE";
+    const wayOfTransportationWalk = "WALK";
+    const wayOfTransportationBicycle = "BICYCLE";
+    const wayOfTransportationTransit = "TRANSIT";
+
     //constants for data
     const [user, setUser] = useState(null);
     const [trip, setTrip] = useState(null);
