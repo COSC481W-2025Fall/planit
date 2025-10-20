@@ -24,11 +24,16 @@
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-.title-and-edit-button-container {
+.title-notes-edit-button-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: relative;
+}
+
+.left-side {
+    display: flex;
+    flex-direction: row;
 }
 
 .title-of-activity {
@@ -38,6 +43,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    margin-right: 4px;
 }
 
 .time-and-location-container {
@@ -214,4 +220,8 @@
     opacity: 0;
     transform: scale(0.97);
     pointer-events: none;
+}
+
+.notebook-icon{
+    height: 0.7rem;
 }

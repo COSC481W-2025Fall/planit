@@ -9,6 +9,7 @@ body {
   min-height: 100vh;
 }
 
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -214,6 +215,11 @@ body {
 .add-btn:hover {
   background: #145c2d;
 }
+.char-count{
+  color: #7c8189;
+  margin-top : 6px;
+}
+
 .loading-container {
   position: absolute;
   top: 50%;
@@ -280,4 +286,19 @@ body {
     font-size: 1rem;
     padding: 10px;
   }
+}
+
+
+.textarea-notes{
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 13px;
+  font-size: 14px;
+  resize: none;
+}
+
+.textarea-notes:focus {
+  outline: none;
+  border-color: #1e7a3d;
+  box-shadow: 0 0 3px #1e7a3d;
 }
