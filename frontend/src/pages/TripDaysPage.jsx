@@ -269,7 +269,7 @@ export default function TripDaysPage() {
             }),
         });
 
-        console.log("afteer fetch");
+        console.log("after fetch");
 
         if (!response.ok) {
             const errData = await response.json().catch(() => ({}));
@@ -384,10 +384,6 @@ export default function TripDaysPage() {
                                     + Add Activity
                                 </button>
                             )}
-                            <button onClick={() => setOpenNewDay(true)} id="new-day-button">+ New Day</button>
-                            {openActivitySearch === false &&
-                                <button onClick={() => {setNotes(""); setOpenActivitySearch(true)}} id="add-activity-button">+ Add Activity</button>
-                            }
                         </div>
                     </div>
 
@@ -448,18 +444,6 @@ export default function TripDaysPage() {
                                                 <div className="number-of-activities">
                                                     {day.activities?.length ?? 0} Activities
                                                 </div>
-
-                                    {(day.activities?.length ?? 0) === 0 ? (
-                                        <p className="add-activity-blurb">
-                                            No activities planned. Add an activity from the sidebar
-                                        </p>
-                                    ) : (
-                                        <div className="activities">
-                                            {day.activities.map(activity => (
-                                                <ActivityCard key={activity.activity_id} activity={activity} onDelete={handleDeleteActivity} onEdit={(activity) => setEditActivity(activity)} onViewNotes={(activity) => { setSelectedActivity(activity); setOpenNotesPopup(true); setEditableNote(activity.notes || ""); }} />
-                                            ))}
-                                        </div>
-                                    )}
                                                 {(day.activities?.length ?? 0) === 0 ? (
                                                     <p className="add-activity-blurb">
                                                         No activities planned. Add an activity from
@@ -467,19 +451,8 @@ export default function TripDaysPage() {
                                                     </p>
                                                 ) : (
                                                     <div className="activities">
-                                                        {day.activities.map((activity) => (
-                                                            <ActivityCard
-                                                                key={activity.activity_id}
-                                                                activity={activity}
-                                                                onDelete={() =>
-                                                                    handleDeleteActivity(
-                                                                        activity.activity_id
-                                                                    )
-                                                                }
-                                                                onEdit={(a) =>
-                                                                    setEditActivity(a)
-                                                                }
-                                                            />
+                                                        {day.activities.map(activity => (
+                                                            <ActivityCard key={activity.activity_id} activity={activity} onDelete={handleDeleteActivity} onEdit={(activity) => setEditActivity(activity)} onViewNotes={(activity) => { setSelectedActivity(activity); setOpenNotesPopup(true); setEditableNote(activity.notes || ""); }} />
                                                         ))}
                                                     </div>
                                                 )}

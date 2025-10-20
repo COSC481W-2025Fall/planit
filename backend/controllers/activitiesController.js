@@ -9,7 +9,7 @@ function toTimestampFromHHMM(value, timeZone) {
 
   // Build a date anchored at 1970-01-01 in the user's timezone
   const dateStr = `1970-01-01T${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:00`;
-  
+
   // This converts the local "user timezone" time to a Date object in UTC
   const localDate = new Date(dateStr);
   const utcDateStr = localDate.toLocaleString("en-US", { timeZone });
@@ -115,7 +115,7 @@ export const updateActivity = async (req, res) => {
   try {
     // Pull current values of activity we updating
     const { activityId, activity } = req.body;
-    const { startTime, duration, estimatedCost, userTimeZone } = activity || {};
+    const { startTime, duration, estimatedCost, userTimeZone, notesForActivity } = activity || {};
 
     if (!activityId || !activity) {
       // Error handling if fields for updating activity are empty
@@ -129,16 +129,17 @@ export const updateActivity = async (req, res) => {
 
     // Convert minutes → interval literal (or null)
     const durationInterval =
-      duration === "" || duration == null
-        ? null
-        : `${Number(duration)} minutes`;
+        duration === "" || duration == null
+            ? null
+            : `${Number(duration)} minutes`;
 
     // Query to replace activity values with new ones we took above
     await sql`
       UPDATE activities
       SET "activity_startTime"       = ${startTs},
           "activity_duration"        = ${durationInterval}::interval,
-          "activity_price_estimated" = ${estimatedCost ?? null}
+          "activity_price_estimated" = ${estimatedCost ?? null},
+          "notes"                    = ${v(notesForActivity)}
       WHERE "activity_id" = ${activityId};
     `;
 
@@ -206,6 +207,28 @@ export const readAllActivities = async (req, res) => {
       activities,
     });
   } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const updateNotesForActivity = async (req, res) => {
+  try{
+    const { activityId, notes } = req.body;
+
+    if (!activityId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    await sql`
+      UPDATE activities 
+      SET notes = ${v(notes)}
+      WHERE activity_id = ${activityId};
+    `
+
+    res.status(200).json({ message: "Notes updated successfully" });
+
+  } catch (err){
     console.error(err);
     res.status(500).json({ error: err.message });
   }
