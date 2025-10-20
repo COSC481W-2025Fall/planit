@@ -1,0 +1,1 @@
+// Middleware to load editable trip data
