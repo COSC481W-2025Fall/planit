@@ -62,7 +62,7 @@ export const getAllTripDetailsOfTripsLikedByUser = async (req, res) => {
 
 export const getLikedTripIdsByUser = async (req, res) => {
   try {
-    const { userId } = req.query;
+    const { userId } = req.body;
 
     if (!userId) {
       return res.status(400).json({ error: "userId is required" });
