@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import "../css/ActivityCard.css";
-import { Clock, MapPin, EllipsisVertical, Trash2, Pencil, Timer, Globe } from "lucide-react";
+import { Clock, MapPin, EllipsisVertical, Trash2, Pencil, Timer, Globe, NotebookText } from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
+import Popup from "./Popup.jsx";
 
-export default function ActivityCard({ activity, onDelete, onEdit }) {
+export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }) {
     const [openMenu, setOpenMenu] = useState(false);
     const startTime = activity.activity_startTime ? new Date(activity.activity_startTime) : null;
 
@@ -11,8 +12,10 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
 
     return (
         <div className="activity-container">
-            <div className="title-and-edit-button-container" style={{ position: "relative" }}>
-                <div className="title-of-activity">{activity.activity_name}</div>
+            <div className="title-notes-edit-button-container" style={{ position: "relative" }}>
+                <div className="left-side">
+                    <div className="title-of-activity">{activity.activity_name}</div>
+                </div>
                 <EllipsisVertical className="ellipis" onClick={toggleMenu} />
                 {openMenu && (
                     <div className="day-menu">
@@ -21,6 +24,9 @@ export default function ActivityCard({ activity, onDelete, onEdit }) {
                         </button>
                         <button onClick={() => onEdit(activity)}>
                             <Pencil className="pencil-icon" /> Edit
+                        </button>
+                        <button onClick={() => onViewNotes(activity)}>
+                            <NotebookText className="notebook-icon" /> View Notes
                         </button>
                     </div>
                 )}

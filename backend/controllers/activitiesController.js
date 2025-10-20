@@ -115,7 +115,7 @@ export const updateActivity = async (req, res) => {
   try {
     // Pull current values of activity we updating
     const { activityId, activity } = req.body;
-    const { startTime, duration, estimatedCost, userTimeZone } = activity || {};
+    const { startTime, duration, estimatedCost, userTimeZone, notesForActivity } = activity || {};
 
     if (!activityId || !activity) {
       // Error handling if fields for updating activity are empty
@@ -138,7 +138,8 @@ export const updateActivity = async (req, res) => {
       UPDATE activities
       SET "activity_startTime"       = ${startTs},
           "activity_duration"        = ${durationInterval}::interval,
-          "activity_price_estimated" = ${estimatedCost ?? null}
+          "activity_price_estimated" = ${estimatedCost ?? null},
+          "notes"                    = ${v(notesForActivity)}
       WHERE "activity_id" = ${activityId};
     `;
 
@@ -206,6 +207,28 @@ export const readAllActivities = async (req, res) => {
       activities,
     });
   } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const updateNotesForActivity = async (req, res) => {
+  try{
+    const { activityId, notes } = req.body;
+    
+    if (!activityId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    await sql`
+      UPDATE activities 
+      SET notes = ${v(notes)}
+      WHERE activity_id = ${activityId};
+    `
+
+    res.status(200).json({ message: "Notes updated successfully" });
+
+  } catch (err){
     console.error(err);
     res.status(500).json({ error: err.message });
   }
