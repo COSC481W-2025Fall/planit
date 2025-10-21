@@ -44,15 +44,12 @@ export const readOneImage = async (req, res) => {
       FROM images
       WHERE image_id = ${imageId}
     `;
-    console.log('SQL result:', result);
 
     if (result.length === 0) {
       return res.status(404).json({ error: "Image not found" });
     }
 
     const image = result[0];
-    console.log("Retrieved image:", image);
-    console.log("Image URL:", cloudinary.url(image.public_id, { secure: true }));
     res.json({ imageUrl: cloudinary.url(image.public_id, { secure: true }) });
 
   } catch (err) {

@@ -22,12 +22,6 @@ export default function TripPage() {
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const navigate = useNavigate();
 
-  //constants for image selection
-  const [images, setImages] = useState([]);
-  const [showImageSelector, setShowImageSelector] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imageUrls, setImageUrls] = useState({});
-
   // Get user details
   useEffect(() => {
     fetch(
@@ -55,52 +49,6 @@ export default function TripPage() {
         .catch((err) => console.error("Failed to fetch trips:", err));
   }, [user?.user_id]);
 
-  // Fetch images when the selector is opened
-  useEffect(() => {
-    if (!showImageSelector) return;
-    const fetchImages = async () => {
-      try {
-        const res = await fetch(
-          (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
-            "/image/readAll",
-          { credentials: "include" }
-        );
-        const data = await res.json();
-        setImages(data);
-      } catch (err) {
-        console.error("Error fetching images:", err);
-      }
-    };
-    fetchImages();
-  }, [showImageSelector]);
-
-  // Fetch image URLs for trips when component loads or trips change
-  useEffect(() => {
-    if (!trips || trips.length === 0) return;
-
-    const fetchImages = async () => {
-      const newImageUrls = {};
-
-      for (const trip of trips) {
-        if (!trip.image_id || trip.image_id === 0) continue;
-
-        try {
-          const res = await fetch(
-            `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
-            { credentials: "include" }
-          );
-
-          const data = await res.json();
-          newImageUrls[trip.trips_id] = data.imageUrl;
-        } catch (err) {
-          console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
-        }
-      }
-      setImageUrls(newImageUrls);
-    };
-
-    fetchImages();
-  }, [trips]);
   //Show Loader while fetching user or trips
   if (!user || !trips) {
     return (
@@ -219,11 +167,6 @@ export default function TripPage() {
                     trips.map((trip) => (
                         <div key={trip.trips_id} className="trip-card">
                           <div className="trip-card-image" onClick={() => handleTripRedirect(trip.trips_id)}>
-                          <img
-                            src={imageUrls[trip.trips_id]}
-                            alt={trip.trip_name}
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                          />
                           </div>
 
                           <button
@@ -302,7 +245,6 @@ export default function TripPage() {
                       trip_name: formData.get("name"),
                       trip_location: formData.get("location"),
                       trip_start_date: formData.get("startDate"),
-                      image_id: selectedImage ? selectedImage.image_id : 0,
                       user_id: user.user_id,
                       isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
                     };
@@ -335,82 +277,8 @@ export default function TripPage() {
                     }
                     required
                   />
-                  <input
-                    name="days"
-                    type="number"
-                    placeholder="Number of Days"
-                    min="0"
-                    defaultValue={editingTrip?.days || ""}
-                    required
-                  />
-
-                  {/* Button to open image selector */}
-                  <button
-                    type="button"
-                    onClick={() => setShowImageSelector(true)}
-                    style={{ marginTop: "10px" }}
-                  >
-                    View Images
-                  </button>
-
-                  {/* Display selected image preview */}
-                  {selectedImage && (
-                    <div style={{ marginTop: "10px" }}>
-                      <img
-                        src={selectedImage.imageUrl}
-                        alt={selectedImage.image_name}
-                        width="120"
-                        height="120"
-                        style={{ objectFit: "cover", borderRadius: "6px" }}
-                      />
-                      <p>{selectedImage.image_name}</p>
-                    </div>
-                  )}
                 </form>
               </div>
-              {/* Image selector popup */}
-              {showImageSelector && (
-                <Popup
-                  title="Select an Image"
-                  buttons={
-                    <>
-                      <button type="button" onClick={() => setShowImageSelector(false)}>
-                        Done
-                      </button>
-                    </>
-                  }
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "1rem",
-                      maxHeight: "300px",
-                      overflowY: "auto",
-                    }}
-                  >
-                    {images.map((img) => (
-                      <img
-                        key={img.image_id}
-                        src={img.imageUrl}
-                        alt={img.image_name}
-                        width="120"
-                        height="120"
-                        style={{
-                          objectFit: "cover",
-                          border:
-                            selectedImage?.image_id === img.image_id
-                              ? "3px solid blue"
-                              : "1px solid gray",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => setSelectedImage(img)}
-                      />
-                    ))}
-                  </div>
-                </Popup>
-              )}
             </Popup>
           )}
         </div>
