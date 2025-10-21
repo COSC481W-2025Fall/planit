@@ -1,0 +1,1 @@
+//Created SharedTripsController.test.js file to test sharedTripsController.js
