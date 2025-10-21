@@ -6,7 +6,8 @@ export async function loadEditableTrip(req, res, next) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const tripId = parseInt(req.params.tripId, 10);
+  const userId = req.user.user_id;
+  const tripId = Number(req.params.tripId);
   if (isNaN(tripId)) {
     return res.status(400).json({ error: "Invalid trip ID" });
   }
@@ -14,12 +15,30 @@ export async function loadEditableTrip(req, res, next) {
   try {
     const trips = await sql`
       SELECT *
-      FROM shared
-      WHERE trips_id = ${tripId} AND user_id = ${req.user.user_id}
+      FROM trips t
+      WHERE trips_id = ${tripId}
+        AND (
+        t.user_id = ${userId}
+        OR EXISTS (
+          SELECT 1
+          FROM shared s
+          WHERE s.trip_id = t.trips_id
+            AND s.user_id = ${userId}
+       )
+  )
+       LIMIT 1
     `;
 
-  }
+    if (trips.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Trip not found or access denied" });
+    }
 
+    req.trip = trips[0];
+    req.tripPermission = trips[0].user_id === userId ? "owner" : "shared";
+    next();
+  }
   catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal Server Error" });

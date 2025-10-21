@@ -6,7 +6,8 @@ export async function loadOwnedTrip(req, res, next) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const tripId = parseInt(req.params.tripId, 10);
+  const userId = req.user.user_id;
+  const tripId = Number(req.params.tripId);
   if (isNaN(tripId)) {
     return res.status(400).json({ error: "Invalid trip ID" });
   }
@@ -15,7 +16,8 @@ export async function loadOwnedTrip(req, res, next) {
     const trips = await sql`
       SELECT *
       FROM trips
-      WHERE trips_id = ${tripId} AND user_id = ${req.user.user_id}
+      WHERE trips_id = ${tripId} AND user_id = ${userId}
+      LIMIT 1
     `;
 
     if (trips.length === 0) {
@@ -25,6 +27,7 @@ export async function loadOwnedTrip(req, res, next) {
     }
 
     req.trip = trips[0];
+    req.tripPermission = "owner";
     next();
   } catch (err) {
     console.error(err);
