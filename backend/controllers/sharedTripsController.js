@@ -1,6 +1,6 @@
 import { sql } from "../config/db.js";
 
-// read all shared trips for the logged-in user
+// list all trips shared with the logged-in user
 export const readAllSharedTrips = async (req, res) => {
     if (!req.user) {
         return res.status(401).json({ loggedIn: false });
@@ -21,4 +21,16 @@ export const readAllSharedTrips = async (req, res) => {
         console.log(err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
+}
+
+// add participant to a shared trip (trip owner only)
+export const addParticipant = async (req, res) => {
+}
+
+// remove participant from a shared trip (trip owner only)
+export const removeParticipant = async (req, res) => {
+}
+
+// list all participants in a shared trip
+export const listParticipants = async (req, res) => {
 }

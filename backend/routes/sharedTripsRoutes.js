@@ -8,6 +8,6 @@ const router = express.Router();
 router.post("/addParticipant", isLoggedIn, loadOwnedTrip, addParticipant);
 router.delete("/removeParticipant", isLoggedIn, loadOwnedTrip, removeParticipant);
 router.get("/listParticipants", isLoggedIn, loadEditableTrip, listParticipants);
-router.get("/listMySharedTrips", isLoggedIn, listMySharedTrips);
+router.get("/readAllSharedTrips", isLoggedIn, readAllSharedTrips);
 
 export default router;
