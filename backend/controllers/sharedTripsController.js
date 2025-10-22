@@ -15,7 +15,7 @@ export const readAllSharedTrips = async (req, res) => {
         WHERE user_id = ${userId}
     `
 
-        res.json({ loggedIn: true, sharedTrips: result });
+        res.json({ sharedTrips: result });
     }
     catch (err) {
         console.log(err);

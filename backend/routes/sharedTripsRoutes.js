@@ -2,7 +2,7 @@ import express from "express";
 import { isLoggedIn } from "../auth.js";
 import { loadEditableTrip } from "../middleware/loadEditableTrip.js";
 import { loadOwnedTrip } from "../middleware/loadOwnedTrip.js";
-import { addParticipant, removeParticipant, listParticipants, listMySharedTrips, } from "../controllers/sharedTripsController.js";
+import { addParticipant, removeParticipant, listParticipants, readAllSharedTrips, } from "../controllers/sharedTripsController.js";
 const router = express.Router();
 
 router.post("/addParticipant", isLoggedIn, loadOwnedTrip, addParticipant);
