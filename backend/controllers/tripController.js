@@ -53,7 +53,7 @@ export const createTrip = async (req, res) => {
                 RETURNING *
         `;
 
-        res.json("Trip created.");
+        res.json(result[0]);
     }
     catch (err) {
         console.log("Error creating trip:", err);
