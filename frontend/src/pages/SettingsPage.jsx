@@ -45,7 +45,7 @@ export default function SettingsPage() {
 
     //Main content
     return (
-        <div className="setting-page">
+        <div className="settings-page">
             <TopBanner
                 user={user}
                 onSignOut={() => (window.location.href = "/")}
@@ -56,15 +56,46 @@ export default function SettingsPage() {
                     <div className="settings-section">
                         {/* Header row */}
                         <div className="settings-header">
-                            <div className="settingss-title-section">
+                            <div className="settings-title-section">
                                 <div className="settings-title">Settings</div>
                                 <div className="settings-subtitle">
-                                    This is the settings page. Content will go here later
+                                    Update your profile information or view your stats
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                            {/*Section to update info*/}
+                            <div className="settings-card">
+                                <h3>Update Information</h3>
+                                <div className="settings-form">
+                                    <label>
+                                        First Name 
+                                        <input type="text" placeholder="First name" readOnly />
+                                    </label>
+
+                                    <label>
+                                        Last Name 
+                                        <input type="text" placeholder="Last name" readOnly />
+                                    </label>
+
+                                    <label>
+                                    Username
+                                    <input type="text" placeholder="Username" readOnly />
+                                     </label>
+
+                                    <button className="save-button">Save Changes</button>
+                                </div>
+                             </div>
+
+                             {/* Viewing stats section*/}
+                             <div className="settings-card">
+                                <h3>User Stats</h3>
+                                <div className="stats">
+                                    <p>Number of Trips Made:</p>
+                                    <p>Longest Trip:</p>
+                                </div>
+                             </div>
+                     </div>
+                 </div>
             </div>
         </div>
     );
