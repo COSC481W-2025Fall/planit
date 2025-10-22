@@ -20,6 +20,7 @@ export default function TripPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTrip, setEditingTrip] = useState(null);
   const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
 
   // Get user details
@@ -83,6 +84,9 @@ export default function TripPage() {
 
   // Save trip (create/update)
   const handleSaveTrip = async (tripData) => {
+    if (isSaving) return;
+    setIsSaving(true);
+
     try {
       if (editingTrip) {
         await updateTrip({ ...tripData, trips_id: editingTrip.trips_id });
@@ -103,6 +107,8 @@ export default function TripPage() {
     } catch (err) {
       console.error("Save trip failed:", err);
       toast.error("Could not save trip. Please try again.");
+    } finally {
+      setTimeout(()=> setIsSaving(false), 1000);
     }
   };
 
@@ -225,10 +231,11 @@ export default function TripPage() {
               title=""
               buttons={
                 <>
-                  <button type="submit" form="trip-form">
-                    Save
+                  <button type="submit" form="trip-form" disabled={isSaving} className={isSaving ? "saving" : ""}>
+                  {isSaving ? "Saving..." : "Save"}
                   </button>
-                  <button type="button" onClick={() => setIsModalOpen(false)}>
+                  <button type="button" onClick={() => !isSaving && setIsModalOpen(false)} // prevent closing mid-save
+>
                     Cancel
                   </button>
                 </>
