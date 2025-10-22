@@ -107,31 +107,6 @@
 }
 
 
-.settings-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.settings-field label {
-  font-weight: 500;
-  color: var(--text);
-}
-
-.settings-field input {
-  padding: 0.6rem 0.8rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: 1rem;
-  font-family: inherit;
-  background: #fff;
-}
-
-.settings-field input[readonly] {
-  background: var(--bg-offwhite);
-  color: var(--muted);
-  cursor: not-allowed;
-}
 
 .settings-stats {
   display: flex;
