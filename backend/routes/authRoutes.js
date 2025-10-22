@@ -53,6 +53,7 @@ router.get("/logout", (req, res) => {
             return res.status(500).send("Failed to log out.");
         }
         req.session.destroy(() => {
+            res.clearCookie("connect.sid");
             res.json({ success: true, message: "Logged out successfully." });
         });
     });

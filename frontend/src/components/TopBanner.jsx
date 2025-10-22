@@ -26,7 +26,7 @@ export default function TopBanner({ user }) {
             <img src={logo} alt="PlanIt Logo" className="logo" />
 
             <div className="right-section">
-                <button className="g_id_signout" onClick={handleSignOut}>
+                <button className="sign-out" onClick={handleSignOut}>
                     Sign Out
                 </button>
 
