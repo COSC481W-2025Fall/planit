@@ -48,7 +48,12 @@ export default function ActivitySearch({
   const [cityResults, setCityResults] = useState([]);
   const [selectedDay, setSelectedDay] = useState("");
   const [creating, setCreating] = useState(false);
-  const [loading, setLoading] = useState(false); // ✅ New state for loader
+  const [loading, setLoading] = useState(false);
+  const [distanceInfo, setDistanceInfo] = useState(null);
+  const [dayActivities, setDayActivities] = useState([]);
+  const [selectedPlace, setSelectedPlace] = useState(null);
+
+
 
   // popup state
   const [showDetails, setShowDetails] = useState(false);
@@ -80,6 +85,43 @@ export default function ActivitySearch({
         return "N/A";
     }
   };
+
+useEffect(() => {
+  if (!selectedDay) return;
+
+  const fetchActivities = async () => {
+    try {
+      console.log("hi");
+      const res = await axios.post(
+        `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/read/all`,
+        { dayId: dayIds[selectedDay - 1] },
+        { withCredentials: true }
+      );
+
+      const activities = res.data.activities || [];
+
+      // sort activities by start time
+      const sortedActivities = activities.sort((a, b) => {
+        // convert HH:MM string to minutes
+        const timeToMinutes = (t) => {
+          if (!t) return 0;
+          const [h, m] = t.split(":").map(Number);
+          return h * 60 + m;
+        };
+
+        return timeToMinutes(a.activity_startTime) - timeToMinutes(b.activity_startTime);
+      });
+
+      setDayActivities(sortedActivities);
+    } catch (err) {
+      console.error("Failed to fetch activities:", err);
+    }
+  };
+
+  fetchActivities();
+}, [selectedDay]);
+
+
 
   const formatType = (type) => {
     if (!type) return "N/A";
@@ -164,12 +206,58 @@ export default function ActivitySearch({
     }
   };
 
+  const handleDistanceCheck = async (startTime) => {
+    if (!selectedPlace) return;
+
+    try {
+      const timeToMinutes = (t) => {
+        if (!t) return 0;
+        const [h, m] = t.split(":").map(Number);
+        return h * 60 + m;
+      };
+
+      const newTime = timeToMinutes(startTime);
+      let prevActivity = null;
+      // I need to get the previous activity's location. When user enters start time, we need to somehow insert where the activity would go
+      for (let i = 0; i < dayActivities.length; i++) {
+        const currActivity = dayActivities[i];
+        const activityTime = timeToMinutes(currActivity.activity_startTime);
+
+        // found where it would go
+        if (activityTime >= newTime) {
+          break;
+        }
+        prevActivity = currActivity;
+
+      }
+
+      if (!prevActivity) {
+        setDistanceInfo(null);
+        return;
+      }
+
+      const origin = {
+        latitude: prevActivity.latitude,
+        longitude: prevActivity.longitude,
+      };
+      console.log(origin);
+
+
+    } catch (err) {
+      toast.error("Failed to fetch distance info.");
+      console.error("Distance fetch error:", err?.response?.data || err.message);
+    }
+  }
+
+
   // Add to Trip
   const handleAddToTrip = async (place) => {
     if (!selectedDay) {
       toast.error("Please choose a day first.");
       return;
     }
+
+    setSelectedPlace(place);
 
     const idx = Number(selectedDay) - 1;
     const dayId = dayIds[idx];
@@ -394,12 +482,26 @@ export default function ActivitySearch({
                   </>
                 }
             >
+          {distanceInfo && (
+            <p className="distance-display">
+               {distanceInfo.distanceMiles} miles / {distanceInfo.durationMinutes} min
+            </p>
+          )}
+
               <label className="popup-input">
                 <span>Start time</span>
                 <input
                     type="time"
                     value={formStartTime}
-                    onChange={(e) => setFormStartTime(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormStartTime(val);
+
+                      // check if time is fully entered
+                      if (/^\d{2}:\d{2}$/.test(val)) {
+                        handleDistanceCheck(val);
+                    }
+                    }}
                 />
               </label>
 
