@@ -26,7 +26,7 @@ export default function SettingsPage() {
     if (!user) {
         return (
             <div className="setting-page">
-                <TopBanner user={user} onSignOut={() => (window.location.href = "/")} />
+                <TopBanner user={user} />
                 <div className="content-with-sidebar">
                     <NavBar />
                     <div className="main-content">
@@ -46,10 +46,7 @@ export default function SettingsPage() {
     //Main content
     return (
         <div className="setting-page">
-            <TopBanner
-                user={user}
-                onSignOut={() => (window.location.href = "/")}
-            />
+            <TopBanner user={user}/>
             <div className="content-with-sidebar">
                 <NavBar />
                 <div className="main-content">

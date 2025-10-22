@@ -273,7 +273,7 @@ export default function TripDaysPage() {
     if (!user || !trip) {
         return (
             <div className="setting-page">
-                <TopBanner user={user} onSignOut={() => (window.location.href = "/")} />
+                <TopBanner user={user}/>
                 <div className="content-with-sidebar">
                     <NavBar />
                     <div className="main-content">
@@ -293,7 +293,7 @@ export default function TripDaysPage() {
 
     return (
         <div className="page-layout">
-            <TopBanner user={user} onSignOut={() => { console.log("Signed out"); window.location.href = "/"; }} />
+            <TopBanner user={user}/>
 
             <div className="content-with-sidebar">
                 <NavBar />
