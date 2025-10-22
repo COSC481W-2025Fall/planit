@@ -314,6 +314,10 @@
     font-size: 0.875rem;
     color: var(--muted);
 }
+.accent {
+    color: var(--accent, #1e7a3d);
+    font-weight: 600;
+}
 
 /*Responsive Top Bar*/
 @media (max-width: 420px) {
