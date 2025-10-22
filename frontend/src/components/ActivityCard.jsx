@@ -35,9 +35,10 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
     const handleDeleteClick = () => {
         setIsDeleting(true);
         setTimeout(() => {
-            onDelete();
-        }, 250); // Match CSS transition duration
+            onDelete(activity.activity_id);
+        }, 250);
     };
+
 
     return (
         <div className={`activity-container ${isDeleting ? "fade-out" : ""}`}>

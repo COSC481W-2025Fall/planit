@@ -14,10 +14,12 @@ import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
 
 export default function TripDaysPage() {
+
     const [user, setUser] = useState(null);
     const [trip, setTrip] = useState(null);
     const [days, setDays] = useState([]);
     const [deleteDayId, setDeleteDayId] = useState(null);
+
     const [openMenu, setOpenMenu] = useState(null);
     const [newDay, setOpenNewDay] = useState(null);
     const [openActivitySearch, setOpenActivitySearch] = useState(false);
@@ -29,8 +31,11 @@ export default function TripDaysPage() {
     const [openNotesPopup, setOpenNotesPopup] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [editableNote, setEditableNote] = useState("");
+
+
     const [expandedDays, setExpandedDays] = useState([]);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+
     const menuRefs = useRef({});
     const { tripId } = useParams();
 
@@ -103,7 +108,8 @@ export default function TripDaysPage() {
         }
     }, [editActivity]);
 
-    //Fetch Days
+    //initial fetch of days
+    // ===== Fetch Days =====
     useEffect(() => {
         fetchDays();
     }, [tripId]);
@@ -248,56 +254,56 @@ export default function TripDaysPage() {
         }
     };
 
-   const updateNotesForActivity = async (id, newNote) => {
-    try {
-        console.log("Updating notes for activity ID:", id, "to:", newNote);
+    const updateNotesForActivity = async (id, newNote) => {
+        try {
+            console.log("Updating notes for activity ID:", id, "to:", newNote);
 
-        const url = `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/updateNotes`;
+            const url = `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/updateNotes`;
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                activityId: id,
-                notes: newNote
-            }),
-        });
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    activityId: id,
+                    notes: newNote
+                }),
+            });
 
-        console.log("after fetch");
+            console.log("after fetch");
 
-        if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            throw new Error(errData.error || "Failed to update notes");
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || "Failed to update notes");
+            }
+
+            // Update local state safely
+            setDays(prevDays =>
+                prevDays.map(day => ({
+                    ...day,
+                    activities: day.activities?.map(act =>
+                        String(act.activity_id) === String(id)
+                            ? { ...act, notes: newNote }
+                            : act
+                    ) || []
+                }))
+            );
+            console.log("state updated");
+
+            toast.success("Notes updated successfully!");
+            return true;
+        } catch (err) {
+            console.error("Error updating notes:", err);
+            toast.error("Failed to update notes. Please try again.");
+            return false;
         }
-
-        // Update local state safely
-        setDays(prevDays =>
-            prevDays.map(day => ({
-                ...day,
-                activities: day.activities?.map(act =>
-                    String(act.activity_id) === String(id)
-                        ? { ...act, notes: newNote }
-                        : act
-                ) || []
-            }))
-        );
-        console.log("state updated");
-
-        toast.success("Notes updated successfully!");
-        return true;
-    } catch (err) {
-        console.error("Error updating notes:", err);
-        toast.error("Failed to update notes. Please try again.");
-        return false;
-    }
-};
+    };
 
 
     const toggleMenu = (dayId) => {
         setOpenMenu(openMenu === dayId ? null : dayId);
     };
 
-    //Loading State
+    // ===== Loading State =====
     if (!user || !trip) {
         return (
             <div className="page-layout">
@@ -317,6 +323,7 @@ export default function TripDaysPage() {
             </div>
         );
     }
+
 
     return (
         <div className="page-layout">
@@ -389,98 +396,99 @@ export default function TripDaysPage() {
                         ) : (
                             days.map((day, index) => {
                                 const isExpanded = expandedDays.includes(day.day_id);
-
                                 return (
-                                    <div
-                                        key={day.day_id}
-                                        className={`day-card ${
-                                            isMobile
-                                                ? isExpanded
-                                                    ? "expanded"
-                                                    : "collapsed"
-                                                : ""
-                                        }`}
-                                    >
                                         <div
-                                            className="day-header"
-                                            onClick={() => {
-                                                setExpandedDays(prev =>
-                                                    prev.includes(day.day_id)
-                                                        ? prev.filter(id => id !== day.day_id) //collapse if already open
-                                                        : [...prev, day.day_id] //expand new day
-                                                );
-                                            }}
+                                            key={day.day_id}
+                                            className={`day-card ${
+                                                isMobile ? (isExpanded ? "expanded" : "collapsed") : ""
+                                            }`}
                                         >
-                                            <div>
-                                                <p className="day-title">Day {index + 1}</p>
-                                                <p className="day-date">
-                                                    {new Date(
-                                                        day.day_date
-                                                    ).toLocaleDateString("en-US", {
-                                                        weekday: "long",
-                                                        month: "short",
-                                                        day: "numeric",
-                                                    })}
-                                                </p>
-                                            </div>
-                                            <span className={`collapse-icon ${isExpanded ? "flipped" : ""}`}>
-                                                <ChevronDown />
-                                            </span>
-                                        </div>
+                                            {/* ==== Header ==== */}
+                                            <div
+                                                className="day-header"
+                                                onClick={() => {
+                                                    setExpandedDays((prev) =>
+                                                        prev.includes(day.day_id)
+                                                            ? prev.filter((id) => id !== day.day_id) // collapse this one
+                                                            : [...prev, day.day_id] // expand new one, keep others open
+                                                    );
+                                                }}
 
-                                        {isExpanded && (
-                                            <>
-                                                <div className="number-of-activities">
-                                                    {day.activities?.length ?? 0} Activities
-                                                </div>
-                                                {(day.activities?.length ?? 0) === 0 ? (
-                                                    <p className="add-activity-blurb">
-                                                        No activities planned. Add an activity from
-                                                        the sidebar
+                                            >
+                                                <div>
+                                                    <p className="day-title">Day {index + 1}</p>
+                                                    <p className="day-date">
+                                                        {new Date(day.day_date).toLocaleDateString("en-US", {
+                                                            weekday: "long",
+                                                            month: "short",
+                                                            day: "numeric",
+                                                        })}
                                                     </p>
-                                                ) : (
-                                                    <div className="activities">
-                                                        {day.activities.map(activity => (
-                                                            <ActivityCard key={activity.activity_id} activity={activity} onDelete={handleDeleteActivity} onEdit={(activity) => setEditActivity(activity)} onViewNotes={(activity) => { setSelectedActivity(activity); setOpenNotesPopup(true); setEditableNote(activity.notes || ""); }} />
-                                                        ))}
+                                                </div>
+                                                <span className="collapse-icon">
+                                                {isExpanded ? <ChevronUp /> : <ChevronDown />}
+                                             </span>
+                                            </div>
+
+                                            {/* ==== Ellipsis (always rendered) ==== */}
+                                            <div
+                                                className="day-actions"
+                                                ref={(el) => (menuRefs.current[day.day_id] = el)}
+                                            >
+                                                <button
+                                                    type="button"
+                                                    className={`day-actions-ellipsis ${
+                                                        openMenu === day.day_id ? "is-open" : ""
+                                                    }`}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleMenu(day.day_id);
+                                                    }}
+                                                >
+                                                    <EllipsisVertical />
+                                                </button>
+
+                                                {openMenu === day.day_id && (
+                                                    <div className="day-menu" onClick={(e) => e.stopPropagation()}>
+                                                        <button onClick={() => setDeleteDayId(day.day_id)}>
+                                                            <Trash2 className="trash-icon" /> Delete
+                                                        </button>
                                                     </div>
                                                 )}
+                                            </div>
 
-                                                {/* ===== Three-dot menu ===== */}
-                                                <div
-                                                    className="day-actions"
-                                                    ref={(el) =>
-                                                        (menuRefs.current[day.day_id] = el)
-                                                    }
-                                                >
-                                                    <button
-                                                        type="button"
-                                                        className="day-actions-ellipsis"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            toggleMenu(day.day_id);
-                                                        }}
-                                                    >
-                                                        <EllipsisVertical />
-                                                    </button>
+                                            {/* ==== Expandable section ==== */}
+                                            {isExpanded && (
+                                                <>
+                                                    <div className="number-of-activities">
+                                                        {day.activities?.length ?? 0} Activities
+                                                    </div>
 
-                                                    {openMenu === day.day_id && (
-                                                        <div className="day-menu">
-                                                            <button
-                                                                onClick={() =>
-                                                                    setDeleteDayId(day.day_id)
-                                                                }
-                                                            >
-                                                                <Trash2 className="trash-icon" />{" "}
-                                                                Delete
-                                                            </button>
+                                                    {(day.activities?.length ?? 0) === 0 ? (
+                                                        <p className="add-activity-blurb">
+                                                            No activities planned. Add an activity from the sidebar.
+                                                        </p>
+                                                    ) : (
+                                                        <div className="activities">
+                                                            {day.activities.map((activity) => (
+                                                                <ActivityCard
+                                                                    key={activity.activity_id}
+                                                                    activity={activity}
+                                                                    onDelete={handleDeleteActivity}
+                                                                    onEdit={(activity) => setEditActivity(activity)}
+                                                                    onViewNotes={(activity) => {
+                                                                        setSelectedActivity(activity);
+                                                                        setOpenNotesPopup(true);
+                                                                        setEditableNote(activity.notes || "");
+                                                                    }}
+                                                                />
+                                                            ))}
                                                         </div>
                                                     )}
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                );
+                                                </>
+                                            )}
+                                        </div>
+                                    );
                             })
                         )}
                     </div>
@@ -515,6 +523,8 @@ export default function TripDaysPage() {
                             </div>
                         </Popup>
                     )}
+
+
 
                     {newDay && (
                         <Popup
