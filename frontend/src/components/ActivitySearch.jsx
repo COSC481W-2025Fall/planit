@@ -36,20 +36,14 @@ const toPriceSymbol = (level) => {
   }
 };
 
-export default function ActivitySearch({
-                                         onClose,
-                                         days,
-                                         dayIds = [],
-                                         onActivityAdded,
-                                       }) {
+export default function ActivitySearch({onClose, days, dayIds = [], onActivityAdded,}) {
   const [query, setQuery] = useState("");
   const [cityQuery, setCityQuery] = useState("");
   const [results, setResults] = useState([]);
   const [cityResults, setCityResults] = useState([]);
   const [selectedDay, setSelectedDay] = useState("");
   const [creating, setCreating] = useState(false);
-  const [loading, setLoading] = useState(false); // ✅ New state for loader
-
+  const [loading, setLoading] = useState(false);
   // popup state
   const [showDetails, setShowDetails] = useState(false);
   const [newActivityId, setNewActivityId] = useState(null);
@@ -254,6 +248,9 @@ export default function ActivitySearch({
       setShowDetails(false);
       setNewActivityId(null);
       onActivityAdded && onActivityAdded();
+      if (window.innerWidth <= 950) {
+        onClose && onClose();
+      }
     } catch (err) {
       console.error("Error updating activity:", err?.response?.data || err.message);
       toast.error("Failed to save details. Please try again.");

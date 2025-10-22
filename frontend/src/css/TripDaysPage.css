@@ -54,9 +54,10 @@ body {
   min-width: 0;
   padding: 1rem;
   color: var(--muted);
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
+  padding-bottom: 2rem;
 }
-
 .trip-title {
   font-family: Tahoma, sans-serif;
   color: var(--text);
@@ -151,7 +152,7 @@ body {
   overflow-x: auto;
   align-items: flex-start;
   gap: 1.25rem;
-  padding: 1rem 0 1rem 0;
+  padding: 1rem 0 4rem 0;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
 }
@@ -164,9 +165,10 @@ body {
   border-radius: 1rem;
   border: 1px solid var(--border);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  flex: 0 0 22%;
+  flex: 0 0 25%;
   min-width: 260px;
   max-width: 300px;
+  min-height: 180px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   animation: fadeInUp 0.4s ease both;
   scroll-snap-align: start;
@@ -322,7 +324,9 @@ body {
   }
 
   .TripDaysPage {
-    padding: 0.75rem;
+    padding-bottom: 6rem;
+    height: auto;
+    min-height: 100vh;
   }
 
   .trip-title {
@@ -340,25 +344,33 @@ body {
   }
 
   .itinerary-buttons {
-    width: 100%;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    width: auto;
   }
 
   #new-day-button,
   #add-activity-button {
-    width: 100%;
+    width: auto;
+    min-width: 7rem;
+    font-size: 0.9rem;
+    padding: 0 0.75rem;
   }
 
   .days-container {
     flex-direction: column;
     align-items: center;
     overflow-x: hidden;
+    overflow-y: visible;
+    padding-bottom: 1rem;
   }
 
   .day-card {
     width: 100%;
-    max-width: 320px;
+    max-width: 360px;
+    min-height: 180px;
     margin: 0.5rem 0;
   }
 
@@ -387,4 +399,13 @@ body {
   outline: none;
   border-color: #1e7a3d;
   box-shadow: 0 0 3px #1e7a3d;
+}
+.collapse-icon {
+  display: flex;
+  align-items: center;
+  transition: transform 0.25s ease-in-out;
+}
+
+.collapse-icon.flipped {
+  transform: rotateX(180deg);
 }

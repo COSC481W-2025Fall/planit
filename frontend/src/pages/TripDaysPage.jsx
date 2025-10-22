@@ -14,12 +14,10 @@ import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
 
 export default function TripDaysPage() {
-
     const [user, setUser] = useState(null);
     const [trip, setTrip] = useState(null);
     const [days, setDays] = useState([]);
     const [deleteDayId, setDeleteDayId] = useState(null);
-
     const [openMenu, setOpenMenu] = useState(null);
     const [newDay, setOpenNewDay] = useState(null);
     const [openActivitySearch, setOpenActivitySearch] = useState(false);
@@ -31,11 +29,8 @@ export default function TripDaysPage() {
     const [openNotesPopup, setOpenNotesPopup] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [editableNote, setEditableNote] = useState("");
-
-
-    const [expandedDay, setExpandedDay] = useState(null);
+    const [expandedDays, setExpandedDays] = useState([]);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
-
     const menuRefs = useRef({});
     const { tripId } = useParams();
 
@@ -108,8 +103,7 @@ export default function TripDaysPage() {
         }
     }, [editActivity]);
 
-    //initial fetch of days
-    // ===== Fetch Days =====
+    //Fetch Days
     useEffect(() => {
         fetchDays();
     }, [tripId]);
@@ -303,7 +297,7 @@ export default function TripDaysPage() {
         setOpenMenu(openMenu === dayId ? null : dayId);
     };
 
-    // ===== Loading State =====
+    //Loading State
     if (!user || !trip) {
         return (
             <div className="page-layout">
@@ -323,7 +317,6 @@ export default function TripDaysPage() {
             </div>
         );
     }
-
 
     return (
         <div className="page-layout">
@@ -395,7 +388,8 @@ export default function TripDaysPage() {
                             </p>
                         ) : (
                             days.map((day, index) => {
-                                const isExpanded = expandedDay === day.day_id;
+                                const isExpanded = expandedDays.includes(day.day_id);
+
                                 return (
                                     <div
                                         key={day.day_id}
@@ -409,12 +403,13 @@ export default function TripDaysPage() {
                                     >
                                         <div
                                             className="day-header"
-                                            onClick={() =>
-                                                isMobile &&
-                                                setExpandedDay(
-                                                    isExpanded ? null : day.day_id
-                                                )
-                                            }
+                                            onClick={() => {
+                                                setExpandedDays(prev =>
+                                                    prev.includes(day.day_id)
+                                                        ? prev.filter(id => id !== day.day_id) //collapse if already open
+                                                        : [...prev, day.day_id] //expand new day
+                                                );
+                                            }}
                                         >
                                             <div>
                                                 <p className="day-title">Day {index + 1}</p>
@@ -428,18 +423,12 @@ export default function TripDaysPage() {
                                                     })}
                                                 </p>
                                             </div>
-                                            {isMobile && (
-                                                <span className="collapse-icon">
-                                                    {isExpanded ? (
-                                                        <ChevronUp />
-                                                    ) : (
-                                                        <ChevronDown />
-                                                    )}
-                                                </span>
-                                            )}
+                                            <span className={`collapse-icon ${isExpanded ? "flipped" : ""}`}>
+                                                <ChevronDown />
+                                            </span>
                                         </div>
 
-                                        {(!isMobile || isExpanded) && (
+                                        {isExpanded && (
                                             <>
                                                 <div className="number-of-activities">
                                                     {day.activities?.length ?? 0} Activities
@@ -526,8 +515,6 @@ export default function TripDaysPage() {
                             </div>
                         </Popup>
                     )}
-
-
 
                     {newDay && (
                         <Popup

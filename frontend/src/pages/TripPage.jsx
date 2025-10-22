@@ -10,6 +10,8 @@ import { MapPin, Pencil, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function TripPage() {
   const [user, setUser] = useState(null);
@@ -19,6 +21,9 @@ export default function TripPage() {
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const [startDate, setStartDate] = useState(
+      editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
+  );
 
   // Close dropdown if click outside
   useEffect(() => {
@@ -284,16 +289,25 @@ export default function TripPage() {
                     defaultValue={editingTrip?.trip_location || ""}
                     required
                   />
-                  <input
-                    name="startDate"
-                    type="date"
-                    defaultValue={
-                      editingTrip?.trip_start_date
-                        ? new Date(editingTrip.trip_start_date).toISOString().split("T")[0]
-                        : ""
-                    }
-                    required
+                  {/* React-controlled DatePicker */}
+                  <DatePicker
+                      selected={startDate}
+                      onChange={(date) => setStartDate(date)}
+                      placeholderText="Start Date"
+                      withPortal={window.innerWidth <= 768}
+                      popperPlacement="bottom"
+                      className="date-input"
+                      dateFormat="dd-MM-yyyy"
+                      required
                   />
+
+                  {/* Hidden input so backend still receives startDate as text */}
+                  <input
+                      type="hidden"
+                      name="startDate"
+                      value={startDate ? startDate.toISOString().split("T")[0] : ""}
+                  />
+
                 </form>
               </div>
             </Popup>
