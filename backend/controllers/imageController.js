@@ -1,6 +1,6 @@
 /* This controller class contains two functions.
     1. readAllImages: Retrieves all images from the images table.
-    2. getImageById: Retrieves a specific image by its ID from the images table.
+    2. readOneImage: Retrieves a specific image by its ID from the images table.
 */
 import {sql} from "../config/db.js";
 import { v2 as cloudinary } from "cloudinary";
