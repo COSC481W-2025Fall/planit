@@ -249,4 +249,44 @@ describe("Shared Trips Controller Unit Tests", () => {
             expect(sql).toHaveBeenCalledTimes(3);
         });
     });
+
+    // Tests for listing participants in a shared trip
+    describe("GET /shared/listParticipants", () => {
+        it("should return 401 if user is not logged in", async () => {
+            const app = appWithoutUser();
+            const res = await request(app).get("/shared/listParticipants").query({ tripId: 1 });
+            expect(res.status).toBe(401);
+            expect(res.body).toEqual({ error: "Unauthorized" });
+            expect(sql).not.toHaveBeenCalled();
+        });
+        it("should return 403 if user has no access to the trip", async () => {
+            const app = appWithUser();
+            sql.mockResolvedValueOnce([]);
+            const res = await request(app).get("/shared/listParticipants").query({ tripId: 999 });
+            expect(res.status).toBe(403);
+            expect(res.body).toEqual({ error: "Forbidden" });
+            expect(sql).toHaveBeenCalledTimes(1);
+        });
+        it("should return 200 and a list of participants if user has access", async () => {
+            const app = appWithUser();
+            const participants = [
+            { user_id: 1, username: "adam" },
+            { user_id: 2, username: "chris" },
+            { user_id: 3, username: "hunter" }
+        ];
+            sql.mockResolvedValueOnce(participants);
+            const res = await request(app).get("/shared/listParticipants");
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ participants });
+            expect(sql).toHaveBeenCalledTimes(1);
+        });
+        it("should return 500 if there is a database error", async () => {
+            const app = appWithUser();
+            sql.mockRejectedValueOnce(new Error("DB Error"));
+            const res = await request(app).get("/shared/listParticipants");
+            expect(res.status).toBe(500);
+            expect(res.body).toEqual({ error: "Internal Server Error" });
+            expect(sql).toHaveBeenCalledTimes(1);
+        });
+    });
 });
