@@ -6,7 +6,6 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
-  background: var(--bg-offwhite, #e3ece6);
   font-family: "Open Sans", sans-serif;
 }
 
@@ -17,7 +16,7 @@ body {
   align-items: center;
   height: 100vh;
   text-align: center;
-  background: var(--bg-offwhite);
+  background: #e3ece6;
   padding: 1rem;
 }
 
