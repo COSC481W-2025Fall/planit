@@ -24,13 +24,23 @@ export const readAllSharedTrips = async (req, res) => {
 }
 
 // add participant to a shared trip (trip owner only)
-export const addParticipant = async (req, res) => {
+export const addParticipant = async (req, res) => { 
+    if (!req.trip || req.tripPermission !== "owner") {
+        return res.status(403).json({ error: "Forbidden" });
+    }
+
 }
 
 // remove participant from a shared trip (trip owner only)
 export const removeParticipant = async (req, res) => {
+    if (!req.trip || req.tripPermission !== "owner") {
+        return res.status(403).json({ error: "Forbidden" });
+    }
 }
 
 // list all participants in a shared trip
 export const listParticipants = async (req, res) => {
+    if (!req.trip || (req.tripPermission !== "owner" && req.tripPermission !== "shared")) {
+        return res.status(403).json({ error: "Forbidden" });
+    }
 }
