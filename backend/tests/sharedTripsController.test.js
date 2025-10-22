@@ -193,4 +193,60 @@ describe("Shared Trips Controller Unit Tests", () => {
 
 
     //Tests for removing a participant from a trip
+    describe("DELETE /shared/removeParticipant", () => {
+        it("should return 401 if user is not logged in", async () => {
+            const app = appWithoutUser();
+            const res = await request(app)
+                .delete("/shared/removeParticipant")
+                .send({ tripId: 1, username: "testuser" });
+            expect(res.status).toBe(401);
+            expect(res.body).toEqual({ error: "Unauthorized" });
+            expect(sql).not.toHaveBeenCalled();
+        });
+        it("should return 404 if trip is not found", async () => {
+            const app = appWithUser();
+            sql.mockResolvedValueOnce([]);
+            const res = await request(app)
+                .delete("/shared/removeParticipant")
+                .send({ tripId: 999, username: "testuser" });
+            expect(res.status).toBe(404);
+            expect(res.body).toEqual({ error: "Trip not found or access denied" });
+            expect(sql).toHaveBeenCalledTimes(1);
+        });
+        it("should return 404 if participant user is not found", async () => {    
+            const app = appWithUser();
+            sql.mockResolvedValueOnce([{}]);
+            sql.mockResolvedValueOnce([]);
+            const res = await request(app)
+                .delete("/shared/removeParticipant")
+                .send({ tripId: 1, username: "nonexistentuser" });
+            expect(res.status).toBe(404);
+            expect(res.body).toEqual({ error: "User not found" });
+            expect(sql).toHaveBeenCalledTimes(2);
+        });
+        it("should return 200 if participant is removed successfully", async () => {
+            const app = appWithUser();
+            sql.mockResolvedValueOnce([{}]);
+            sql.mockResolvedValueOnce([{ user_id: 5 }]);
+            sql.mockResolvedValueOnce({ count: 1 });
+            const res = await request(app)
+                .delete("/shared/removeParticipant")
+                .send({ tripId: 1, username: "existinguser" });
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ message: "Participant removed from shared trip." });
+            expect(sql).toHaveBeenCalledTimes(3);
+        });
+        it("should return 500 if there is a database error", async () => {
+            const app = appWithUser();
+            sql.mockResolvedValueOnce([{}]);
+            sql.mockResolvedValueOnce([{ user_id: 5 }]);
+            sql.mockRejectedValueOnce(new Error("DB Error"));
+            const res = await request(app)
+                .delete("/shared/removeParticipant")
+                .send({ tripId: 1, username: "existinguser" });
+            expect(res.status).toBe(500);
+            expect(res.body).toEqual({ error: "Internal Server Error" });
+            expect(sql).toHaveBeenCalledTimes(3);
+        });
+    });
 });
