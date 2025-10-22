@@ -302,3 +302,18 @@ main {
   height: calc(100vh - 80px);
   width: 100%;
 }
+
+
+.textarea-notes{
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 13px;
+  font-size: 14px;
+  resize: none; 
+}
+
+.textarea-notes:focus {
+  outline: none;
+  border-color: #1e7a3d;
+  box-shadow: 0 0 3px #1e7a3d;
+}
