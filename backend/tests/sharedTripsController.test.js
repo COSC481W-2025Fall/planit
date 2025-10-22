@@ -123,5 +123,74 @@ describe("Shared Trips Controller Unit Tests", () => {
     });
 
     //Tests for adding a participant to a trip
-    
+    describe("POST /shared/addParticipant", () => {
+        it("should return 401 if user is not logged in", async () => {
+            const app = appWithoutUser();
+            const res = await request(app)
+                .post("/shared/addParticipant")
+                .send({ tripId: 1, username: "testuser" });
+            expect(res.status).toBe(401);
+            expect(res.body).toEqual({ error: "Unauthorized" });
+            expect(sql).not.toHaveBeenCalled();
+        });
+        it("should return 404 if trip is not found", async () => {
+            const app = appWithUser();
+            sql.mockResolvedValueOnce([]);
+            const res = await request(app)
+                .post("/shared/addParticipant")
+                .send({ tripId: 999, username: "testuser" });
+            expect(res.status).toBe(404);
+            expect(res.body).toEqual({ error: "Trip not found or access denied" });
+            expect(sql).toHaveBeenCalledTimes(1);
+        });
+        it("should return 404 if participant user is not found", async () => {
+            const app = appWithUser();
+            sql.mockResolvedValueOnce([{}]);
+            sql.mockResolvedValueOnce([]);
+            const res = await request(app)
+                .post("/shared/addParticipant")
+                .send({ tripId: 1, username: "nonexistentuser" });
+            expect(res.status).toBe(404);
+            expect(res.body).toEqual({ error: "User not found" });
+            expect(sql).toHaveBeenCalledTimes(2);
+        });
+        it("should return 400 if trying to add oneself as participant", async () => {
+            const app = appWithUser();
+            sql.mockResolvedValueOnce([{}]);
+            sql.mockResolvedValueOnce([{ user_id: 123 }]);
+            const res = await request(app)
+                .post("/shared/addParticipant")
+                .send({ tripId: 1, username: "selfuser" });
+            expect(res.status).toBe(400);
+            expect(res.body).toEqual({ error: "Cannot add yourself as a participant" });
+            expect(sql).toHaveBeenCalledTimes(2);
+        });
+        it("should return 200 if participant is added successfully", async () => {
+            const app = appWithUser();
+            sql.mockResolvedValueOnce([{}]);
+            sql.mockResolvedValueOnce([{ user_id: 5 }]);
+            sql.mockResolvedValueOnce({ count: 1 });
+            const res = await request(app)
+                .post("/shared/addParticipant")
+                .send({ tripId: 1, username: "newuser" });
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ message: "Participant added to shared trip." });
+            expect(sql).toHaveBeenCalledTimes(3);
+        });
+        it("should return 500 if there is a database error", async () => {
+            const app = appWithUser();
+            sql.mockResolvedValueOnce([{}]);
+            sql.mockResolvedValueOnce([{ user_id: 5 }]);
+            sql.mockRejectedValueOnce(new Error("DB Error"));
+            const res = await request(app)
+                .post("/shared/addParticipant")
+                .send({ tripId: 1, username: "newuser" });
+            expect(res.status).toBe(500);
+            expect(res.body).toEqual({ error: "Internal Server Error" });
+            expect(sql).toHaveBeenCalledTimes(3);
+        });
+    });
+
+
+    //Tests for removing a participant from a trip
 });
