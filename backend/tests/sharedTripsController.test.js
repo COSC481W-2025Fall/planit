@@ -5,9 +5,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 //Mock DB
 vi.mock('../config/db.js', () => {
   const sql = vi.fn(async (strings, ...values) => {
-    // global kill-switch to simulate DB failure on *this* call
     if (sql.__forceError) {
-      // reset after one use if you want one-shot behavior; keep sticky otherwise
       sql.__forceError = false;
       throw new Error("DB Error");
     }
@@ -22,7 +20,7 @@ vi.mock('../config/db.js', () => {
       ];
     }
 
-    // --- READ ALL SHARED TRIPS ---
+    //Read aLL shared trips
     if (query.includes('from shared') && query.includes('where')) {
       const userId = values[0];
       return [
@@ -31,7 +29,7 @@ vi.mock('../config/db.js', () => {
       ];
     }
 
-    // --- USER LOOKUP ---
+    //User lookup
     if (query.includes('from users') && query.includes('where') && query.includes('username =')) {
       const username = values[0];
       if (username === 'nonexistentuser') return [];
@@ -40,26 +38,23 @@ vi.mock('../config/db.js', () => {
       return [{ user_id: 5, username, email: `${username}@example.com` }];
     }
 
-    // --- INSERT PARTICIPANT ---
+    //Insert participant
     if (query.includes('insert into shared')) {
       const [tripId, userId] = values;
-      // simulate DB Error
       if (tripId === 1 && userId === 5 && sql.__forceError)
         throw new Error("DB Error");
-      // simulate empty insert (already exists)
       if (tripId === 1 && userId === 123)
         return [];
       return [{ trip_id: tripId, user_id: userId }];
     }
 
-    // --- TRIP LOOKUP for email ---
+    //Trip lookup for email
     if (query.includes('from trips') && query.includes('join users')) {
       return [{ title: 'Road Trip', owner_username: 'chris' }];
     }
 
-    // --- DELETE PARTICIPANT ---
+    //Delete Participant
     if (query.includes('delete from shared')) {
-      // simulate DB Error
       if (sql.__forceError) throw new Error("DB Error");
       return { count: 1 };
     }
@@ -85,7 +80,6 @@ vi.mock("../auth.js", () => {
 vi.mock("../middleware/loadOwnedTrip.js", () => ({
   loadOwnedTrip: async (req, res, next) => {
     const id = Number(req.body?.tripId ?? req.params?.tripId ?? req.query?.tripId);
-    // simulate "trip not found" path that the real middleware would take
     if (id === 999) {
       return res.status(404).json({ error: "Trip not found or access denied" });
     }
@@ -98,7 +92,6 @@ vi.mock("../middleware/loadOwnedTrip.js", () => ({
 vi.mock("../middleware/loadEditableTrip.js", () => ({
   loadEditableTrip: async (req, res, next) => {
     const id = Number(req.query?.tripId ?? req.params?.tripId ?? req.body?.tripId);
-    // simulate "no access" (Forbidden) case used in listParticipants test
     if (id === 999) {
       return res.status(403).json({ error: "Forbidden" });
     }
@@ -166,7 +159,7 @@ describe("Shared Trips Controller Unit Tests", () => {
           { trip_id: 2, user_id: 123 },
         ],
       });
-      expect(sql).toHaveBeenCalledTimes(1); // the SELECT FROM shared
+      expect(sql).toHaveBeenCalledTimes(1);
         });
         it("should return 500 if there is a database error", async () => {
             const app = appWithUser();
