@@ -16,8 +16,7 @@
     --topbar-h: 3.5rem;
     --sidebar-w: 15rem;
 
-    /* Responsive font scaling */
-    font-size: clamp(14px, 1vw, 18px);
+
 }
 
 html,
@@ -101,11 +100,4 @@ a:hover {
 
 .container {
     padding: 1rem;
-}
-
-/* Adjust font size slightly on smaller screens */
-@media (max-width: 768px) {
-    body {
-        font-size: 15px;
-    }
 }
