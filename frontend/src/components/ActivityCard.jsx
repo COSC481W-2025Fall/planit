@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {useState, useEffect, useRef} from "react";
 import "../css/ActivityCard.css";
-import { Clock, MapPin, EllipsisVertical, Trash2, Pencil, Timer, Globe, NotebookText } from "lucide-react";
-import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
+import {Clock, MapPin, EllipsisVertical, Trash2, Pencil, Timer, Globe, NotebookText} from "lucide-react";
+import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "./Popup.jsx";
 
-export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }) {
+export default function ActivityCard({activity, onDelete, onEdit, onViewNotes}) {
     const [openMenu, setOpenMenu] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const menuRef = useRef(null);
@@ -31,7 +31,6 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Delete with fade-out transition
     const handleDeleteClick = () => {
         setIsDeleting(true);
         setTimeout(() => {
@@ -42,7 +41,7 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
 
     return (
         <div className={`activity-container ${isDeleting ? "fade-out" : ""}`}>
-            <div className="title-notes-edit-button-container" style={{ position: "relative" }}>
+            <div className="title-notes-edit-button-container" style={{position: "relative"}}>
                 <div className="left-side">
                     <div className="title-of-activity">{activity.activity_name}</div>
                 </div>
@@ -55,13 +54,13 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
                     aria-haspopup="menu"
                     aria-expanded={openMenu}
                 >
-                    <EllipsisVertical className="ellipis" />
+                    <EllipsisVertical className="ellipis"/>
                 </button>
 
                 {openMenu && (
                     <div ref={menuRef} className="day-menu">
                         <button onClick={handleDeleteClick}>
-                            <Trash2 className="trash-icon" /> Delete
+                            <Trash2 className="trash-icon"/> Delete
                         </button>
                         <button
                             onClick={() => {
@@ -69,10 +68,10 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
                                 setOpenMenu(false);
                             }}
                         >
-                            <Pencil className="pencil-icon" /> Edit
+                            <Pencil className="pencil-icon"/> Edit
                         </button>
                         <button onClick={() => onViewNotes(activity)}>
-                            <NotebookText className="notebook-icon" /> View Notes
+                            <NotebookText className="notebook-icon"/> View Notes
                         </button>
                     </div>
                 )}
@@ -80,7 +79,7 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
 
             <div className="time-and-location-container">
                 <p className="time-of-activity">
-                    <Clock className="icon" />
+                    <Clock className="icon"/>
                     {startTime
                         ? startTime.toLocaleTimeString([], {
                             hour: "2-digit",
@@ -90,13 +89,13 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
                 </p>
 
                 <p className="location-of-activity">
-                    <MapPin className="icon" />
+                    <MapPin className="icon"/>
                     {activity.activity_address ?? "No address provided"}
                 </p>
             </div>
 
             <p className="duration-of-activity">
-                <Timer className="icon" />
+                <Timer className="icon"/>
                 {activity.activity_duration ? (
                     <>
                         {activity.activity_duration.hours
@@ -120,7 +119,7 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
 
             {activity.activity_website ? (
                 <div className="website-container">
-                    <Globe className="icon" />
+                    <Globe className="icon"/>
                     <a
                         href={activity.activity_website}
                         target="_blank"

@@ -24,7 +24,6 @@ body {
   overflow: hidden;
 }
 
-/* ===== LOADING ===== */
 .loading-screen {
   text-align: center;
   margin-top: 10rem;
@@ -45,7 +44,6 @@ body {
   width: 100%;
 }
 
-/* ===== EMPTY STATE ===== */
 .empty-state-text {
   font-size: 1.1em;
   margin: auto;
@@ -60,7 +58,6 @@ body {
   font-family: Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* ===== MAIN PAGE ===== */
 .TripDaysPage {
   flex: 1;
   overflow-y: auto;
@@ -110,7 +107,6 @@ body {
   margin-bottom: 1rem;
 }
 
-/* ===== ITINERARY BAR ===== */
 .button-level-bar {
   display: flex;
   justify-content: space-between;
@@ -158,7 +154,6 @@ body {
   transform: scale(0.9);
 }
 
-/* ===== DAYS ===== */
 .days-container {
   display: flex;
   flex-wrap: nowrap;
@@ -192,7 +187,7 @@ body {
   box-shadow: var(--shadow-2);
 }
 
-/* ===== DAY HEADER ===== */
+
 .day-title {
   color: var(--text);
   font-weight: bold;
@@ -205,7 +200,6 @@ body {
   margin: 0.5em 0;
 }
 
-/* ===== ACTIVITY INFO ===== */
 .number-of-activities {
   display: inline-flex;
   align-items: center;
@@ -225,7 +219,6 @@ body {
   margin-top: 0.5rem;
 }
 
-/* ===== ELLIPSIS MENU ===== */
 .day-actions {
   position: absolute;
   top: 8px;
@@ -233,7 +226,6 @@ body {
   z-index: 5;
 }
 
-/* Hide by default */
 .day-actions-ellipsis {
   background: none;
   border: none;
@@ -249,25 +241,21 @@ body {
   transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.15s ease, color 0.15s ease;
 }
 
-/* Show on hover */
 .day-card:hover .day-actions-ellipsis {
   opacity: 1;
   visibility: visible;
 }
 
-/* Stay visible when open */
 .day-actions-ellipsis.is-open {
   opacity: 1;
   visibility: visible;
 }
 
-/* Hover styling */
 .day-actions-ellipsis:hover {
   color: var(--accent);
   transform: scale(1.1);
 }
 
-/* Ellipsis dropdown */
 .day-menu {
   position: absolute;
   top: 32px;
@@ -308,7 +296,6 @@ body {
   color: var(--accent);
 }
 
-/* ===== NOTES ===== */
 .textarea-notes {
   padding: 8px 10px;
   border: 1px solid #ccc;
@@ -323,18 +310,6 @@ body {
   box-shadow: 0 0 3px #1e7a3d;
 }
 
-/* ===== ICON ANIMATION ===== */
-.collapse-icon {
-  display: flex;
-  align-items: center;
-  transition: transform 0.25s ease-in-out;
-}
-
-.collapse-icon.flipped {
-  transform: rotateX(180deg);
-}
-
-/* ===== ANIMATIONS ===== */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -345,8 +320,6 @@ body {
     transform: translateY(0);
   }
 }
-
-/* ===== RESPONSIVE ===== */
 
 /* Tablet */
 @media (max-width: 900px) {

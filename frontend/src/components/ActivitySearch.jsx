@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {useState, useEffect, useRef} from "react";
 import axios from "axios";
 import "../css/ActivitySearch.css";
 import "../css/Popup.css";
 import Popup from "../components/Popup";
-import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
-import { Star } from "lucide-react";
-import { MoonLoader } from "react-spinners";
-import { toast } from "react-toastify";
+import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
+import {Star} from "lucide-react";
+import {MoonLoader} from "react-spinners";
+import {toast} from "react-toastify";
 
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
@@ -83,25 +83,25 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
         .join(" ");
   };
 
-    const getLocationString = (place) => {
-      const addr = place.addressComponents || [];
+  const getLocationString = (place) => {
+    const addr = place.addressComponents || [];
 
-      const country =
-          addr.find((c) => c && c.types?.includes("country"))?.shortText || "N/A";
+    const country =
+        addr.find((c) => c && c.types?.includes("country"))?.shortText || "N/A";
 
-      const region =
-          addr.find((c) => c && c.types?.includes("administrative_area_level_1"))
+    const region =
+        addr.find((c) => c && c.types?.includes("administrative_area_level_1"))
             ?.shortText ||
-          addr.find((c) => c && c.types?.includes("administrative_area_level_2"))
+        addr.find((c) => c && c.types?.includes("administrative_area_level_2"))
             ?.shortText ||
-          addr.find((c) => c && c.types?.includes("sublocality"))?.shortText ||
-          "N/A";
+        addr.find((c) => c && c.types?.includes("sublocality"))?.shortText ||
+        "N/A";
 
     const city =
-      addr.find((c) => c && c.types?.includes("locality"))?.longText ||
-      addr.find((c) => c && c.types?.includes("sublocality"))?.longText ||
-      addr.find((c) => c && c.types?.includes("neighborhood"))?.longText ||
-      region;
+        addr.find((c) => c && c.types?.includes("locality"))?.longText ||
+        addr.find((c) => c && c.types?.includes("sublocality"))?.longText ||
+        addr.find((c) => c && c.types?.includes("neighborhood"))?.longText ||
+        region;
 
     return [city, region, country]
         .filter((v) => v && v !== "N/A")
@@ -121,8 +121,8 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
       try {
         const res = await axios.post(
             `${BASE_URL}/placesAPI/cityAutocomplete`,
-            { query: cityQuery },
-            { withCredentials: true }
+            {query: cityQuery},
+            {withCredentials: true}
         );
         const suggestions = res.data.result?.suggestions || [];
         setCityResults(suggestions.slice(0, 5));
@@ -147,8 +147,8 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
       setLoading(true);
       const res = await axios.post(
           `${BASE_URL}/placesAPI/search`,
-          { query: combinedQuery },
-          { withCredentials: true }
+          {query: combinedQuery},
+          {withCredentials: true}
       );
       setResults(res.data.results || []);
     } catch (err) {
@@ -202,7 +202,7 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
       const res = await axios.post(
           `${BASE_URL}/activities/create`,
           payload,
-          { withCredentials: true }
+          {withCredentials: true}
       );
 
       const created = res.data?.activity;
@@ -325,7 +325,7 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
           <div className="search-results">
             {loading ? (
                 <div className="loading-container">
-                  <MoonLoader color="var(--accent)" size={50} speedMultiplier={0.9} />
+                  <MoonLoader color="var(--accent)" size={50} speedMultiplier={0.9}/>
                 </div>
             ) : results.length > 0 ? (
                 results.map((place, idx) => (
@@ -338,7 +338,7 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
                         <p className="detail">
                           {place.rating !== undefined ? (
                               <span className="stars">
-                        <Star className="star" size={16} fill="currentColor" />
+                        <Star className="star" size={16} fill="currentColor"/>
                                 {` ${place.rating}`}
                       </span>
                           ) : (
@@ -400,30 +400,30 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
                 />
               </label>
 
-          <label className="popup-input">
-            <span>Duration (minutes)</span>
-            <input
-              type="number"
-              min="0"
-              placeholder="e.g. 90"
-              value={formDuration}
-              onChange={(e) => setFormDuration(e.target.value)}
-            />
-          </label>
+              <label className="popup-input">
+                <span>Duration (minutes)</span>
+                <input
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 90"
+                    value={formDuration}
+                    onChange={(e) => setFormDuration(e.target.value)}
+                />
+              </label>
 
-          <label className="popup-input">
-            <span>Notes</span>
-            <textarea
-              class = "textarea-notes"
-              maxLength={200}
-              placeholder="Enter any notes you have about your activity!"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            ></textarea>
-            <div className="char-count">
-              {notes.length} / 200
-            </div>
-          </label>
+              <label className="popup-input">
+                <span>Notes</span>
+                <textarea
+                    class="textarea-notes"
+                    maxLength={200}
+                    placeholder="Enter any notes you have about your activity!"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                ></textarea>
+                <div className="char-count">
+                  {notes.length} / 200
+                </div>
+              </label>
 
               <label className="popup-input">
                 <span>Estimated cost ($)</span>

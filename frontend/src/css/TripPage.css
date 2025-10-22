@@ -205,8 +205,6 @@
     font-size: 14px;
 }
 
-/*Responsive Adjustments*/
-
 /* Tablets */
 @media (max-width: 900px) {
     .content-with-sidebar {
@@ -223,7 +221,7 @@
         .banner-controls {
             width: 100%;
             justify-content: flex-start;
-            gap: 0.75rem; /* keeps some spacing between +New Trip and Filter */
+            gap: 0.75rem;
         }
     }
 
@@ -240,7 +238,7 @@
 
     @media (max-width: 600px) {
         .trips-header {
-            flex-direction: column; /* ✅ keep normal top-to-bottom flow */
+            flex-direction: column;
             align-items: flex-start;
             gap: 0.75rem;
         }
@@ -262,6 +260,7 @@
         font-size: 0.95rem;
     }
 }
+
 .trip-menu-button {
     position: absolute;
     bottom: 12px;
