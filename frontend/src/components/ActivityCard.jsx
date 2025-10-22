@@ -36,7 +36,7 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
         setIsDeleting(true);
         setTimeout(() => {
             onDelete(activity.activity_id);
-        }, 250);
+        });
     };
 
 
