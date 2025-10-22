@@ -1,14 +1,32 @@
 import React from "react";
 import logo from "../assets/Planit_Full_Green.png";
 import "../css/TopBanner.css";
+import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 
-export default function TopBanner({ user, onSignOut }) {
+const handleSignOut = () => {
+    fetch(
+        (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/auth/logout",
+        { credentials: "include" }
+    )
+        .then((res) => {
+            if (res.ok) {
+                // Successful logout, redirect the user
+                window.location.href = "/login";
+            } else {
+                console.error("Failed to log out.");
+            }
+        })
+        .catch((err) => console.error("Logout error:", err));
+};
+
+
+export default function TopBanner({ user }) {
     return (
         <div className="top-banner">
             <img src={logo} alt="PlanIt Logo" className="logo" />
 
             <div className="right-section">
-                <button className="sign-out" onClick={onSignOut}>
+                <button className="g_id_signout" onClick={handleSignOut}>
                     Sign Out
                 </button>
 
