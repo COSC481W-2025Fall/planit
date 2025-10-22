@@ -2,6 +2,7 @@ import React from "react";
 import logo from "../assets/Planit_Full_Green.png";
 import "../css/TopBanner.css";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
+import {toast} from "react-toastify";
 
 const handleSignOut = () => {
     fetch(
@@ -13,10 +14,10 @@ const handleSignOut = () => {
                 // Successful logout, redirect the user
                 window.location.href = "/login";
             } else {
-                console.error("Failed to log out.");
+                toast.error("Failed to log out.");
             }
         })
-        .catch((err) => console.error("Logout error:", err));
+        .catch((err) => toast.error("Logout error:", err));
 };
 
 
