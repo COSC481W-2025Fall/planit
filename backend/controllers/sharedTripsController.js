@@ -1,4 +1,5 @@
 import { sql } from "../config/db.js";
+import { sendParticipantAddedEmail } from "../utils/mailer.js";
 
 // list all trips shared with the logged-in user
 export const readAllSharedTrips = async (req, res) => {
@@ -38,7 +39,7 @@ export const addParticipant = async (req, res) => {
 
     try {
         const [user] = await sql`
-        SELECT user_id
+        SELECT user_id, username, email
         FROM users
         WHERE username = ${username}
     `;
@@ -50,11 +51,32 @@ export const addParticipant = async (req, res) => {
             return res.status(400).json({ error: "Cannot add yourself as a participant" });
         }
 
-        await sql`
+        const inserted = await sql`
         INSERT INTO shared (trip_id, user_id)
         VALUES (${tripId}, ${user.user_id})
         ON CONFLICT (trip_id, user_id) DO NOTHING
+        RETURNING trip_id, user_id
     `;
+
+        if (inserted.length === 0) {
+            return res.status(400).json({ error: "User is already a participant in this trip" });
+        }
+        
+        const [tripRow] = await sql`
+        SELECT title, username AS owner_username
+        FROM trips
+        JOIN users ON trips.user_id = users.user_id
+        WHERE trips.trips_id = ${tripId}
+        LIMIT 1
+    `;
+
+        await sendParticipantAddedEmail({
+            toEmail: user.email,
+            toUsername: user.username,
+            tripTitle: tripRow.title,
+            ownerUsername: tripRow.owner_username,
+        });
+
         res.json({ message: "Participant added to shared trip." });
     }
     catch (err) {
