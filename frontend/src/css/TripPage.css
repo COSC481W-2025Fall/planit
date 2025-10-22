@@ -219,9 +219,12 @@
         gap: 1rem;
     }
 
-    .banner-controls {
-        width: 100%;
-        justify-content: space-between;
+    @media (max-width: 900px) and (min-width: 600px) {
+        .banner-controls {
+            width: 100%;
+            justify-content: flex-start;
+            gap: 0.75rem; /* keeps some spacing between +New Trip and Filter */
+        }
     }
 
     .trip-cards {
@@ -235,14 +238,16 @@
         padding: 1rem;
     }
 
-    .trips-header {
-        flex-direction: column-reverse;
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
+    @media (max-width: 600px) {
+        .trips-header {
+            flex-direction: column; /* ✅ keep normal top-to-bottom flow */
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
 
-    .banner-controls {
-        justify-content: flex-start;
+        .banner-controls {
+            justify-content: flex-start;
+        }
     }
 
     .trip-cards {
