@@ -13,9 +13,8 @@ body {
   flex: 1;
   overflow-y: auto;
   min-width: 0;
-  padding: 0rem;
   padding: 1rem;
-  padding-bottom: 0rem;
+  padding-bottom: 4rem;
   color: var(--muted);
   height: 100vh;
 }
