@@ -53,7 +53,7 @@ export default function TripPage() {
   if (!user || !trips) {
     return (
         <div className="trip-page">
-          <TopBanner user={user} onSignOut={() => (window.location.href = "/")} />
+          <TopBanner user={user}/>
           <div className="content-with-sidebar">
             <NavBar />
             <div className="main-content">
@@ -124,7 +124,7 @@ export default function TripPage() {
 
   return (
       <div className="trip-page">
-        <TopBanner user={user} onSignOut={() => { console.log("Signed out"); window.location.href = "/"; }} />
+        <TopBanner user={user} />
         <div className="content-with-sidebar">
           <NavBar />
           <div className="main-content">
