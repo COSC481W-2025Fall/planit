@@ -16,8 +16,6 @@ describe("TopBanner Component", () => {
         const user = userEvent.setup();
         const mockSignOut = vi.fn();
 
-        render(<TopBanner user={{ name: "Test User" }} onSignOut={mockSignOut} />);
-
         await user.click(screen.getByRole("button", { name: /sign out/i }));
         expect(mockSignOut).toHaveBeenCalledTimes(1);
     });

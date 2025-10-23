@@ -146,7 +146,8 @@ export default function TripDaysPage() {
                 })
             );
             setDays(daysWithActivities);
-            setExpandedDays(daysWithActivities.map((day) => day.day_id));
+            setExpandedDays(window.innerWidth <= 600 ? [] : daysWithActivities.map((day) => day.day_id));
+
         } catch (err) {
             console.error(err);
         }

@@ -177,10 +177,10 @@ body {
   border: 1px solid var(--border);
   border-radius: 0.94rem;
   padding: 0.625rem;
-  margin: 0.625rem;
+  margin: 0.050rem;
   box-shadow: 0 0.125rem 0.44rem var(--border);
   width: 12.5rem;
-  min-height: 15.6rem;
+  min-height: 8rem;
   flex: 0 0 auto;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   animation: fadeInUp 0.4s ease both;

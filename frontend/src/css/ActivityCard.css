@@ -5,6 +5,7 @@
 }
 
 .activity-container {
+    margin-top: 8px;
     position: relative;
     background-color: #ffffff;
     border-radius: 10px;
