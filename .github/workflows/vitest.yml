@@ -7,7 +7,6 @@ on:
       - planit-v1
       - planit-v2
       - planit-v3
-      - feature/TestingWorkflow # To test if this workflow works
 
 jobs:
   frontend:
