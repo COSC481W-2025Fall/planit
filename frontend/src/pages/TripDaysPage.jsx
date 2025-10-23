@@ -330,10 +330,8 @@ export default function TripDaysPage() {
                     window.location.href = "/";
                 }}
             />
-
             <div className="content-with-sidebar">
                 <NavBar/>
-
                 <main className="TripDaysPage">
                     <h1 className="trip-title">{trip.trip_name}</h1>
 
@@ -522,7 +520,7 @@ export default function TripDaysPage() {
 
                     {newDay && (
                         <Popup
-                            title="New Day"
+                            title={<p className="popup-title">New Day</p>}
                             buttons={
                                 <>
                                     <button
@@ -548,7 +546,7 @@ export default function TripDaysPage() {
 
                     {deleteDayId && (
                         <Popup
-                            title="Delete Day"
+                            title={<p className="popup-title">Delete Day</p>}
                             buttons={
                                 <>
                                     <button

@@ -34,7 +34,7 @@
     }
 }
 
-.popup p {
+.popup p.popup-title {
     color: #000;
     font-weight: bold;
     font-family: Tahoma, sans-serif;
@@ -42,6 +42,17 @@
     margin-bottom: 10px;
     text-align: center;
 }
+
+
+.popup-body-text {
+    color: #000;
+    font-weight: normal;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
 
 .popup-form {
     display: flex;

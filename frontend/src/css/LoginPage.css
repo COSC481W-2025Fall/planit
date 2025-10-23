@@ -103,7 +103,6 @@ body {
 /* Tablet adjustments */
 @media (max-width: 900px) {
   .login-container {
-    width: 80%;
     padding: 1.25rem;
   }
 }
@@ -119,7 +118,6 @@ body {
   }
 
   .login-container {
-    width: 100%;
     padding: 1rem;
   }
 

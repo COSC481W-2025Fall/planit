@@ -1,4 +1,4 @@
-/* ===== GLOBAL ===== */
+
 body {
   background: var(--bg-offwhite);
   margin: 0;
@@ -10,7 +10,6 @@ body {
   font-size: 1rem;
 }
 
-/* ===== LAYOUT ===== */
 .page-layout {
   display: flex;
   flex-direction: column;
@@ -76,26 +75,33 @@ body {
 .trip-info {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  font-size: 0.8rem;
-  margin-bottom: 0.75rem;
-}
-
-.trip-info-icon {
-  height: 0.8rem;
+  gap: 1rem;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  margin-left: 0;
+  color: var(--muted);
 }
 
 .trip-location,
 .trip-dates {
   display: flex;
   align-items: center;
+  gap: 0.3rem;
   margin: 0;
 }
 
 .trip-location-text,
 .trip-dates-text {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.trip-info-icon {
+  height: 0.9rem;
+  width: 0.9rem;
+  flex-shrink: 0;
+  color: var(--muted);
+  margin-top: 0.05rem;
 }
 
 .image-banner {
@@ -169,18 +175,18 @@ body {
   position: relative;
   background: var(--bg-surface);
   border: 1px solid var(--border);
-  border-radius: 1rem;
-  padding: 1.25rem;
-  margin: 0.625rem 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  flex: 0 0 25%;
-  min-width: 260px;
-  max-width: 300px;
-  min-height: 180px;
+  border-radius: 0.94rem;
+  padding: 0.625rem;
+  margin: 0.625rem;
+  box-shadow: 0 0.125rem 0.44rem var(--border);
+  width: 12.5rem;
+  min-height: 15.6rem;
+  flex: 0 0 auto;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   animation: fadeInUp 0.4s ease both;
   scroll-snap-align: start;
 }
+
 
 .day-card:hover {
   transform: translateY(-0.25rem);
@@ -324,14 +330,14 @@ body {
 /* Tablet */
 @media (max-width: 900px) {
   .days-container {
-    flex-wrap: wrap;
-    overflow-x: hidden;
-    justify-content: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
   }
 
   .day-card {
-    width: 45%;
-    min-width: 220px;
+    width: 12.5rem;
+    min-width: 12.5rem;
   }
 
   .itinerary-text {
