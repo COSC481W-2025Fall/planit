@@ -3,7 +3,7 @@ and deleting a users account.
 For users in the database. This code uses sql`` to interact with the database.
 This code uses async/await for asynchronous operations and try/catch for error handling.
 */
-//Spooky comment 4
+//Final spooky comment
 import {sql} from "../config/db.js";
 
 //This function reads the information from multiple trips for a single user.
