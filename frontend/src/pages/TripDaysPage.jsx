@@ -322,6 +322,7 @@ export default function TripDaysPage() {
                                 color="var(--accent)"
                                 size={70}
                                 speedMultiplier={0.9}
+                                data-testid="loader"
                             />
                         </div>
                     </div>
