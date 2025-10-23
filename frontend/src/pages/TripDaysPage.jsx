@@ -425,9 +425,14 @@ export default function TripDaysPage() {
                                                     })}
                                                 </p>
                                             </div>
-                                            <span className="collapse-icon">
-                                                {isExpanded ? <ChevronUp/> : <ChevronDown/>}
-                                             </span>
+                                            <div className="day-header-bottom">
+                                                <span className="number-of-activities">
+                                                    {day.activities?.length ?? 0} Activities
+                                                </span>
+                                                <button className="chevron-button">
+                                                    {isExpanded ? <ChevronUp /> : <ChevronDown />}
+                                                </button>
+                                            </div>
                                         </div>
 
                                         {/*Ellipsis(always rendered)*/}
@@ -459,10 +464,6 @@ export default function TripDaysPage() {
 
                                         {isExpanded && (
                                             <>
-                                                <div className="number-of-activities">
-                                                    {day.activities?.length ?? 0} Activities
-                                                </div>
-
                                                 {(day.activities?.length ?? 0) === 0 ? (
                                                     <p className="add-activity-blurb">
                                                         No activities planned. Add an activity from the sidebar.
