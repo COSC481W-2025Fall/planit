@@ -300,6 +300,9 @@ body {
     width: 100%;
     box-sizing: border-box;
   }
+  .loading-container {
+    left: 180px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -369,5 +372,12 @@ body {
   .search-btn {
     font-size: 1rem;
     padding: 10px;
+  }
+  .loading-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: auto;
   }
 }
