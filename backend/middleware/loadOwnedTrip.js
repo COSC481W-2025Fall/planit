@@ -7,8 +7,9 @@ export async function loadOwnedTrip(req, res, next) {
   }
 
   const userId = req.user.user_id;
-  const tripId = Number(req.params.tripId);
-  if (isNaN(tripId)) {
+  const tripIdRaw = req.params.tripId ?? req.body.tripId ?? req.query.tripId;
+  const tripId = Number(tripIdRaw);
+  if (tripIdRaw === undefined || isNaN(tripId)) {
     return res.status(400).json({ error: "Invalid trip ID" });
   }
 
