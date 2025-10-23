@@ -46,7 +46,6 @@ export async function sendParticipantAddedEmail({
       <p><strong>${ownerUsername}</strong> added you to <strong>${tripTitle}</strong> on PlanIt.</p>
       <p>Log in to view or add plans.</p>
       <hr>
-      <small>If this was unexpected, you can remove yourself in the app.</small>
     </div>
   `;
 
