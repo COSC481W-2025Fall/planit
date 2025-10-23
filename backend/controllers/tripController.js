@@ -99,7 +99,7 @@ export const updateTrip = async (req, res) => {
             paramCount++;
         }
 
-        if (tripLocation !== undefined) {
+        if (imageid !== undefined) {
             updates.push(`image_id = $${paramCount}`);
             values.push(imageid);
             paramCount++;
