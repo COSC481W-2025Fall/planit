@@ -1,4 +1,4 @@
-name: Run Vitest on Pull Requests
+name: Run Vitest Tests
 
 on:
   pull_request:
