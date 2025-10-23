@@ -37,8 +37,8 @@ describe("TripPage", () => {
    );
 
 
-   const loadings = screen.getAllByText(/loading.../i);
-   expect(loadings).toHaveLength(2);  });
+   const loadings = screen.getAllByTestId("loader");
+   expect(loadings).toHaveLength(1);  });
 
 
  test("shows empty state when no trips exist", async () => {

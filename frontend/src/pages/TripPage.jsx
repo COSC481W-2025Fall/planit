@@ -58,7 +58,7 @@ export default function TripPage() {
             <NavBar />
             <div className="main-content">
               <div className="page-loading-container">
-                <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} />
+                <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
               </div>
             </div>
           </div>
