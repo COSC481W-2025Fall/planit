@@ -14,12 +14,13 @@ import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
 
 export default function TripDaysPage() {
-
+    //constants for data
     const [user, setUser] = useState(null);
     const [trip, setTrip] = useState(null);
     const [days, setDays] = useState([]);
     const [deleteDayId, setDeleteDayId] = useState(null);
 
+    //constants for UI components
     const [openMenu, setOpenMenu] = useState(null);
     const [newDay, setOpenNewDay] = useState(null);
     const [openActivitySearch, setOpenActivitySearch] = useState(false);
@@ -71,6 +72,7 @@ export default function TripDaysPage() {
             .catch((err) => console.error("User fetch error:", err));
     }, []);
 
+    //get the trip
     useEffect(() => {
         fetch(
             (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
@@ -133,6 +135,7 @@ export default function TripDaysPage() {
                     );
                     const {activities} = await res.json();
 
+                    // sort activities by start time
                     const sortedActivities = (activities || []).sort((a, b) => {
                         const timeA = new Date(a.activity_startTime).getTime();
                         const timeB = new Date(b.activity_startTime).getTime();
@@ -149,6 +152,7 @@ export default function TripDaysPage() {
         }
     };
 
+    //add a new day
     const handleAddDay = async () => {
         try {
             let nextDate;
@@ -171,6 +175,7 @@ export default function TripDaysPage() {
         }
     };
 
+    //delete a day
     const handleDeleteDay = async (dayId) => {
         try {
             if (openMenu === dayId) setOpenMenu(null);
@@ -183,8 +188,11 @@ export default function TripDaysPage() {
         }
     };
 
+    // grbb the users timezone!!
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    //console.log(userTimeZone);
 
+    // update an activity
     const handleUpdateActivity = async (activityId, activity) => {
         try {
             const response = await fetch(
@@ -303,7 +311,7 @@ export default function TripDaysPage() {
     //Loading State
     if (!user || !trip) {
         return (
-            <div className="page-layout">
+            <div className="setting-page">
                 <TopBanner user={user}/>
                 <div className="content-with-sidebar">
                     <NavBar/>
@@ -324,12 +332,8 @@ export default function TripDaysPage() {
 
     return (
         <div className="page-layout">
-            <TopBanner
-                user={user}
-                onSignOut={() => {
-                    window.location.href = "/";
-                }}
-            />
+            <TopBanner user={user}/>
+
             <div className="content-with-sidebar">
                 <NavBar/>
                 <main className="TripDaysPage">
