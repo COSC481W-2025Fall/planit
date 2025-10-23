@@ -7,7 +7,8 @@ export async function loadEditableTrip(req, res, next) {
   }
 
   const userId = req.user.user_id;
-  const tripId = Number(req.params.tripId);
+  const tripIdRaw = req.params.tripId ?? req.query.tripId ?? req.body.tripId;
+  const tripId = Number(tripIdRaw);
   if (isNaN(tripId)) {
     return res.status(400).json({ error: "Invalid trip ID" });
   }
