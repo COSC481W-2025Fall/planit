@@ -20,7 +20,7 @@ vi.mock('../config/db.js', () => {
       ];
     }
 
-    //Read aLL shared trips
+    //Read all shared trips
     if (query.includes('from shared') && query.includes('where')) {
       const userId = values[0];
       return [
