@@ -1,12 +1,7 @@
 name: Run Vitest Tests
 
 on:
-  pull_request:
-    branches:
-      - main
-      - planit-v1
-      - planit-v2
-      - planit-v3
+  pull_request: {}
 
 jobs:
   frontend:
