@@ -10,24 +10,26 @@ on:
       - feature/TestingWorkflow # To test if this workflow works
 
 jobs:
-  test:
+  frontend:
+    name: Run Frontend Tests
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22.x
-          cache: 'npm'
+      - run: npm ci
+        working-directory: ./frontend
+      - run: npm run test-frontend -- --run
+        working-directory: ./frontend
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run frontend tests
-        run: npm run test-frontend -- --run
-
-      - name: Run backend tests
-        run: npm run test-backend
+  backend:
+    name: Run Backend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - run: npm ci
+      - run: npm run test-backend
