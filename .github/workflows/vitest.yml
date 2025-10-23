@@ -33,3 +33,6 @@ jobs:
           node-version: 22.x
       - run: npm ci
       - run: npm run test-backend
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
