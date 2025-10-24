@@ -9,7 +9,7 @@ function toTimestampFromHHMM(value, timeZone) {
 
   // Build a date anchored at 1970-01-01 in the user's timezone
   const dateStr = `1970-01-01T${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:00`;
-
+  
   // This converts the local "user timezone" time to a Date object in UTC
   const localDate = new Date(dateStr);
   const utcDateStr = localDate.toLocaleString("en-US", { timeZone });
@@ -129,9 +129,9 @@ export const updateActivity = async (req, res) => {
 
     // Convert minutes → interval literal (or null)
     const durationInterval =
-        duration === "" || duration == null
-            ? null
-            : `${Number(duration)} minutes`;
+      duration === "" || duration == null
+        ? null
+        : `${Number(duration)} minutes`;
 
     // Query to replace activity values with new ones we took above
     await sql`
@@ -215,7 +215,7 @@ export const readAllActivities = async (req, res) => {
 export const updateNotesForActivity = async (req, res) => {
   try{
     const { activityId, notes } = req.body;
-
+    
     if (!activityId) {
       return res.status(400).json({ error: "Missing required fields" });
     }
