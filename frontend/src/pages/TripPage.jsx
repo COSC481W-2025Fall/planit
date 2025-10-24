@@ -160,7 +160,7 @@ export default function TripPage() {
                       <div>
                         {user
                             ? `${user.first_name}, you haven't created any trips! PlanIt now!`
-                            : <MoonLoader color="var(--accent)" size={25} />} {/* ✅ replaces text */}
+                            : <MoonLoader color="var(--accent)" size={25} />} {/* replaces text */}
                       </div>
                     </div>
                 ) : (
