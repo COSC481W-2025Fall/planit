@@ -98,3 +98,19 @@
         height: 2rem;
     }
 }
+@media (max-width: 340px) {
+    .sign-out {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+        white-space: nowrap;
+    }
+
+    .pfp {
+        width: 1.75rem;
+        height: 1.75rem;
+    }
+
+    .logo {
+        height: 1.75rem;
+    }
+}
