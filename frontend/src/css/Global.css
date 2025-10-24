@@ -1,22 +1,50 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
 
 :root {
-    --bg-offwhite: #f1f1f1;
-    --bg-surface: #f8f8f8;
     --accent: #1e7a3d;
+    --accent-dark: #145c2c;
     --accent-lite: #e3ece6;
-    --muted: #7c8189;
-    --border: #e5e7eb;
+    --accent-soft: rgba(30, 122, 61, 0.4);
+    --accent-semi: rgba(30, 122, 61, 0.5);
+    --accent-transparent: rgba(30, 122, 61, 0.5);
+
+    --bg-white: #ffffff;
+    --bg-offwhite: #f1f1f1;
+    --bg-input: #f2f2f2;
+    --bg-surface: #f8f8f8;
+    --bg-base: #f5f5f5;
+    --bg-hover: #f0f0f0;
     --text: #111111;
+    --muted: #7c8189;
+    --text-strong: #0b1120;
+    --text-placeholder: #999999;
+    --text-disabled: #bbbbbb;
+    --text-on-accent: #ffffff;
+    --text-medium: #666666;
+    --text-dark: #000000;
+    --text-dark2: #333333;
+
+    --border: #e5e7eb;
+    --border-input: #dddddd;
+    --border-light: #cccccc;
+    --border-alt: #d3d8e0;
 
     --radius: 0.75rem;
+    --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-strong: 0 4px 15px rgba(0, 0, 0, 0.2);
+    --shadow-popup: 0 4px 15px rgba(0, 0, 0, 0.2);
     --shadow-1: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.05);
     --shadow-2: 0 0.375rem 0.875rem rgba(0, 0, 0, 0.06);
+    --shadow-3: 0 2px 6px rgba(0, 0, 0, 0.1);
+    --shadow-4: -2px 0 8px rgba(0, 0, 0, 0.15);
+
+    --overlay-dark: rgba(0, 0, 0, 0.5);
+    --overlay-strong: rgba(0, 0, 0, 0.8);
 
     --topbar-h: 3.5rem;
     --sidebar-w: 15rem;
 
-
+    --error: red;
 }
 
 html,

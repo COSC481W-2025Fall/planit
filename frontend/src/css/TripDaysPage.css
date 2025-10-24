@@ -150,7 +150,7 @@ body {
 #new-day-button:hover,
 #add-activity-button:hover {
   background-color: var(--accent);
-  color: #fff;
+  color: var(--bg-white);
   transform: scale(1.03);
   cursor: pointer;
 }
@@ -347,7 +347,7 @@ body {
 
 .textarea-notes {
   padding: 8px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-light);
   border-radius: 13px;
   font-size: 14px;
   resize: none;
@@ -355,8 +355,8 @@ body {
 
 .textarea-notes:focus {
   outline: none;
-  border-color: #1e7a3d;
-  box-shadow: 0 0 3px #1e7a3d;
+  border-color: var(--accent);
+  box-shadow: 0 0 3px var(--accent);
 }
 
 @keyframes fadeInUp {

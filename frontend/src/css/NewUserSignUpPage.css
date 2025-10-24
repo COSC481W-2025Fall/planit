@@ -6,7 +6,7 @@ body {
   padding: 0;
   height: 100%;
   font-family: "Open Sans", Arial, sans-serif;
-  background-color: #e3ece6;
+  background-color: var(--accent-lite);
 }
 
 .parent-container {
@@ -16,7 +16,7 @@ body {
   align-items: center;
   min-height: 100vh;
   padding: 2rem;
-  background-color: #e3ece6;
+  background-color: var(--accent-lite);
   text-align: center;
   gap: 0.75rem;
 }
@@ -35,24 +35,24 @@ body {
 }
 
 .header-container h1 {
-  color: #111;
+  color: var(--text);
   font-size: clamp(1.4rem, 2vw, 1.8rem);
   font-family: Tahoma, sans-serif;
   margin: 0.5rem 0;
 }
 
 .header-container p {
-  color: #7c8189;
+  color: var(--muted);
   font-size: clamp(0.9rem, 1.5vw, 1rem);
   margin-top: 5px;
   font-family: "Open Sans", sans-serif;
 }
 
 .username-box {
-  background: #fff;
+  background: var(--bg-surface);
   padding: 25px 30px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-light);
   width: clamp(300px, 70vw, 420px);
   max-width: 90%;
   transition: all 0.2s ease;
@@ -65,24 +65,24 @@ body {
   width: 100%;
   padding: 12px;
   font-size: 15px;
-  border: 1px solid #1e7a3d;
+  border: 1px solid var(--accent);
   border-radius: 8px;
-  background-color: #f2f2f2;
+  background-color: var(--bg-input);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   margin-bottom: 0.75rem;
 }
 
 .username-box input[type="text"]:focus {
-  border-color: #1e7a3d;
-  box-shadow: 0 0 4px rgba(30, 122, 61, 0.4);
+  border-color: var(--accent);
+  box-shadow: 0 0 4px var(--accent-soft);
 }
 
 .save-button {
   width: 100%;
   padding: 12px;
-  background-color: #1e7a3d;
-  color: white;
+  background-color: var(--accent);
+  color: var(--bg-surface);
   border: none;
   border-radius: 6px;
   font-size: 1rem;
@@ -92,7 +92,7 @@ body {
 }
 
 .save-button:hover {
-  background-color: #16582c;
+  background-color: var(--accent-dark);
   transform: scale(1.03);
 }
 
@@ -104,11 +104,27 @@ body {
 }
 
 .error-message {
-  color: red;
+  color: var(--error);
   font-size: 13px;
   margin-top: 5px;
 }
+.save-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
 
+.save-button.loading {
+  pointer-events: none;
+}
+
+.button-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
 /*Tablet View*/
 @media (max-width: 900px) {
   .username-box {
@@ -139,7 +155,7 @@ body {
   .username-box {
     width: 100%;
     box-shadow: none;
-    border: 1px solid #d3d8e0;
+    border: 1px solid var(--border-alt);
     border-radius: 10px;
     padding: 20px;
   }

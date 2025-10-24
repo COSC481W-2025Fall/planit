@@ -75,11 +75,11 @@
 .btn-primary {
     background: var(--accent);
     box-shadow: var(--shadow-1);
-    color: #ffffff;
+    color: var(--bg-surface);
 }
 
 .btn-primary:hover {
-    background: #16632f;
+    background: var(--accent-dark);
 }
 
 .btn-primary:active {
@@ -98,7 +98,7 @@
 }
 
 .hero-title {
-    color: #0b1120;
+    color: var(--text-strong);
     font-family: Tahoma, Verdana, Segoe, sans-serif;
     font-size: clamp(2.25rem, 1.5rem + 3.8vw, 4rem);
     font-weight: 700;
@@ -121,10 +121,9 @@
 }
 
 .hero-cta:hover {
-    box-shadow: 0 8px 20px #d3d8e0;
+    box-shadow: 0 8px 20px var(--border);
     transform: translateY(-3px) scale(1.05);
 }
-
 
 .sub {
     background: var(--bg-surface);
@@ -139,7 +138,7 @@
 }
 
 .sub-title {
-    color: #0b1120;
+    color: var(--text-strong);
     font-family: Tahoma, Verdana, Segoe, sans-serif;
     font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.25rem);
     font-weight: 700;
@@ -194,7 +193,7 @@
 }
 
 .feature-card:hover {
-    box-shadow: 0 6px 18px #d3d8e0;
+    box-shadow: 0 6px 18px var(--border);
     transform: translateY(-3px);
 }
 
@@ -229,6 +228,7 @@
     font-size: clamp(1.5rem, 1rem + 2vw, 2.25rem);
     font-weight: 700;
     margin-bottom: 0.25rem;
+    color: var(--text-strong);
 }
 
 .loved-sub {
@@ -239,7 +239,7 @@
 }
 
 .testimonials {
-    background: color-mix(in oklab, var(--bg-offwhite) 92%, white);
+    background: color-mix(in oklab, var(--bg-offwhite) 92%, var(--bg-surface));
     padding: clamp(2rem, 4vw + 1rem, 4rem) 1rem;
     padding-top: 0.75rem;
 }
@@ -274,7 +274,7 @@
 }
 
 .quote {
-    color: #0f172a;
+    color: var(--text-strong);
     font-style: italic;
     line-height: 1.6;
     margin: 0 0 1rem 0;
@@ -289,7 +289,7 @@
 .avatar {
     background: var(--accent);
     border-radius: 50%;
-    color: #ffffff;
+    color: var(--bg-surface);
     display: grid;
     font-weight: 700;
     height: 36px;
@@ -314,8 +314,9 @@
     font-size: 0.875rem;
     color: var(--muted);
 }
+
 .accent {
-    color: var(--accent, #1e7a3d);
+    color: var(--accent);
     font-weight: 600;
 }
 
@@ -343,4 +344,3 @@
         scroll-behavior: auto;
     }
 }
-

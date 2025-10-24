@@ -36,13 +36,13 @@
 .trips-title {
     font-size: 24px;
     font-weight: bold;
-    color: #333;
+    color: var(--text-dark2);
     margin: 0 0 8px 0;
 }
 
 .trips-subtitle {
     font-size: 16px;
-    color: #666;
+    color: var(--text-medium);
 }
 
 .banner-controls {
@@ -66,7 +66,7 @@
 .new-trip-button:hover,
 .filter-button:hover {
     background: var(--accent);
-    color: var(--bg-surface);
+    color: var(--bg-white);
     transform: scale(1.05);
     box-shadow: var(--shadow-2);
 }
@@ -81,7 +81,7 @@
 .trip-card {
     background: var(--bg-surface);
     border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px var(--shadow-4);
     cursor: pointer;
     position: relative;
     transition: transform 0.2s ease;
@@ -106,13 +106,13 @@
 .trip-card-title {
     font-size: 1rem;
     font-weight: bold;
-    color: #000;
+    color: var(--text-dark);
     font-family: Tahoma, sans-serif;
     margin: 10px 0 4px;
 }
 
 .trip-location {
-    color: #666;
+    color: var(--text-medium);
     font-size: 0.9rem;
     display: flex;
     align-items: center;
@@ -123,21 +123,21 @@
     position: absolute;
     top: 12px;
     right: 12px;
-    background: rgba(0, 0, 0, 0.8);
+    background: var(--overlay-strong);
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
-    color: white;
+    color: var(--text-on-accent);
 }
 
 .trip-dropdown {
     position: absolute;
     bottom: 40px;
     right: 8px;
-    background: white;
+    background: var(--bg-white);
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-4);
     min-width: 140px;
     overflow: hidden;
     z-index: 99999;
@@ -154,7 +154,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #333;
+    color: var(--text-dark2);
     cursor: pointer;
     transition: background 0.2s ease;
 }
@@ -167,18 +167,18 @@
 .empty-state {
     text-align: center;
     padding: 60px 20px;
-    color: #666;
+    color: var(--text-medium);
     grid-column: 1 / -1;
 }
 
 .empty-state h3 {
     font-size: 24px;
     margin-bottom: 8px;
-    color: #333;
+    color: var(--text-dark2);
 }
 
 .modal-content {
-    background: white;
+    background: var(--bg-white);
     padding: 24px;
     border-radius: 8px;
     width: 90%;
@@ -189,7 +189,7 @@
 
 .modal-content h2 {
     margin-bottom: 20px;
-    color: #333;
+    color: var(--text-dark2);
 }
 
 .modal-content form {
@@ -200,7 +200,7 @@
 
 .modal-content input {
     padding: 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-input);
     border-radius: 4px;
     font-size: 14px;
 }
@@ -269,7 +269,7 @@
     border: none;
     padding: 4px;
     font-size: 18px;
-    color: #333;
+    color: var(--text-dark2);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -292,24 +292,23 @@ textarea:focus,
 select:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 4px rgba(30, 122, 61, 0.5); /* soft green glow */
+    box-shadow: 0 0 4px var(--accent-transparent);
     transition: all 0.2s ease-in-out;
 }
 
 .date-input {
     width: 100%;
     padding: 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-input);
     border-radius: 4px;
     font-size: 14px;
-    background: #fff;
+    background: var(--bg-white);
     cursor: pointer;
 }
 
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
     background-color: var(--accent) !important;
-    color: #fff !important;
+    color: var(--text-on-accent) !important;
     font-weight: bold;
 }
-

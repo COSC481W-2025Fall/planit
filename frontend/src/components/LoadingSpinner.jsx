@@ -7,7 +7,7 @@ export default function LoadingSpinner() {
         <div className="loading-overlay">
             <MoonLoader
                 color="var(--accent)"
-                size={70}
+                size={90}
                 speedMultiplier={0.9}
             />
         </div>
