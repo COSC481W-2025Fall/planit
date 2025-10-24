@@ -52,11 +52,15 @@ export default function ActivitySearch({
 
   // popup state
   const [showDetails, setShowDetails] = useState(false);
-  const [newActivityId, setNewActivityId] = useState(null);
-  const [formStartTime, setFormStartTime] = useState("");
-  const [formDuration, setFormDuration] = useState("");
-  const [formCost, setFormCost] = useState("");
+  const [formStartTime, setFormStartTime] = useState("");  
+  const [formDuration, setFormDuration] = useState("");    
+  const [formCost, setFormCost] = useState("");            
   const [notes, setNotes] = useState("");
+
+  // pending selection 
+  const [pendingPlace, setPendingPlace] = useState(null);
+  const [pendingDayId, setPendingDayId] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const debounceTimeout = useRef(null);
   const prevCityQuery = useRef("");
@@ -164,8 +168,8 @@ export default function ActivitySearch({
     }
   };
 
-  // Add to Trip
-  const handleAddToTrip = async (place) => {
+  // Open popup only 
+  const handleAddToTrip = (place) => {
     if (!selectedDay) {
       toast.error("Please choose a day first.");
       return;
@@ -179,6 +183,26 @@ export default function ActivitySearch({
       return;
     }
 
+    setPendingPlace(place);
+    setPendingDayId(dayId);
+
+    // reset form & open popup
+    setFormStartTime("");
+    setFormDuration("");
+    setFormCost("");
+    setNotes("");
+    setShowDetails(true);
+  };
+
+  // Save details create then update, row is created only after Save
+  const handleSaveDetails = async () => {
+    if (!pendingPlace || !pendingDayId) {
+      toast.error("Something went wrong. Please try again.");
+      return;
+    }
+
+    // Build payload from the selected place
+    const place = pendingPlace;
     const name = place.displayName?.text || "Activity";
     const address = getLocationString(place);
     const type = place.primaryType || null;
@@ -188,8 +212,8 @@ export default function ActivitySearch({
     const lng = place.location?.lng ?? place.location?.longitude ?? null;
     const website = place.websiteUri || null;
 
-    const payload = {
-      day: dayId,
+    const createPayload = {
+      day: pendingDayId,
       activity: {
         name,
         address,
@@ -203,46 +227,30 @@ export default function ActivitySearch({
       },
     };
 
+    setSaving(true);
     try {
-      setCreating(true);
-      const res = await axios.post(
-          `${BASE_URL}/activities/create`,
-          payload,
-          { withCredentials: true }
+      // Create the activity
+      const createRes = await axios.post(
+        `${BASE_URL}/activities/create`,
+        createPayload,
+        { withCredentials: true }
       );
-
-      const created = res.data?.activity;
-      const id = created?.activity_id ?? created?.id;
-      if (!id) {
-        alert("Activity created, but could not open details.");
-        toast.warn("Activity created, but could not open details.");
-        setCreating(false);
+      const created = createRes.data?.activity;
+      const activityId = created?.activity_id ?? created?.id;
+      if (!activityId) {
+        toast.error("Activity created but no ID returned.");
+        setSaving(false);
         return;
       }
 
-      setNewActivityId(id);
-      setFormStartTime("");
-      setFormDuration("");
-      setFormCost("");
-      setNotes("");
-      setShowDetails(true);
-    } catch (err) {
-      console.error("Error adding activity:", err?.response?.data || err.message);
-      toast.error("Failed to add activity.");
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const handleSaveDetails = async () => {
-    try {
+      // Update with details from popup
       const updatePayload = {
-        activityId: newActivityId,
+        activityId,
         activity: {
           startTime: formStartTime || null,
           duration: formDuration === "" ? null : Number(formDuration),
           estimatedCost: formCost === "" ? null : Number(formCost),
-          notesForActivity: notes || null
+          notesForActivity: notes || null, // ok if backend ignores it
         },
       };
 
@@ -250,13 +258,17 @@ export default function ActivitySearch({
         withCredentials: true,
       });
 
-      toast.success("Activity details saved!");
+      toast.success("Activity added!");
       setShowDetails(false);
-      setNewActivityId(null);
+      setPendingPlace(null);
+      setPendingDayId(null);
+
       onActivityAdded && onActivityAdded();
     } catch (err) {
-      console.error("Error updating activity:", err?.response?.data || err.message);
+      console.error("Save failed:", err?.response?.data || err.message);
       toast.error("Failed to save details. Please try again.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -350,58 +362,67 @@ export default function ActivitySearch({
                         </p>
                       </div>
 
-                      <div className="card-actions">
-                        {place.websiteUri ? (
-                            <a
-                                href={place.websiteUri}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="website-link"
-                            >
-                              Website
-                            </a>
-                        ) : (
-                            <span className="website-link disabled">No website</span>
-                        )}
-                        <button
-                            className="add-btn"
-                            onClick={() => handleAddToTrip(place)}
-                            disabled={creating}
-                        >
-                          {creating ? "Adding..." : "Add to Trip"}
-                        </button>
-                      </div>
-                    </div>
-                ))
-            ) : (
-                <p className="no-results-text">No results yet. Try a search!</p>
-            )}
-          </div>
+                <div className="card-actions">
+                  {place.websiteUri ? (
+                    <a
+                      href={place.websiteUri}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="website-link"
+                    >
+                      Website
+                    </a>
+                  ) : (
+                    <span className="website-link disabled">No website</span>
+                  )}
+                  <button
+                    className="add-btn"
+                    onClick={() => handleAddToTrip(place)}
+                    disabled={creating}
+                  >
+                    Add to Trip
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="no-results-text">No results yet. Try a search!</p>
+          )}
         </div>
+      </div>
 
-        {/* Popup for activity details */}
-        {showDetails && (
-            <Popup
-                title="Add Activity Details"
-                buttons={
-                  <>
-                    <button type="button" onClick={() => setShowDetails(false)}>
-                      Cancel
-                    </button>
-                    <button type="button" onClick={handleSaveDetails}>
-                      Save
-                    </button>
-                  </>
-                }
-            >
-              <label className="popup-input">
-                <span>Start time</span>
-                <input
-                    type="time"
-                    value={formStartTime}
-                    onChange={(e) => setFormStartTime(e.target.value)}
-                />
-              </label>
+      {/* Popup for activity details */}
+      {showDetails && (
+        <Popup
+          title="Add Activity Details"
+          buttons={
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDetails(false);
+                  setPendingPlace(null);
+                  setPendingDayId(null);
+                }}
+                disabled={saving}
+              >
+                Cancel
+              </button>
+              <button type="button" onClick={handleSaveDetails} disabled={saving}>
+                {saving ? "Saving..." : "Save"}
+              </button>
+            </>
+          }
+        >
+          <label className="popup-input">
+            <span>Start time</span>
+            <input
+              type="time"
+              value={formStartTime}
+              onChange={(e) => setFormStartTime(e.target.value)}
+              disabled={saving}
+            />
+          </label>
 
           <label className="popup-input">
             <span>Duration (minutes)</span>
@@ -411,36 +432,37 @@ export default function ActivitySearch({
               placeholder="e.g. 90"
               value={formDuration}
               onChange={(e) => setFormDuration(e.target.value)}
+              disabled={saving}
             />
           </label>
 
           <label className="popup-input">
             <span>Notes</span>
             <textarea
-              class = "textarea-notes"
+              className="textarea-notes"
               maxLength={200}
               placeholder="Enter any notes you have about your activity!"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-            ></textarea>
-            <div className="char-count">
-              {notes.length} / 200
-            </div>
+              disabled={saving}
+            />
+            <div className="char-count">{notes.length} / 200</div>
           </label>
 
-              <label className="popup-input">
-                <span>Estimated cost ($)</span>
-                <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="e.g. 25"
-                    value={formCost}
-                    onChange={(e) => setFormCost(e.target.value)}
-                />
-              </label>
-            </Popup>
-        )}
-      </>
+          <label className="popup-input">
+            <span>Estimated cost ($)</span>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="e.g. 25"
+              value={formCost}
+              onChange={(e) => setFormCost(e.target.value)}
+              disabled={saving}
+            />
+          </label>
+        </Popup>
+      )}
+    </>
   );
 }
