@@ -124,7 +124,7 @@ export default function UserRegistrationPage() {
                 >
                     {buttonLoading ? (
                         <div className="button-loader">
-                        <MoonLoader size={20} color="#ffffff"/>
+                            <MoonLoader size={20} color="#ffffff"/>
                         </div>
                     ) : (
                         "Save"

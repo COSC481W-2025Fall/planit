@@ -63,22 +63,22 @@ export default function TripPage() {
             .catch((err) => console.error("Failed to fetch trips:", err));
     }, [user?.user_id]);
 
-  //Show Loader while fetching user or trips
-  if (!user || !trips) {
-    return (
-        <div className="trip-page">
-          <TopBanner user={user}/>
-          <div className="content-with-sidebar">
-            <NavBar />
-            <div className="main-content">
-              <div className="page-loading-container">
-                <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
-              </div>
+    //Show Loader while fetching user or trips
+    if (!user || !trips) {
+        return (
+            <div className="trip-page">
+                <TopBanner user={user}/>
+                <div className="content-with-sidebar">
+                    <NavBar/>
+                    <div className="main-content">
+                        <div className="page-loading-container">
+                            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-    );
-  }
+        );
+    }
 
     // Delete trip
     const handleDeleteTrip = async (trips_id) => {
@@ -133,25 +133,25 @@ export default function TripPage() {
         navigate(`/days/${tripId}`);
     };
 
-  return (
-      <div className="trip-page">
-        <TopBanner user={user} />
-        <div className="content-with-sidebar">
-          <NavBar />
-          <div className="main-content">
-            <div className="trips-section">
-              {/* Header row */}
-              <div className="trips-header">
-                <div className="trips-title-section">
-                  <div className="trips-title">
-                    {user
-                        ? `${user.first_name} ${user.last_name}'s Trips`
-                        : <MoonLoader color="var(--accent)" size={30} />}
-                  </div>
-                  <div className="trips-subtitle">
-                    Plan and manage your upcoming trips
-                  </div>
-                </div>
+    return (
+        <div className="trip-page">
+            <TopBanner user={user}/>
+            <div className="content-with-sidebar">
+                <NavBar/>
+                <div className="main-content">
+                    <div className="trips-section">
+                        {/* Header row */}
+                        <div className="trips-header">
+                            <div className="trips-title-section">
+                                <div className="trips-title">
+                                    {user
+                                        ? `${user.first_name} ${user.last_name}'s Trips`
+                                        : <MoonLoader color="var(--accent)" size={30}/>}
+                                </div>
+                                <div className="trips-subtitle">
+                                    Plan and manage your upcoming trips
+                                </div>
+                            </div>
 
                             <div className="banner-controls">
                                 <button className="new-trip-button" onClick={handleNewTrip}>

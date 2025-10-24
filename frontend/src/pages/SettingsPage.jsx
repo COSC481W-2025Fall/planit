@@ -26,7 +26,7 @@ export default function SettingsPage() {
     if (!user) {
         return (
             <div className="setting-page">
-                <TopBanner user={user} />
+                <TopBanner user={user}/>
                 <div className="content-with-sidebar">
                     <NavBar/>
                     <div className="main-content">

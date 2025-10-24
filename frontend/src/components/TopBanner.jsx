@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import logo from "../assets/Planit_Full_Green.png";
 import "../css/TopBanner.css";
-import { Menu, X } from "lucide-react";
+import {Menu, X} from "lucide-react";
 import NavBar from "./NavBar";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import {toast} from "react-toastify";
@@ -9,7 +9,7 @@ import {toast} from "react-toastify";
 const handleSignOut = () => {
     fetch(
         (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/auth/logout",
-        { credentials: "include" }
+        {credentials: "include"}
     )
         .then((res) => {
             if (res.ok) {
@@ -21,7 +21,7 @@ const handleSignOut = () => {
         })
         .catch((err) => toast.error("Logout error:", err));
 };
-export default function TopBanner({ user }) {
+export default function TopBanner({user}) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     return (
         <>
@@ -33,19 +33,19 @@ export default function TopBanner({ user }) {
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                         aria-label="Toggle navigation"
                     >
-                        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                        {isMenuOpen ? <X size={24}/> : <Menu size={24}/>}
                     </button>
 
-                    <img src={logo} alt="PlanIt Logo" className="logo" />
+                    <img src={logo} alt="PlanIt Logo" className="logo"/>
                 </div>
 
-            <div className="right-section">
-                <button className="sign-out" onClick={handleSignOut}>
-                    Sign Out
-                </button>
+                <div className="right-section">
+                    <button className="sign-out" onClick={handleSignOut}>
+                        Sign Out
+                    </button>
 
                     {user?.photo ? (
-                        <img className="pfp" src={user.photo} alt="Profile" />
+                        <img className="pfp" src={user.photo} alt="Profile"/>
                     ) : (
                         <div className="pfp placeholder">H</div>
                     )}
@@ -53,7 +53,7 @@ export default function TopBanner({ user }) {
             </header>
 
             {/* Sidebar (NavBar) */}
-            <NavBar isOpen={isMenuOpen} />
+            <NavBar isOpen={isMenuOpen}/>
         </>
     );
 }

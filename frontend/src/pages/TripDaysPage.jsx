@@ -430,7 +430,7 @@ export default function TripDaysPage() {
                                                     {day.activities?.length ?? 0} Activities
                                                 </span>
                                                 <button className="chevron-button">
-                                                    {isExpanded ? <ChevronUp /> : <ChevronDown />}
+                                                    {isExpanded ? <ChevronUp/> : <ChevronDown/>}
                                                 </button>
                                             </div>
                                         </div>
