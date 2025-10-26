@@ -6,9 +6,19 @@ import Popup from "./Popup.jsx";
 
 export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }) {
     const [openMenu, setOpenMenu] = useState(false);
-    const startTime = activity.activity_startTime ? new Date(activity.activity_startTime) : null;
+    const startTime = activity.activity_startTime;
 
     const toggleMenu = () => setOpenMenu(prev => !prev);
+    const formatTime = (timeStr) => {
+        if (!timeStr) return "No time";
+        const [hours, minutes] = timeStr.split(":").map(Number);
+        if (isNaN(hours) || isNaN(minutes)) return timeStr;
+
+        const period = hours >= 12 ? "PM" : "AM";
+        const twelveHour = hours % 12 === 0 ? 12 : hours % 12;
+
+        return `${twelveHour}:${minutes.toString().padStart(2, "0")} ${period}`;
+    };
 
     return (
         <div className="activity-container">
@@ -35,9 +45,7 @@ export default function ActivityCard({ activity, onDelete, onEdit, onViewNotes }
             <div className="time-and-location-container">
                 <p className="time-of-activity">
                     <Clock className="icon" />
-                    {startTime
-                        ? startTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                        : "No time"}
+                    {formatTime(startTime)}
                 </p>
 
                 <p className="location-of-activity">
