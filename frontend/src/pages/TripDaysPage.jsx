@@ -89,10 +89,12 @@ export default function TripDaysPage() {
             // format start time
             let start = "";
             if (editActivity.activity_startTime) {
-                const date = new Date(editActivity.activity_startTime);
-                const h = String(date.getHours()).padStart(2, "0");
-                const m = String(date.getMinutes()).padStart(2, "0");
-                start = `${h}:${m}`;
+                const parts = editActivity.activity_startTime.split(":");
+                if (parts.length >= 2) {
+                    const h = parts[0].padStart(2, "0");
+                    const m = parts[1].padStart(2, "0");
+                    start = `${h}:${m}`;
+                }
             }
             setEditStartTime(start);
 
@@ -137,9 +139,12 @@ export default function TripDaysPage() {
 
                     // sort activities by start time
                     const sortedActivities = (activities || []).sort((a, b) => {
-                        const timeA = new Date(a.activity_startTime).getTime();
-                        const timeB = new Date(b.activity_startTime).getTime();
-                        return timeA - timeB;
+                        const toMinutes = (t) => {
+                            if (!t) return 0;
+                            const [h, m, s] = t.split(":").map(Number);
+                            return (h || 0) * 60 + (m || 0) + (s ? s / 60 : 0);
+                        };
+                        return toMinutes(a.activity_startTime) - toMinutes(b.activity_startTime);
                     });
 
                     return {...day, activities: sortedActivities};
@@ -189,10 +194,6 @@ export default function TripDaysPage() {
         }
     };
 
-    // grbb the users timezone!!
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    //console.log(userTimeZone);
-
     // update an activity
     const handleUpdateActivity = async (activityId, activity) => {
         try {
@@ -209,7 +210,6 @@ export default function TripDaysPage() {
                             startTime: activity.activity_startTime,
                             duration: Number(activity.activity_duration),
                             estimatedCost: Number(activity.activity_estimated_cost),
-                            userTimeZone,
                             notesForActivity: activity.notesForActivity || ""
                         },
                     }),
@@ -276,25 +276,22 @@ export default function TripDaysPage() {
                 }),
             });
 
-            console.log("after fetch");
 
             if (!response.ok) {
                 const errData = await response.json().catch(() => ({}));
                 throw new Error(errData.error || "Failed to update notes");
             }
 
-            // Update local state safely
-            setDays(prevDays =>
-                prevDays.map(day => ({
-                    ...day,
-                    activities: day.activities?.map(act =>
-                        String(act.activity_id) === String(id)
-                            ? {...act, notes: newNote}
-                            : act
-                    ) || []
-                }))
-            );
-            console.log("state updated");
+        setDays(prevDays =>
+            prevDays.map(day => ({
+                ...day,
+                activities: day.activities?.map(act =>
+                    String(act.activity_id) === String(id)
+                        ? { ...act, notes: newNote }
+                        : act
+                ) || []
+            }))
+        );
 
             toast.success("Notes updated successfully!");
             return true;
@@ -594,13 +591,6 @@ export default function TripDaysPage() {
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            if (!editStartTime || !editDuration || !editCost) {
-                                                alert(
-                                                    "Please fill in all fields before saving."
-                                                );
-                                                toast.error("Please fill in all fields before saving.");
-                                                return;
-                                            }
                                             handleUpdateActivity(editActivity.activity_id, {
                                                 activity_startTime: editStartTime,
                                                 activity_duration: editDuration,
