@@ -95,7 +95,6 @@ useEffect(() => {
 
   const fetchActivities = async () => {
     try {
-      console.log("hi");
       const res = await axios.post(
         `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/read/all`,
         { dayId: dayIds[selectedDay - 1] },
@@ -209,7 +208,49 @@ useEffect(() => {
       setLoading(false);
     }
   };
+  
+  const handleDistanceCheck = async (startTime) => {
+    if (!selectedPlace) return;
 
+    try {
+      const timeToMinutes = (t) => {
+        if (!t) return 0;
+        const [h, m] = t.split(":").map(Number);
+        return h * 60 + m;
+      };
+
+      const newTime = timeToMinutes(startTime);
+      let prevActivity = null;
+      // I need to get the previous activity's location. When user enters start time, we need to somehow insert where the activity would go
+      for (let i = 0; i < dayActivities.length; i++) {
+        const currActivity = dayActivities[i];
+        const activityTime = timeToMinutes(currActivity.activity_startTime);
+
+        // found where it would go
+        if (activityTime >= newTime) {
+          break;
+        }
+        prevActivity = currActivity;
+
+      }
+
+      if (!prevActivity) {
+        setDistanceInfo(null);
+        return;
+      }
+
+      const origin = {
+        latitude: prevActivity.latitude,
+        longitude: prevActivity.longitude,
+      };
+      console.log(origin);
+
+
+    } catch (err) {
+      toast.error("Failed to fetch distance info.");
+      console.error("Distance fetch error:", err?.response?.data || err.message);
+    }
+  }
   // Open popup only 
   const handleAddToTrip = (place) => {
     if (!selectedDay) {
