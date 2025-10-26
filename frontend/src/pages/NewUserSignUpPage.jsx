@@ -10,8 +10,8 @@ export default function UserRegistrationPage() {
     const [user, setUser] = useState(null);
     const [createUsername, setCreateUsername] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const [loading, setLoading] = useState(true); // 🟢 for initial fetch
-    const [buttonLoading, setButtonLoading] = useState(false); // 🟢 for Save button
+    const [loading, setLoading] = useState(true);
+    const [buttonLoading, setButtonLoading] = useState(false);
     const navigate = useNavigate();
 
     // Fetch logged-in user info when component mounts
