@@ -26,7 +26,7 @@ export default function SettingsPage() {
     if (!user) {
         return (
             <div className="setting-page">
-                <TopBanner user={user} onSignOut={() => (window.location.href = "/")} />
+                <TopBanner user={user} />
                 <div className="content-with-sidebar">
                     <NavBar />
                     <div className="main-content">
@@ -35,6 +35,7 @@ export default function SettingsPage() {
                                 color="var(--accent)"
                                 size={70}
                                 speedMultiplier={0.9}
+                                data-testid="loader"
                             />
                         </div>
                     </div>
@@ -46,10 +47,7 @@ export default function SettingsPage() {
     //Main content
     return (
         <div className="setting-page">
-            <TopBanner
-                user={user}
-                onSignOut={() => (window.location.href = "/")}
-            />
+            <TopBanner user={user}/>
             <div className="content-with-sidebar">
                 <NavBar />
                 <div className="main-content">
@@ -57,7 +55,7 @@ export default function SettingsPage() {
                         {/* Header row */}
                         <div className="settings-header">
                             <div className="settingss-title-section">
-                                <div className="settings-title">Settings</div>
+                                <div className="settings-title" data-testid="settings-title">Settings</div>
                                 <div className="settings-subtitle">
                                     This is the settings page. Content will go here later
                                 </div>

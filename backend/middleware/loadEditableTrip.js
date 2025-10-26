@@ -1,24 +1,33 @@
 import { sql } from "../config/db.js";
 
-// Middleware to load a trip owned by the logged-in user
-export async function loadOwnedTrip(req, res, next) {
+// Middleware to load editable trip data
+export async function loadEditableTrip(req, res, next) {
   if (!req.user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
   const userId = req.user.user_id;
-  const tripIdRaw = req.params.tripId ?? req.body.tripId ?? req.query.tripId;
+  const tripIdRaw = req.params.tripId ?? req.query.tripId ?? req.body.tripId;
   const tripId = Number(tripIdRaw);
-  if (tripIdRaw === undefined || isNaN(tripId)) {
+  if (isNaN(tripId)) {
     return res.status(400).json({ error: "Invalid trip ID" });
   }
 
   try {
     const trips = await sql`
       SELECT *
-      FROM trips
-      WHERE trips_id = ${tripId} AND user_id = ${userId}
-      LIMIT 1
+      FROM trips t
+      WHERE trips_id = ${tripId}
+        AND (
+        t.user_id = ${userId}
+        OR EXISTS (
+          SELECT 1
+          FROM shared s
+          WHERE s.trip_id = t.trips_id
+            AND s.user_id = ${userId}
+       )
+  )
+       LIMIT 1
     `;
 
     if (trips.length === 0) {
@@ -28,9 +37,10 @@ export async function loadOwnedTrip(req, res, next) {
     }
 
     req.trip = trips[0];
-    req.tripPermission = "owner";
+    req.tripPermission = trips[0].user_id === userId ? "owner" : "shared";
     next();
-  } catch (err) {
+  }
+  catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal Server Error" });
   }

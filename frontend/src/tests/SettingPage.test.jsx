@@ -30,7 +30,7 @@ describe("SettingsPage (placeholder)", () => {
             </MemoryRouter>
         );
 
-        expect(screen.getByText(/loading/i)).toBeInTheDocument();
+        expect(screen.getByTestId("loader")).toBeInTheDocument();
     });
 
     test("shows Settings title when user is logged in", async () => {
@@ -40,9 +40,8 @@ describe("SettingsPage (placeholder)", () => {
             </MemoryRouter>
         );
 
-        // find all "Settings" and pick the one that is the page title
-        const nodes = await screen.findAllByText(/settings/i);
-        const title = nodes.find((n) => n.classList?.contains("trips-title"));
+        // find the settings title element
+        const title = await screen.findByTestId("settings-title");
         expect(title).toBeInTheDocument();
 
         // check the sign out button
