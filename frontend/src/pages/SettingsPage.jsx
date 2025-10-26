@@ -30,7 +30,7 @@ export default function SettingsPage() {
                 <div className="setting-with-sidebar">
                     <NavBar/>
                     <div className="setting-main-content">
-                        <div className="page-loading-container">
+                        <div className="setting-page-loading-container">
                             <MoonLoader
                                 color="var(--accent)"
                                 size={70}
