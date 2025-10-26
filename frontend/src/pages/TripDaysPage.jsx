@@ -122,17 +122,6 @@ export default function TripDaysPage() {
         }
     };
 
-    const formatTime = (timeStr) => {
-        if (!timeStr) return "No time";
-        const [hours, minutes] = timeStr.split(":").map(Number);
-        if (isNaN(hours) || isNaN(minutes)) return timeStr;
-
-        const period = hours >= 12 ? "PM" : "AM";
-        const twelveHour = hours % 12 === 0 ? 12 : hours % 12;
-
-        return `${twelveHour}:${minutes.toString().padStart(2, "0")} ${period}`;
-    };
-
     //add a new day
     const handleAddDay = async () => {
         try {
