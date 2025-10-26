@@ -338,7 +338,7 @@ export default function TripDaysPage() {
 
             <div className="content-with-sidebar">
                 <NavBar/>
-                <main className="TripDaysPage">
+                <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
                     <h1 className="trip-title">{trip.trip_name}</h1>
 
                     <div className="trip-info">
@@ -664,8 +664,9 @@ export default function TripDaysPage() {
                 </main>
 
                 {openActivitySearch && (
-                    <div className="activity-search-sidebar">
-                        <ActivitySearch
+                    <div className="activity-search-sidebar open">
+
+                    <ActivitySearch
                             onClose={() => setOpenActivitySearch(false)}
                             days={Array.isArray(days) ? days.length : days}
                             dayIds={Array.isArray(days)

@@ -29,10 +29,10 @@ body {
 
 .drawer {
   position: fixed;
-  top: var(--topbar-h, 60px);
+  top: 0;
   right: 0;
   width: 400px;
-  height: calc(100vh - var(--topbar-h, 60px));
+  height: 100vh; /* full viewport height */
   background: var(--bg-white);
   border-left: 1px solid var(--border-alt);
   padding: 16px;
@@ -40,7 +40,6 @@ body {
   flex-direction: column;
   z-index: 1000;
   box-shadow: var(--shadow-4);
-  overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable both-edges;
 }
@@ -178,7 +177,7 @@ body {
   border: 1px solid var(--border-alt);
   border-radius: 8px;
   padding: 12px;
-  background: var(--bg-surface);
+  background: var(--bg-white);
   box-sizing: border-box;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   display: flex;
@@ -380,4 +379,23 @@ body {
     transform: translate(-50%, -50%);
     height: auto;
   }
+}
+@media (max-width: 763px) and (min-width: 0px) {
+  .drawer {
+    top: 0;
+  }
+}
+.drawer::-webkit-scrollbar {
+  width: 10px;
+}
+
+.drawer::-webkit-scrollbar-track {
+  background: var(--scrollbar-track1);
+  border-radius: 10px;
+}
+
+.drawer::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb1);
+  border-radius: 10px;
+  border: 2px solid var(--scrollbar-track1);
 }

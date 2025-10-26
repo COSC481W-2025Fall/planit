@@ -29,6 +29,14 @@
     --border-light: #cccccc;
     --border-alt: #d3d8e0;
 
+    --scrollbar-track: #e0e0e0;
+    --scrollbar-thumb: #a8a8a8;
+    --scrollbar-thumb-hover: #8c8c8c;
+    --scrollbar-track1: #d6d6d6;
+    --scrollbar-thumb1: #7a7a7a;
+    --scrollbar-thumb-hover1: #5c5c5c;
+
+
     --radius: 0.75rem;
     --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.1);
     --shadow-strong: 0 4px 15px rgba(0, 0, 0, 0.2);
