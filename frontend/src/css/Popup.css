@@ -34,7 +34,7 @@
     }
 }
 
-.popup p.popup-title {
+.popup-title {
     color: var(--text-dark);
     font-weight: bold;
     font-family: Tahoma, sans-serif;

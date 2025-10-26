@@ -527,7 +527,7 @@ export default function TripDaysPage() {
 
                     {newDay && (
                         <Popup
-                            title={<p className="popup-title">New Day</p>}
+                            title="New Day"
                             buttons={
                                 <>
                                     <button
@@ -544,16 +544,15 @@ export default function TripDaysPage() {
                                     </button>
                                 </>
                             }
-                        >
-                            <p className="popup-body-text">
-                                Do you want to add a new day to {trip?.trip_name}?
-                            </p>
+                        ><p className="popup-body-text">
+                            Do you want to add a new day to {trip?.trip_name}?
+                        </p>
                         </Popup>
                     )}
 
                     {deleteDayId && (
                         <Popup
-                            title={<p className="popup-title">Delete Day</p>}
+                            title="Delete Day"
                             buttons={
                                 <>
                                     <button
