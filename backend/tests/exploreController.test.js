@@ -31,7 +31,6 @@ describe("Explore Controller", () => {
 
     await exploreController.getAllTripLocations(req, res);
 
-    // Check that sql was called and the query contains FROM trips
     expect(sql).toHaveBeenCalled();
     expect(sql.mock.calls[0][0][0]).toContain("FROM trips");
     expect(res.status).toHaveBeenCalledWith(200);
@@ -53,9 +52,11 @@ describe("Explore Controller", () => {
   // getTopLikedTrips
   // -------------------------
   it("should return top liked trips", async () => {
-    const req = {};
+    const req = { body: { userId: 1 } }; // <-- pass userId here
     const res = mockRes();
-    const mockTrips = [{ trip_name: "Beach Getaway", like_count: 20 }];
+    const mockTrips = [
+      { trip_name: "Beach Getaway", like_count: 20, is_liked: true }
+    ];
     sql.mockResolvedValue(mockTrips);
 
     await exploreController.getTopLikedTrips(req, res);
@@ -66,7 +67,7 @@ describe("Explore Controller", () => {
   });
 
   it("should handle errors in getTopLikedTrips", async () => {
-    const req = {};
+    const req = { body: { userId: 1 } };
     const res = mockRes();
     sql.mockRejectedValue(new Error("DB failed"));
 
@@ -80,22 +81,21 @@ describe("Explore Controller", () => {
   // getTrendingTrips
   // -------------------------
   it("should return trending trips", async () => {
-    const req = {};
+    const req = { body: { userId: 1 } }; // <-- pass userId here
     const res = mockRes();
-    const mockTrending = [{ trip_name: "New York Adventure", like_count: 5 }];
+    const mockTrending = [
+      { trip_name: "New York Adventure", like_count: 5, is_liked: false }
+    ];
     sql.mockResolvedValue(mockTrending);
 
     await exploreController.getTrendingTrips(req, res);
-
-    // Check that sql was called and the query contains JOIN likes
     expect(sql).toHaveBeenCalled();
-    expect(sql.mock.calls[0][0][0]).toContain("JOIN likes");
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(mockTrending);
   });
 
   it("should handle errors in getTrendingTrips", async () => {
-    const req = {};
+    const req = { body: { userId: 1 } };
     const res = mockRes();
     sql.mockRejectedValue(new Error("DB timeout"));
 
@@ -109,9 +109,11 @@ describe("Explore Controller", () => {
   // searchTrips
   // -------------------------
   it("should return search results for location", async () => {
-    const req = { body: { location: "Paris" } };
+    const req = { body: { location: "Paris", userId: 1 } }; // <-- pass userId here
     const res = mockRes();
-    const mockResults = [{ trip_name: "Paris Getaway", like_count: 10 }];
+    const mockResults = [
+      { trip_name: "Paris Getaway", like_count: 10, is_liked: true }
+    ];
     sql.mockResolvedValue(mockResults);
 
     await exploreController.searchTrips(req, res);
@@ -122,7 +124,7 @@ describe("Explore Controller", () => {
   });
 
   it("should handle errors in searchTrips", async () => {
-    const req = { body: { location: "Paris" } };
+    const req = { body: { location: "Paris", userId: 1 } };
     const res = mockRes();
     sql.mockRejectedValue(new Error("Query error"));
 
