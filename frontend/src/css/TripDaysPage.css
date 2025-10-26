@@ -65,7 +65,7 @@ body {
   position: relative;
   min-width: 0;
   color: var(--muted);
-  min-height: 100vh;
+  min-height: 95vh;
 }
 .trip-title {
   font-family: Tahoma, sans-serif;
@@ -531,4 +531,26 @@ body {
 
 .TripDaysPage::-webkit-scrollbar-thumb:hover {
   background-color: var(--scrollbar-thumb-hover);
+}
+
+@media (max-width: 1100px) {
+  html,
+  body {
+    overflow: auto;
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+  }
+
+  .TripDaysPage {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .TripDaysPage::-webkit-scrollbar {
+    display: none;
+  }
 }

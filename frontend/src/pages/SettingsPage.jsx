@@ -27,9 +27,9 @@ export default function SettingsPage() {
         return (
             <div className="setting-page">
                 <TopBanner user={user}/>
-                <div className="content-with-sidebar">
+                <div className="setting-with-sidebar">
                     <NavBar/>
-                    <div className="main-content">
+                    <div className="setting-main-content">
                         <div className="page-loading-container">
                             <MoonLoader
                                 color="var(--accent)"
@@ -48,9 +48,9 @@ export default function SettingsPage() {
     return (
         <div className="setting-page">
             <TopBanner user={user}/>
-            <div className="content-with-sidebar">
+            <div className="setting-with-sidebar">
                 <NavBar/>
-                <div className="main-content">
+                <div className="setting-main-content">
                     <div className="settings-section">
                         {/* Header row */}
                         <div className="settings-header">
