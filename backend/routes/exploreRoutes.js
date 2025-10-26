@@ -4,8 +4,8 @@ import { searchTrips, getAllTripLocations, getTopLikedTrips, getTrendingTrips} f
 const router = express.Router();
 
 router.post("/search", searchTrips)
-router.get("/all/trip/locations", getAllTripLocations);
-router.get("/top/liked/trips", getTopLikedTrips);
-router.get("/trending" , getTrendingTrips);
+router.post("/all/trip/locations", getAllTripLocations);
+router.post("/top/liked/trips", getTopLikedTrips);
+router.post("/trending" , getTrendingTrips);
 
 export default router;
