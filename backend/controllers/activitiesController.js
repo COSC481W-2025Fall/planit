@@ -2,21 +2,21 @@ import axios from "axios";
 import { sql } from "../config/db.js";
 
 // convert "HH:MM" (24h) to a JS Date anchored to 1970-01-01 (UTC)
-function toTimestampFromHHMM(value, timeZone) {
-  if (!value) return null;
-  const [hh, mm] = value.split(":").map(Number);
-  if (isNaN(hh) || isNaN(mm)) return null;
+// function toTimestampFromHHMM(value, timeZone) {
+//   if (!value) return null;
+//   const [hh, mm] = value.split(":").map(Number);
+//   if (isNaN(hh) || isNaN(mm)) return null;
 
-  // Build a date anchored at 1970-01-01 in the user's timezone
-  const dateStr = `1970-01-01T${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:00`;
+//   // Build a date anchored at 1970-01-01 in the user's timezone
+//   const dateStr = `1970-01-01T${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:00`;
   
-  // This converts the local "user timezone" time to a Date object in UTC
-  const localDate = new Date(dateStr);
-  const utcDateStr = localDate.toLocaleString("en-US", { timeZone });
-  const utcDate = new Date(utcDateStr);
+//   // This converts the local "user timezone" time to a Date object in UTC
+//   const localDate = new Date(dateStr);
+//   const utcDateStr = localDate.toLocaleString("en-US", { timeZone });
+//   const utcDate = new Date(utcDateStr);
 
-  return utcDate;
-}
+//   return utcDate;
+// }
 
 // Map undefined → null so inserts/updates send proper NULLs to Postgres
 const v = (x) => (x === undefined ? null : x);
@@ -64,7 +64,7 @@ export const addActivity = async (req, res) => {
       longitude,
       latitude,
       website,
-      userTimeZone
+      // userTimeZone
     } = activity || {};
 
     // Query for inserting new activity into db (time/cost/duration set via update)
@@ -115,7 +115,7 @@ export const updateActivity = async (req, res) => {
   try {
     // Pull current values of activity we updating
     const { activityId, activity } = req.body;
-    const { startTime, duration, estimatedCost, userTimeZone, notesForActivity } = activity || {};
+    const { startTime, duration, estimatedCost, notesForActivity } = activity || {};
 
     if (!activityId || !activity) {
       // Error handling if fields for updating activity are empty
@@ -125,7 +125,8 @@ export const updateActivity = async (req, res) => {
     // Convert "HH:MM" → timestamp anchored to 1970-01-01 for TIMESTAMP column
     //const startTs = toTimestampFromHHMM(startTime);
 
-    const startTs = toTimestampFromHHMM(startTime, userTimeZone);
+    // const startTs = toTimestampFromHHMM(startTime, userTimeZone);
+    const startTs = startTime ? `${startTime}:00` : null;
 
     // Convert minutes → interval literal (or null)
     const durationInterval =
