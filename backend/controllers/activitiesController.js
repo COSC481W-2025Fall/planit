@@ -47,7 +47,6 @@ export const addActivity = async (req, res) => {
       longitude,
       latitude,
       website,
-      // userTimeZone
     } = activity || {};
 
     // Query for inserting new activity into db (time/cost/duration set via update)
