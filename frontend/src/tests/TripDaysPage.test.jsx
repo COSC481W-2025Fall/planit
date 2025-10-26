@@ -1,13 +1,13 @@
-import {render, screen, waitFor} from "@testing-library/react";
-import {describe, expect, test, vi} from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import { describe, expect, test, vi } from "vitest";
 import TripDaysPage from "../pages/TripDaysPage";
 import * as daysApi from "../../api/days";
-import {MemoryRouter, Route, Routes} from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 global.fetch = vi.fn((url) => {
     if (url.includes("/auth/login/details")) {
         return Promise.resolve({
-            json: () => Promise.resolve({loggedIn: true, username: "testUser"}),
+            json: () => Promise.resolve({ loggedIn: true, username: "testUser" }),
         });
     }
     if (url.includes("/trip/read/1")) {
@@ -23,7 +23,7 @@ global.fetch = vi.fn((url) => {
     }
     if (url.includes("/activities/read/all")) {
         return Promise.resolve({
-            json: () => Promise.resolve({activities: []}),
+            json: () => Promise.resolve({ activities: [] }),
         });
     }
     return Promise.reject(new Error("Unhandled fetch: " + url));
@@ -34,15 +34,15 @@ describe("TripDaysPage", () => {
     test("displays the correct number of days", async () => {
         // mock results for getDays
         vi.spyOn(daysApi, "getDays").mockResolvedValue([
-            {day_id: "1", day_date: "2025-07-01T00:00:00", activities: []},
-            {day_id: "2", day_date: "2025-07-02T00:00:00", activities: []},
-            {day_id: "3", day_date: "2025-07-03T00:00:00", activities: []},
+            { day_id: "1", day_date: "2025-07-01T00:00:00", activities: [] },
+            { day_id: "2", day_date: "2025-07-02T00:00:00", activities: [] },
+            { day_id: "3", day_date: "2025-07-03T00:00:00", activities: [] },
         ]);
 
         render(
             <MemoryRouter initialEntries={["/trip/1"]}>
                 <Routes>
-                    <Route path="/trip/:tripId" element={<TripDaysPage/>}/>
+                    <Route path="/trip/:tripId" element={<TripDaysPage />} />
                 </Routes>
             </MemoryRouter>
         );
@@ -63,7 +63,7 @@ describe("TripDaysPage", () => {
         render(
             <MemoryRouter initialEntries={["/trip/1"]}>
                 <Routes>
-                    <Route path="/trip/:tripId" element={<TripDaysPage/>}/>
+                    <Route path="/trip/:tripId" element={<TripDaysPage />} />
                 </Routes>
             </MemoryRouter>
         );
@@ -83,17 +83,17 @@ describe("TripDaysPage", () => {
         vi.spyOn(daysApi, "getDays").mockResolvedValue([]);
 
         global.fetch = vi.fn(() => new Promise(resolve => setTimeout(() => resolve({
-            json: () => Promise.resolve({loggedIn: true, username: "testUser"}),
+            json: () => Promise.resolve({ loggedIn: true, username: "testUser" }),
         }), 100)));
 
         render(
             <MemoryRouter initialEntries={["/trip/1"]}>
                 <Routes>
-                    <Route path="/trip/:tripId" element={<TripDaysPage/>}/>
+                    <Route path="/trip/:tripId" element={<TripDaysPage />} />
                 </Routes>
             </MemoryRouter>
         );
 
-        expect(screen.getByTestId("loader")).toBeInTheDocument();
+        expect(screen.getByText(/loading.../i)).toBeInTheDocument();
     });
 });

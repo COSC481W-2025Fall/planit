@@ -1,7 +1,7 @@
-import {describe, test, expect} from "vitest";
-import {render, screen} from "@testing-library/react";
+import { describe, test, expect } from "vitest";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {MemoryRouter, Routes, Route} from "react-router-dom";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom";
 import LandingPage from "../pages/LandingPage.jsx";
 
@@ -13,8 +13,8 @@ function renderWithRoutes(initialEntries = ["/"]) {
     return render(
         <MemoryRouter initialEntries={initialEntries}>
             <Routes>
-                <Route path="/" element={<LandingPage/>}/>
-                <Route path="/login" element={<LoginProbe/>}/>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<LoginProbe />} />
             </Routes>
         </MemoryRouter>
     );
@@ -24,16 +24,16 @@ describe("LandingPage", () => {
     test("renders logo, hero heading, and subcopy", () => {
         render(
             <MemoryRouter>
-                <LandingPage/>
+                <LandingPage />
             </MemoryRouter>
         );
 
         // Logo via alt text
-        expect(screen.getByRole("img", {name: /planit logo/i})).toBeInTheDocument();
+        expect(screen.getByRole("img", { name: /planit logo/i })).toBeInTheDocument();
 
         // H1 (it contains <br/> and a <span>, but role/name should still match)
         expect(
-            screen.getByRole("heading", {level: 1, name: /the most effective way to/i})
+            screen.getByRole("heading", { level: 1, name: /the most effective way to/i })
         ).toBeInTheDocument();
 
         // Hero sub text
@@ -42,10 +42,10 @@ describe("LandingPage", () => {
         ).toBeInTheDocument();
 
         // A couple feature cards (spot-check)
-        expect(screen.getByRole("heading", {name: /plan with friends/i})).toBeInTheDocument();
-        expect(screen.getByRole("heading", {name: /discover places/i})).toBeInTheDocument();
-        expect(screen.getByRole("heading", {name: /smart scheduling/i})).toBeInTheDocument();
-        expect(screen.getByRole("heading", {name: /budget friendly/i})).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: /plan with friends/i })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: /discover places/i })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: /smart scheduling/i })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: /budget friendly/i })).toBeInTheDocument();
 
         // Footer year
         expect(screen.getByText(/© 2025 planit/i)).toBeInTheDocument();
@@ -55,7 +55,7 @@ describe("LandingPage", () => {
         const user = userEvent.setup();
         renderWithRoutes();
 
-        await user.click(screen.getByRole("button", {name: /get started/i}));
+        await user.click(screen.getByRole("button", { name: /get started/i }));
         expect(screen.getByTestId("login-probe")).toHaveTextContent("Login Page");
     });
 
@@ -63,17 +63,17 @@ describe("LandingPage", () => {
         const user = userEvent.setup();
         renderWithRoutes();
 
-        await user.click(screen.getByRole("button", {name: /start planning/i}));
+        await user.click(screen.getByRole("button", { name: /start planning/i }));
         expect(screen.getByTestId("login-probe")).toHaveTextContent("Login Page");
     });
 
     test("'Log In' link points to /login", () => {
         render(
             <MemoryRouter>
-                <LandingPage/>
+                <LandingPage />
             </MemoryRouter>
         );
-        const link = screen.getByRole("link", {name: /log in/i});
+        const link = screen.getByRole("link", { name: /log in/i });
         expect(link).toHaveAttribute("href", "/login");
     });
 });
