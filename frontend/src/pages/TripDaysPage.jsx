@@ -57,10 +57,12 @@ export default function TripDaysPage() {
             // format start time
             let start = "";
             if (editActivity.activity_startTime) {
-                const date = new Date(editActivity.activity_startTime);
-                const h = String(date.getHours()).padStart(2, "0");
-                const m = String(date.getMinutes()).padStart(2, "0");
-                start = `${h}:${m}`;
+                const parts = editActivity.activity_startTime.split(":");
+                if (parts.length >= 2) {
+                    const h = parts[0].padStart(2, "0");
+                    const m = parts[1].padStart(2, "0");
+                    start = `${h}:${m}`;
+                }
             }
             setEditStartTime(start);
 
@@ -118,6 +120,17 @@ export default function TripDaysPage() {
         } catch (err) {
             console.error(err);
         }
+    };
+
+    const formatTime = (timeStr) => {
+        if (!timeStr) return "No time";
+        const [hours, minutes] = timeStr.split(":").map(Number);
+        if (isNaN(hours) || isNaN(minutes)) return timeStr;
+
+        const period = hours >= 12 ? "PM" : "AM";
+        const twelveHour = hours % 12 === 0 ? 12 : hours % 12;
+
+        return `${twelveHour}:${minutes.toString().padStart(2, "0")} ${period}`;
     };
 
     //add a new day
@@ -452,10 +465,6 @@ export default function TripDaysPage() {
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            if (!editStartTime || !editDuration || !editCost) {
-                                                toast.error("Please fill in all fields before saving.");
-                                                return;
-                                            }
                                             handleUpdateActivity(editActivity.activity_id, {
                                                 activity_startTime: editStartTime,
                                                 activity_duration: editDuration,
