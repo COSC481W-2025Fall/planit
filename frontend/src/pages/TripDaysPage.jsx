@@ -57,10 +57,12 @@ export default function TripDaysPage() {
             // format start time
             let start = "";
             if (editActivity.activity_startTime) {
-                const date = new Date(editActivity.activity_startTime);
-                const h = String(date.getHours()).padStart(2, "0");
-                const m = String(date.getMinutes()).padStart(2, "0");
-                start = `${h}:${m}`;
+                const parts = editActivity.activity_startTime.split(":");
+                if (parts.length >= 2) {
+                    const h = parts[0].padStart(2, "0");
+                    const m = parts[1].padStart(2, "0");
+                    start = `${h}:${m}`;
+                }
             }
             setEditStartTime(start);
 
@@ -102,9 +104,12 @@ export default function TripDaysPage() {
 
                     // sort activities by start time
                     const sortedActivities = (activities || []).sort((a, b) => {
-                        const timeA = new Date(a.activity_startTime).getTime();
-                        const timeB = new Date(b.activity_startTime).getTime();
-                        return timeA - timeB;
+                        const toMinutes = (t) => {
+                            if (!t) return 0;
+                            const [h, m, s] = t.split(":").map(Number);
+                            return (h || 0) * 60 + (m || 0) + (s ? s / 60 : 0);
+                        };
+                        return toMinutes(a.activity_startTime) - toMinutes(b.activity_startTime);
                     });
 
                     return { ...day, activities: sortedActivities };
@@ -115,6 +120,17 @@ export default function TripDaysPage() {
         } catch (err) {
             console.error(err);
         }
+    };
+
+    const formatTime = (timeStr) => {
+        if (!timeStr) return "No time";
+        const [hours, minutes] = timeStr.split(":").map(Number);
+        if (isNaN(hours) || isNaN(minutes)) return timeStr;
+
+        const period = hours >= 12 ? "PM" : "AM";
+        const twelveHour = hours % 12 === 0 ? 12 : hours % 12;
+
+        return `${twelveHour}:${minutes.toString().padStart(2, "0")} ${period}`;
     };
 
     //add a new day
@@ -154,10 +170,6 @@ export default function TripDaysPage() {
         }
     };
 
-    // grbb the users timezone!!
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    //console.log(userTimeZone);
-
     // update an activity
     const handleUpdateActivity = async (activityId, activity) => {
         try {
@@ -173,7 +185,6 @@ export default function TripDaysPage() {
                             startTime: activity.activity_startTime,
                             duration: Number(activity.activity_duration),
                             estimatedCost: Number(activity.activity_estimated_cost),
-                            userTimeZone,
                             notesForActivity: activity.notesForActivity || ""
                         },
                     }),
@@ -235,7 +246,6 @@ export default function TripDaysPage() {
             }),
         });
 
-        console.log("afteer fetch");
 
         if (!response.ok) {
             const errData = await response.json().catch(() => ({}));
@@ -253,7 +263,6 @@ export default function TripDaysPage() {
                 ) || []
             }))
         );
-        console.log("state updated");
 
         toast.success("Notes updated successfully!");
         return true;
@@ -456,10 +465,6 @@ export default function TripDaysPage() {
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            if (!editStartTime || !editDuration || !editCost) {
-                                                toast.error("Please fill in all fields before saving.");
-                                                return;
-                                            }
                                             handleUpdateActivity(editActivity.activity_id, {
                                                 activity_startTime: editStartTime,
                                                 activity_duration: editDuration,
