@@ -1,8 +1,9 @@
 import React from "react";
 import "../css/Popup.css";
+import { createPortal } from "react-dom";
 
 export default function Popup({ title, children, buttons }) {
-    return (
+    const modal = (
         <div className="popup-screen-overlay">
             <div className="popup">
                 {title && <div className="popup-title">{title}</div>}
@@ -11,4 +12,5 @@ export default function Popup({ title, children, buttons }) {
             </div>
         </div>
     );
+    return createPortal(modal, document.body);
 }
