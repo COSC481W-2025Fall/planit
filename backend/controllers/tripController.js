@@ -37,7 +37,7 @@ export const createTrip = async (req, res) => {
     if (!req.user) return res.status(401).json({ loggedIn: false });
 
     // Extract all required fields from the request body
-    const { tripName, tripStartDate, tripLocation, isPrivate } = req.body;
+    const { tripName, tripStartDate, tripLocation, isPrivate, imageid } = req.body;
 
     // Get userId from the authenticated user in the request
     const userId = req.user.user_id;
@@ -48,8 +48,8 @@ export const createTrip = async (req, res) => {
 
     try {
         const result = await sql`
-            INSERT INTO trips (trip_name, user_id, trip_start_date, trip_location, is_private)
-            VALUES (${tripName}, ${userId}, ${tripStartDate}, ${tripLocation}, ${isPrivate})
+            INSERT INTO trips (trip_name, user_id, trip_start_date, trip_location, is_private, image_id)
+            VALUES (${tripName}, ${userId}, ${tripStartDate}, ${tripLocation}, ${isPrivate}, ${imageid})
                 RETURNING *
         `;
 
@@ -64,7 +64,7 @@ export const createTrip = async (req, res) => {
 //This function handles the modification of all fields related to a trip.
 export const updateTrip = async (req, res) => {
     if (!req.user) return res.status(401).json({ loggedIn: false });
-    const { trips_id, tripName, tripStartDate, tripLocation, isPrivate } = req.body;
+    const { trips_id, tripName, tripStartDate, tripLocation, isPrivate, imageid } = req.body;
     const userId = req.user.user_id;
 
     if (userId  === undefined || trips_id === undefined) {
@@ -96,6 +96,12 @@ export const updateTrip = async (req, res) => {
         if(isPrivate !== undefined) {
             updates.push(`is_private = $${paramCount}`);
             values.push(isPrivate);
+            paramCount++;
+        }
+
+        if (imageid !== undefined) {
+            updates.push(`image_id = $${paramCount}`);
+            values.push(imageid);
             paramCount++;
         }
 
