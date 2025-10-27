@@ -12,6 +12,7 @@ import placesAPIRoutes from "./routes/placesAPIRoutes.js";
 import daysRoutes from "./routes/daysRoutes.js";
 import tripRoutes from "./routes/tripRoutes.js";
 import activitiesRoutes from "./routes/activitiesRoutes.js";
+import imageRoutes from "./routes/imageRoutes.js";
 import likesRoutes from "./routes/likesRoutes.js";
 import exploreRoutes from "./routes/exploreRoutes.js";
 
@@ -61,6 +62,7 @@ app.use("/trip", tripRoutes);
 app.use("/activities", activitiesRoutes);
 app.get("/health", (_req, res) => res.json({ ok: true, service: "api" }));
 app.use("/activities", activitiesRoutes);
+app.use("/image", imageRoutes);
 app.use("/likes", likesRoutes);
 app.use("/explore", exploreRoutes);
 
