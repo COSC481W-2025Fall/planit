@@ -45,6 +45,7 @@
     --shadow-2: 0 0.375rem 0.875rem rgba(0, 0, 0, 0.06);
     --shadow-3: 0 2px 6px rgba(0, 0, 0, 0.1);
     --shadow-4: -2px 0 8px rgba(0, 0, 0, 0.15);
+    --shadow-5: 0 6px 14px rgba(0, 0, 0, 0.18), 0 4px 8px rgba(0, 0, 0, 0.12);
 
     --overlay-dark: rgba(0, 0, 0, 0.5);
     --overlay-strong: rgba(0, 0, 0, 0.8);

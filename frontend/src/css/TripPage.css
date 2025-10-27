@@ -81,14 +81,16 @@
 .trip-card {
     background: var(--bg-surface);
     border-radius: 15px;
-    box-shadow: 0 4px 12px var(--shadow-4);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-4);
     cursor: pointer;
     position: relative;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .trip-card:hover {
     transform: translateY(-2px);
+    box-shadow: var(--shadow-5);
 }
 
 .trip-card-image {
