@@ -59,13 +59,14 @@ body {
 .TripDaysPage {
   flex: 1;
   padding: 1.5rem 1.5rem 2rem;
+  padding-bottom: 4rem;
   overflow-y: auto;
   background: var(--bg-offwhite);
   transition: margin-right 0.3s ease, transform 0.3s ease;
   position: relative;
   min-width: 0;
   color: var(--muted);
-  min-height: 95vh;
+  min-height: 100vh;
 }
 .trip-title {
   font-family: Tahoma, sans-serif;
@@ -453,6 +454,7 @@ body {
   background: var(--bg-offwhite);
   transition: margin-right 0.3s ease, transform 0.3s ease;
   position: relative;
+  padding-bottom: 4rem;
 }
 
 .TripDaysPage.drawer-open {
