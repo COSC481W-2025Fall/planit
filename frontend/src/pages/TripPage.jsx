@@ -288,7 +288,7 @@ export default function TripPage() {
                                         withPortal={window.innerWidth <= 768}
                                         popperPlacement="bottom"
                                         className="date-input"
-                                        dateFormat="dd-MM-yyyy"
+                                        dateFormat="MM-dd-yyyy"
                                         required
                                     />
 
