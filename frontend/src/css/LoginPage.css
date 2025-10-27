@@ -1,105 +1,127 @@
-/* Import "Open Sans" for font use */
-@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
 
-html, body {
+html,
+body {
   height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
+  font-family: "Open Sans", sans-serif;
 }
 
-.parent-container {
+.login-page {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #e3ece6;
   text-align: center;
+  background: var(--accent-lite);
+  padding: 1rem;
 }
 
-/* Header of logo and welcome message */
 .header-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
+}
+
+.login-logo {
+  width: 220px;
+  max-width: 80%;
+  height: auto;
 }
 
 .header-container h1 {
-  color: black;
-  font-size: 25px;
+  color: var(--text);
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
   font-family: Tahoma, sans-serif;
-  margin-top: 5px;
-  margin-bottom: 5px;
+  margin: 0.5rem 0;
 }
+
 .header-container p {
-  color: #7c8189;
-  font-size: 15px;
-  margin-top: 5px;
-  font-family: 'Open Sans', sans-serif;
+  color: var(--muted);
+  font-size: clamp(0.9rem, 1.8vw, 1rem);
+  margin: 0.25rem 0 1rem;
 }
 
-/* Login box */
 .login-container {
-  background-color: #f2f2f2;
-  padding: 15px;
-  border-radius: 8px;
+  background: var(--bg-surface);
+  padding: 1.5rem;
+  border-radius: var(--radius);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-
+  width: 400px;
+  max-width: 90%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: px;
-
-  width: 400px;
-  height: 140px;
+  gap: 1rem;
 }
 
-.login-container h1 {
+.login-container h2 {
   font-family: Tahoma, sans-serif;
-  font-size: 20px;
-  margin-top: 8px;
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  margin: 0;
+  color: var(--text);
 }
 
-/* Button styling */
 .login-button {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
 
-  font-size: 12px;
-  font-weight: 400;
-  background-color: #1e7a3d;
-  color: white;
-
+  background-color: var(--accent);
+  color: var(--bg-surface);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius);
   padding: 10px 24px;
-
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  font-weight: 500;
+  font-family: "Open Sans", sans-serif;
   cursor: pointer;
-  width: 350px;
-  height: 40px;
-  font-family: 'Open Sans', sans-serif;
+  width: 100%;
+  max-width: 350px;
+  height: 44px;
+
+  transition: background 0.2s, transform 0.15s;
 }
 
-/* Hover effect for button */
 .login-button:hover {
-  background-color: #16582c;
+  background-color: var(--accent-dark);
+  transform: translateY(-1px);
 }
 
-/* PlanIt logo image */
-.login-logo {
-  width: 200px;
-  height: auto;
-}
-
-/* Google G logo image inside button */
 .google-g {
   width: 20px;
-  height: auto;
+  height: 20px;
 }
 
+/* ===== Responsive ===== */
+
+/* Tablet adjustments */
+@media (max-width: 900px) {
+  .login-container {
+    padding: 1.25rem;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .login-page {
+    padding: 0.5rem;
+  }
+
+  .header-container h1 {
+    font-size: 1.4rem;
+  }
+
+  .login-container {
+    padding: 1rem;
+  }
+
+  .login-button {
+    padding: 0.75rem;
+  }
+}
