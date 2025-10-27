@@ -7,17 +7,20 @@ import { sql } from "../config/db.js";
 //gets total trips made by a single user
 export const getTripCount = async (req, res) => {
     try {
+        //get userID
         const { userID } = req.body;
 
         if (!userID) {
             return res.status(400).json({ error: "userID is required"});
         }
 
+        //returns all trips and COUNT will total # of them
         const trip = await sql`
             SELECT COUNT(*) AS trip_count
             FROM trips
             WHERE user_id = ${userID}`;
 
+            //return count in json
             return res.status(200).json({ tripCount: trip[0].trip_count });
         } catch (err) {
         console.error("Error fetching trip count:", err);
@@ -28,11 +31,13 @@ export const getTripCount = async (req, res) => {
 //will fetch the longest trip a user has made
 export const getLongestTrip = async (req, res) => {
     try {
+        //get userID
         const { userID } = req.body;
 
         if (!userID) {
             return res.status(400).json({ error: "userID is required"});
         }
+        //Gets trip id and name of all trips, orders from longest to shortest, limit returns highest
         const trip = await sql`
         SELECT t.trip_name, t.trip_id, COUNT(day_id) AS total_days
         FROM trips AS t
@@ -42,6 +47,7 @@ export const getLongestTrip = async (req, res) => {
         ORDER BY total_days DESC
         LIMIT 1;   
         `;   
+        //returns longest trip in json
         return res.status(200).json(trip[0]);
         }catch (err) {
             console.error("Error fetching longest trip:", err);
@@ -52,19 +58,20 @@ export const getLongestTrip = async (req, res) => {
     //Gets sum of likes on all trips made by user
 export const getTotalLikes = async (req, res) => {
     try {
+        //get userID
         const { userID } = req.body;
 
         if(!userID) {
             return res.status(400).json({error: "userID is required"});
         }
-
+        //selects all likes that belong to the userID taken
         const likes = await sql`
         SELECT COUNT(l.like_id) AS total_likes
         FROM likes AS L
         JOIN trips AS T ON L.trip_id = T.trip_id
         WHERE T.user_id = ${userID};
         `;  
-
+        //returns total likes in json
         return res.status(200).json({ totalLikes: likes[0].total_likes });
     } catch (err) {
         console.error("Error fetching total likes:", err);
@@ -74,17 +81,20 @@ export const getTotalLikes = async (req, res) => {
 
 export const getCheapestTrip = async (req, res) => {
     try {
+        //get userID
         const { userID } = req.body;
 
         if (!userID) {
             return res.status(400).json({ error: "userID is required"});
         }
-        
+            //Counts estimated cost of all activities in a day
+            //Filters out NULL activities in SUM
+            //Orders price sums starting with lowest value not including NULL ones
+            //Returns first result only
                 const trip = await sql`
                 SELECT * FROM (
                     SELECT
-                        t.trips_id,
-                        t.trip_name,
+                        t.trips_id, t.trip_name,
                         COUNT(a.activity_id) AS total_activities,
                         COUNT(a.activity_price_estimated) FILTER (WHERE a.activity_price_estimated IS NOT NULL) AS estimated_count,
                         SUM(a.activity_price_estimated) FILTER (WHERE a.activity_price_estimated IS NOT NULL) AS estimated_total
@@ -97,7 +107,7 @@ export const getCheapestTrip = async (req, res) => {
                 ORDER BY (q.estimated_total IS NULL), q.estimated_total ASC
                 LIMIT 1;
                 `;
-
+                //returns cheapest trip in json, checks in case no non null value exists
                 return res.status(200).json(trip[0] ?? null);
     } catch (err) {
         console.error("Error fetching cheapest trip:", err);
@@ -107,12 +117,17 @@ export const getCheapestTrip = async (req, res) => {
 
 export const getMostExpensiveTrip = async (req, res) => {
     try {
+        //get userID
         const { userID } = req.body;
 
         if (!userID) {
             return res.status(400).json({ error: "userID is required"});
         }
         
+            //Counts estimated cost of all activities in a day
+            //Filters out NULL activities in SUM
+            //Orders price sums starting with highest value not including NULL ones
+            //Returns first result only
                 const trip = await sql`
                 SELECT * FROM (
                     SELECT
@@ -131,6 +146,7 @@ export const getMostExpensiveTrip = async (req, res) => {
                 LIMIT 1;
                 `;
 
+                //returns most expensive trip in json, checks in case no non null value exists
                 return res.status(200).json(trip[0] ?? null);
     } catch (err) {
         console.error("Error fetching most expensive trip:", err);
@@ -140,20 +156,24 @@ export const getMostExpensiveTrip = async (req, res) => {
 
 export const getTotalMoneySpent = async (req, res) => {
     try {
+        //get userID
         const { userID } = req.body;
 
         if (!userID) {
             return res.status(400).json({error: "userID is required"});
         }
 
-        const total = await sql`
-        SELECT SUM(a.activity_price_esimated) AS total_money_spent
-        FROM trips t
-        JOIN days d ON d.day_id = t.trips_id
-        JOIN activities a ON a.day_id = d.day_id
-        WHERE t.user_id = ${userID}; 
-        `;  
-        return res.status(200).json({ totalMoneySpent: total[0].total_money_spent ?? 0 });
+            //gets activity estimate cost for all days for all trips with userID
+            //COALESCE and filter help make sure null values are skipped
+            const total = await sql`
+            SELECT COALESCE(SUM(a.activity_price_estimated) FILTER (WHERE a.activity_price_estimated IS NOT NULL), 0) AS total_money_spent
+            FROM trips t
+            LEFT JOIN days d ON d.trip_id = t.trips_id
+            LEFT JOIN activities a ON a.day_id = d.day_id
+            WHERE t.user_id = ${userID};
+            `;
+    // returns total money spent in json or 0 if no estimated costs are found on any trips
+    return res.status(200).json({ totalMoneySpent: total[0].total_money_spent });
     } catch (err) {
         console.error("Error fetching total moneey spent:", err);
         return res.status(500).json({ error: "Internal Server Error" });
