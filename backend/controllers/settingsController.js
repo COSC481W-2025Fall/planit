@@ -79,9 +79,7 @@ export const getCheapestTrip = async (req, res) => {
         if (!userID) {
             return res.status(400).json({ error: "userID is required"});
         }
-                // Aggregate activity estimated costs per trip for this user.
-                // We ignore NULL estimates (only sum known estimates). Trips with
-                // no estimated activities will sort after trips with numeric totals.
+        
                 const trip = await sql`
                 SELECT * FROM (
                     SELECT
@@ -103,6 +101,61 @@ export const getCheapestTrip = async (req, res) => {
                 return res.status(200).json(trip[0] ?? null);
     } catch (err) {
         console.error("Error fetching cheapest trip:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+export const getMostExpensiveTrip = async (req, res) => {
+    try {
+        const { userID } = req.body;
+
+        if (!userID) {
+            return res.status(400).json({ error: "userID is required"});
+        }
+        
+                const trip = await sql`
+                SELECT * FROM (
+                    SELECT
+                        t.trips_id,
+                        t.trip_name,
+                        COUNT(a.activity_id) AS total_activities,
+                        COUNT(a.activity_price_estimated) FILTER (WHERE a.activity_price_estimated IS NOT NULL) AS estimated_count,
+                        SUM(a.activity_price_estimated) FILTER (WHERE a.activity_price_estimated IS NOT NULL) AS estimated_total
+                    FROM trips t
+                    LEFT JOIN days d ON d.trip_id = t.trips_id
+                    LEFT JOIN activities a ON a.day_id = d.day_id
+                    WHERE t.user_id = ${userID}
+                    GROUP BY t.trips_id, t.trip_name
+                ) q
+                ORDER BY (q.estimated_total IS NULL), q.estimated_total DESC
+                LIMIT 1;
+                `;
+
+                return res.status(200).json(trip[0] ?? null);
+    } catch (err) {
+        console.error("Error fetching most expensive trip:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+export const getTotalMoneySpent = async (req, res) => {
+    try {
+        const { userID } = req.body;
+
+        if (!userID) {
+            return res.status(400).json({error: "userID is required"});
+        }
+
+        const total = await sql`
+        SELECT SUM(a.activity_price_esimated) AS total_money_spent
+        FROM trips t
+        JOIN days d ON d.day_id = t.trips_id
+        JOIN activities a ON a.day_id = d.day_id
+        WHERE t.user_id = ${userID}; 
+        `;  
+        return res.status(200).json({ totalMoneySpent: total[0].total_money_spent ?? 0 });
+    } catch (err) {
+        console.error("Error fetching total moneey spent:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
