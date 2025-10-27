@@ -163,22 +163,23 @@ export default function TripPage() {
                             </div>
                         </div>
 
-              {/* Trip cards */}
-              <div className="trip-cards">
-                {trips.length === 0 ? (
-                    <div className="empty-state">
-                      <h3>No trips yet!</h3>
-                      <div>
-                        {user
-                            ? `${user.first_name}, you haven't created any trips! PlanIt now!`
-                            : <MoonLoader color="var(--accent)" size={25} />}
-                      </div>
-                    </div>
-                ) : (
-                    trips.map((trip) => (
-                        <div key={trip.trips_id} className="trip-card">
-                          <div className="trip-card-image" onClick={() => handleTripRedirect(trip.trips_id)}>
-                          </div>
+                        {/* Trip cards */}
+                        <div className="trip-cards">
+                            {trips.length === 0 ? (
+                                <div className="empty-state">
+                                    <h3>No trips yet!</h3>
+                                    <div>
+                                        {user
+                                            ? `${user.first_name}, you haven't created any trips! PlanIt now!`
+                                            : <MoonLoader color="var(--accent)" size={25}/>}
+                                    </div>
+                                </div>
+                            ) : (
+                                trips.map((trip) => (
+                                    <div key={trip.trips_id} className="trip-card">
+                                        <div className="trip-card-image"
+                                             onClick={() => handleTripRedirect(trip.trips_id)}>
+                                        </div>
 
                                         <button
                                             className="trip-menu-button"
