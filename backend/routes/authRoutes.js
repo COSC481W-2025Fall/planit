@@ -5,16 +5,13 @@ import {LOCAL_FRONTEND_URL, VITE_FRONTEND_URL} from "../../Constants.js";
 
 const router = express.Router();
 
-function isLoggedIn(req, res, next) {
-  req.user ? next() : res.sendStatus(401);
-}
-
-// router.get("/", home);
-
 router.get(
   "/google",
   googleAuth,
-  passport.authenticate("google", { scope: ["email", "profile"] })
+    passport.authenticate('google', {
+        scope: ['profile', 'email'],
+        prompt: 'select_account'
+    })
 );
 
 router.get(
@@ -52,7 +49,19 @@ router.get("/user", (req, res) => {
   }
 });
 
-// router.get("/dashboard", isLoggedIn, dashboard);
+router.get("/logout", (req, res) => {
+    req.logout(err => {
+        if (err) {
+            console.error("Error during logout:", err);
+            return res.status(500).send("Failed to log out.");
+        }
+        req.session.destroy(() => {
+            res.clearCookie("connect.sid");
+            res.json({ success: true, message: "Logged out successfully." });
+        });
+    });
+});
+
 
 router.get("/failure", authFailure);
 

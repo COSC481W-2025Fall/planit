@@ -53,12 +53,12 @@ export default function TripPage() {
   if (!user || !trips) {
     return (
         <div className="trip-page">
-          <TopBanner user={user} onSignOut={() => (window.location.href = "/")} />
+          <TopBanner user={user}/>
           <div className="content-with-sidebar">
             <NavBar />
             <div className="main-content">
               <div className="page-loading-container">
-                <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} />
+                <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
               </div>
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function TripPage() {
 
   return (
       <div className="trip-page">
-        <TopBanner user={user} onSignOut={() => { console.log("Signed out"); window.location.href = "/"; }} />
+        <TopBanner user={user} />
         <div className="content-with-sidebar">
           <NavBar />
           <div className="main-content">
@@ -160,7 +160,7 @@ export default function TripPage() {
                       <div>
                         {user
                             ? `${user.first_name}, you haven't created any trips! PlanIt now!`
-                            : <MoonLoader color="var(--accent)" size={25} />} {/* ✅ replaces text */}
+                            : <MoonLoader color="var(--accent)" size={25} />} {/* replaces text */}
                       </div>
                     </div>
                 ) : (
