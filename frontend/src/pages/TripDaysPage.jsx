@@ -32,6 +32,7 @@ export default function TripDaysPage() {
     const [openNotesPopup, setOpenNotesPopup] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [editableNote, setEditableNote] = useState("");
+    const [isAddCooldown, setIsAddCooldown] = useState(false);
 
 
     const { tripId } = useParams();
@@ -76,7 +77,7 @@ export default function TripDaysPage() {
             setEditCost(editActivity.activity_price_estimated ?? "");
 
             setNotes(editActivity.notes || "");
-        } 
+        }
     }, [editActivity]);
 
     //initial fetch of days
@@ -124,6 +125,8 @@ export default function TripDaysPage() {
 
     //add a new day
     const handleAddDay = async () => {
+        if (isAddCooldown) return; // stop if still in cooldown
+        setIsAddCooldown(true);    // start cooldown
         try {
             let nextDate;
             if (days.length > 0) {
@@ -143,7 +146,11 @@ export default function TripDaysPage() {
         } catch (err) {
             console.error("Error creating day:", err);
             toast.error("Failed to add day. Please try again.");
+        } finally {
+            // end cooldown after 3 seconds
+            setTimeout(() => setIsAddCooldown(false), 3000);
         }
+
     };
 
     //delete a day
@@ -220,47 +227,47 @@ export default function TripDaysPage() {
         }
     };
 
-   const updateNotesForActivity = async (id, newNote) => {
-    try {
-        console.log("Updating notes for activity ID:", id, "to:", newNote);
+    const updateNotesForActivity = async (id, newNote) => {
+        try {
+            console.log("Updating notes for activity ID:", id, "to:", newNote);
 
-        const url = `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/updateNotes`;
+            const url = `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/updateNotes`;
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                activityId: id,
-                notes: newNote
-            }),
-        });
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    activityId: id,
+                    notes: newNote
+                }),
+            });
 
 
-        if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            throw new Error(errData.error || "Failed to update notes");
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || "Failed to update notes");
+            }
+
+            // Update local state safely
+            setDays(prevDays =>
+                prevDays.map(day => ({
+                    ...day,
+                    activities: day.activities?.map(act =>
+                        String(act.activity_id) === String(id)
+                            ? { ...act, notes: newNote }
+                            : act
+                    ) || []
+                }))
+            );
+
+            toast.success("Notes updated successfully!");
+            return true;
+        } catch (err) {
+            console.error("Error updating notes:", err);
+            toast.error("Failed to update notes. Please try again.");
+            return false;
         }
-
-        // Update local state safely
-        setDays(prevDays =>
-            prevDays.map(day => ({
-                ...day,
-                activities: day.activities?.map(act =>
-                    String(act.activity_id) === String(id)
-                        ? { ...act, notes: newNote }
-                        : act
-                ) || []
-            }))
-        );
-
-        toast.success("Notes updated successfully!");
-        return true;
-    } catch (err) {
-        console.error("Error updating notes:", err);
-        toast.error("Failed to update notes. Please try again.");
-        return false;
-    }
-};
+    };
 
 
     const toggleMenu = (dayId) => {
@@ -271,7 +278,7 @@ export default function TripDaysPage() {
     if (!user || !trip) {
         return (
             <div className="setting-page">
-                <TopBanner user={user}/>
+                <TopBanner user={user} />
                 <div className="content-with-sidebar">
                     <NavBar />
                     <div className="main-content">
@@ -292,7 +299,7 @@ export default function TripDaysPage() {
 
     return (
         <div className="page-layout">
-            <TopBanner user={user}/>
+            <TopBanner user={user} />
 
             <div className="content-with-sidebar">
                 <NavBar />
@@ -325,7 +332,7 @@ export default function TripDaysPage() {
                         <div className="itinerary-buttons">
                             <button onClick={() => setOpenNewDay(true)} id="new-day-button">+ New Day</button>
                             {openActivitySearch === false &&
-                                <button onClick={() => {setNotes(""); setOpenActivitySearch(true)}} id="add-activity-button">+ Add Activity</button>
+                                <button onClick={() => { setNotes(""); setOpenActivitySearch(true) }} id="add-activity-button">+ Add Activity</button>
                             }
                         </div>
                     </div>
@@ -414,8 +421,17 @@ export default function TripDaysPage() {
                             buttons={
                                 <>
                                     <button type="button" onClick={() => setOpenNewDay(null)}>Cancel</button>
-                                    <button type="button" onClick={handleAddDay}>+ Add</button>
-                                </>
+                                    <button
+                                        type="button"
+                                        onClick={handleAddDay}
+                                        disabled={isAddCooldown}
+                                        style={{
+                                            opacity: isAddCooldown ? 0.5 : 1,
+                                            pointerEvents: isAddCooldown ? "none" : "auto",
+                                          }}                                    
+                                          >
+                                            Add +
+                                    </button>                                </>
                             }
                         >
                             <p className="popup-body-text">Do you want to add a new day to {trip?.trip_name}?</p>

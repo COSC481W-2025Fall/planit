@@ -37,11 +37,11 @@ const toPriceSymbol = (level) => {
 };
 
 export default function ActivitySearch({
-                                         onClose,
-                                         days,
-                                         dayIds = [],
-                                         onActivityAdded,
-                                       }) {
+  onClose,
+  days,
+  dayIds = [],
+  onActivityAdded,
+}) {
   const [query, setQuery] = useState("");
   const [cityQuery, setCityQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -52,9 +52,9 @@ export default function ActivitySearch({
 
   // popup state
   const [showDetails, setShowDetails] = useState(false);
-  const [formStartTime, setFormStartTime] = useState("");  
-  const [formDuration, setFormDuration] = useState("");    
-  const [formCost, setFormCost] = useState("");            
+  const [formStartTime, setFormStartTime] = useState("");
+  const [formDuration, setFormDuration] = useState("");
+  const [formCost, setFormCost] = useState("");
   const [notes, setNotes] = useState("");
 
   // pending selection 
@@ -88,24 +88,24 @@ export default function ActivitySearch({
   const formatType = (type) => {
     if (!type) return "N/A";
     return type
-        .split("_")
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(" ");
+      .split("_")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
   };
 
-    const getLocationString = (place) => {
-      const addr = place.addressComponents || [];
+  const getLocationString = (place) => {
+    const addr = place.addressComponents || [];
 
-      const country =
-          addr.find((c) => c && c.types?.includes("country"))?.shortText || "N/A";
+    const country =
+      addr.find((c) => c && c.types?.includes("country"))?.shortText || "N/A";
 
-      const region =
-          addr.find((c) => c && c.types?.includes("administrative_area_level_1"))
-            ?.shortText ||
-          addr.find((c) => c && c.types?.includes("administrative_area_level_2"))
-            ?.shortText ||
-          addr.find((c) => c && c.types?.includes("sublocality"))?.shortText ||
-          "N/A";
+    const region =
+      addr.find((c) => c && c.types?.includes("administrative_area_level_1"))
+        ?.shortText ||
+      addr.find((c) => c && c.types?.includes("administrative_area_level_2"))
+        ?.shortText ||
+      addr.find((c) => c && c.types?.includes("sublocality"))?.shortText ||
+      "N/A";
 
     const city =
       addr.find((c) => c && c.types?.includes("locality"))?.longText ||
@@ -114,8 +114,8 @@ export default function ActivitySearch({
       region;
 
     return [city, region, country]
-        .filter((v) => v && v !== "N/A")
-        .join(", ");
+      .filter((v) => v && v !== "N/A")
+      .join(", ");
   };
 
   // City autocomplete
@@ -130,9 +130,9 @@ export default function ActivitySearch({
     debounceTimeout.current = setTimeout(async () => {
       try {
         const res = await axios.post(
-            `${BASE_URL}/placesAPI/cityAutocomplete`,
-            { query: cityQuery },
-            { withCredentials: true }
+          `${BASE_URL}/placesAPI/cityAutocomplete`,
+          { query: cityQuery },
+          { withCredentials: true }
         );
         const suggestions = res.data.result?.suggestions || [];
         setCityResults(suggestions.slice(0, 5));
@@ -156,9 +156,9 @@ export default function ActivitySearch({
     try {
       setLoading(true);
       const res = await axios.post(
-          `${BASE_URL}/placesAPI/search`,
-          { query: combinedQuery },
-          { withCredentials: true }
+        `${BASE_URL}/placesAPI/search`,
+        { query: combinedQuery },
+        { withCredentials: true }
       );
       setResults(res.data.results || []);
     } catch (err) {
@@ -273,94 +273,94 @@ export default function ActivitySearch({
   };
 
   return (
-      <>
-        <div className="drawer">
-          <button className="collapse-btn" onClick={onClose}>
-            ×
-          </button>
+    <>
+      <div className="drawer">
+        <button className="collapse-btn" onClick={onClose}>
+          ×
+        </button>
 
-          <h2 className="search-title">Add Activities</h2>
+        <h2 className="search-title">Add Activities</h2>
 
-          <form onSubmit={handleSubmit}>
-            <div className="search-bar">
+        <form onSubmit={handleSubmit}>
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Search activity type..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+
+            <div className="city-autocomplete-wrapper">
               <input
-                  type="text"
-                  placeholder="Search activity type..."
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                type="text"
+                placeholder="Enter location..."
+                value={cityQuery}
+                onChange={(e) => setCityQuery(e.target.value)}
               />
-
-              <div className="city-autocomplete-wrapper">
-                <input
-                    type="text"
-                    placeholder="Enter location..."
-                    value={cityQuery}
-                    onChange={(e) => setCityQuery(e.target.value)}
-                />
-                {cityResults.length > 0 && (
-                    <ul className="city-results-dropdown">
-                      {cityResults.map((suggestion, idx) => (
-                          <li
-                              key={idx}
-                              onClick={() => {
-                                const selectedCity =
-                                    suggestion.placePrediction?.text?.text || "";
-                                setCityQuery(selectedCity);
-                                setCityResults([]);
-                                prevCityQuery.current = selectedCity;
-                              }}
-                          >
-                            {suggestion.placePrediction?.text?.text || ""}
-                          </li>
-                      ))}
-                    </ul>
-                )}
-              </div>
+              {cityResults.length > 0 && (
+                <ul className="city-results-dropdown">
+                  {cityResults.map((suggestion, idx) => (
+                    <li
+                      key={idx}
+                      onClick={() => {
+                        const selectedCity =
+                          suggestion.placePrediction?.text?.text || "";
+                        setCityQuery(selectedCity);
+                        setCityResults([]);
+                        prevCityQuery.current = selectedCity;
+                      }}
+                    >
+                      {suggestion.placePrediction?.text?.text || ""}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
+          </div>
 
-            <div className="search-actions">
-              <select
-                  value={selectedDay}
-                  onChange={(e) => setSelectedDay(Number(e.target.value))}
-              >
-                <option value="">Any Day</option>
-                {[...Array(days)].map((_, idx) => (
-                    <option key={idx + 1} value={idx + 1}>
-                      {`Day ${idx + 1}`}
-                    </option>
-                ))}
-              </select>
-              <button type="submit" className="search-btn">
-                Search
-              </button>
+          <div className="search-actions">
+            <select
+              value={selectedDay}
+              onChange={(e) => setSelectedDay(Number(e.target.value))}
+            >
+              <option value="">Any Day</option>
+              {[...Array(days)].map((_, idx) => (
+                <option key={idx + 1} value={idx + 1}>
+                  {`Day ${idx + 1}`}
+                </option>
+              ))}
+            </select>
+            <button type="submit" className="search-btn">
+              Search
+            </button>
+          </div>
+        </form>
+
+        {/*  Loader integrated here */}
+        <div className="search-results">
+          {loading ? (
+            <div className="loading-container">
+              <MoonLoader color="var(--accent)" size={50} speedMultiplier={0.9} />
             </div>
-          </form>
-
-          {/*  Loader integrated here */}
-          <div className="search-results">
-            {loading ? (
-                <div className="loading-container">
-                  <MoonLoader color="var(--accent)" size={50} speedMultiplier={0.9} />
-                </div>
-            ) : results.length > 0 ? (
-                results.map((place, idx) => (
-                    <div key={idx} className="activity-card">
-                      <div className="card-content">
-                        <h3>{place.displayName?.text}</h3>
-                        <p className="detail">{getLocationString(place)}</p>
-                        <p className="detail">Type: {formatType(place.primaryType)}</p>
-                        <p className="price">{priceLevelDisplay(place.priceLevel)}</p>
-                        <p className="detail">
-                          {place.rating !== undefined ? (
-                              <span className="stars">
+          ) : results.length > 0 ? (
+            results.map((place, idx) => (
+              <div key={idx} className="activity-card">
+                <div className="card-content">
+                  <h3>{place.displayName?.text}</h3>
+                  <p className="detail">{getLocationString(place)}</p>
+                  <p className="detail">Type: {formatType(place.primaryType)}</p>
+                  <p className="price">{priceLevelDisplay(place.priceLevel)}</p>
+                  <p className="detail">
+                    {place.rating !== undefined ? (
+                      <span className="stars">
                         <Star className="star" size={16} fill="currentColor" />
-                                {` ${place.rating}`}
+                        {` ${place.rating}`}
                       </span>
-                          ) : (
-                              "No ratings available"
-                          )}
-                        </p>
-                      </div>
+                    ) : (
+                      "No ratings available"
+                    )}
+                  </p>
+                </div>
 
                 <div className="card-actions">
                   {place.websiteUri ? (
@@ -408,7 +408,17 @@ export default function ActivitySearch({
               >
                 Cancel
               </button>
-              <button type="button" onClick={handleSaveDetails} disabled={saving}>
+              <button
+                type="button"
+                onClick={handleSaveDetails}
+                disabled={saving}
+                style={{
+                  opacity: saving ? 0.5 : 1,
+                  pointerEvents: saving ? "none" : "auto",
+                  cursor: saving ? "not-allowed" : "pointer",
+                  transition: "opacity 0.3s ease"
+                }}
+              >
                 {saving ? "Saving..." : "Save"}
               </button>
             </>
