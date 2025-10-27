@@ -22,7 +22,7 @@ export default function TripPage() {
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
     const [startDate, setStartDate] = useState(
-        editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
+      editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
     );
 
     // Close dropdown if click outside
@@ -39,16 +39,16 @@ export default function TripPage() {
     // Get user details
     useEffect(() => {
         fetch(
-            (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
-            "/auth/login/details",
-            {credentials: "include"}
+          (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+          "/auth/login/details",
+          {credentials: "include"}
         )
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.loggedIn === false) return;
-                setUser({...data});
-            })
-            .catch((err) => console.error("User fetch error:", err));
+          .then((res) => res.json())
+          .then((data) => {
+              if (data.loggedIn === false) return;
+              setUser({...data});
+          })
+          .catch((err) => console.error("User fetch error:", err));
     }, []);
 
     // Fetch trips once user is loaded
@@ -56,27 +56,27 @@ export default function TripPage() {
         if (!user?.user_id) return;
 
         getTrips(user.user_id)
-            .then((data) => {
-                const tripsArray = Array.isArray(data) ? data : data.trips;
-                setTrips(tripsArray.sort((a, b) => a.trips_id - b.trips_id));
-            })
-            .catch((err) => console.error("Failed to fetch trips:", err));
+          .then((data) => {
+              const tripsArray = Array.isArray(data) ? data : data.trips;
+              setTrips(tripsArray.sort((a, b) => a.trips_id - b.trips_id));
+          })
+          .catch((err) => console.error("Failed to fetch trips:", err));
     }, [user?.user_id]);
 
     //Show Loader while fetching user or trips
     if (!user || !trips) {
         return (
-            <div className="trip-page">
-                <TopBanner user={user}/>
-                <div className="content-with-sidebar">
-                    <NavBar/>
-                    <div className="main-content">
-                        <div className="page-loading-container">
-                            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          <div className="trip-page">
+              <TopBanner user={user}/>
+              <div className="content-with-sidebar">
+                  <NavBar/>
+                  <div className="main-content">
+                      <div className="page-loading-container">
+                          <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
+                      </div>
+                  </div>
+              </div>
+          </div>
         );
     }
 
@@ -134,177 +134,177 @@ export default function TripPage() {
     };
 
     return (
-        <div className="trip-page">
-            <TopBanner user={user}/>
-            <div className="content-with-sidebar">
-                <NavBar/>
-                <div className="main-content">
-                    <div className="trips-section">
-                        {/* Header row */}
-                        <div className="trips-header">
-                            <div className="trips-title-section">
-                                <div className="trips-title">
+      <div className="trip-page">
+          <TopBanner user={user}/>
+          <div className="content-with-sidebar">
+              <NavBar/>
+              <div className="main-content">
+                  <div className="trips-section">
+                      {/* Header row */}
+                      <div className="trips-header">
+                          <div className="trips-title-section">
+                              <div className="trips-title">
+                                  {user
+                                    ? `${user.first_name} ${user.last_name}'s Trips`
+                                    : <MoonLoader color="var(--accent)" size={30}/>}
+                              </div>
+                              <div className="trips-subtitle">
+                                  Plan and manage your upcoming trips
+                              </div>
+                          </div>
+
+                          <div className="banner-controls">
+                              <button className="new-trip-button" onClick={handleNewTrip}>
+                                  + New Trip
+                              </button>
+                              <button className="filter-button">
+                                  <span className="filter-icon"></span> Filter
+                              </button>
+                          </div>
+                      </div>
+
+                      {/* Trip cards */}
+                      <div className="trip-cards">
+                          {trips.length === 0 ? (
+                            <div className="empty-state">
+                                <h3>No trips yet!</h3>
+                                <div>
                                     {user
-                                        ? `${user.first_name} ${user.last_name}'s Trips`
-                                        : <MoonLoader color="var(--accent)" size={30}/>}
-                                </div>
-                                <div className="trips-subtitle">
-                                    Plan and manage your upcoming trips
+                                      ? `${user.first_name}, you haven't created any trips! PlanIt now!`
+                                      : <MoonLoader color="var(--accent)" size={25}/>}
                                 </div>
                             </div>
+                          ) : (
+                            trips.map((trip) => (
+                              <div key={trip.trips_id} className="trip-card">
+                                  <div className="trip-card-image"
+                                       onClick={() => handleTripRedirect(trip.trips_id)}>
+                                  </div>
 
-                            <div className="banner-controls">
-                                <button className="new-trip-button" onClick={handleNewTrip}>
-                                    + New Trip
-                                </button>
-                                <button className="filter-button">
-                                    <span className="filter-icon"></span> Filter
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Trip cards */}
-                        <div className="trip-cards">
-                            {trips.length === 0 ? (
-                                <div className="empty-state">
-                                    <h3>No trips yet!</h3>
-                                    <div>
-                                        {user
-                                            ? `${user.first_name}, you haven't created any trips! PlanIt now!`
-                                            : <MoonLoader color="var(--accent)" size={25}/>}
-                                    </div>
-                                </div>
-                            ) : (
-                                trips.map((trip) => (
-                                    <div key={trip.trips_id} className="trip-card">
-                                        <div className="trip-card-image"
-                                             onClick={() => handleTripRedirect(trip.trips_id)}>
-                                        </div>
-
-                                        <button
-                                            className="trip-menu-button"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setOpenDropdownId(
-                                                    openDropdownId === trip.trips_id ? null : trip.trips_id
-                                                );
-                                            }}
-                                        >
-                                            ⋮
-                                        </button>
-
-                                        {openDropdownId === trip.trips_id && (
-                                            <div className="trip-dropdown" ref={dropdownRef}>
-                                                <button
-                                                    className="dropdown-item edit-item"
-                                                    onClick={() => {
-                                                        handleEditTrip(trip);
-                                                        setOpenDropdownId(null);
-                                                    }}
-                                                >
-                                                    <Pencil size={16}/> Edit Trip
-                                                </button>
-                                                <button
-                                                    className="dropdown-item delete-item"
-                                                    onClick={() => {
-                                                        handleDeleteTrip(trip.trips_id);
-                                                        setOpenDropdownId(null);
-                                                    }}
-                                                >
-                                                    <Trash size={16}/> Delete Trip
-                                                </button>
-                                            </div>
-                                        )}
-
-                                        <div
-                                            className="trip-card-content"
-                                            onClick={() => handleTripRedirect(trip.trips_id)}
-                                        >
-                                            <h3 className="trip-card-title">{trip.trip_name}</h3>
-                                            <div className="trip-location">
-                                                <MapPin size={16} style={{marginRight: "4px"}}/>
-                                                {trip.trip_location || "Location not set"}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Modal for creating/editing trips */}
-                    {isModalOpen && (
-                        <Popup
-                            title=""
-                            buttons={
-                                <>
-                                    <button type="submit" form="trip-form">
-                                        Save
-                                    </button>
-                                    <button type="button" onClick={() => setIsModalOpen(false)}>
-                                        Cancel
-                                    </button>
-                                </>
-                            }
-                        >
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                                <h2>{editingTrip ? "Edit Trip" : "Create New Trip"}</h2>
-                                <form
-                                    id="trip-form"
-                                    onSubmit={async (e) => {
-                                        e.preventDefault();
-                                        const formData = new FormData(e.target);
-                                        const tripData = {
-                                            trip_name: formData.get("name"),
-                                            trip_location: formData.get("location"),
-                                            trip_start_date: formData.get("startDate"),
-                                            user_id: user.user_id,
-                                            isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
-                                        };
-                                        if (editingTrip) tripData.trips_id = editingTrip.trips_id;
-                                        console.log(tripData)
-                                        await handleSaveTrip(tripData);
+                                  <button
+                                    className="trip-menu-button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDropdownId(
+                                          openDropdownId === trip.trips_id ? null : trip.trips_id
+                                        );
                                     }}
-                                >
-                                    <input
-                                        name="name"
-                                        placeholder="Trip Name"
-                                        maxLength="30"
-                                        defaultValue={editingTrip?.trip_name || ""}
-                                        required
-                                    />
-                                    <input
-                                        name="location"
-                                        placeholder="Location"
-                                        maxLength="30"
-                                        defaultValue={editingTrip?.trip_location || ""}
-                                        required
-                                    />
-                                    {/* React-controlled DatePicker */}
-                                    <DatePicker
-                                        selected={startDate}
-                                        onChange={(date) => setStartDate(date)}
-                                        placeholderText="Start Date"
-                                        withPortal={window.innerWidth <= 768}
-                                        popperPlacement="bottom"
-                                        className="date-input"
-                                        dateFormat="dd-MM-yyyy"
-                                        required
-                                    />
+                                  >
+                                      ⋮
+                                  </button>
 
-                                    {/* Hidden input so backend still receives startDate as text */}
-                                    <input
-                                        type="hidden"
-                                        name="startDate"
-                                        value={startDate ? startDate.toISOString().split("T")[0] : ""}
-                                    />
+                                  {openDropdownId === trip.trips_id && (
+                                    <div className="trip-dropdown" ref={dropdownRef}>
+                                        <button
+                                          className="dropdown-item edit-item"
+                                          onClick={() => {
+                                              handleEditTrip(trip);
+                                              setOpenDropdownId(null);
+                                          }}
+                                        >
+                                            <Pencil size={16}/> Edit Trip
+                                        </button>
+                                        <button
+                                          className="dropdown-item delete-item"
+                                          onClick={() => {
+                                              handleDeleteTrip(trip.trips_id);
+                                              setOpenDropdownId(null);
+                                          }}
+                                        >
+                                            <Trash size={16}/> Delete Trip
+                                        </button>
+                                    </div>
+                                  )}
 
-                                </form>
-                            </div>
-                        </Popup>
-                    )}
-                </div>
-            </div>
-        </div>
+                                  <div
+                                    className="trip-card-content"
+                                    onClick={() => handleTripRedirect(trip.trips_id)}
+                                  >
+                                      <h3 className="trip-card-title">{trip.trip_name}</h3>
+                                      <div className="trip-location">
+                                          <MapPin size={16} style={{marginRight: "4px"}}/>
+                                          {trip.trip_location || "Location not set"}
+                                      </div>
+                                  </div>
+                              </div>
+                            ))
+                          )}
+                      </div>
+                  </div>
+
+                  {/* Modal for creating/editing trips */}
+                  {isModalOpen && (
+                    <Popup
+                      title=""
+                      buttons={
+                          <>
+                              <button type="submit" form="trip-form">
+                                  Save
+                              </button>
+                              <button type="button" onClick={() => setIsModalOpen(false)}>
+                                  Cancel
+                              </button>
+                          </>
+                      }
+                    >
+                        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                            <h2>{editingTrip ? "Edit Trip" : "Create New Trip"}</h2>
+                            <form
+                              id="trip-form"
+                              onSubmit={async (e) => {
+                                  e.preventDefault();
+                                  const formData = new FormData(e.target);
+                                  const tripData = {
+                                      trip_name: formData.get("name"),
+                                      trip_location: formData.get("location"),
+                                      trip_start_date: formData.get("startDate"),
+                                      user_id: user.user_id,
+                                      isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
+                                  };
+                                  if (editingTrip) tripData.trips_id = editingTrip.trips_id;
+                                  console.log(tripData)
+                                  await handleSaveTrip(tripData);
+                              }}
+                            >
+                                <input
+                                  name="name"
+                                  placeholder="Trip Name"
+                                  maxLength="30"
+                                  defaultValue={editingTrip?.trip_name || ""}
+                                  required
+                                />
+                                <input
+                                  name="location"
+                                  placeholder="Location"
+                                  maxLength="30"
+                                  defaultValue={editingTrip?.trip_location || ""}
+                                  required
+                                />
+                                {/* React-controlled DatePicker */}
+                                <DatePicker
+                                  selected={startDate}
+                                  onChange={(date) => setStartDate(date)}
+                                  placeholderText="Start Date"
+                                  withPortal={window.innerWidth <= 768}
+                                  popperPlacement="bottom"
+                                  className="date-input"
+                                  dateFormat="dd-MM-yyyy"
+                                  required
+                                />
+
+                                {/* Hidden input so backend still receives startDate as text */}
+                                <input
+                                  type="hidden"
+                                  name="startDate"
+                                  value={startDate ? startDate.toISOString().split("T")[0] : ""}
+                                />
+
+                            </form>
+                        </div>
+                    </Popup>
+                  )}
+              </div>
+          </div>
+      </div>
     );
 }
