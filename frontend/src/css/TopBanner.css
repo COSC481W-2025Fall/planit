@@ -80,8 +80,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 2rem;
-    width: 2rem;
+    height: 2.3rem;
+    width: 2.3rem;
     border-radius: 999px;
     border: 1px solid var(--border);
     background: var(--bg-surface);

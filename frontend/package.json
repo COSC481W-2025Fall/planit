@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@theme-toggles/react": "^4.1.0",
     "axios": "^1.11.0",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.544.0",
