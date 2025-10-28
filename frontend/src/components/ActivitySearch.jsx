@@ -235,12 +235,47 @@ useEffect(() => {
         latitude: prevActivity.latitude,
         longitude: prevActivity.longitude,
       };
-      console.log(origin);
+
+      const destination = {
+        latitude: pendingPlace.location?.latitude,
+        longitude: pendingPlace.location?.longitude
+      }
+
+      findDistance(origin, destination, "DRIVE");
+      // console.log(origin);
+      // console.log(prevActivity.activity_name);
+
+      // console.log(destination);
 
 
     } catch (err) {
       toast.error("Failed to fetch distance info.");
       console.error("Distance fetch error:", err?.response?.data || err.message);
+    }
+  }
+
+  async function findDistance(origin, destination, transportation){
+    try{
+      setLoading(true);
+      const body = {
+        origin,
+        destination,
+        wayOfTransportation: transportation
+      };
+
+      const res = await axios.post(
+        `${BASE_URL}/routesAPI/distance/between/activity`,
+        body
+      );
+
+      const { distanceMiles, durationSeconds } = res.data;
+
+      console.log(distanceMiles)
+      console.log(durationSeconds);
+    } catch (err){
+      toast.error("There was an issue trying to compute the distance")
+    } finally {
+      setLoading(false);
     }
   }
   // Open popup only 
