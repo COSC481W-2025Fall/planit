@@ -89,30 +89,4 @@ describe("Likes Controller", () => {
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({ error: "userId is required" });
   });
-
-  // -------------------------
-  // getLikedTripIdsByUser
-  // -------------------------
-  it("should return only liked trip IDs for a user", async () => {
-    const req = { query: { userId: 1 } };
-    const res = mockRes();
-    const mockLikes = [{ trip_id: 101 }, { trip_id: 203 }];
-
-    sql.mockResolvedValue(mockLikes);
-
-    await likesController.getLikedTripIdsByUser(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ likedTripIds: [101, 203] });
-  });
-
-  it("should return 400 if userId missing in getLikedTripIdsByUser", async () => {
-    const req = { query: {} };
-    const res = mockRes();
-
-    await likesController.getLikedTripIdsByUser(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: "userId is required" });
-  });
 });

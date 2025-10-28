@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {useState} from "react";
+import {useNavigate} from "react-router-dom";
 import "../css/LandingPage.css";
 import logo from "../assets/Planit_Full_Green.png";
-import { Users, MapPin, Calendar, PiggyBank, Star } from "lucide-react";
+import {Users, MapPin, Calendar, PiggyBank, Star} from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
 
 export default function LandingPage() {
@@ -18,11 +18,11 @@ export default function LandingPage() {
 
     return (
         <div className="landing">
-            {loading && <LoadingSpinner />}
+            {loading && <LoadingSpinner/>}
 
             <header className="top-bar">
                 <div className="brand">
-                    <img src={logo} alt="PlanIt Logo" className="logo-img" />
+                    <img src={logo} alt="PlanIt Logo" className="logo-img"/>
                 </div>
                 <nav className="nav-links">
                     <a href="/login" className="login-link" onClick={(e) => {
@@ -43,7 +43,7 @@ export default function LandingPage() {
             <section className="hero">
                 <div className="hero-inner">
                     <h1 className="hero-title">
-                        The most effective way to <br />
+                        The most effective way to <br/>
                         plan <span className="accent">trips</span>
                     </h1>
                     <p className="hero-sub">
@@ -73,28 +73,28 @@ export default function LandingPage() {
             <section className="features">
                 <div className="features-grid">
                     <div className="feature-card">
-                        <Users className="feature-icon" size={32} />
+                        <Users className="feature-icon" size={32}/>
                         <h3 className="feature-title">Plan With Friends</h3>
                         <p className="feature-text">
                             Invite friends to collaborate on your trip itinerary in real-time
                         </p>
                     </div>
                     <div className="feature-card">
-                        <MapPin className="feature-icon" size={32} />
+                        <MapPin className="feature-icon" size={32}/>
                         <h3 className="feature-title">Discover Places</h3>
                         <p className="feature-text">
                             Find amazing destinations and activities recommended by fellow travelers
                         </p>
                     </div>
                     <div className="feature-card">
-                        <Calendar className="feature-icon" size={32} />
+                        <Calendar className="feature-icon" size={32}/>
                         <h3 className="feature-title">Smart Scheduling</h3>
                         <p className="feature-text">
                             Organize your days with intelligent scheduling that considers travel time
                         </p>
                     </div>
                     <div className="feature-card">
-                        <PiggyBank className="feature-icon" size={32} />
+                        <PiggyBank className="feature-icon" size={32}/>
                         <h3 className="feature-title">Budget Friendly</h3>
                         <p className="feature-text">
                             Keep track of spending across your entire trip
@@ -117,7 +117,7 @@ export default function LandingPage() {
                     <div className="testimonial-card">
                         <div className="stars">
                             {[...Array(5)].map((_, i) => (
-                                <Star key={i} className="star" size={16} fill="currentColor" />
+                                <Star key={i} className="star" size={16} fill="currentColor"/>
                             ))}
                         </div>
                         <p className="quote">
@@ -136,7 +136,7 @@ export default function LandingPage() {
                     <div className="testimonial-card">
                         <div className="stars">
                             {[...Array(5)].map((_, i) => (
-                                <Star key={i} className="star" size={16} fill="currentColor" />
+                                <Star key={i} className="star" size={16} fill="currentColor"/>
                             ))}
                         </div>
                         <p className="quote">
@@ -155,7 +155,7 @@ export default function LandingPage() {
                     <div className="testimonial-card">
                         <div className="stars">
                             {[...Array(5)].map((_, i) => (
-                                <Star key={i} className="star" size={16} fill="currentColor" />
+                                <Star key={i} className="star" size={16} fill="currentColor"/>
                             ))}
                         </div>
                         <p className="quote">
