@@ -2,17 +2,17 @@ import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import "../css/LandingPage.css";
 import logo from "../assets/Planit_Full_Green.png";
-import {Users, MapPin, Calendar, PiggyBank, Star} from "lucide-react";
+import {Users, MapPin, Calendar, PiggyBank, Star, Sun, Moon} from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
+import { useTheme } from "../theme/ThemeProvider";
 
 export default function LandingPage() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const { theme, toggle } = useTheme();
 
     const handleRedirect = (path) => {
-        // start navigation first
         navigate(path);
-        // show loader after navigation triggered
         setLoading(true);
     };
 
@@ -25,6 +25,15 @@ export default function LandingPage() {
                     <img src={logo} alt="PlanIt Logo" className="logo-img"/>
                 </div>
                 <nav className="nav-links">
+                    <button
+                        type="button"
+                        className="theme-toggle"
+                        aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+                        title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+                        onClick={toggle}
+                    >
+                        {theme === "dark" ? <Sun size={18}/> : <Moon size={18}/>}
+                </button>
                     <a href="/login" className="login-link" onClick={(e) => {
                         e.preventDefault();
                         handleRedirect("/login");

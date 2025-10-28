@@ -320,6 +320,23 @@
     font-weight: 600;
 }
 
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text);
+    padding: 0.4rem 0.6rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.theme-toggle:hover {
+    box-shadow: var(--shadow-1);
+}
+
 /*Responsive Top Bar*/
 @media (max-width: 420px) {
     .nav-links {

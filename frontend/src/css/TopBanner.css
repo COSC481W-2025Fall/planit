@@ -76,6 +76,21 @@
     cursor: pointer;
     padding: 0.25rem;
 }
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
+    width: 2rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text);
+    cursor: pointer;
+}
+.theme-toggle:hover {
+    box-shadow: var(--shadow-1);
+}
 
 @media (max-width: 900px) {
     .hamburger {
