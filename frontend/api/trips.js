@@ -24,7 +24,6 @@ export async function createTrip(trip) {
     tripLocation: trip.trip_location,
     tripStartDate: trip.trip_start_date,
     days: trip.days,
-    imageid: trip.image_id,
     isPrivate: trip.isPrivate
   };
 
@@ -51,7 +50,6 @@ export async function updateTrip(trip) {
     tripLocation: trip.trip_location,
     tripStartDate: trip.trip_start_date,
     days: trip.days,
-    imageid: trip.image_id,
     isPrivate: trip.isPrivate
   };
 

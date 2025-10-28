@@ -20,20 +20,19 @@ export default function TripDaysPage() {
   const [days, setDays] = useState([]);
   const [deleteDayId, setDeleteDayId] = useState(null);
 
-    //constants for UI components
-    const [openMenu, setOpenMenu] = useState(null);
-    const [newDay, setOpenNewDay] = useState(null);
-    const [openActivitySearch, setOpenActivitySearch] = useState(false);
-    const [editActivity, setEditActivity] = useState(null);
-    const [editStartTime, setEditStartTime] = useState("");
-    const [editDuration, setEditDuration] = useState("");
-    const [editCost, setEditCost] = useState(0);
-    const [notes, setNotes] = useState("");
-    const [openNotesPopup, setOpenNotesPopup] = useState(false);
-    const [selectedActivity, setSelectedActivity] = useState(null);
-    const [editableNote, setEditableNote] = useState("");
-    const [isAddCooldown, setIsAddCooldown] = useState(false);
-    const [imageUrl, setImageUrl] = useState(null);
+  //constants for UI components
+  const [openMenu, setOpenMenu] = useState(null);
+  const [newDay, setOpenNewDay] = useState(null);
+  const [openActivitySearch, setOpenActivitySearch] = useState(false);
+  const [editActivity, setEditActivity] = useState(null);
+  const [editStartTime, setEditStartTime] = useState("");
+  const [editDuration, setEditDuration] = useState("");
+  const [editCost, setEditCost] = useState(0);
+  const [notes, setNotes] = useState("");
+  const [openNotesPopup, setOpenNotesPopup] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [editableNote, setEditableNote] = useState("");
+  const [isAddCooldown, setIsAddCooldown] = useState(false);
 
   const [expandedDays, setExpandedDays] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
@@ -158,62 +157,35 @@ export default function TripDaysPage() {
       console.error(err);
     }
   };
-    //Fetch banner image url
-    useEffect(() => {
-        const fetchImage = async () => {
-            if (!trip?.image_id) return;
+  //add a new day
+  const handleAddDay = async () => {
+    if (isAddCooldown) return; // stop if still in cooldown
+    setIsAddCooldown(true);    // start cooldown
+    try {
+      let nextDate;
+      if (days.length > 0) {
+        const lastDayDate = new Date(days[days.length - 1].day_date);
+        nextDate = new Date(lastDayDate);
+        nextDate.setDate(lastDayDate.getDate() + 1);
+      } else {
+        nextDate = new Date(trip.trip_start_date);
+      }
 
-            try {
-                const res = await fetch(
-                    `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
-                    { credentials: "include" }
-                );
+      const formatted = nextDate.toISOString().split("T")[0];
+      await createDay(tripId, { day_date: formatted });
 
-                if (!res.ok) {
-                    const errData = await res.json();
-                    throw new Error(errData.error || "Failed to fetch image.");
-                }
+      await fetchDays();
+      setOpenNewDay(false);
+      toast.success("New day added successfully!");
+    } catch (err) {
+      console.error("Error creating day:", err);
+      toast.error("Failed to add day. Please try again.");
+    } finally {
+      // end cooldown after 3 seconds
+      setTimeout(() => setIsAddCooldown(false), 3000);
+    }
 
-                const data = await res.json();
-                setImageUrl(data.imageUrl);
-            } catch (err) {
-                console.error("Failed to fetch image:", err);
-                setError(err.message);
-            }
-        };
-
-        fetchImage();
-    }, [trip?.image_id]);
-
-    //add a new day
-    const handleAddDay = async () => {
-        if (isAddCooldown) return; // stop if still in cooldown
-        setIsAddCooldown(true);    // start cooldown
-        try {
-            let nextDate;
-            if (days.length > 0) {
-                const lastDayDate = new Date(days[days.length - 1].day_date);
-                nextDate = new Date(lastDayDate);
-                nextDate.setDate(lastDayDate.getDate() + 1);
-            } else {
-                nextDate = new Date(trip.trip_start_date);
-            }
-
-            const formatted = nextDate.toISOString().split("T")[0];
-            await createDay(tripId, { day_date: formatted });
-
-            await fetchDays();
-            setOpenNewDay(false);
-            toast.success("New day added successfully!");
-        } catch (err) {
-            console.error("Error creating day:", err);
-            toast.error("Failed to add day. Please try again.");
-        } finally {
-            // end cooldown after 3 seconds
-            setTimeout(() => setIsAddCooldown(false), 3000);
-        }
-
-    };
+  };
 
   //delete a day
   const handleDeleteDay = async (dayId) => {
@@ -400,14 +372,7 @@ export default function TripDaysPage() {
             )}
           </div>
 
-                    <div className="image-banner" />
-                    <img
-                        src={imageUrl}
-                        alt={trip.trip_name}
-                        // Not sure if it's possible to style this better given the ratio constraints of the image-banner box.
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-
+          <div className="image-banner" />
           <div className="button-level-bar">
             <h1 className="itinerary-text">Itinerary</h1>
             <div className="itinerary-buttons">
@@ -560,51 +525,51 @@ export default function TripDaysPage() {
           )}
 
 
-                    {newDay && (
-                        <Popup
-                            title="New Day"
-                            buttons={
-                                <>
-                                    <button type="button" onClick={() => setOpenNewDay(null)}>Cancel</button>
-                                    <button
-                                        type="button"
-                                        onClick={handleAddDay}
-                                        disabled={isAddCooldown}
-                                        style={{
-                                            opacity: isAddCooldown ? 0.5 : 1,
-                                            pointerEvents: isAddCooldown ? "none" : "auto",
-                                        }}
-                                    >
-                                        Add +
-                                    </button>                                </>
-                            }
-                        >
-                            <p className="popup-body-text">Do you want to add a new day to {trip?.trip_name}?</p>
-                        </Popup>
-                    )}
-                    {deleteDayId && (
-                        <Popup
-                            title="Delete Day"
-                            buttons={
-                                <>
-                                    <button type="button" onClick={() => setDeleteDayId(null)}>Cancel</button>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            handleDeleteDay(deleteDayId);
-                                            setDeleteDayId(null);
-                                        }}
-                                    >
-                                        Delete
-                                    </button>
-                                </>
-                            }
-                        >
-                            <p className="popup-body-text">
-                                Are you sure you want to delete this day? You will lose all activities for this
-                            </p>
-                        </Popup>
-                    )}
+          {newDay && (
+            <Popup
+              title="New Day"
+              buttons={
+                <>
+                  <button type="button" onClick={() => setOpenNewDay(null)}>Cancel</button>
+                  <button
+                    type="button"
+                    onClick={handleAddDay}
+                    disabled={isAddCooldown}
+                    style={{
+                      opacity: isAddCooldown ? 0.5 : 1,
+                      pointerEvents: isAddCooldown ? "none" : "auto",
+                    }}
+                  >
+                    Add +
+                  </button>                                </>
+              }
+            >
+              <p className="popup-body-text">Do you want to add a new day to {trip?.trip_name}?</p>
+            </Popup>
+          )}
+          {deleteDayId && (
+            <Popup
+              title="Delete Day"
+              buttons={
+                <>
+                  <button type="button" onClick={() => setDeleteDayId(null)}>Cancel</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleDeleteDay(deleteDayId);
+                      setDeleteDayId(null);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </>
+              }
+            >
+              <p className="popup-body-text">
+                Are you sure you want to delete this day? You will lose all activities for this
+              </p>
+            </Popup>
+          )}
 
           {editActivity && (
             <Popup

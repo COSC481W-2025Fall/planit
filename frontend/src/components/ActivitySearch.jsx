@@ -1,12 +1,12 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "../css/ActivitySearch.css";
 import "../css/Popup.css";
 import Popup from "../components/Popup";
-import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
-import {Star} from "lucide-react";
-import {MoonLoader} from "react-spinners";
-import {toast} from "react-toastify";
+import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
+import { Star } from "lucide-react";
+import { MoonLoader } from "react-spinners";
+import { toast } from "react-toastify";
 
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
@@ -37,25 +37,25 @@ const toPriceSymbol = (level) => {
 };
 
 export default function ActivitySearch({
-  onClose,
-  days,
-  dayIds = [],
-  onActivityAdded,
+    onClose,
+    days,
+    dayIds = [],
+    onActivityAdded,
 }) {
-  const [query, setQuery] = useState("");
-  const [cityQuery, setCityQuery] = useState("");
-  const [results, setResults] = useState([]);
-  const [cityResults, setCityResults] = useState([]);
-  const [selectedDay, setSelectedDay] = useState("");
-  const [creating, setCreating] = useState(false);
-  const [loading, setLoading] = useState(false); // ✅ New state for loader
+    const [query, setQuery] = useState("");
+    const [cityQuery, setCityQuery] = useState("");
+    const [results, setResults] = useState([]);
+    const [cityResults, setCityResults] = useState([]);
+    const [selectedDay, setSelectedDay] = useState("");
+    const [creating, setCreating] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-  // popup state
-  const [showDetails, setShowDetails] = useState(false);
-  const [formStartTime, setFormStartTime] = useState("");
-  const [formDuration, setFormDuration] = useState("");
-  const [formCost, setFormCost] = useState("");
-  const [notes, setNotes] = useState("");
+    // popup state
+    const [showDetails, setShowDetails] = useState(false);
+    const [formStartTime, setFormStartTime] = useState("");
+    const [formDuration, setFormDuration] = useState("");
+    const [formCost, setFormCost] = useState("");
+    const [notes, setNotes] = useState("");
 
     // pending selection
     const [pendingPlace, setPendingPlace] = useState(null);
@@ -131,8 +131,8 @@ export default function ActivitySearch({
             try {
                 const res = await axios.post(
                     `${BASE_URL}/placesAPI/cityAutocomplete`,
-                    {query: cityQuery},
-                    {withCredentials: true}
+                    { query: cityQuery },
+                    { withCredentials: true }
                 );
                 const suggestions = res.data.result?.suggestions || [];
                 setCityResults(suggestions.slice(0, 5));
@@ -157,8 +157,8 @@ export default function ActivitySearch({
             setLoading(true);
             const res = await axios.post(
                 `${BASE_URL}/placesAPI/search`,
-                {query: combinedQuery},
-                {withCredentials: true}
+                { query: combinedQuery },
+                { withCredentials: true }
             );
             setResults(res.data.results || []);
         } catch (err) {
@@ -233,7 +233,7 @@ export default function ActivitySearch({
             const createRes = await axios.post(
                 `${BASE_URL}/activities/create`,
                 createPayload,
-                {withCredentials: true}
+                { withCredentials: true }
             );
             const created = createRes.data?.activity;
             const activityId = created?.activity_id ?? created?.id;
@@ -343,7 +343,7 @@ export default function ActivitySearch({
                 <div className="search-results">
                     {loading ? (
                         <div className="loading-container">
-                            <MoonLoader color="var(--accent)" size={50} speedMultiplier={0.9}/>
+                            <MoonLoader color="var(--accent)" size={50} speedMultiplier={0.9} />
                         </div>
                     ) : results.length > 0 ? (
                         results.map((place, idx) => (
@@ -356,7 +356,7 @@ export default function ActivitySearch({
                                     <p className="detail">
                                         {place.rating !== undefined ? (
                                             <span className="stars">
-                                              <Star className="star" size={16} fill="currentColor"/>
+                                                <Star className="star" size={16} fill="currentColor" />
                                                 {` ${place.rating}`}
                                             </span>
                                         ) : (
@@ -394,48 +394,48 @@ export default function ActivitySearch({
                 </div>
             </div>
 
-      {/* Popup for activity details */}
-      {showDetails && (
-        <Popup
-          title="Add Activity Details"
-          buttons={
-            <>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowDetails(false);
-                  setPendingPlace(null);
-                  setPendingDayId(null);
-                }}
-                disabled={saving}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveDetails}
-                disabled={saving}
-                style={{
-                  opacity: saving ? 0.5 : 1,
-                  pointerEvents: saving ? "none" : "auto",
-                  cursor: saving ? "not-allowed" : "pointer",
-                  transition: "opacity 0.3s ease"
-                }}
-              >
-                {saving ? "Saving..." : "Save"}
-              </button>
-            </>
-          }
-        >
-          <label className="popup-input">
-            <span>Start time</span>
-            <input
-              type="time"
-              value={formStartTime}
-              onChange={(e) => setFormStartTime(e.target.value)}
-              disabled={saving}
-            />
-          </label>
+            {/* Popup for activity details */}
+            {showDetails && (
+                <Popup
+                    title="Add Activity Details"
+                    buttons={
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowDetails(false);
+                                    setPendingPlace(null);
+                                    setPendingDayId(null);
+                                }}
+                                disabled={saving}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSaveDetails}
+                                disabled={saving}
+                                style={{
+                                    opacity: saving ? 0.5 : 1,
+                                    pointerEvents: saving ? "none" : "auto",
+                                    cursor: saving ? "not-allowed" : "pointer",
+                                    transition: "opacity 0.3s ease"
+                                }}
+                            >
+                                {saving ? "Saving..." : "Save"}
+                            </button>
+                        </>
+                    }
+                >
+                    <label className="popup-input">
+                        <span>Start time</span>
+                        <input
+                            type="time"
+                            value={formStartTime}
+                            onChange={(e) => setFormStartTime(e.target.value)}
+                            disabled={saving}
+                        />
+                    </label>
 
                     <label className="popup-input">
                         <span>Duration (minutes)</span>
