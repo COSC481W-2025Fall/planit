@@ -58,16 +58,56 @@ body {
 
 .TripDaysPage {
   flex: 1;
-  padding: 1.5rem 1.5rem 2rem;
-  padding-bottom: 4rem;
-  overflow-y: auto;
+  padding: 1.5rem;
   background: var(--bg-offwhite);
-  transition: margin-right 0.3s ease, transform 0.3s ease;
   position: relative;
-  min-width: 0;
   color: var(--muted);
-  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
+  transition: margin-right 0.3s ease, transform 0.3s ease;
+  scrollbar-width: none; /* Firefox: hide */
 }
+
+.TripDaysPage::-webkit-scrollbar {
+  width: 10px;
+  background: transparent;
+}
+
+.TripDaysPage::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.TripDaysPage::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 10px;
+  border: 2px solid transparent;
+}
+
+/* On hover: show a thin scrollbar so users can grab it */
+.TripDaysPage:hover {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+.TripDaysPage:hover::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+.TripDaysPage:hover::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 10px;
+  border: 2px solid var(--scrollbar-track);
+}
+
+.TripDaysPage:hover::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+.TripDaysPage.drawer-open {
+  margin-right: 400px;
+}
+
 .trip-title {
   font-family: Tahoma, sans-serif;
   color: var(--text);
@@ -147,6 +187,7 @@ body {
   padding: 0 0.75rem;
   font-size: 0.9rem;
   transition: all 0.2s ease-in-out;
+  cursor: pointer;
 }
 
 #new-day-button:hover,
@@ -154,7 +195,6 @@ body {
   background-color: var(--accent);
   color: var(--bg-white);
   transform: scale(1.03);
-  cursor: pointer;
 }
 
 #new-day-button:active,
@@ -162,15 +202,21 @@ body {
   transform: scale(0.9);
 }
 
+.days-scroll-zone {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable both-edges;
+}
+
 .days-container {
   display: flex;
   flex-wrap: nowrap;
   align-items: flex-start;
-  overflow-x: auto;
   gap: 1.25rem;
   padding: 1rem 0 4rem;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
+  width: max-content;
+  min-width: 100%;
 }
 
 .day-card {
@@ -179,22 +225,26 @@ body {
   border: 1px solid var(--border);
   border-radius: 0.94rem;
   padding: 0.625rem;
-  margin: 0.050rem;
+  margin: 0.05rem;
   box-shadow: 0 0.125rem 0.44rem var(--border);
   width: 12.5rem;
   min-height: 8rem;
   flex: 0 0 auto;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   animation: fadeInUp 0.4s ease both;
-  scroll-snap-align: start;
 }
-
 
 .day-card:hover {
   transform: translateY(-0.25rem);
   box-shadow: var(--shadow-2);
 }
 
+.day-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.25rem 0.4rem;
+}
 
 .day-title {
   color: var(--text);
@@ -207,6 +257,7 @@ body {
   font-size: 0.8em;
   margin: 0.5em 0;
 }
+
 .day-header-bottom {
   display: flex;
   align-items: center;
@@ -231,21 +282,6 @@ body {
   border-radius: 1rem;
   padding: 0 0.45rem;
   height: 1.4rem;
-}
-
-.day-header {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  cursor: pointer;
-  padding: 0.25rem 0.4rem;
-}
-
-.day-header-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 0.3rem;
 }
 
 .chevron-button {
@@ -292,11 +328,7 @@ body {
   transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.15s ease, color 0.15s ease;
 }
 
-.day-card:hover .day-actions-ellipsis {
-  opacity: 1;
-  visibility: visible;
-}
-
+.day-card:hover .day-actions-ellipsis,
 .day-actions-ellipsis.is-open {
   opacity: 1;
   visibility: visible;
@@ -361,6 +393,25 @@ body {
   box-shadow: 0 0 3px var(--accent);
 }
 
+.activity-search-sidebar {
+  width: 400px;
+  background: var(--bg-white);
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: var(--topbar-h, 60px);
+  right: 0;
+  height: calc(100vh - var(--topbar-h, 60px));
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-search-sidebar.open {
+  transform: translateX(0);
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -372,25 +423,41 @@ body {
   }
 }
 
-@media (max-width: 900px) {
-  .days-container {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    justify-content: flex-start;
+@media (max-width: 1100px) and (min-width: 759px) {
+  .activity-search-sidebar {
+    width: 320px;
   }
 
-  .day-card {
-    width: 12.5rem;
-    min-width: 12.5rem;
+  .TripDaysPage.drawer-open {
+    margin-right: 360px;
+  }
+}
+
+@media (max-width: 900px) and (min-width: 759px) {
+  .TripDaysPage.drawer-open {
+    margin-right: 320px;
+  }
+}
+
+@media (max-width: 758px) {
+  .activity-search-sidebar {
+    width: 100%;
+    left: 0;
+    right: 0;
+    top: var(--topbar-h, 60px);
+    height: calc(100vh - var(--topbar-h, 60px));
+    box-shadow: none;
+    border-left: none;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
   }
 
-  .itinerary-text {
-    font-size: 1.3em;
+  .activity-search-sidebar.open {
+    transform: translateX(0);
   }
 
-  #new-day-button,
-  #add-activity-button {
-    font-size: 0.85rem;
+  .TripDaysPage.drawer-open {
+    margin-right: 0;
   }
 }
 
@@ -400,7 +467,7 @@ body {
   }
 
   .TripDaysPage {
-    padding-bottom: 6rem;
+    padding-bottom: 2rem;
   }
 
   .trip-title {
@@ -447,99 +514,12 @@ body {
     font-size: 1rem;
   }
 }
-.TripDaysPage {
-  flex: 1;
-  padding: 1.5rem;
-  overflow-y: auto;
-  background: var(--bg-offwhite);
-  transition: margin-right 0.3s ease, transform 0.3s ease;
-  position: relative;
-  padding-bottom: 4rem;
-}
-
-.TripDaysPage.drawer-open {
-  margin-right: 400px;
-}
-
-.activity-search-sidebar {
-  width: 400px;
-  background: var(--bg-white);
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  top: var(--topbar-h, 60px);
-  right: 0;
-  height: calc(100vh - var(--topbar-h, 60px));
-  transform: translateX(100%);
-  transition: transform 0.3s ease;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-}
-
-.activity-search-sidebar.open {
-  transform: translateX(0);
-}
-
-@media (max-width: 1100px) and (min-width: 759px) {
-    .activity-search-sidebar {
-      width: 320px;
-    }
-
-  .TripDaysPage.drawer-open {
-    margin-right: 360px;
-  }
-}
-@media (max-width: 900px) and (min-width: 759px) {
-  .TripDaysPage.drawer-open {
-    margin-right: 320px;
-  }
-}
-
-@media (max-width: 758px) {
-  .activity-search-sidebar {
-    width: 100%;
-    left: 0;
-    right: 0;
-    top: var(--topbar-h, 60px);
-    height: calc(100vh - var(--topbar-h, 60px));
-    box-shadow: none;
-    border-left: none;
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-  }
-
-  .activity-search-sidebar.open {
-    transform: translateX(0);
-  }
-
-  .TripDaysPage.drawer-open {
-    margin-right: 0;
-  }
-}
-.TripDaysPage::-webkit-scrollbar {
-  width: 10px;
-}
-
-.TripDaysPage::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
-  border-radius: 10px;
-}
-
-.TripDaysPage::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb);
-  border-radius: 10px;
-  border: 2px solid var(--scrollbar-track);
-}
-
-.TripDaysPage::-webkit-scrollbar-thumb:hover {
-  background-color: var(--scrollbar-thumb-hover);
-}
 
 @media (max-width: 1100px) {
   html,
   body {
     overflow: auto;
-    scrollbar-width: none;
+    scrollbar-width: none; /* Firefox hide scrollbar */
   }
 
   html::-webkit-scrollbar,

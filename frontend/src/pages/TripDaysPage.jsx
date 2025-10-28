@@ -382,9 +382,9 @@ export default function TripDaysPage() {
                 </button>
               )}
             </div>
-          </div>
-
-          <div className="days-container">
+          </div><
+          div className="days-scroll-zone">
+            <div className="days-container">
             {days.length === 0 ? (
               <p className="empty-state-text">
                 No days added to your itinerary yet. Click{" "}
@@ -486,7 +486,7 @@ export default function TripDaysPage() {
               })
             )}
           </div>
-
+        </div>
           {openNotesPopup && selectedActivity && (
             <Popup
               title={"Notes for: " + selectedActivity.activity_name}
