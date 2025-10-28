@@ -4,7 +4,7 @@ import "../css/ActivitySearch.css";
 import "../css/Popup.css";
 import Popup from "../components/Popup";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
-import {Star} from "lucide-react";
+import {Star, Car, Footprints} from "lucide-react";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
 
@@ -53,6 +53,9 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
     const [distanceInfo, setDistanceInfo] = useState(null);
     const [dayActivities, setDayActivities] = useState([]);
     const [selectedPlace, setSelectedPlace] = useState(null);
+    const [transportMode, setTransportMode] = useState("DRIVE");
+    const [toggleDisabled, setToggleDisabled] = useState(false);
+
 
     // pending selection
     const [pendingPlace, setPendingPlace] = useState(null);
@@ -151,6 +154,41 @@ useEffect(() => {
             .join(", ");
     };
 
+  const toggleTransportMode = () => {
+    if (toggleDisabled) return;
+    const newMode = transportMode === "DRIVE" ? "WALK" : "DRIVE";
+    setTransportMode(newMode);
+
+    if (distanceInfo && pendingPlace) {
+      // Reconstruct previousActivity from distanceInfo
+      const previousActivity = {
+        activity_name: distanceInfo.previousActivityName,
+        latitude: distanceInfo.prevActivityLat,
+        longitude: distanceInfo.prevActivityLng,
+      };
+
+      findDistance(
+        { latitude: previousActivity.latitude, longitude: previousActivity.longitude },
+        { latitude: pendingPlace.location?.latitude, longitude: pendingPlace.location?.longitude },
+        newMode,
+        previousActivity
+      );
+    }
+
+    setToggleDisabled(true);
+    setTimeout(() => setToggleDisabled(false), 1000);
+  };
+
+  const formatDuration = (minutes) => {
+    if (minutes == null) return "N/A";
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hrs > 0) return `${hrs}h ${mins}m`;
+    return `${mins}m`;
+  };
+
+
+
     // City autocomplete
     useEffect(() => {
         if (cityQuery.length < 2 || cityQuery === prevCityQuery.current) {
@@ -241,20 +279,14 @@ useEffect(() => {
         longitude: pendingPlace.location?.longitude
       }
 
-      findDistance(origin, destination, "DRIVE");
-      // console.log(origin);
-      // console.log(prevActivity.activity_name);
-
-      // console.log(destination);
-
-
+      findDistance(origin, destination, "DRIVE", prevActivity);
     } catch (err) {
       toast.error("Failed to fetch distance info.");
       console.error("Distance fetch error:", err?.response?.data || err.message);
     }
   }
 
-  async function findDistance(origin, destination, transportation){
+  async function findDistance(origin, destination, transportation, previousActivity){
     try{
       setLoading(true);
       const body = {
@@ -270,10 +302,17 @@ useEffect(() => {
 
       const { distanceMiles, durationSeconds } = res.data;
 
-      console.log(distanceMiles)
-      console.log(durationSeconds);
+      setDistanceInfo({
+            distanceMiles,
+            durationMinutes: Math.round(durationSeconds / 60),
+            previousActivityName: previousActivity.activity_name,
+            prevActivityLat: previousActivity.latitude,
+            prevActivityLng: previousActivity.longitude
+        });
+
     } catch (err){
       toast.error("There was an issue trying to compute the distance")
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -303,6 +342,7 @@ useEffect(() => {
         setFormDuration("");
         setFormCost("");
         setNotes("");
+        setDistanceInfo(null);
         setShowDetails(true);
     };
 
@@ -529,11 +569,35 @@ useEffect(() => {
                         </>
                     }
                 >
-          {distanceInfo && (
-            <p className="distance-display">
-               {distanceInfo.distanceMiles} miles / {distanceInfo.durationMinutes} min
-            </p>
-          )}
+            {distanceInfo && pendingPlace && (
+              <p className="distance-display">
+                {transportMode === "DRIVE" ? (
+                  <Car className = "icon"/>
+                ) : (
+                  <Footprints className="icon"/>
+                )}
+                {distanceInfo.distanceMiles != null && distanceInfo.durationMinutes != null ? (
+                  <>
+                    From previous activity - <strong>{distanceInfo.previousActivityName}</strong>:{" "}
+                    {distanceInfo.distanceMiles} mi, {formatDuration(distanceInfo.durationMinutes)}{" "}
+                    <span className="distance-span"
+                      style={{
+                        color: toggleDisabled ? "gray" : "blue",
+                        cursor: toggleDisabled ? "not-allowed" : "pointer"
+                      }}
+                      onClick={() => !toggleDisabled && toggleTransportMode()}
+                    >
+                      {transportMode === "DRIVE" ? "Walking" : "Driving"}
+                      {toggleDisabled && <MoonLoader size={12} color="#1e7a3d" speedMultiplier={0.8} />}
+                    </span>
+
+                  </>
+                ) : (
+                  <em>Route could not be computed.</em>
+                )}
+              </p>
+            )}
+
 
                     <label className="popup-input">
                         <span>Start time</span>

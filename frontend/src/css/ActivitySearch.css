@@ -399,3 +399,22 @@ body {
   border-radius: 10px;
   border: 2px solid var(--scrollbar-track1);
 }
+
+.distance-display{
+  color: var(--accent-dark);
+  font-size: 13px;
+}
+
+.icon{
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-right: 5px;
+  flex-shrink: 0;
+}
+
+.distance-span{
+   text-decoration: "underline";
+   display: "inline-flex";
+   align-items: "center";
+}
