@@ -33,6 +33,7 @@ export default function TripDaysPage() {
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [editableNote, setEditableNote] = useState("");
     const [isAddCooldown, setIsAddCooldown] = useState(false);
+    const [imageUrl, setImageUrl] = useState(null);
 
   const [expandedDays, setExpandedDays] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
@@ -157,6 +158,32 @@ export default function TripDaysPage() {
       console.error(err);
     }
   };
+    //Fetch banner image url
+    useEffect(() => {
+        const fetchImage = async () => {
+            if (!trip?.image_id) return;
+
+            try {
+                const res = await fetch(
+                    `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
+                    { credentials: "include" }
+                );
+
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.error || "Failed to fetch image.");
+                }
+
+                const data = await res.json();
+                setImageUrl(data.imageUrl);
+            } catch (err) {
+                console.error("Failed to fetch image:", err);
+                setError(err.message);
+            }
+        };
+
+        fetchImage();
+    }, [trip?.image_id]);
 
     //add a new day
     const handleAddDay = async () => {
@@ -373,7 +400,13 @@ export default function TripDaysPage() {
             )}
           </div>
 
-          <div className="image-banner" />
+                    <div className="image-banner" />
+                    <img
+                        src={imageUrl}
+                        alt={trip.trip_name}
+                        // Not sure if it's possible to style this better given the ratio constraints of the image-banner box.
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
 
           <div className="button-level-bar">
             <h1 className="itinerary-text">Itinerary</h1>
@@ -540,9 +573,9 @@ export default function TripDaysPage() {
                                         style={{
                                             opacity: isAddCooldown ? 0.5 : 1,
                                             pointerEvents: isAddCooldown ? "none" : "auto",
-                                          }}                                    
-                                          >
-                                            Add +
+                                        }}
+                                    >
+                                        Add +
                                     </button>                                </>
                             }
                         >
