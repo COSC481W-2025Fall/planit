@@ -55,6 +55,8 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [transportMode, setTransportMode] = useState("DRIVE");
     const [toggleDisabled, setToggleDisabled] = useState(false);
+    const distanceDebounce = useRef(null);
+
 
 
     // pending selection
@@ -238,53 +240,53 @@ useEffect(() => {
       setLoading(false);
     }
   };
-  
-  const handleDistanceCheck = async (startTime) => {
+
+  const handleDistanceCheck = (startTime) => {
     if (!selectedPlace) return;
 
-    try {
-      const timeToMinutes = (t) => {
-        if (!t) return 0;
-        const [h, m] = t.split(":").map(Number);
-        return h * 60 + m;
-      };
+    if (distanceDebounce.current) clearTimeout(distanceDebounce.current);
 
-      const newTime = timeToMinutes(startTime);
-      let prevActivity = null;
-      // I need to get the previous activity's location. When user enters start time, we need to somehow insert where the activity would go
-      for (let i = 0; i < dayActivities.length; i++) {
-        const currActivity = dayActivities[i];
-        const activityTime = timeToMinutes(currActivity.activity_startTime);
+    distanceDebounce.current = setTimeout(() => {
+      try {
+        const timeToMinutes = (t) => {
+          if (!t) return 0;
+          const [h, m] = t.split(":").map(Number);
+          return h * 60 + m;
+        };
 
-        // found where it would go
-        if (activityTime >= newTime) {
-          break;
+        const newTime = timeToMinutes(startTime);
+        let prevActivity = null;
+
+        for (let i = 0; i < dayActivities.length; i++) {
+          const currActivity = dayActivities[i];
+          const activityTime = timeToMinutes(currActivity.activity_startTime);
+
+          if (activityTime >= newTime) break;
+          prevActivity = currActivity;
         }
-        prevActivity = currActivity;
 
+        if (!prevActivity) {
+          setDistanceInfo(null);
+          return;
+        }
+
+        const origin = {
+          latitude: prevActivity.latitude,
+          longitude: prevActivity.longitude,
+        };
+        const destination = {
+          latitude: pendingPlace.location?.latitude,
+          longitude: pendingPlace.location?.longitude,
+        };
+
+        findDistance(origin, destination, "DRIVE", prevActivity);
+      } catch (err) {
+        toast.error("Failed to fetch distance info.");
+        console.error("Distance fetch error:", err?.response?.data || err.message);
       }
+    }, 2500); 
+  };
 
-      if (!prevActivity) {
-        setDistanceInfo(null);
-        return;
-      }
-
-      const origin = {
-        latitude: prevActivity.latitude,
-        longitude: prevActivity.longitude,
-      };
-
-      const destination = {
-        latitude: pendingPlace.location?.latitude,
-        longitude: pendingPlace.location?.longitude
-      }
-
-      findDistance(origin, destination, "DRIVE", prevActivity);
-    } catch (err) {
-      toast.error("Failed to fetch distance info.");
-      console.error("Distance fetch error:", err?.response?.data || err.message);
-    }
-  }
 
   async function findDistance(origin, destination, transportation, previousActivity){
     try{
@@ -607,6 +609,8 @@ useEffect(() => {
                             onChange={(e) => {
                       const val = e.target.value;
                       setFormStartTime(val);
+
+                      setDistanceInfo(null);
 
                       // check if time is fully entered
                       if (/^\d{2}:\d{2}$/.test(val)) {
