@@ -388,7 +388,7 @@ body {
   background: var(--muted);
   border: none;
   border-radius: 25%;
-  color: var(--pure-white);
+  color: var(--bg-white);
   width: 1.5rem;
   height: 1.5rem;
   font-size: 1.2rem;
