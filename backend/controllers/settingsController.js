@@ -146,7 +146,7 @@ export const getTotalMoneySpent = async (req, res) => {
     // returns total money spent in json or 0 if no estimated costs are found on any trips
     return res.status(200).json({ totalMoneySpent: total[0].total_money_spent });
     } catch (err) {
-        console.error("Error fetching total moneey spent:", err);
+        console.error("Error fetching total money spent:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
