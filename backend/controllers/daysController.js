@@ -41,14 +41,32 @@ export const createDay = async (req, res) => {
   // validate input
   const date = req.body?.day_date || null;
 
-  try {
-    const rows = await sql`
-      INSERT INTO days (trip_id, day_date)
-      VALUES (${tripId}, ${date})
-      RETURNING day_id, trip_id, day_date
-    `;
+  // make sure we have a date
+  if (!date) {
+    return res.status(400).json({ error: "A valid day_date is required." });
+  }
 
-    res.status(201).json(rows[0]);
+  try {
+    const results = await sql.transaction(() => [
+      // shift all existing dates forward by 1
+      sql`
+        UPDATE days
+        SET day_date = day_date + INTERVAL '1 day'
+        WHERE trip_id = ${tripId} AND day_date >= ${date}
+      `,
+
+      // insert new day
+      sql`
+        INSERT INTO days (trip_id, day_date)
+        VALUES (${tripId}, ${date})
+        RETURNING day_id, trip_id, day_date
+      `
+    ]);
+
+    const newDay = results[1][0];
+
+    res.status(201).json(newDay);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -105,19 +123,41 @@ export const deleteDay = async (req, res) => {
   // get dayId from URL params
   const dayId = req.params.id;
 
-  // delete day from database
   try {
-    const result = await sql`
-      DELETE FROM days
+    // get the date from the day we are deleting
+    const daysToFetch = await sql`
+      SELECT day_date 
+      FROM days 
       WHERE day_id = ${dayId} AND trip_id = ${tripId}
-      RETURNING day_id
     `;
 
-    if (result.length === 0) {
+    // Check if the day exists
+    if (daysToFetch.length === 0) {
       return res.status(404).json({ error: "Day not found" });
     }
 
-    // return no content status
+    const deletedDate = daysToFetch[0].day_date;
+
+    if (deletedDate) {
+      await sql.transaction(() => [
+        sql`
+          DELETE FROM days
+          WHERE day_id = ${dayId} AND trip_id = ${tripId}
+        `,
+
+        sql`
+          UPDATE days
+          SET day_date = day_date - INTERVAL '1 day'
+          WHERE trip_id = ${tripId} AND day_date > ${deletedDate}
+        `,
+      ]);
+    } else {
+      await sql`
+        DELETE FROM days
+        WHERE day_id = ${dayId} AND trip_id = ${tripId}
+      `;
+    }
+
     res.status(204).send();
   } catch (err) {
     console.error(err);
