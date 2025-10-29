@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import logo from "../assets/Planit_Full_Green.png";
 import "../css/TopBanner.css";
-import { Menu, X} from "lucide-react";
+import { Menu, X,Sun, Moon} from "lucide-react";
 import NavBar from "./NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import { toast } from "react-toastify";
