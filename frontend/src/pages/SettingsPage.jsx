@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import "../css/SettingsPage.css";
 import TopBanner from "../components/TopBanner";
 import NavBar from "../components/NavBar";
-import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
-import { MoonLoader } from "react-spinners";
+import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
+import {MoonLoader} from "react-spinners";
 
 export default function SettingsPage() {
     const [user, setUser] = useState(null);
@@ -17,7 +17,7 @@ export default function SettingsPage() {
         fetch(
             (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
             "/auth/login/details",
-            { credentials: "include" }
+            {credentials: "include"}
         )
             .then((res) => res.json())
             .then((data) => {
@@ -60,11 +60,11 @@ export default function SettingsPage() {
     if (!user) {
         return (
             <div className="setting-page">
-                <TopBanner user={user} />
-                <div className="content-with-sidebar">
-                    <NavBar />
-                    <div className="main-content">
-                        <div className="page-loading-container">
+                <TopBanner user={user}/>
+                <div className="setting-with-sidebar">
+                    <NavBar/>
+                    <div className="setting-main-content">
+                        <div className="setting-page-loading-container">
                             <MoonLoader
                                 color="var(--accent)"
                                 size={70}
@@ -82,9 +82,9 @@ export default function SettingsPage() {
     return (
         <div className="setting-page">
             <TopBanner user={user}/>
-            <div className="content-with-sidebar">
-                <NavBar />
-                <div className="main-content">
+            <div className="setting-with-sidebar">
+                <NavBar/>
+                <div className="setting-main-content">
                     <div className="settings-section">
                         {/* Header row */}
                         <div className="settings-header">

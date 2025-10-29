@@ -6,7 +6,7 @@ import SettingsPage from "../pages/SettingsPage.jsx";
 
 describe("SettingsPage (placeholder)", () => {
     beforeEach(() => {
-        // fake fetch that always returns a logged in user
+        // mock fetch that by default returns a logged-in user
         globalThis.fetch = vi.fn().mockResolvedValue({
             ok: true,
             json: async () => ({ loggedIn: true, name: "Test User" }),
@@ -17,7 +17,7 @@ describe("SettingsPage (placeholder)", () => {
         vi.restoreAllMocks();
     });
 
-    test("shows Loading... when no user yet", () => {
+    test("shows Loading... when no user yet", async () => {
         // make fetch say user is not logged in
         globalThis.fetch.mockResolvedValueOnce({
             ok: true,
@@ -30,7 +30,9 @@ describe("SettingsPage (placeholder)", () => {
             </MemoryRouter>
         );
 
-        expect(screen.getByTestId("loader")).toBeInTheDocument();
+        // use findByTestId to safely wait for the loader to appear
+        const loader = await screen.findByTestId("loader");
+        expect(loader).toBeInTheDocument();
     });
 
     test("shows Settings title when user is logged in", async () => {
@@ -40,11 +42,11 @@ describe("SettingsPage (placeholder)", () => {
             </MemoryRouter>
         );
 
-        // find the settings title element
+        // wait for Settings title
         const title = await screen.findByTestId("settings-title");
         expect(title).toBeInTheDocument();
 
-        // check the sign out button
+        // verify Sign Out button appears from TopBanner
         expect(screen.getByRole("button", { name: /sign out/i })).toBeInTheDocument();
     });
 });
