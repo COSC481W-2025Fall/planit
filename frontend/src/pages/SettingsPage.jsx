@@ -7,6 +7,11 @@ import { MoonLoader } from "react-spinners";
 
 export default function SettingsPage() {
     const [user, setUser] = useState(null);
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [username, setUsername] = useState("");
+    const [message, setMessage] = useState("");
+
 
     useEffect(() => {
         fetch(
@@ -18,10 +23,39 @@ export default function SettingsPage() {
             .then((data) => {
                 if (data.loggedIn === false) return;
                 setUser(data);
+                setFirstName(data.first_name || "");
+                setLastName(data.last_name || "");
+                setUsername(data.username || "");
             })
             .catch((err) => console.error("User fetch error:", err));
     }, []);
 
+    const handleSave = async () => {
+        try {
+            const response = await fetch(
+                (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/user/update",
+                {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        userId: user.user_id,
+                        firstname: firstName,
+                        lastname: lastName,
+                        username: username,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+            if(response.ok && data.success){
+                setUser(data.user);
+            }
+        } catch (err){
+            console.error("Update error:", err);
+        }
+
+    }
     //Loading state
     if (!user) {
         return (
@@ -66,21 +100,21 @@ export default function SettingsPage() {
                                 <h3>Update Information</h3>
                                 <div className="settings-form">
                                     <label>
-                                        First Name 
-                                        <input type="text" placeholder="First name" readOnly />
+                                        First Name: 
+                                        <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)}/>
                                     </label>
 
                                     <label>
-                                        Last Name 
-                                        <input type="text" placeholder="Last name" readOnly />
+                                        Last Name: 
+                                       <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)}/>
                                     </label>
 
                                     <label>
-                                    Username
-                                    <input type="text" placeholder="Username" readOnly />
+                                    Username: 
+                                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}/>
                                      </label>
 
-                                    <button className="save-button">Save Changes</button>
+                                    <button className="save-button" onClick={handleSave}>Save Changes</button>
                                 </div>
                              </div>
 
@@ -90,6 +124,9 @@ export default function SettingsPage() {
                                 <div className="stats">
                                     <p>Number of Trips Made:</p>
                                     <p>Longest Trip:</p>
+                                    <p>Most Expensive Trip:</p>
+                                    <p>Cheapest Trip:</p>
+                                    <p>Total Money Spent:</p>
                                 </div>
                              </div>
                      </div>
