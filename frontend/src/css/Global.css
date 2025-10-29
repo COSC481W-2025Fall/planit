@@ -36,6 +36,9 @@
     --scrollbar-thumb1: #7a7a7a;
     --scrollbar-thumb-hover1: #5c5c5c;
 
+    --static-white: #ffffff;
+    --static-black: #111111;
+    --static-darkgray: #9a9a9a;
 
     --radius: 0.75rem;
     --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -70,6 +73,7 @@
     --bg-surface: #161b24;
     --bg-base: #10141c;
     --bg-hover: #1c2330;
+    --bg-hover2: #333945;;
 
     --text: #e8edf4;
     --muted: #a8b1bf;
