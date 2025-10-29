@@ -8,27 +8,24 @@ import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import { ToastContainer, Flip, Bounce , Zoom } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { ThemeProvider } from "./theme/ThemeProvider.jsx";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ThemeProvider>
-      <BrowserRouter>
-        <App />
-          <ToastContainer
-          position="top-right"
-          autoClose={2000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          theme="light"
-          draggable={false}
-          transition={Zoom}
-          pauseOnHover
-        />
-      </BrowserRouter>
-    </ThemeProvider>
-  </StrictMode>
-);
+    <BrowserRouter>
+    <App />
+      <ToastContainer 
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        theme="light"
+        draggable={false}
+        transition={Zoom}
+        pauseOnHover
+      />
+    </BrowserRouter>
+  </StrictMode>,
+)
