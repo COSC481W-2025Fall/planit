@@ -168,9 +168,9 @@ body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  flex: 1;
   margin-bottom: 1rem;
   overflow: visible;
+  padding-bottom: 2rem;
 }
 
 .activity-card {
