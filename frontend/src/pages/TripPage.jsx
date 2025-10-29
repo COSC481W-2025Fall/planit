@@ -23,8 +23,7 @@ export default function TripPage() {
     const [isSaving, setIsSaving] = useState(false);
     const navigate = useNavigate();
     const [startDate, setStartDate] = useState(
-      editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : 
-null
+      editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
     );
     const [endDate, setEndDate] = useState(null);
 
@@ -88,8 +87,7 @@ null
                 <NavBar/>
                 <div className="main-content">
                     <div className="page-loading-container">
-                        <MoonLoader color="var(--accent)" size={70} 
-speedMultiplier={0.9} data-testid="loader"/>
+                        <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
                     </div>
                 </div>
             </div>

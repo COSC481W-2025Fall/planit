@@ -562,7 +562,8 @@ export default function TripDaysPage() {
                     }}
                   >
                     Add +
-                  </button>                                </>
+                  </button>                               
+                </>
               }
             >
               <p className="popup-body-text">Do you want to add a new day to {trip?.trip_name}?</p>
