@@ -124,3 +124,7 @@ export const deleteDay = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const reorderDays = async (req, res) => {
+      return res.status(200).json({ info: "TESTING" });
+};
