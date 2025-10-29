@@ -94,6 +94,7 @@ describe("TripDaysPage", () => {
             </MemoryRouter>
         );
 
-        expect(screen.getByTestId("loader")).toBeInTheDocument();
+        const loadings = screen.getAllByTestId("loader");
+        expect(loadings).toHaveLength(1);
     });
 });
