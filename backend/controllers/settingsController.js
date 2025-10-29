@@ -87,27 +87,15 @@ export const getCheapestTrip = async (req, res) => {
         if (!userID) {
             return res.status(400).json({ error: "userID is required"});
         }
-            //Counts estimated cost of all activities in a day
-            //Filters out NULL activities in SUM
-            //Orders price sums starting with lowest value not including NULL ones
-            //Returns first result only
+            //Order trips by price_estimate, ascending so we pull cheapest  
                 const trip = await sql`
-                SELECT * FROM (
-                    SELECT
-                        t.trips_id, t.trip_name,
-                        COUNT(a.activity_id) AS total_activities,
-                        COUNT(a.activity_price_estimated) FILTER (WHERE a.activity_price_estimated IS NOT NULL) AS estimated_count,
-                        SUM(a.activity_price_estimated) FILTER (WHERE a.activity_price_estimated IS NOT NULL) AS estimated_total
-                    FROM trips t
-                    LEFT JOIN days d ON d.trip_id = t.trips_id
-                    LEFT JOIN activities a ON a.day_id = d.day_id
-                    WHERE t.user_id = ${userID}
-                    GROUP BY t.trips_id, t.trip_name
-                ) q
-                ORDER BY (q.estimated_total IS NULL), q.estimated_total ASC
-                LIMIT 1;
+               SELECT trip_name, trip_id
+               FROM trips
+               WHERE user_id = ${userID}
+               ORDER BY (trip_price_estimate) ASC
+               LIMIT 1;
                 `;
-                //returns cheapest trip in json, checks in case no non null value exists
+                //returns cheapest trip in json, checks if null in case no trips exist
                 return res.status(200).json(trip[0] ?? null);
     } catch (err) {
         console.error("Error fetching cheapest trip:", err);
@@ -123,30 +111,16 @@ export const getMostExpensiveTrip = async (req, res) => {
         if (!userID) {
             return res.status(400).json({ error: "userID is required"});
         }
-        
-            //Counts estimated cost of all activities in a day
-            //Filters out NULL activities in SUM
-            //Orders price sums starting with highest value not including NULL ones
-            //Returns first result only
+            //Order trips by price_estimate, decending so we pull most expensive 
                 const trip = await sql`
-                SELECT * FROM (
-                    SELECT
-                        t.trips_id,
-                        t.trip_name,
-                        COUNT(a.activity_id) AS total_activities,
-                        COUNT(a.activity_price_estimated) FILTER (WHERE a.activity_price_estimated IS NOT NULL) AS estimated_count,
-                        SUM(a.activity_price_estimated) FILTER (WHERE a.activity_price_estimated IS NOT NULL) AS estimated_total
-                    FROM trips t
-                    LEFT JOIN days d ON d.trip_id = t.trips_id
-                    LEFT JOIN activities a ON a.day_id = d.day_id
-                    WHERE t.user_id = ${userID}
-                    GROUP BY t.trips_id, t.trip_name
-                ) q
-                ORDER BY (q.estimated_total IS NULL), q.estimated_total DESC
+                SELECT trip_name, trip_id 
+                FROM trips 
+                WHERE user_id = ${userID}
+                ORDER BY (trip_price_estimate) DESC
                 LIMIT 1;
                 `;
 
-                //returns most expensive trip in json, checks in case no non null value exists
+                //returns most expensive trip in json, checks if null in case no trips exist
                 return res.status(200).json(trip[0] ?? null);
     } catch (err) {
         console.error("Error fetching most expensive trip:", err);
@@ -162,15 +136,12 @@ export const getTotalMoneySpent = async (req, res) => {
         if (!userID) {
             return res.status(400).json({error: "userID is required"});
         }
-
-            //gets activity estimate cost for all days for all trips with userID
-            //COALESCE and filter help make sure null values are skipped
+            //gets and sums trip_price)_estimate from all trips of a user
+            //COALESCE used to return 0 if no trips or all are NULL for price
             const total = await sql`
-            SELECT COALESCE(SUM(a.activity_price_estimated) FILTER (WHERE a.activity_price_estimated IS NOT NULL), 0) AS total_money_spent
-            FROM trips t
-            LEFT JOIN days d ON d.trip_id = t.trips_id
-            LEFT JOIN activities a ON a.day_id = d.day_id
-            WHERE t.user_id = ${userID};
+            SELECT COALESCE(SUM(trip_price_estimate), 0) AS total_money_spent
+            FROM trips 
+            WHERE user_id = ${userID}
             `;
     // returns total money spent in json or 0 if no estimated costs are found on any trips
     return res.status(200).json({ totalMoneySpent: total[0].total_money_spent });
