@@ -1,99 +1,102 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {useState, useEffect, useRef} from "react";
 import "../css/TripPage.css";
 import TopBanner from "../components/TopBanner";
 import NavBar from "../components/NavBar";
-import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
+import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
-import { createTrip, updateTrip, getTrips, deleteTrip } from "../../api/trips";
-import { MapPin, Pencil, Trash } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { MoonLoader } from "react-spinners";
-import { toast } from "react-toastify";
+import {createTrip, updateTrip, getTrips, deleteTrip} from "../../api/trips";
+import {MapPin, Pencil, Trash} from "lucide-react";
+import {useNavigate} from "react-router-dom";
+import {MoonLoader} from "react-spinners";
+import {toast} from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function TripPage() {
-  const [user, setUser] = useState(null);
-  const [trips, setTrips] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTrip, setEditingTrip] = useState(null);
-  const [openDropdownId, setOpenDropdownId] = useState(null);
-  const dropdownRef = useRef(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const navigate = useNavigate();
-  const [startDate, setStartDate] = useState(
-    editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
-  );
+    const [user, setUser] = useState(null);
+    const [trips, setTrips] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingTrip, setEditingTrip] = useState(null);
+    const [openDropdownId, setOpenDropdownId] = useState(null);
+    const dropdownRef = useRef(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const navigate = useNavigate();
+    const [startDate, setStartDate] = useState(
+      editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : 
+null
+    );
 
-  // Close dropdown if click outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpenDropdownId(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    // Close dropdown if click outside
+    useEffect(() => {
+      const handleClickOutside = (e) => {
+          if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+              setOpenDropdownId(null);
+          }
+      };
+      document.addEventListener("mousedown", 
+      handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [])
+
+    // Get user details
+    useEffect(() => {
+      fetch(
+        (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+        "/auth/login/details",
+        {credentials: "include"}
+      )
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.loggedIn === false) return;
+            setUser({...data});
+        })
+        .catch((err) => console.error("User fetch error:", err));
   }, []);
 
-  // Get user details
-  useEffect(() => {
-    fetch(
-      (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
-      "/auth/login/details",
-      { credentials: "include" }
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.loggedIn === false) return;
-        setUser({ ...data });
-      })
-      .catch((err) => console.error("User fetch error:", err));
-  }, []);
+    // Fetch trips once user is loaded
+    useEffect(() => {
+      if (!user?.user_id) return;
 
-  // Fetch trips once user is loaded
-  useEffect(() => {
-    if (!user?.user_id) return;
-
-    getTrips(user.user_id)
-      .then((data) => {
-        const tripsArray = Array.isArray(data) ? data : data.trips;
-        setTrips(tripsArray.sort((a, b) => a.trips_id - b.trips_id));
+      getTrips(user.user_id)
+        .then((data) => {
+          const tripsArray = Array.isArray(data) ? data : data.trips;
+          setTrips(tripsArray.sort((a, b) => a.trips_id - b.trips_id));
       })
       .catch((err) => console.error("Failed to fetch trips:", err));
-  }, [user?.user_id]);
+}, [user?.user_id]);
 
-  //Show Loader while fetching user or trips
-  if (!user || !trips) {
-    return (
-      <div className="trip-page">
-        <TopBanner user={user} />
-        <div className="content-with-sidebar">
-          <NavBar />
-          <div className="main-content">
-            <div className="page-loading-container">
-              <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader" />
+    //Show Loader while fetching user or trips
+    if (!user || !trips) {
+      return (
+        <div className="trip-page">
+            <TopBanner user={user}/>
+            <div className="content-with-sidebar">
+                <NavBar/>
+                <div className="main-content">
+                    <div className="page-loading-container">
+                        <MoonLoader color="var(--accent)" size={70} 
+speedMultiplier={0.9} data-testid="loader"/>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
       </div>
-    );
-  }
-
-  // Delete trip
-  const handleDeleteTrip = async (trips_id) => {
-    if (confirm("Are you sure you want to delete this trip?")) {
-      try {
-        await deleteTrip(trips_id);
-        setTrips(trips.filter((trip) => trip.trips_id !== trips_id));
-        toast.success("Trip deleted successfully!");
-      } catch (err) {
-        console.error("Delete trip failed:", err);
-        toast.error("Failed to delete trip. Please try again.");
+        );
       }
-    }
-  };
+  
+      // Delete trip
+      const handleDeleteTrip = async (trips_id) => {
+          if (confirm("Are you sure you want to delete this trip?")) {
+              try {
+                  await deleteTrip(trips_id);
+                  setTrips(trips.filter((trip) => trip.trips_id !== trips_id));
+                  toast.success("Trip deleted successfully!");
+              } catch (err) {
+                  console.error("Delete trip failed:", err);
+                  toast.error("Failed to delete trip. Please try again.");
+              }
+          }
+      };
 
   // Save trip (create/update)
   const handleSaveTrip = async (tripData) => {
