@@ -207,6 +207,8 @@ body {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-gutter: stable both-edges;
+  padding-bottom: 4rem;
+  margin-bottom: -4rem;
 }
 
 .days-container {
