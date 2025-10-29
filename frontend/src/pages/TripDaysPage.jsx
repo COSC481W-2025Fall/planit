@@ -13,6 +13,7 @@ import { useParams } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
 
+
 export default function TripDaysPage() {
   //constants for data
   const [user, setUser] = useState(null);

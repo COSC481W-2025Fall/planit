@@ -137,6 +137,8 @@ speedMultiplier={0.9} data-testid="loader"/>
         } catch (err) {
             console.error("Save trip failed:", err);
             toast.error("Could not save trip. Please try again.");
+        } finally {
+          setTimeout(() => setIsSaving(false), 1000);
         }
     };
 
@@ -255,11 +257,20 @@ speedMultiplier={0.9} data-testid="loader"/>
                     <Popup
                       title=""
                       buttons={
-                          <>
-                              <button type="submit" form="trip-form">
-                                  Save
-                              </button>
-                              <button type="button" onClick={() => setIsModalOpen(false)}>
+                        <>
+                          <button
+                            type="submit"
+                            form="trip-form"
+                            disabled={isSaving}
+                            style={{
+                              opacity: isSaving ? 0.5 : 1,       // gray out when saving
+                              pointerEvents: isSaving ? "none" : "auto", // disable clicks
+                              transition: "opacity 0.3s ease",
+                            }}
+                          >
+                            {isSaving ? "Saving..." : "Save"}
+                          </button>
+                              <button type="button" onClick={() => !isSaving && setIsModalOpen(false)}>
                                   Cancel
                               </button>
                           </>
