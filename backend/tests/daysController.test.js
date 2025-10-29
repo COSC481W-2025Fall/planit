@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // Mock DB
 vi.mock('../config/db.js', () => {
     const sql = vi.fn(async () => []);
+    sql.transaction = vi.fn(async () => [ [], [] ]);
     sql.query = vi.fn(async () => ({ rows: [] }));
     return { sql };
 });
@@ -82,31 +83,30 @@ describe("Days Controller Unit Tests", () => {
         it("should create a day for an owned trip", async () => {
             const app = appWithUser();
             mockOwnedTrip(1);
-            const created = [{ days_id: 10, trip_id: 1, day_date: '2025-10-01' }];
-            sql.mockResolvedValueOnce(created);
+            const created = { days_id: 10, trip_id: 1, day_date: '2025-10-01' };
+            sql.transaction.mockResolvedValueOnce([ [], [created] ]);
 
             const res = await request(app)
                 .post("/trip/trips/1/days")
                 .send({ day_date: '2025-10-01' });
 
             expect(res.status).toBe(201);
-            expect(res.body).toEqual(created[0]);
+            expect(res.body).toEqual(created);
             // One for trip check, one for insert
-            expect(sql).toHaveBeenCalledTimes(2);
+            expect(sql).toHaveBeenCalledTimes(1);
+            expect(sql.transaction).toHaveBeenCalled(1);
         });
 
         // Creating a day without providing day_date
-        it("should create a day without day_date resulting in null day_date", async () => {
+        it("should return 400 if day_date is missing", async () => {
             const app = appWithUser();
             mockOwnedTrip(1);
-            const created = [{ days_id: 11, trip_id: 1, day_date: null }];
-            sql.mockResolvedValueOnce(created);
 
             const res = await request(app).post("/trip/trips/1/days").send({});
 
-            expect(res.status).toBe(201);
-            expect(res.body).toEqual(created[0]);
-            expect(sql).toHaveBeenCalledTimes(2); 
+            expect(res.status).toBe(400);
+            expect(res.body).toEqual({ error: "A valid day_date is required." });
+            expect(sql.transaction).not.toHaveBeenCalled(); 
         });
 
         // Unauthorized when user is not logged in
@@ -116,6 +116,7 @@ describe("Days Controller Unit Tests", () => {
             expect(res.status).toBe(401);
             expect(res.body).toEqual({ error: "Unauthorized" });
             expect(sql).not.toHaveBeenCalled();
+            expect(sql.transaction).not.toHaveBeenCalled();
         });
 
         // Trip not found or not owned
@@ -128,17 +129,44 @@ describe("Days Controller Unit Tests", () => {
             expect(res.body).toEqual({ error: "Trip not found or access denied" });
             // Only the trip check
             expect(sql).toHaveBeenCalledTimes(1);
+            expect(sql.transaction).not.toHaveBeenCalled();
         });
 
         // Database error handling
         it("should return 500 when DB error occurs", async () => {
             const app = appWithUser();
             mockOwnedTrip(1);
-            sql.mockRejectedValueOnce(new Error("DB Error"));
+            sql.transaction.mockRejectedValueOnce(new Error("DB Error"));
             const res = await request(app).post("/trip/trips/1/days").send({ day_date: '2025-10-01' });
             expect(res.status).toBe(500);
             expect(res.body).toEqual({ error: "Internal Server Error" });
-            expect(sql).toHaveBeenCalledTimes(2);
+            expect(sql).toHaveBeenCalledTimes(1);
+            expect(sql.transaction).toHaveBeenCalledTimes(1);
+        });
+
+        //test to make sure the dates are being shifted on day creation
+        it("should call the correct SQL to shift dates on create", async () => {
+            const app = appWithUser();
+            mockOwnedTrip(1);
+            const sentDate = '2025-10-10';
+
+            sql.transaction.mockImplementationOnce(async (callback) => {
+                sql.mockResolvedValueOnce([]);
+                sql.mockResolvedValueOnce([{ day_id: 10 }]);
+                return callback();
+            });
+
+            await request(app)
+                .post("/trip/trips/1/days")
+                .send({ day_date: sentDate });
+            
+            expect(sql).toHaveBeenCalledTimes(3);
+            
+            const updateSqlCall = sql.mock.calls[1];
+            expect(updateSqlCall[0][0]).toContain("UPDATE days");
+            expect(updateSqlCall[0][0]).toContain("day_date = day_date + INTERVAL '1 day'");
+            expect(updateSqlCall[0][1]).toContain("AND day_date >=");
+            expect(updateSqlCall[2]).toBe(sentDate);
         });
     });
 
@@ -281,7 +309,7 @@ describe("Days Controller Unit Tests", () => {
             const res = await request(app).delete("/trip/trips/1/days/5");
             expect(res.status).toBe(204);
             expect(res.text).toBe('');
-            expect(sql).toHaveBeenCalledTimes(2); 
+            expect(sql).toHaveBeenCalledTimes(3); 
         });
 
         // Day not found
@@ -329,6 +357,31 @@ describe("Days Controller Unit Tests", () => {
             expect(res.status).toBe(500);
             expect(res.body).toEqual({ error: "Internal Server Error" });
             expect(sql).toHaveBeenCalledTimes(2);
+        });
+
+        //test to make sure deleting a day shifts dates
+        it("should call the correct SQL to shift dates on delete", async () => {
+            const app = appWithUser();
+            const deletedDate = '2025-10-10';
+            
+            mockOwnedTrip(1);
+            sql.mockResolvedValueOnce([{ day_date: deletedDate }]);
+            
+            sql.transaction.mockImplementationOnce(async (callback) => {
+                sql.mockResolvedValueOnce([]);
+                sql.mockResolvedValueOnce([]);
+                return callback();
+            });
+
+            await request(app).delete("/trip/trips/1/days/5");
+            
+            expect(sql).toHaveBeenCalledTimes(4);
+            
+            const updateSqlCall = sql.mock.calls[3];
+            expect(updateSqlCall[0][0]).toContain("UPDATE days");
+            expect(updateSqlCall[0][0]).toContain("day_date = day_date - INTERVAL '1 day'");
+            expect(updateSqlCall[0][1]).toContain("AND day_date >");
+            expect(updateSqlCall[2]).toBe(deletedDate);
         });
     });
 
