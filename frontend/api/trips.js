@@ -23,6 +23,8 @@ export async function createTrip(trip) {
     tripName: trip.trip_name,
     tripLocation: trip.trip_location,
     tripStartDate: trip.trip_start_date,
+    tripEndDate: trip.trip_end_date,
+    user_id: trip.user_id,
     days: trip.days,
     isPrivate: trip.isPrivate
   };
@@ -49,6 +51,7 @@ export async function updateTrip(trip) {
     tripName: trip.trip_name,
     tripLocation: trip.trip_location,
     tripStartDate: trip.trip_start_date,
+    user_id: trip.user_id,
     days: trip.days,
     isPrivate: trip.isPrivate
   };
