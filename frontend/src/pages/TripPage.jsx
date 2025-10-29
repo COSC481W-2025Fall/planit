@@ -24,6 +24,7 @@ export default function TripPage() {
     const [startDate, setStartDate] = useState(
       editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
     );
+    const [endDate, setEndDate] = useState(null);
 
     // Close dropdown if click outside
     useEffect(() => {
@@ -62,6 +63,18 @@ export default function TripPage() {
           })
           .catch((err) => console.error("Failed to fetch trips:", err));
     }, [user?.user_id]);
+
+    useEffect(() => {
+        if (editingTrip) {
+            setStartDate(new Date(editingTrip.trip_start_date));
+            if (editingTrip.trip_end_date) {
+                setEndDate(new Date(editingTrip.trip_end_date));
+            }
+        } else {
+            setStartDate(null);
+            setEndDate(null);
+        }
+    }, [editingTrip]);
 
     //Show Loader while fetching user or trips
     if (!user || !trips) {
@@ -110,7 +123,8 @@ export default function TripPage() {
                 let tripsArray = updatedTrips.trips || [];
                 setTrips(tripsArray.sort((a, b) => a.trips_id - b.trips_id));
             }
-
+            setEndDate(null);
+            setStartDate(null);        
             setEditingTrip(null);
             setIsModalOpen(false);
         } catch (err) {
@@ -258,6 +272,7 @@ export default function TripPage() {
                                       trip_name: formData.get("name"),
                                       trip_location: formData.get("location"),
                                       trip_start_date: formData.get("startDate"),
+                                      trip_end_date: formData.get("endDate"),
                                       user_id: user.user_id,
                                       isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
                                   };
@@ -288,15 +303,33 @@ export default function TripPage() {
                                   withPortal={window.innerWidth <= 768}
                                   popperPlacement="bottom"
                                   className="date-input"
-                                  dateFormat="dd-MM-yyyy"
+                                  dateFormat="MM-dd-yyyy"
                                   required
                                 />
+                                {!editingTrip &&
+                                 <DatePicker
+                                  selected={endDate}
+                                  onChange={(date) => setEndDate(date)}
+                                  placeholderText="End Date"
+                                  withPortal={window.innerWidth <= 768}
+                                  popperPlacement="bottom"
+                                  className="date-input"
+                                  dateFormat="MM-dd-yyyy"
+                                  minDate={startDate}
+                                  required
+                                 />
+                                }
 
-                                {/* Hidden input so backend still receives startDate as text */}
+                                {/* Hidden input so backend still receives startDate and endDate as text */}
                                 <input
                                   type="hidden"
                                   name="startDate"
                                   value={startDate ? startDate.toISOString().split("T")[0] : ""}
+                                />
+                                 <input
+                                  type="hidden"
+                                  name="endDate"
+                                  value={endDate ? endDate.toISOString().split("T")[0] : ""}
                                 />
 
                             </form>
