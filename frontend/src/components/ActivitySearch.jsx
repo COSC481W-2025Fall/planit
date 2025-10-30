@@ -54,10 +54,9 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
     const [dayActivities, setDayActivities] = useState([]);
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [transportMode, setTransportMode] = useState("DRIVE");
-    const [toggleDisabled, setToggleDisabled] = useState(false);
+    const [distanceLoading, setDistanceLoading] = useState(false);
     const distanceDebounce = useRef(null);
-
-
+    const distanceCache = useRef({});
 
     // pending selection
     const [pendingPlace, setPendingPlace] = useState(null);
@@ -156,29 +155,11 @@ useEffect(() => {
             .join(", ");
     };
 
+  // toggle between transport modes
   const toggleTransportMode = () => {
-    if (toggleDisabled) return;
+    if (distanceLoading || !distanceInfo) return;
     const newMode = transportMode === "DRIVE" ? "WALK" : "DRIVE";
     setTransportMode(newMode);
-
-    if (distanceInfo && pendingPlace) {
-      // Reconstruct previousActivity from distanceInfo
-      const previousActivity = {
-        activity_name: distanceInfo.previousActivityName,
-        latitude: distanceInfo.prevActivityLat,
-        longitude: distanceInfo.prevActivityLng,
-      };
-
-      findDistance(
-        { latitude: previousActivity.latitude, longitude: previousActivity.longitude },
-        { latitude: pendingPlace.location?.latitude, longitude: pendingPlace.location?.longitude },
-        newMode,
-        previousActivity
-      );
-    }
-
-    setToggleDisabled(true);
-    setTimeout(() => setToggleDisabled(false), 1000);
   };
 
   const formatDuration = (minutes) => {
@@ -188,7 +169,6 @@ useEffect(() => {
     if (hrs > 0) return `${hrs}h ${mins}m`;
     return `${mins}m`;
   };
-
 
 
     // City autocomplete
@@ -279,7 +259,7 @@ useEffect(() => {
           longitude: pendingPlace.location?.longitude,
         };
 
-        findDistance(origin, destination, "DRIVE", prevActivity);
+        findDistance(origin, destination, transportMode, prevActivity);
       } catch (err) {
         toast.error("Failed to fetch distance info.");
         console.error("Distance fetch error:", err?.response?.data || err.message);
@@ -287,36 +267,70 @@ useEffect(() => {
     }, 2500); 
   };
 
-
+  // find distance between activities with caching
   async function findDistance(origin, destination, transportation, previousActivity){
+    // create cache key
+    const cacheKey = `${origin.latitude},${origin.longitude}-${destination.latitude},${destination.longitude}`;
+    
+    // check if we already have both distances cached
+    if (distanceCache.current[cacheKey]?.DRIVE && distanceCache.current[cacheKey]?.WALK) {
+      const cached = distanceCache.current[cacheKey];
+      setDistanceInfo({
+        driving: cached.DRIVE,
+        walking: cached.WALK,
+        previousActivityName: previousActivity.activity_name,
+        prevActivityLat: previousActivity.latitude,
+        prevActivityLng: previousActivity.longitude
+      });
+      return;
+    }
+
     try{
-      setLoading(true);
-      const body = {
-        origin,
-        destination,
-        wayOfTransportation: transportation
+      setDistanceLoading(true);
+      
+      // fetch both modes in parallel
+      const [driveRes, walkRes] = await Promise.all([
+        axios.post(`${BASE_URL}/routesAPI/distance/between/activity`, {
+          origin,
+          destination,
+          wayOfTransportation: "DRIVE"
+        }),
+        axios.post(`${BASE_URL}/routesAPI/distance/between/activity`, {
+          origin,
+          destination,
+          wayOfTransportation: "WALK"
+        })
+      ]);
+
+      const driveData = {
+        distanceMiles: driveRes.data.distanceMiles,
+        durationMinutes: Math.round(driveRes.data.durationSeconds / 60)
+      };
+      
+      const walkData = {
+        distanceMiles: walkRes.data.distanceMiles,
+        durationMinutes: Math.round(walkRes.data.durationSeconds / 60)
       };
 
-      const res = await axios.post(
-        `${BASE_URL}/routesAPI/distance/between/activity`,
-        body
-      );
-
-      const { distanceMiles, durationSeconds } = res.data;
+      // cache both results
+      distanceCache.current[cacheKey] = {
+        DRIVE: driveData,
+        WALK: walkData
+      };
 
       setDistanceInfo({
-            distanceMiles,
-            durationMinutes: Math.round(durationSeconds / 60),
-            previousActivityName: previousActivity.activity_name,
-            prevActivityLat: previousActivity.latitude,
-            prevActivityLng: previousActivity.longitude
-        });
+        driving: driveData,
+        walking: walkData,
+        previousActivityName: previousActivity.activity_name,
+        prevActivityLat: previousActivity.latitude,
+        prevActivityLng: previousActivity.longitude
+      });
 
     } catch (err){
       toast.error("There was an issue trying to compute the distance")
       console.error(err);
     } finally {
-      setLoading(false);
+      setDistanceLoading(false);
     }
   }
   // Open popup only 
@@ -345,6 +359,7 @@ useEffect(() => {
         setFormCost("");
         setNotes("");
         setDistanceInfo(null);
+        setTransportMode("DRIVE");
         setShowDetails(true);
     };
 
@@ -572,34 +587,38 @@ useEffect(() => {
                     }
                 >
             {distanceInfo && pendingPlace && (
-              <p className="distance-display">
-                {transportMode === "DRIVE" ? (
-                  <Car className = "icon"/>
+              <div className="distance-display">
+                <button 
+                  className="transport-toggle"
+                  onClick={toggleTransportMode}
+                  disabled={distanceLoading}
+                  title={`Switch to ${transportMode === "DRIVE" ? "walking" : "driving"} mode`}
+                >
+                  <Car className={`icon ${transportMode === "DRIVE" ? "active" : ""}`} />
+                  <Footprints className={`icon ${transportMode === "WALK" ? "active" : ""}`} />
+                </button>
+                
+                {distanceLoading ? (
+                  <MoonLoader size={16} color="#1e7a3d" speedMultiplier={0.8} />
                 ) : (
-                  <Footprints className="icon"/>
+                  <p>
+                    {(() => {
+                      const currentData = transportMode === "DRIVE" ? distanceInfo.driving : distanceInfo.walking;
+                      if (currentData && currentData.distanceMiles != null && currentData.durationMinutes != null) {
+                        return (
+                          <>
+                            From previous activity - <strong>{distanceInfo.previousActivityName}</strong>:{" "}
+                            {currentData.distanceMiles} mi, {formatDuration(currentData.durationMinutes)}
+                          </>
+                        );
+                      } else {
+                        return <em>Route could not be computed.</em>;
+                      }
+                    })()}
+                  </p>
                 )}
-                {distanceInfo.distanceMiles != null && distanceInfo.durationMinutes != null ? (
-                  <>
-                    From previous activity - <strong>{distanceInfo.previousActivityName}</strong>:{" "}
-                    {distanceInfo.distanceMiles} mi, {formatDuration(distanceInfo.durationMinutes)}{" "}
-                    <span className="distance-span"
-                      style={{
-                        color: toggleDisabled ? "gray" : "blue",
-                        cursor: toggleDisabled ? "not-allowed" : "pointer"
-                      }}
-                      onClick={() => !toggleDisabled && toggleTransportMode()}
-                    >
-                      {transportMode === "DRIVE" ? "Walking" : "Driving"}
-                      {toggleDisabled && <MoonLoader size={12} color="#1e7a3d" speedMultiplier={0.8} />}
-                    </span>
-
-                  </>
-                ) : (
-                  <em>Route could not be computed.</em>
-                )}
-              </p>
+              </div>
             )}
-
 
                     <label className="popup-input">
                         <span>Start time</span>
@@ -607,16 +626,16 @@ useEffect(() => {
                             type="time"
                             value={formStartTime}
                             onChange={(e) => {
-                      const val = e.target.value;
-                      setFormStartTime(val);
+                              const val = e.target.value;
+                              setFormStartTime(val);
 
-                      setDistanceInfo(null);
+                              setDistanceInfo(null);
 
-                      // check if time is fully entered
-                      if (/^\d{2}:\d{2}$/.test(val)) {
-                        handleDistanceCheck(val);
-                    }
-                    }}
+                              // check if time is fully entered
+                              if (/^\d{2}:\d{2}$/.test(val)) {
+                                handleDistanceCheck(val);
+                              }
+                            }}
                             disabled={saving}
                         />
                     </label>
