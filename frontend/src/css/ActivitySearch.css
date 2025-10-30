@@ -146,7 +146,7 @@ html[data-theme="dark"] .search-bar input {
 }
 
 html[data-theme="dark"] .search-bar input::placeholder {
-  color: var(--text-strong);
+  color: var(--text-medium);
 }
 
 .search-btn {
@@ -308,6 +308,14 @@ html[data-theme="dark"] .search-bar input::placeholder {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 3px var(--accent);
+}
+
+.time-picker {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] .time-picker {
+  color-scheme: dark;
 }
 
 /*Responsive Layout*/

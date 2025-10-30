@@ -72,7 +72,7 @@ html[data-theme="dark"] .popup-input {
     color: var(--text-strong);
 }
 
-/* Optional: make fields inside match dark inputs */
+
 html[data-theme="dark"] .popup-input :is(input, textarea, select) {
     background: var(--bg-hover2, var(--bg-hover));
     color: var(--text-strong);

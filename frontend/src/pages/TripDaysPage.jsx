@@ -623,7 +623,7 @@ export default function TripDaysPage() {
             >
               <label className="popup-input">
                 <span>Start Time:</span>
-                <input
+                <input className = "time-picker"
                   type="time"
                   value={editStartTime}
                   onChange={(e) =>

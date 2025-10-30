@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { ThemeProvider, useTheme } from "./ThemeProvider";
+import { ThemeProvider, useTheme } from "../theme/ThemeProvider.jsx";
 
 // Small demo component that uses the theme context
 function Demo() {
