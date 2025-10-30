@@ -4,7 +4,7 @@ import "../css/LandingPage.css";
 import logo from "../assets/Planit_Full_Green.png";
 import {Users, MapPin, Calendar, PiggyBank, Star, Sun, Moon} from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
-import { useTheme } from "../theme/ThemeProvider";
+import { useTheme } from "../theme/ThemeProvider.jsx";
 
 export default function LandingPage() {
     const navigate = useNavigate();
