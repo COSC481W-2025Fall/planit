@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Car, Footprints } from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/Popup.css";
@@ -12,12 +12,11 @@ import ActivityCard from "../components/ActivityCard.jsx";
 import { useParams } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
+import axios from "axios";
+
+const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
 export default function TripDaysPage() {
-    const wayOfTransportationDrive = "DRIVE";
-    const wayOfTransportationWalk = "WALK";
-    const wayOfTransportationBicycle = "BICYCLE";
-    const wayOfTransportationTransit = "TRANSIT";
 
     //constants for data
     const [user, setUser] = useState(null);
@@ -37,6 +36,13 @@ export default function TripDaysPage() {
   const [openNotesPopup, setOpenNotesPopup] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [editableNote, setEditableNote] = useState("");
+
+  // distance calculation states
+  const [distanceInfo, setDistanceInfo] = useState(null);
+  const [transportMode, setTransportMode] = useState("DRIVE");
+  const [distanceLoading, setDistanceLoading] = useState(false);
+  const distanceDebounce = useRef(null);
+  const distanceCache = useRef({});
 
   const [expandedDays, setExpandedDays] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
@@ -113,6 +119,15 @@ export default function TripDaysPage() {
       setEditCost(editActivity.activity_price_estimated ?? "");
 
       setNotes(editActivity.notes || "");
+
+      // reset distance info when opening edit
+      setDistanceInfo(null);
+      setTransportMode("DRIVE");
+
+      // Trigger initial distance check if start time exists
+      if (start) {
+        handleDistanceCheck(start);
+      }
     }
   }, [editActivity]);
 
@@ -160,6 +175,153 @@ export default function TripDaysPage() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  // format duration helper
+  const formatDuration = (minutes) => {
+    if (minutes == null) return "N/A";
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hrs > 0) return `${hrs}h ${mins}m`;
+    return `${mins}m`;
+  };
+
+  // toggle  between different transport modes
+  const toggleTransportMode = () => {
+    if (distanceLoading || !distanceInfo) return;
+    const newMode = transportMode === "DRIVE" ? "WALK" : "DRIVE";
+    setTransportMode(newMode);
+  };
+
+  // find distance between activities
+  async function findDistance(origin, destination, transportation, previousActivity) {
+    // create cache key
+    const cacheKey = `${origin.latitude},${origin.longitude}-${destination.latitude},${destination.longitude}`;
+    
+    // check if we already have both distances cached
+    if (distanceCache.current[cacheKey]?.DRIVE && distanceCache.current[cacheKey]?.WALK) {
+      const cached = distanceCache.current[cacheKey];
+      setDistanceInfo({
+        driving: cached.DRIVE,
+        walking: cached.WALK,
+        previousActivityName: previousActivity.activity_name,
+        prevActivityLat: previousActivity.latitude,
+        prevActivityLng: previousActivity.longitude
+      });
+      return;
+    }
+
+    try {
+      setDistanceLoading(true);
+      
+      // fetch both modes in parallel
+      const [driveRes, walkRes] = await Promise.all([
+        axios.post(`${BASE_URL}/routesAPI/distance/between/activity`, {
+          origin,
+          destination,
+          wayOfTransportation: "DRIVE"
+        }),
+        axios.post(`${BASE_URL}/routesAPI/distance/between/activity`, {
+          origin,
+          destination,
+          wayOfTransportation: "WALK"
+        })
+      ]);
+
+      const driveData = {
+        distanceMiles: driveRes.data.distanceMiles,
+        durationMinutes: Math.round(driveRes.data.durationSeconds / 60)
+      };
+      
+      const walkData = {
+        distanceMiles: walkRes.data.distanceMiles,
+        durationMinutes: Math.round(walkRes.data.durationSeconds / 60)
+      };
+
+      // cache both results
+      distanceCache.current[cacheKey] = {
+        DRIVE: driveData,
+        WALK: walkData
+      };
+
+      setDistanceInfo({
+        driving: driveData,
+        walking: walkData,
+        previousActivityName: previousActivity.activity_name,
+        prevActivityLat: previousActivity.latitude,
+        prevActivityLng: previousActivity.longitude
+      });
+
+    } catch (err) {
+      toast.error("There was an issue trying to compute the distance");
+      console.error(err);
+    } finally {
+      setDistanceLoading(false);
+    }
+  }
+
+  // handle distance check when time changes
+  const handleDistanceCheck = (startTime) => {
+    if (!editActivity) return;
+
+    if (distanceDebounce.current) clearTimeout(distanceDebounce.current);
+
+    distanceDebounce.current = setTimeout(() => {
+      try {
+        const timeToMinutes = (t) => {
+          if (!t) return 0;
+          const [h, m] = t.split(":").map(Number);
+          return h * 60 + m;
+        };
+
+        const newTime = timeToMinutes(startTime);
+        
+        // find the day that contains this activity
+        const currentDay = days.find(day => 
+          day.activities?.some(act => act.activity_id === editActivity.activity_id)
+        );
+
+        if (!currentDay || !currentDay.activities) {
+          setDistanceInfo(null);
+          return;
+        }
+
+        const dayActivities = currentDay.activities;
+        let prevActivity = null;
+
+        for (let i = 0; i < dayActivities.length; i++) {
+          const currActivity = dayActivities[i];
+          
+          // skip the activity being edited
+          if (currActivity.activity_id === editActivity.activity_id) continue;
+
+          const activityTime = timeToMinutes(currActivity.activity_startTime);
+
+          // we found the prev activity
+          if (activityTime >= newTime) break;
+          prevActivity = currActivity;
+        }
+
+        if (!prevActivity) {
+          setDistanceInfo(null);
+          return;
+        }
+
+        const origin = {
+          latitude: prevActivity.latitude,
+          longitude: prevActivity.longitude,
+        };
+        const destination = {
+          latitude: editActivity.latitude,
+          longitude: editActivity.longitude,
+        };
+
+        findDistance(origin, destination, transportMode, prevActivity);
+      } catch (err) {
+        toast.error("Failed to fetch distance info.");
+        console.error("Distance fetch error:", err?.response?.data || err.message);
+      }
+    }, 2500);
   };
 
   //add a new day
@@ -409,8 +571,8 @@ export default function TripDaysPage() {
                       onClick={() => {
                         setExpandedDays((prev) =>
                           prev.includes(day.day_id)
-                            ? prev.filter((id) => id !== day.day_id) // collapse this one
-                            : [...prev, day.day_id] // expand new one, keep others open
+                            ? prev.filter((id) => id !== day.day_id)
+                            : [...prev, day.day_id]
                         );
                       }}
 
@@ -435,7 +597,6 @@ export default function TripDaysPage() {
                       </div>
                     </div>
 
-                    {/*Ellipsis(always rendered)*/}
                     <div
                       className="day-actions"
                       ref={(el) => (menuRefs.current[day.day_id] = el)}
@@ -606,14 +767,57 @@ export default function TripDaysPage() {
                 </>
               }
             >
+              {distanceInfo && editActivity && (
+                <div className="distance-display">
+                  <button 
+                    className="transport-toggle"
+                    onClick={toggleTransportMode}
+                    disabled={distanceLoading}
+                    title={`Switch to ${transportMode === "DRIVE" ? "walking" : "driving"} mode`}
+                  >
+                    <Car className={`icon ${transportMode === "DRIVE" ? "active" : ""}`} />
+                    <Footprints className={`icon ${transportMode === "WALK" ? "active" : ""}`} />
+                  </button>
+                  
+                  {distanceLoading ? (
+                    <MoonLoader size={16} color="#1e7a3d" speedMultiplier={0.8} />
+                  ) : (
+                    <p>
+                      {(() => {
+                        const currentData = transportMode === "DRIVE" ? distanceInfo.driving : distanceInfo.walking;
+                        if (currentData && currentData.distanceMiles != null && currentData.durationMinutes != null) {
+                          return (
+                            <>
+                              From previous activity - <strong>{distanceInfo.previousActivityName}</strong>:{" "}
+                              {currentData.distanceMiles} mi, {formatDuration(currentData.durationMinutes)}
+                            </>
+                          );
+                        } else {
+                          return <em>Route could not be computed.</em>;
+                        }
+                      })()}
+                    </p>
+                  )}
+                </div>
+              )}
+
               <label className="popup-input">
                 <span>Start Time:</span>
                 <input
                   type="time"
                   value={editStartTime}
-                  onChange={(e) =>
-                    setEditStartTime(e.target.value)
-                  }
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setEditStartTime(val);
+
+                    // Clear distance info when user starts typing
+                    setDistanceInfo(null);
+
+                    // check if time is fully entered
+                    if (/^\d{2}:\d{2}$/.test(val)) {
+                      handleDistanceCheck(val);
+                    }
+                  }}
                 />
               </label>
 
