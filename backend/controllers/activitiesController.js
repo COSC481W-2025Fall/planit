@@ -215,16 +215,16 @@ export const updateNotesForActivity = async (req, res) => {
 
 export const checkOverlappingTimes = async (req, res) => {
     try {
-        const { dayId, proposedStartTime, proposedDuration, activityId } = req.body;
+        const { dayId, proposedStartTime, proposedDuration} = req.body;
         if (!dayId || !proposedStartTime || !proposedDuration) {
             return res.status(400).json({ error: "Missing required fields" });
         }
+        console.log("Checking overlaps for:", { dayId, proposedStartTime, proposedDuration});
         const proposedStartTs = `${proposedStartTime}:00`;
         const proposedDurationInterval = `${Number(proposedDuration)} minutes`;
         const overlappingActivities = await sql`
             SELECT * FROM activities
             WHERE "day_id" = ${dayId}
-            AND "activity_id" != ${activityId ?? 0}
             AND (
                 (${proposedStartTs} < ("activity_startTime" + "activity_duration"))
                 AND ((${proposedStartTs} + ${proposedDurationInterval}::interval) > "activity_startTime")

@@ -59,6 +59,8 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
     const debounceTimeout = useRef(null);
     const prevCityQuery = useRef("");
 
+    const [overlapWarning, setOverlapWarning] = useState(false);
+
     const priceLevelDisplay = (level) => {
         switch (level) {
             case "PRICE_LEVEL_FREE":
@@ -139,6 +141,15 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
         return () => clearTimeout(debounceTimeout.current);
     }, [cityQuery]);
 
+    // Check overlap when start time or duration changes
+    useEffect(() => {
+        if (formStartTime && formDuration) {
+            const idx = Number(selectedDay) - 1;
+            const dayId = dayIds[idx];
+            checkOverlap(dayId, formStartTime, formDuration);
+        }
+    }, [formStartTime, formDuration]);
+
     //  Search submit with loader
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -187,6 +198,26 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
         setNotes("");
         setShowDetails(true);
     };
+
+    async function checkOverlap(dayId, startTime, duration) {
+        const res = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL || LOCAL_BACKEND_URL}/activities/check-overlap`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                dayId,
+                proposedStartTime: startTime,
+                proposedDuration: duration,
+            })
+        }
+        );
+        const data = await res.json();
+        if (data.overlappingActivities?.length > 0) {
+            setOverlapWarning(true);
+        } else {
+            setOverlapWarning(false);
+        }
+    }
 
     // Save details create then update, row is created only after Save
     const handleSaveDetails = async () => {
@@ -413,6 +444,13 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
                 >
                     <label className="popup-input">
                         <span>Start time</span>
+                        <span>
+                            {overlapWarning && (
+                                <p className="overlap-warning">
+                                    ! This time conflicts with another activity.
+                                </p>
+                            )}
+                        </span>
                         <input
                             type="time"
                             value={formStartTime}

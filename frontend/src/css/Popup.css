@@ -71,6 +71,11 @@
     color: var(--muted);
 }
 
+.overlap-warning {
+    background-color: rgb(243, 110, 110);
+    color: white;
+}
+
 .popup-input input {
     padding: 10px 12px;
     border: 1px solid var(--border-light);
