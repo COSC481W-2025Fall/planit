@@ -321,6 +321,7 @@ body {
 }
 
 .day-menu button {
+  color: var(--text);
   display: flex;
   align-items: center;
   width: 100%;

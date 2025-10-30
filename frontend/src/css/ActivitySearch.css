@@ -110,13 +110,43 @@ body {
   gap: 8px;
   margin-bottom: 16px;
 }
-
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 .search-actions select {
   flex: 1;
   padding: 6px;
   border: 1px solid var(--border-alt);
   border-radius: 4px;
   font-size: 13px;
+  background: var(--bg-white);
+  color: var(--text);
+}
+
+
+.search-actions select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+
+html[data-theme="dark"] .search-actions select {
+  background: var(--bg-hover2, var(--bg-hover));
+  color: var(--text-strong);
+  border-color: var(--border-input);
+}
+
+html[data-theme="dark"] .search-bar input {
+  background: var(--bg-hover2, var(--bg-hover));
+  color: var(--text-strong);
+  border-color: var(--border-input);
+}
+
+html[data-theme="dark"] .search-bar input::placeholder {
+  color: var(--text-strong);
 }
 
 .search-btn {
@@ -168,9 +198,9 @@ body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  flex: 1;
   margin-bottom: 1rem;
   overflow: visible;
+  padding-bottom: 2rem;
 }
 
 .activity-card {
