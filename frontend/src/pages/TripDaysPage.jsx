@@ -7,7 +7,7 @@ import Popup from "../components/Popup";
 import ActivitySearch from "../components/ActivitySearch.jsx";
 import NavBar from "../components/NavBar";
 import TopBanner from "../components/TopBanner";
-import { getDays, createDay, deleteDay } from "../../api/days";
+import {getDays, createDay, deleteDay, updateDay} from "../../api/days";
 import ActivityCard from "../components/ActivityCard.jsx";
 import { useParams } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
@@ -38,6 +38,8 @@ export default function TripDaysPage() {
 
   const menuRefs = useRef({});
   const { tripId } = useParams();
+  const [dragFromDay, setDragFromDay] = useState("");
+  const [newDate, setNewDate] = useState(null);
 
   //responsive
   useEffect(() => {
@@ -316,6 +318,46 @@ export default function TripDaysPage() {
     setOpenMenu(openMenu === dayId ? null : dayId);
   };
 
+  //Drag and Drop
+  const handleDayDragStart = (e, fromDay) => {
+    setDragFromDay(fromDay);
+
+    try { e.dataTransfer.setData("text/plain", String(fromDay)); } catch (_) {}
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDayDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDayDrop = async (e, overDay) => {
+    e.preventDefault();
+    await reorderDays(dragFromDay, overDay);
+  };
+
+  const reorderDays = async (dragFromDay, overDay) => {
+    try {
+      console.log("dragFromDay: ", dragFromDay);
+      console.log("overDay: ", overDay);
+
+      // If user does not move card to new day, return and stop operation
+      if (dragFromDay.day_date === overDay.day_date) return;
+
+      let newDate2 = overDay.day_date;
+      await updateDay(tripId, dragFromDay.day_id, {day_date: newDate2});
+      newDate2 = dragFromDay.day_date;
+      await updateDay(tripId, overDay.day_id, {day_date: newDate2});
+
+      await fetchDays();
+      toast.success("Day moved successfully!");
+
+      setDragFromDay(null);
+    } catch (error) {
+      toast.error("Error reordering days:", error);
+    }
+  }
+
   //Loading State
   if (!user || !trip) {
     return (
@@ -406,10 +448,15 @@ export default function TripDaysPage() {
                 const isExpanded = expandedDays.includes(day.day_id);
                 return (
                   <React.Fragment key={day.day_id}>
-                  <div
-                    className={`day-card ${isMobile ? (isExpanded ? "expanded" : "collapsed") : ""
-                      }`}
-                  >
+                    <div
+                        className={`day-card ${isMobile ? (isExpanded ? "expanded" : "collapsed") : ""
+                        }`}
+                        draggable={true}
+                        key={day.day_id}
+                        onDragStart={(e) => handleDayDragStart(e, day)}
+                        onDragOver={handleDayDragOver}
+                        onDrop={(e) => handleDayDrop(e, day)}
+                    >
                     <div
                       className="day-header"
                       onClick={() => {
