@@ -72,8 +72,10 @@
 }
 
 .overlap-warning {
-    background-color: rgb(243, 110, 110);
-    color: white;
+    color: tomato;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .popup-input input {

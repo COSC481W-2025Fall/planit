@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useRef} from "react";
+import {ChevronDown, ChevronUp} from "lucide-react";
 import axios from "axios";
 import "../css/ActivitySearch.css";
 import "../css/Popup.css";
@@ -59,7 +60,9 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
     const debounceTimeout = useRef(null);
     const prevCityQuery = useRef("");
 
-    const [overlapWarning, setOverlapWarning] = useState(false);
+    //const [overlapWarning, setOverlapWarning] = useState(false);
+    const [overlappingActivities, setOverlappingActivities] = useState([]);
+    const [showOverlapList, setShowOverlapList] = useState(false);
 
     const priceLevelDisplay = (level) => {
         switch (level) {
@@ -89,6 +92,17 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
             .join(" ");
     };
 
+    const formatTime = (timeStr) => {
+        if (!timeStr) return "No time";
+        const [hours, minutes] = timeStr.split(":").map(Number);
+        if (isNaN(hours) || isNaN(minutes)) return timeStr;
+
+        const period = hours >= 12 ? "PM" : "AM";
+        const twelveHour = hours % 12 === 0 ? 12 : hours % 12;
+
+        return `${twelveHour}:${minutes.toString().padStart(2, "0")} ${period}`;
+    };
+
     const getLocationString = (place) => {
         const addr = place.addressComponents || [];
 
@@ -112,6 +126,10 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
         return [city, region, country]
             .filter((v) => v && v !== "N/A")
             .join(", ");
+    };
+
+    const toggleDropdown = () => {
+        setShowOverlapList(prev => !prev);
     };
 
     // City autocomplete
@@ -144,9 +162,12 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
     // Check overlap when start time or duration changes
     useEffect(() => {
         if (formStartTime && formDuration) {
-            const idx = Number(selectedDay) - 1;
-            const dayId = dayIds[idx];
-            checkOverlap(dayId, formStartTime, formDuration);
+            const delay = setTimeout(() => {
+                const idx = Number(selectedDay) - 1;
+                const dayId = dayIds[idx];
+                checkOverlap(dayId, formStartTime, formDuration);
+            }, 250);
+            return () => clearTimeout(delay);
         }
     }, [formStartTime, formDuration]);
 
@@ -197,6 +218,8 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
         setFormCost("");
         setNotes("");
         setShowDetails(true);
+        setOverlappingActivities([]);
+        setShowOverlapList(false);
     };
 
     async function checkOverlap(dayId, startTime, duration) {
@@ -212,10 +235,11 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
         }
         );
         const data = await res.json();
+        
         if (data.overlappingActivities?.length > 0) {
-            setOverlapWarning(true);
+            setOverlappingActivities(data.overlappingActivities);
         } else {
-            setOverlapWarning(false);
+            setOverlappingActivities([]);
         }
     }
 
@@ -442,13 +466,37 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
                         </>
                     }
                 >
-                    <label className="popup-input">
+                    <label className="popup-input" htmlFor="start-time-input">
                         <span>Start time</span>
                         <span>
-                            {overlapWarning && (
-                                <p className="overlap-warning">
-                                    ! This time conflicts with another activity.
-                                </p>
+                            {overlappingActivities.length > 0 && (
+                                <div>
+                                    <p className="overlap-warning">
+                                        ! This time conflicts with another activity.
+                                        <button
+                                            type="button"
+                                            className="chevron-button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleDropdown();
+                                            }}
+                                        >
+                                            {showOverlapList ? <ChevronUp /> : <ChevronDown />}
+                                        </button>
+                                    </p>
+
+                                    {showOverlapList && (
+                                        <div>
+                                            <ul>
+                                                {overlappingActivities.map((a) => (
+                                                    <li key={a.activity_id}>
+                                                        <strong>{a.activity_name}</strong> ({formatTime(a.activity_startTime)})
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
                             )}
                         </span>
                         <input
