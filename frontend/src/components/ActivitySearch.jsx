@@ -1,5 +1,4 @@
 import React, {useState, useEffect, useRef} from "react";
-import {ChevronDown, ChevronUp} from "lucide-react";
 import axios from "axios";
 import "../css/ActivitySearch.css";
 import "../css/Popup.css";
@@ -8,6 +7,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import {Star} from "lucide-react";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
+import OverlapWarning from "./OverlapWarning.jsx";
 
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
@@ -60,10 +60,6 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
     const debounceTimeout = useRef(null);
     const prevCityQuery = useRef("");
 
-    //const [overlapWarning, setOverlapWarning] = useState(false);
-    const [overlappingActivities, setOverlappingActivities] = useState([]);
-    const [showOverlapList, setShowOverlapList] = useState(false);
-
     const priceLevelDisplay = (level) => {
         switch (level) {
             case "PRICE_LEVEL_FREE":
@@ -92,17 +88,6 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
             .join(" ");
     };
 
-    const formatTime = (timeStr) => {
-        if (!timeStr) return "No time";
-        const [hours, minutes] = timeStr.split(":").map(Number);
-        if (isNaN(hours) || isNaN(minutes)) return timeStr;
-
-        const period = hours >= 12 ? "PM" : "AM";
-        const twelveHour = hours % 12 === 0 ? 12 : hours % 12;
-
-        return `${twelveHour}:${minutes.toString().padStart(2, "0")} ${period}`;
-    };
-
     const getLocationString = (place) => {
         const addr = place.addressComponents || [];
 
@@ -126,10 +111,6 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
         return [city, region, country]
             .filter((v) => v && v !== "N/A")
             .join(", ");
-    };
-
-    const toggleDropdown = () => {
-        setShowOverlapList(prev => !prev);
     };
 
     // City autocomplete
@@ -158,18 +139,6 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
 
         return () => clearTimeout(debounceTimeout.current);
     }, [cityQuery]);
-
-    // Check overlap when start time or duration changes
-    useEffect(() => {
-        if (formStartTime && formDuration) {
-            const delay = setTimeout(() => {
-                const idx = Number(selectedDay) - 1;
-                const dayId = dayIds[idx];
-                checkOverlap(dayId, formStartTime, formDuration);
-            }, 250);
-            return () => clearTimeout(delay);
-        }
-    }, [formStartTime, formDuration]);
 
     //  Search submit with loader
     const handleSubmit = async (e) => {
@@ -218,30 +187,7 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
         setFormCost("");
         setNotes("");
         setShowDetails(true);
-        setOverlappingActivities([]);
-        setShowOverlapList(false);
     };
-
-    async function checkOverlap(dayId, startTime, duration) {
-        const res = await fetch(
-            `${import.meta.env.VITE_BACKEND_URL || LOCAL_BACKEND_URL}/activities/check-overlap`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                dayId,
-                proposedStartTime: startTime,
-                proposedDuration: duration,
-            })
-        }
-        );
-        const data = await res.json();
-        
-        if (data.overlappingActivities?.length > 0) {
-            setOverlappingActivities(data.overlappingActivities);
-        } else {
-            setOverlappingActivities([]);
-        }
-    }
 
     // Save details create then update, row is created only after Save
     const handleSaveDetails = async () => {
@@ -469,35 +415,12 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
                     <label className="popup-input" htmlFor="start-time-input">
                         <span>Start time</span>
                         <span>
-                            {overlappingActivities.length > 0 && (
-                                <div>
-                                    <p className="overlap-warning">
-                                        ! This time conflicts with another activity.
-                                        <button
-                                            type="button"
-                                            className="chevron-button"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                toggleDropdown();
-                                            }}
-                                        >
-                                            {showOverlapList ? <ChevronUp /> : <ChevronDown />}
-                                        </button>
-                                    </p>
-
-                                    {showOverlapList && (
-                                        <div>
-                                            <ul>
-                                                {overlappingActivities.map((a) => (
-                                                    <li key={a.activity_id}>
-                                                        <strong>{a.activity_name}</strong> ({formatTime(a.activity_startTime)})
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                            <OverlapWarning
+                                formStartTime={formStartTime}
+                                formDuration={formDuration}
+                                selectedDay={selectedDay}
+                                dayIds={dayIds}
+                            />
                         </span>
                         <input className = "time-picker"
                             type="time"
