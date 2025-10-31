@@ -59,3 +59,26 @@ export const getAllTripDetailsOfTripsLikedByUser = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
+export const getLikedTripIdsByUser = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
+
+    const likedTrips = await sql`
+      SELECT trip_id
+      FROM likes
+      WHERE user_id = ${userId}
+    `;
+
+    const likedTripIds = likedTrips.map(like => like.trip_id);
+
+    return res.status(200).json({ likedTripIds });
+  } catch (err) {
+    console.error("Error fetching liked trip IDs:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
