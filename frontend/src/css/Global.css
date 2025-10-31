@@ -97,6 +97,11 @@
     --scrollbar-thumb1: #3b475b;
     --scrollbar-thumb-hover1: #4a5871;
 
+    --sb-size: 10px;
+    --sb-thumb: var(--scrollbar-thumb);
+    --sb-track: var(--scrollbar-track);
+    --sb-thumb-hover: var(--scrollbar-thumb-hover);
+
     --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.55);
     --shadow-strong: 0 8px 30px rgba(0, 0, 0, 0.6);
     --shadow-popup: 0 12px 36px rgba(0, 0, 0, 0.65);
