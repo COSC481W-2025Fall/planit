@@ -321,6 +321,7 @@ body {
 }
 
 .day-menu button {
+  color: var(--text);
   display: flex;
   align-items: center;
   width: 100%;
@@ -418,6 +419,13 @@ body {
   stroke: var(--bg-white)
 }
 
+.time-picker {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] .time-picker {
+  color-scheme: dark;
+}
 @keyframes fadeInUp {
   from {
     opacity: 0;

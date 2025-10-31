@@ -66,6 +66,30 @@
     color: var(--text-dark);
 }
 
+
+/* Dark mode */
+html[data-theme="dark"] .popup-input {
+    color: var(--text-strong);
+}
+
+
+html[data-theme="dark"] .popup-input :is(input, textarea, select) {
+    background: var(--bg-hover2, var(--bg-hover));
+    color: var(--text-strong);
+    border: 1px solid var(--border-input);
+}
+
+html[data-theme="dark"] .popup-input :is(input, textarea, select)::placeholder {
+    color: var(--text-medium);
+    opacity: 1;
+}
+
+html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
 .popup-input span {
     margin-bottom: 6px;
     color: var(--muted);

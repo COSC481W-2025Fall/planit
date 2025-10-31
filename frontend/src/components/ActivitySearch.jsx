@@ -499,7 +499,7 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
                                 </div>
                             )}
                         </span>
-                        <input
+                        <input className = "time-picker"
                             type="time"
                             value={formStartTime}
                             onChange={(e) => setFormStartTime(e.target.value)}
