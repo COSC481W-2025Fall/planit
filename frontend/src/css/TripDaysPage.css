@@ -167,7 +167,7 @@ body {
   flex-wrap: nowrap;
   align-items: flex-start;
   overflow-x: auto;
-  gap: 1.25rem;
+  gap: 0.5rem;
   padding: 1rem 0 4rem;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
@@ -321,6 +321,7 @@ body {
 }
 
 .day-menu button {
+  color: var(--text);
   display: flex;
   align-items: center;
   width: 100%;
@@ -361,6 +362,70 @@ body {
   box-shadow: 0 0 3px var(--accent);
 }
 
+.day-divider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  height: 10.5rem;
+  width: 0.2rem;
+  background: transparent;
+  transition: width 0.25s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+#last-day-divider {
+  width: 2.6rem;
+}
+
+.day-divider:hover {
+  width: 2.6rem;
+}
+
+.day-divider button {
+  position: absolute;
+  opacity: 0;
+  background: var(--muted);
+  border: none;
+  border-radius: 25%;
+  color: var(--bg-white);
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: opacity 0.1s ease, transform 0.2s ease;
+  display: flex;
+}
+
+.day-divider:hover button {
+  opacity: 0.5;
+  transform: scale(1.05);
+  background-color: var(--muted);
+}
+
+.day-divider button:hover {
+  opacity: 1;
+  background-color: var(--accent);
+}
+
+.day-divider button:active {
+  opacity: 1;
+  transform: scale(.7);
+}
+
+.plus-icon {
+  margin: auto;
+  stroke: var(--bg-white)
+}
+
+.time-picker {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] .time-picker {
+  color-scheme: dark;
+}
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -445,6 +510,14 @@ body {
 
   .day-title {
     font-size: 1rem;
+  }
+
+  .day-divider {
+    height: 1em;
+  }
+
+  .day-divider button {
+    opacity: 0.5;
   }
 }
 

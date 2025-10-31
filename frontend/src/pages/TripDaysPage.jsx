@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Car, Footprints } from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Car, Footprints, Plus} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/Popup.css";
@@ -135,6 +135,25 @@ export default function TripDaysPage() {
   useEffect(() => {
     fetchDays();
   }, [tripId]);
+
+  const openAddDayPopup = (baseDateStr) => {
+    let nextDate;
+    if (baseDateStr) {
+      const baseDate = new Date(baseDateStr);
+      nextDate = new Date(baseDate);
+      nextDate.setDate(baseDate.getDate() + 1);
+    } else if (days.length > 0) {
+      const lastDayDate = new Date(days[days.length - 1].day_date);
+      nextDate = new Date(lastDayDate);
+      nextDate.setDate(lastDayDate.getDate() + 1);
+    } else {
+      nextDate = new Date(trip.trip_start_date);
+      nextDate.setMinutes(nextDate.getMinutes() + nextDate.getTimezoneOffset());
+    }
+
+    const formatted = nextDate.toISOString().split("T")[0];
+    setOpenNewDay(formatted);
+  };
 
   const fetchDays = async () => {
     if (!tripId) return;
@@ -326,20 +345,12 @@ export default function TripDaysPage() {
 
   //add a new day
   const handleAddDay = async () => {
-    try {
-      let nextDate;
-      if (days.length > 0) {
-        const lastDayDate = new Date(days[days.length - 1].day_date);
-        nextDate = new Date(lastDayDate);
-        nextDate.setDate(lastDayDate.getDate() + 1);
-      } else {
-        nextDate = new Date(trip.trip_start_date);
-      }
+    if (!newDay) return;
 
-      const formatted = nextDate.toISOString().split("T")[0];
-      await createDay(tripId, { day_date: formatted });
-      await fetchDays();
-      setOpenNewDay(false);
+    try {
+      await createDay(tripId, { day_date: newDay });
+      await fetchDays(); 
+      setOpenNewDay(null);
       toast.success("New day added successfully!");
     } catch (err) {
       console.error("Error creating day:", err);
@@ -537,7 +548,7 @@ export default function TripDaysPage() {
           <div className="button-level-bar">
             <h1 className="itinerary-text">Itinerary</h1>
             <div className="itinerary-buttons">
-              <button onClick={() => setOpenNewDay(true)} id="new-day-button">
+              <button onClick={() => openAddDayPopup(null)} id="new-day-button">
                 + New Day
               </button>
               {!openActivitySearch && (
@@ -561,8 +572,8 @@ export default function TripDaysPage() {
               days.map((day, index) => {
                 const isExpanded = expandedDays.includes(day.day_id);
                 return (
+                  <React.Fragment key={day.day_id}>
                   <div
-                    key={day.day_id}
                     className={`day-card ${isMobile ? (isExpanded ? "expanded" : "collapsed") : ""
                       }`}
                   >
@@ -647,7 +658,16 @@ export default function TripDaysPage() {
                         )}
                       </>
                     )}
-                  </div>
+                    </div>
+                    <div
+                      className="day-divider"
+                      id={index === days.length - 1 ? "last-day-divider" : undefined}
+                    >
+                      <button onClick={() => openAddDayPopup(day.day_date)}>
+                        <Plus size={17} className="plus-icon"/>
+                      </button>
+                    </div>
+                  </React.Fragment>
                 );
               })
             )}
@@ -803,7 +823,7 @@ export default function TripDaysPage() {
 
               <label className="popup-input">
                 <span>Start Time:</span>
-                <input
+                <input className = "time-picker"
                   type="time"
                   value={editStartTime}
                   onChange={(e) => {

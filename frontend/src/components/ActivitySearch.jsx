@@ -622,7 +622,7 @@ useEffect(() => {
 
                     <label className="popup-input">
                         <span>Start time</span>
-                        <input
+                        <input className = "time-picker"
                             type="time"
                             value={formStartTime}
                             onChange={(e) => {
