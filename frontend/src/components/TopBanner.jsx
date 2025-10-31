@@ -6,6 +6,7 @@ import NavBar from "./NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import { toast } from "react-toastify";
 import { useTheme } from "../theme/ThemeProvider.jsx";
+import { Link } from "react-router-dom";
 
 const handleSignOut = () => {
   fetch(
@@ -37,8 +38,9 @@ export default function TopBanner({ user }) {
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-
+          <Link to="/trip">
           <img src={logo} alt="PlanIt Logo" className="logo" />
+          </Link>
         </div>
 
         <div className="right-section">
