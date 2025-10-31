@@ -4,7 +4,7 @@ import "../css/ActivitySearch.css";
 import "../css/Popup.css";
 import Popup from "../components/Popup";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
-import {Star} from "lucide-react";
+import {Star, Car, Footprints} from "lucide-react";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
 
@@ -50,6 +50,13 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
     const [formDuration, setFormDuration] = useState("");
     const [formCost, setFormCost] = useState("");
     const [notes, setNotes] = useState("");
+    const [distanceInfo, setDistanceInfo] = useState(null);
+    const [dayActivities, setDayActivities] = useState([]);
+    const [selectedPlace, setSelectedPlace] = useState(null);
+    const [transportMode, setTransportMode] = useState("DRIVE");
+    const [distanceLoading, setDistanceLoading] = useState(false);
+    const distanceDebounce = useRef(null);
+    const distanceCache = useRef({});
 
     // pending selection
     const [pendingPlace, setPendingPlace] = useState(null);
@@ -59,25 +66,61 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
     const debounceTimeout = useRef(null);
     const prevCityQuery = useRef("");
 
-    const priceLevelDisplay = (level) => {
-        switch (level) {
-            case "PRICE_LEVEL_FREE":
-                return "Free";
-            case "PRICE_LEVEL_INEXPENSIVE":
-                return "$";
-            case "PRICE_LEVEL_MODERATE":
-                return "$$";
-            case "PRICE_LEVEL_EXPENSIVE":
-                return "$$$";
-            case "PRICE_LEVEL_VERY_EXPENSIVE":
-                return "$$$$";
-            default:
-                if (typeof level === "number")
-                    return level === 0 ? "Free" : "$".repeat(Math.min(level, 4));
-                if (typeof level === "string" && level.startsWith("$")) return level;
-                return "N/A";
-        }
-    };
+  const priceLevelDisplay = (level) => {
+    switch (level) {
+      case "PRICE_LEVEL_FREE":
+        return "Free";
+      case "PRICE_LEVEL_INEXPENSIVE":
+        return "$";
+      case "PRICE_LEVEL_MODERATE":
+        return "$$";
+      case "PRICE_LEVEL_EXPENSIVE":
+        return "$$$";
+      case "PRICE_LEVEL_VERY_EXPENSIVE":
+        return "$$$$";
+      default:
+        if (typeof level === "number")
+          return level === 0 ? "Free" : "$".repeat(Math.min(level, 4));
+        if (typeof level === "string" && level.startsWith("$")) return level;
+        return "N/A";
+    }
+  };
+
+useEffect(() => {
+  if (!selectedDay) return;
+
+  const fetchActivities = async () => {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/read/all`,
+        { dayId: dayIds[selectedDay - 1] },
+        { withCredentials: true }
+      );
+
+      const activities = res.data.activities || [];
+
+      // sort activities by start time
+      const sortedActivities = activities.sort((a, b) => {
+        // convert HH:MM string to minutes
+        const timeToMinutes = (t) => {
+          if (!t) return 0;
+          const [h, m] = t.split(":").map(Number);
+          return h * 60 + m;
+        };
+
+        return timeToMinutes(a.activity_startTime) - timeToMinutes(b.activity_startTime);
+      });
+
+      setDayActivities(sortedActivities);
+    } catch (err) {
+      console.error("Failed to fetch activities:", err);
+    }
+  };
+
+  fetchActivities();
+}, [selectedDay]);
+
+
 
     const formatType = (type) => {
         if (!type) return "N/A";
@@ -112,6 +155,22 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
             .join(", ");
     };
 
+  // toggle between transport modes
+  const toggleTransportMode = () => {
+    if (distanceLoading || !distanceInfo) return;
+    const newMode = transportMode === "DRIVE" ? "WALK" : "DRIVE";
+    setTransportMode(newMode);
+  };
+
+  const formatDuration = (minutes) => {
+    if (minutes == null) return "N/A";
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hrs > 0) return `${hrs}h ${mins}mins`;
+    return `${mins}mins`;
+  };
+
+
     // City autocomplete
     useEffect(() => {
         if (cityQuery.length < 2 || cityQuery === prevCityQuery.current) {
@@ -139,35 +198,149 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
         return () => clearTimeout(debounceTimeout.current);
     }, [cityQuery]);
 
-    //  Search submit with loader
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const combinedQuery = cityQuery ? `${query} in ${cityQuery}` : query;
-        if (combinedQuery.length < 2) {
-            setResults([]);
-            return;
-        }
-        try {
-            setLoading(true);
-            const res = await axios.post(
-                `${BASE_URL}/placesAPI/search`,
-                {query: combinedQuery},
-                {withCredentials: true}
-            );
-            setResults(res.data.results || []);
-        } catch (err) {
-            console.error("Search error:", err?.response?.data || err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+  //  Search submit with loader
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const combinedQuery = cityQuery ? `${query} in ${cityQuery}` : query;
+    if (combinedQuery.length < 2) {
+      setResults([]);
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await axios.post(
+          `${BASE_URL}/placesAPI/search`,
+          { query: combinedQuery },
+          { withCredentials: true }
+      );
+      setResults(res.data.results || []);
+    } catch (err) {
+      console.error("Search error:", err?.response?.data || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // Open popup only
-    const handleAddToTrip = (place) => {
-        if (!selectedDay) {
-            toast.error("Please choose a day first.");
-            return;
+  const handleDistanceCheck = (startTime) => {
+    if (!selectedPlace) return;
+
+    if (distanceDebounce.current) clearTimeout(distanceDebounce.current);
+
+    distanceDebounce.current = setTimeout(() => {
+      try {
+        const timeToMinutes = (t) => {
+          if (!t) return 0;
+          const [h, m] = t.split(":").map(Number);
+          return h * 60 + m;
+        };
+
+        const newTime = timeToMinutes(startTime);
+        let prevActivity = null;
+
+        for (let i = 0; i < dayActivities.length; i++) {
+          const currActivity = dayActivities[i];
+          const activityTime = timeToMinutes(currActivity.activity_startTime);
+
+          if (activityTime >= newTime) break;
+          prevActivity = currActivity;
         }
+
+        if (!prevActivity) {
+          setDistanceInfo(null);
+          return;
+        }
+
+        const origin = {
+          latitude: prevActivity.latitude,
+          longitude: prevActivity.longitude,
+        };
+        const destination = {
+          latitude: pendingPlace.location?.latitude,
+          longitude: pendingPlace.location?.longitude,
+        };
+
+        findDistance(origin, destination, transportMode, prevActivity);
+      } catch (err) {
+        toast.error("Failed to fetch distance info.");
+        console.error("Distance fetch error:", err?.response?.data || err.message);
+      }
+    }, 2500); 
+  };
+
+  // find distance between activities with caching
+  async function findDistance(origin, destination, transportation, previousActivity){
+    // create cache key
+    const cacheKey = `${origin.latitude},${origin.longitude}-${destination.latitude},${destination.longitude}`;
+    
+    // check if we already have both distances cached
+    if (distanceCache.current[cacheKey]?.DRIVE && distanceCache.current[cacheKey]?.WALK) {
+      const cached = distanceCache.current[cacheKey];
+      setDistanceInfo({
+        driving: cached.DRIVE,
+        walking: cached.WALK,
+        previousActivityName: previousActivity.activity_name,
+        prevActivityLat: previousActivity.latitude,
+        prevActivityLng: previousActivity.longitude
+      });
+      return;
+    }
+
+    try{
+      setDistanceLoading(true);
+      
+      // fetch both modes in parallel
+      const [driveRes, walkRes] = await Promise.all([
+        axios.post(`${BASE_URL}/routesAPI/distance/between/activity`, {
+          origin,
+          destination,
+          wayOfTransportation: "DRIVE"
+        }),
+        axios.post(`${BASE_URL}/routesAPI/distance/between/activity`, {
+          origin,
+          destination,
+          wayOfTransportation: "WALK"
+        })
+      ]);
+
+      const driveData = {
+        distanceMiles: driveRes.data.distanceMiles,
+        durationMinutes: Math.round(driveRes.data.durationSeconds / 60)
+      };
+      
+      const walkData = {
+        distanceMiles: walkRes.data.distanceMiles,
+        durationMinutes: Math.round(walkRes.data.durationSeconds / 60)
+      };
+
+      // cache both results
+      distanceCache.current[cacheKey] = {
+        DRIVE: driveData,
+        WALK: walkData
+      };
+
+      setDistanceInfo({
+        driving: driveData,
+        walking: walkData,
+        previousActivityName: previousActivity.activity_name,
+        prevActivityLat: previousActivity.latitude,
+        prevActivityLng: previousActivity.longitude
+      });
+
+    } catch (err){
+      toast.error("There was an issue trying to compute the distance")
+      console.error(err);
+    } finally {
+      setDistanceLoading(false);
+    }
+  }
+  // Open popup only 
+  const handleAddToTrip = (place) => {
+    if (!selectedDay) {
+      toast.error("Please choose a day first.");
+      return;
+    }
+
+    setSelectedPlace(place);
 
         const idx = Number(selectedDay) - 1;
         const dayId = dayIds[idx];
@@ -185,6 +358,8 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
         setFormDuration("");
         setFormCost("");
         setNotes("");
+        setDistanceInfo(null);
+        setTransportMode("DRIVE");
         setShowDetails(true);
     };
 
@@ -411,12 +586,56 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
                         </>
                     }
                 >
+            {distanceInfo && pendingPlace && (
+              <div className="distance-display">
+                <button 
+                  className="transport-toggle"
+                  onClick={toggleTransportMode}
+                  disabled={distanceLoading}
+                  title={`Switch to ${transportMode === "DRIVE" ? "walking" : "driving"} mode`}
+                >
+                  <Car className={`icon ${transportMode === "DRIVE" ? "active" : ""}`} />
+                  <Footprints className={`icon ${transportMode === "WALK" ? "active" : ""}`} />
+                </button>
+                
+                {distanceLoading ? (
+                  <MoonLoader size={16} color="#1e7a3d" speedMultiplier={0.8} />
+                ) : (
+                  <p>
+                    {(() => {
+                      const currentData = transportMode === "DRIVE" ? distanceInfo.driving : distanceInfo.walking;
+                      if (currentData && currentData.distanceMiles != null && currentData.durationMinutes != null) {
+                        return (
+                          <>
+                            From previous activity - <strong>{distanceInfo.previousActivityName}</strong>:{" "}
+                            {currentData.distanceMiles} mi, {formatDuration(currentData.durationMinutes)}
+                          </>
+                        );
+                      } else {
+                        return <em>Route could not be computed.</em>;
+                      }
+                    })()}
+                  </p>
+                )}
+              </div>
+            )}
+
                     <label className="popup-input">
                         <span>Start time</span>
                         <input className = "time-picker"
                             type="time"
                             value={formStartTime}
-                            onChange={(e) => setFormStartTime(e.target.value)}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setFormStartTime(val);
+
+                              setDistanceInfo(null);
+
+                              // check if time is fully entered
+                              if (/^\d{2}:\d{2}$/.test(val)) {
+                                handleDistanceCheck(val);
+                              }
+                            }}
                             disabled={saving}
                         />
                     </label>

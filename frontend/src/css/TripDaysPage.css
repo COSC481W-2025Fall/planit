@@ -560,15 +560,6 @@ html[data-theme="dark"] .time-picker {
     opacity: 0.5;
   }
 }
-.TripDaysPage {
-  flex: 1;
-  padding: 1.5rem;
-  overflow-y: auto;
-  background: var(--bg-offwhite);
-  transition: margin-right 0.3s ease, transform 0.3s ease;
-  position: relative;
-  padding-bottom: 4rem;
-}
 
 .TripDaysPage.drawer-open {
   margin-right: 400px;
@@ -715,4 +706,65 @@ html[data-theme="dark"] .time-picker {
   .TripDaysPage::-webkit-scrollbar {
     display: none;
   }
+}
+
+.distance-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background-color: var(--bg-offwhite);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.distance-display p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--accent);
+}
+
+.transport-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background-color: var(--bg-surface);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.transport-toggle:hover:not(:disabled) {
+  border-color: var(--accent);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.transport-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.transport-toggle .icon {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transition: color 0.2s ease;
+}
+
+.transport-toggle .icon.active {
+  color: var(--accent);
+}
+
+.transport-toggle:hover:not(:disabled) .icon {
+  color: var(--text);
+}
+
+.transport-toggle:hover:not(:disabled) .icon.active {
+  color: var(--accent);
 }

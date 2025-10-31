@@ -237,7 +237,7 @@ html[data-theme="dark"] .modal-content input {
 }
 
 html[data-theme="dark"] .modal-content input::placeholder {
-    color: var(--static-white);
+    color: var(--text-placeholder);
 }
 
 /* Autofill (Chrome/Safari) */
