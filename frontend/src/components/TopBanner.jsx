@@ -38,7 +38,7 @@ export default function TopBanner({ user }) {
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-          <Link to="/trip" className="logo-link" aria-label="Go to Trips">
+          <Link to="/trip">
           <img src={logo} alt="PlanIt Logo" className="logo" />
           </Link>
         </div>
