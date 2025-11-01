@@ -681,6 +681,7 @@ export default function TripDaysPage() {
           {openNotesPopup && selectedActivity && (
             <Popup
               title={"Notes for: " + selectedActivity.activity_name}
+              onClose={() => setOpenNotesPopup(false)}
               buttons={
                 <>
                   <button onClick={() => setOpenNotesPopup(false)}>Cancel</button>
@@ -713,6 +714,7 @@ export default function TripDaysPage() {
           {newDay && (
             <Popup
               title="New Day"
+              onClose={() => setOpenNewDay(null)}
               buttons={
                 <>
                   <button
@@ -738,6 +740,7 @@ export default function TripDaysPage() {
           {deleteDayId && (
             <Popup
               title="Delete Day"
+              onClose={() => setDeleteDayId(null)}
               buttons={
                 <>
                   <button
@@ -768,6 +771,7 @@ export default function TripDaysPage() {
           {deleteActivity && (
             <Popup
               title={`Are you sure you want to delete ${deleteActivity.activity_name}?`}
+              onClose={() => setDeleteActivity(null)}
               buttons={
                 <>
                   <button
@@ -797,6 +801,7 @@ export default function TripDaysPage() {
           {editActivity && (
             <Popup
               title="Edit Activity"
+              onClose={() => setEditActivity(null)}
               buttons={
                 <>
                   <button

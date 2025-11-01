@@ -250,6 +250,7 @@ export default function TripPage() {
                   {isModalOpen && (
                     <Popup
                       title=""
+                      onClose={() => setIsModalOpen(false)}
                       buttons={
                           <>
                               <button type="button" onClick={() => setIsModalOpen(false)}>
