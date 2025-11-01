@@ -25,6 +25,7 @@ export default function TripPage() {
       editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
     );
     const [endDate, setEndDate] = useState(null);
+    const [deleteTripId, setDeleteTripId] = useState(null);
 
     // Close dropdown if click outside
     useEffect(() => {
@@ -95,15 +96,13 @@ export default function TripPage() {
 
     // Delete trip
     const handleDeleteTrip = async (trips_id) => {
-        if (confirm("Are you sure you want to delete this trip?")) {
-            try {
-                await deleteTrip(trips_id);
-                setTrips(trips.filter((trip) => trip.trips_id !== trips_id));
-                toast.success("Trip deleted successfully!");
-            } catch (err) {
-                console.error("Delete trip failed:", err);
-                toast.error("Failed to delete trip. Please try again.");
-            }
+        try {
+            await deleteTrip(trips_id);
+            setTrips(trips.filter((trip) => trip.trips_id !== trips_id));
+            toast.success("Trip deleted successfully!");
+        } catch (err) {
+            console.error("Delete trip failed:", err);
+            toast.error("Failed to delete trip. Please try again.");
         }
     };
 
@@ -219,14 +218,14 @@ export default function TripPage() {
                                             <Pencil size={16}/> Edit Trip
                                         </button>
                                         <button
-                                          className="dropdown-item delete-item"
-                                          onClick={() => {
-                                              handleDeleteTrip(trip.trips_id);
-                                              setOpenDropdownId(null);
-                                          }}
-                                        >
-                                            <Trash size={16}/> Delete Trip
-                                        </button>
+                                            className="dropdown-item delete-item"
+                                            onClick={() => {
+                                                setDeleteTripId(trip.trips_id);
+                                                setOpenDropdownId(null);
+                                            }}
+                                            >
+                                                <Trash size={16} /> Delete Trip
+                                            </button>
                                     </div>
                                   )}
 
@@ -245,6 +244,36 @@ export default function TripPage() {
                           )}
                       </div>
                   </div>
+
+                    {deleteTripId && (
+                        <Popup
+                            title="Delete Trip"
+                            onClose={() => setDeleteTripId(null)}
+                            buttons={
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDeleteTripId(null)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            handleDeleteTrip(deleteTripId);
+                                            setDeleteTripId(null);
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+                                </>
+                            }
+                        >
+                            <p className="popup-body-text">
+                                Are you sure you want to delete this trip? This action cannot be undone.
+                            </p>
+                        </Popup>
+                    )}
 
                   {/* Modal for creating/editing trips */}
                   {isModalOpen && (
