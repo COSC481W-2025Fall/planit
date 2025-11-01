@@ -6,7 +6,7 @@ import Popup from "./Popup.jsx";
 
 export default function ActivityCard({activity, onDelete, onEdit, onViewNotes}) {
     const [openMenu, setOpenMenu] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
+    // const [isDeleting, setIsDeleting] = useState(false);
     const menuRef = useRef(null);
     const buttonRef = useRef(null);
     const startTime = activity.activity_startTime;
@@ -41,16 +41,16 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes}) 
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const handleDeleteClick = () => {
-        setIsDeleting(true);
-        setTimeout(() => {
-            onDelete(activity.activity_id);
-        });
-    };
+    // const handleDeleteClick = () => {
+    //     setIsDeleting(true);
+    //     setTimeout(() => {
+    //         onDelete(activity.activity_id);
+    //     });
+    // };
 
 
     return (
-        <div className={`activity-container ${isDeleting ? "fade-out" : ""}`}>
+        <div className={`activity-container`}>
             <div className="title-notes-edit-button-container" style={{position: "relative"}}>
                 <div className="left-side">
                     <div className="title-of-activity">{activity.activity_name}</div>
@@ -69,8 +69,11 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes}) 
 
                 {openMenu && (
                     <div ref={menuRef} className="day-menu">
-                        <button onClick={handleDeleteClick}>
-                            <Trash2 className="trash-icon"/> Delete
+                        <button onClick={() => {
+                            onDelete(activity.activity_id);
+                            setOpenMenu(false);
+                        }}>
+                            <Trash2 className="trash-icon" /> Delete
                         </button>
                         <button
                             onClick={() => {
