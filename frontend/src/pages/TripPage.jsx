@@ -252,11 +252,11 @@ export default function TripPage() {
                       title=""
                       buttons={
                           <>
-                              <button type="submit" form="trip-form">
-                                  Save
-                              </button>
                               <button type="button" onClick={() => setIsModalOpen(false)}>
                                   Cancel
+                              </button>
+                               <button type="submit" form="trip-form">
+                                  Save
                               </button>
                           </>
                       }
