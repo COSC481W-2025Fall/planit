@@ -36,6 +36,7 @@ export default function TripDaysPage() {
   const [openNotesPopup, setOpenNotesPopup] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [editableNote, setEditableNote] = useState("");
+  const [deleteActivity, setDeleteActivity] = useState(null);
 
   // distance calculation states
   const [distanceInfo, setDistanceInfo] = useState(null);
@@ -438,6 +439,10 @@ export default function TripDaysPage() {
     }
   };
 
+  const confirmDeleteActivity = (activity) => {
+    setDeleteActivity(activity);
+  };
+
   const updateNotesForActivity = async (id, newNote) => {
     try {
       console.log("Updating notes for activity ID:", id, "to:", newNote);
@@ -645,7 +650,7 @@ export default function TripDaysPage() {
                               <ActivityCard
                                 key={activity.activity_id}
                                 activity={activity}
-                                onDelete={handleDeleteActivity}
+                                onDelete={() => confirmDeleteActivity(activity)}
                                 onEdit={(activity) => setEditActivity(activity)}
                                 onViewNotes={(activity) => {
                                   setSelectedActivity(activity);
@@ -756,6 +761,35 @@ export default function TripDaysPage() {
               <p className="popup-body-text">
                 Are you sure you want to delete this day? You will
                 lose all activities for this day.
+              </p>
+            </Popup>
+          )}
+
+          {deleteActivity && (
+            <Popup
+              title={`Are you sure you want to delete ${deleteActivity.activity_name}?`}
+              buttons={
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteActivity(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleDeleteActivity(deleteActivity.activity_id);
+                      setDeleteActivity(null);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </>
+              }
+            >
+              <p className="popup-body-text">
+                This action cannot be undone.
               </p>
             </Popup>
           )}
