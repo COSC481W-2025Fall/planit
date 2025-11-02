@@ -710,6 +710,7 @@ export default function TripDaysPage() {
                 <>
                   <button onClick={() => setOpenNotesPopup(false)}>Cancel</button>
                   <button
+                    className="btn-rightside"
                     onClick={() => {
                       updateNotesForActivity(selectedActivity.activity_id, editableNote);
                       setOpenNotesPopup(false);
@@ -749,6 +750,7 @@ export default function TripDaysPage() {
                   </button>
                   <button
                     type="button"
+                    className="btn-rightside"
                     onClick={handleAddDay}
                   >
                     + Add
@@ -774,6 +776,7 @@ export default function TripDaysPage() {
                     Cancel
                   </button>
                   <button
+                    className="btn-rightside"
                     type="button"
                     onClick={() => {
                       handleDeleteDay(deleteDayId);
@@ -806,6 +809,7 @@ export default function TripDaysPage() {
                   </button>
                   <button
                     type="button"
+                    className="btn-rightside"
                     onClick={() => {
                       handleDeleteActivity(deleteActivity.activity_id);
                       setDeleteActivity(null);
@@ -836,6 +840,7 @@ export default function TripDaysPage() {
                   </button>
                   <button
                     type="button"
+                    className="btn-rightside"
                     onClick={() => {
                       handleUpdateActivity(editActivity.activity_id, {
                         activity_startTime: editStartTime,
