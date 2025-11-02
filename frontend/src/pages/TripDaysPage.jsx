@@ -39,6 +39,7 @@ export default function TripDaysPage() {
   const menuRefs = useRef({});
   const { tripId } = useParams();
   const [dragFromDay, setDragFromDay] = useState("");
+  const [dragOverDate, setDragOverDate] = useState("");
 
   //responsive
   useEffect(() => {
@@ -318,40 +319,33 @@ export default function TripDaysPage() {
   };
 
   //Drag and Drop
-  const handleDayDragStart = (e, fromDay) => {
-    setDragFromDay(fromDay);
+  const handleDayDragStart = (e, day) => {
+    setDragFromDay(day);
 
-    try { e.dataTransfer.setData("text/plain", String(fromDay)); } catch (_) {}
+    try { e.dataTransfer.setData("text/plain", String(day)); } catch (_) {}
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDayDragOver = (e) => {
+  const handleDayDragOver = (e, day) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
+
+    setDragOverDate(day.day_date);
   };
 
-  const handleDayDrop = async (e, overDay) => {
+  const handleDayDrop = async (e, day) => {
     e.preventDefault();
-
-    const dropPosition = e.clientX < e.target.getBoundingClientRect().left + e.target.offsetWidth / 2
-        ? "left"
-        : "right";
-    
-    await reorderDays(dragFromDay, overDay, dropPosition);
+    console.log("draggingDay: ", dragFromDay);
+    console.log("afterDay: ", day);
+    await reorderDays(dragFromDay, day);
   };
 
-  // To fix the bug where dragging a start or end day to the immediate card next to it causes an issue
-  // it only happens when I drag start day to the left side of the day 2 card.
-  // Or if I drag the end day to the right side of the dy 4, or 2nd to last day card.
-
-  const reorderDays = async (dragFromDay, overDay, dropPosition) => {
+  const reorderDays = async (dragFromDay, overDay) => {
     try {
       console.log("dragFromDay: ", dragFromDay);
       console.log("overDay: ", overDay);
 
       // If user does not move card to new day, return and stop operation
-      if (dragFromDay.day_date === overDay.day_date) return;
-      console.log("dropPosition: ", dropPosition);
 
       const adjustDate = (dateStr, daysToAdd) => {
         const date = new Date(dateStr);
@@ -361,76 +355,44 @@ export default function TripDaysPage() {
 
       const dragDate = new Date(dragFromDay.day_date);
       const overDate = new Date(overDay.day_date);
+
+      console.log("reorder, dragDate: ", dragDate);
+      console.log("reorder, afterDate: ", overDate);
       let movedDayDate;
 
-      // if user drops day on LEFT side of existing day
-      if (dropPosition === "left") {
-        if (dragFromDay == days[0] && overDay == days[1]) {
-          toast.info("No days were moved")
-          return;
-        }
-        for (const eachDay of days) {
-          const eachDayDate = new Date(eachDay.day_date);
-          
-          // don't modify the day we're dragging to move
-          if (eachDay.day_id === dragFromDay.day_id) {
-            continue;
-          }
-          // past day dragged
-          if (dragDate < overDate){
-            if (eachDayDate < overDate && eachDayDate >= dragDate) {
-              // days before the drop target move back 1 day
-              const newDate = adjustDate(eachDay.day_date, -1);
-              await updateDay(tripId, eachDay.day_id, { day_date: newDate });
-              movedDayDate = adjustDate(overDay.day_date, -1);
-            }
-          }
-          // future day dragged
-          else {
-            if (eachDayDate >= overDate && eachDayDate <= dragDate) {
-              // days after the drop target move forward 1 day
-              const newDate = adjustDate(eachDay.day_date, 1);
-              await updateDay(tripId, eachDay.day_id, { day_date: newDate });
-              movedDayDate = overDay.day_date;
+      if (dragFromDay === days[days.length-1] && overDay === days[days.length-2]
+      || dragFromDay === days[0] && overDay === days[0]) {
+        toast.info("No days were moved")
+        return;
+      }
+      for (const eachDay of days) {
+        const eachDayDate = new Date(eachDay.day_date);
 
-            }
+        // don't modify the day we're dragging to move
+        if (eachDay.day_id === dragFromDay.day_id) {
+          continue;
+        }
+
+        // past day dragged
+        if (dragDate < overDate){
+          if (eachDayDate <= overDate && eachDayDate >= dragDate) {
+            // days before the drop target move back 1 day
+            const newDate = adjustDate(eachDay.day_date, -1);
+            await updateDay(tripId, eachDay.day_id, { day_date: newDate });
+            movedDayDate = overDay.day_date;
+          }
+        }
+        // future day dragged
+        else {
+          if (eachDayDate > overDate && eachDayDate <= dragDate) {
+            // days after the drop target move forward 1 day
+            const newDate = adjustDate(eachDay.day_date, 1);
+            await updateDay(tripId, eachDay.day_id, { day_date: newDate });
+            movedDayDate = adjustDate(overDay.day_date, 1);
           }
         }
       }
-      // if user drops day on RIGHT side of existing day
-      else {
-        if (dragFromDay == days[days.length-1] && overDay == days[days.length-2]) {
-          toast.info("No days were moved")
-          return;
-        }
-        for (const eachDay of days) {
-          const eachDayDate = new Date(eachDay.day_date);
 
-          // don't modify the day we're dragging to move
-          if (eachDay.day_id === dragFromDay.day_id) {
-            continue;
-          }
-
-          // past day dragged
-          if (dragDate < overDate){
-            if (eachDayDate <= overDate && eachDayDate >= dragDate) {
-              // days before the drop target move back 1 day
-              const newDate = adjustDate(eachDay.day_date, -1);
-              await updateDay(tripId, eachDay.day_id, { day_date: newDate });
-              movedDayDate = overDay.day_date;
-            }
-          }
-          // future day dragged
-          else {
-            if (eachDayDate > overDate && eachDayDate <= dragDate) {
-              // days after the drop target move forward 1 day
-              const newDate = adjustDate(eachDay.day_date, 1);
-              await updateDay(tripId, eachDay.day_id, { day_date: newDate });
-              movedDayDate = adjustDate(overDay.day_date, 1);
-            }
-          }
-        }
-      }
 
       // Finally, update the date of the day we're dragging
       await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate });
@@ -540,9 +502,7 @@ export default function TripDaysPage() {
                         }`}
                         draggable={true}
                         key={day.day_id}
-                        onDragStart={(e) => handleDayDragStart(e, day)}
-                        onDragOver={handleDayDragOver}
-                        onDrop={(e) => handleDayDrop(e, day)}
+                        onDragStart={(e) => handleDayDragStart(e, day, index)}
                     >
                     <div
                       className="day-header"
@@ -629,7 +589,11 @@ export default function TripDaysPage() {
                     </div>
                     <div
                       className="day-divider"
-                      id={index === days.length - 1 ? "last-day-divider" : undefined}
+                      id={index === days.length - 1 ? "last-day-divider" : ""}
+                      draggable
+                      onDragStart={(e) => handleDayDragStart(e, day)}
+                      onDragOver={(e) => handleDayDragOver(e, day, index)}
+                      onDrop={(e) => handleDayDrop(e, day, index)}
                     >
                       <button onClick={() => openAddDayPopup(day.day_date)}>
                         <Plus size={17} className="plus-icon"/>
