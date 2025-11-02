@@ -382,6 +382,13 @@ body {
   width: 2.6rem;
 }
 
+.day-divider--drag-over {
+  width: 2.6rem;
+  background: rgba(0,0,0,0.08);
+  border-radius: 999px;
+  transition: width 120ms ease;
+}
+
 .day-divider button {
   position: absolute;
   opacity: 0;

@@ -39,7 +39,10 @@ export default function TripDaysPage() {
   const menuRefs = useRef({});
   const { tripId } = useParams();
   const [dragFromDay, setDragFromDay] = useState("");
-  const [dragOverDate, setDragOverDate] = useState("");
+  const [dragOverInfo, setDragOverInfo] = useState({
+    dayId: null,
+    dayDate: null,
+  });
 
   //responsive
   useEffect(() => {
@@ -330,7 +333,10 @@ export default function TripDaysPage() {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
 
-    setDragOverDate(day.day_date);
+    setDragOverInfo({
+      dayId: day.day_id,
+      dayDate: day.day_date,
+    });
   };
 
   const handleDayDrop = async (e, day) => {
@@ -361,8 +367,12 @@ export default function TripDaysPage() {
       let movedDayDate;
 
       if (dragFromDay === days[days.length-1] && overDay === days[days.length-2]
-      || dragFromDay === days[0] && overDay === days[0]) {
-        toast.info("No days were moved")
+      || dragFromDay === days[0] && overDay === days[0]
+      || overDay === days[days.indexOf(dragFromDay)-1]
+      || overDay === dragFromDay) {
+        toast.info("No days were moved");
+        setDragFromDay(null);
+        setDragOverInfo({ dayId: null, index: null });
         return;
       }
       for (const eachDay of days) {
@@ -401,6 +411,7 @@ export default function TripDaysPage() {
       toast.success("Day moved successfully!");
 
       setDragFromDay(null);
+      setDragOverInfo({ dayId: null, index: null });
     } catch (error) {
       console.error("Error reordering days:", error);
       toast.error("Error reordering days: " + error.message);
@@ -588,7 +599,7 @@ export default function TripDaysPage() {
                     )}
                     </div>
                     <div
-                      className="day-divider"
+                      className={`day-divider ${dragOverInfo.dayId === day.day_id ? "day-divider--drag-over" : ""}`}
                       id={index === days.length - 1 ? "last-day-divider" : ""}
                       draggable
                       onDragStart={(e) => handleDayDragStart(e, day)}
