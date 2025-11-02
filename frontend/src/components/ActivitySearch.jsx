@@ -598,7 +598,7 @@ useEffect(() => {
               formatDuration={formatDuration}
             />
 
-                    <label className="popup-input">
+                    <label className="popup-input" htmlFor="start-time-input">
                         <span>Start time</span>
                         <span>
                             <OverlapWarning
