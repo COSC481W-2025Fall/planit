@@ -416,7 +416,6 @@ select:focus {
     font-weight: bold;
 }
 
-/* Privacy lock/unlock button (top-right overlay) */
 .privacy-toggle-btn {
     position: absolute;
     top: 10px;

@@ -6,7 +6,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
 import {createTrip, updateTrip, getTrips, deleteTrip} from "../../api/trips";
-import {MapPin, Pencil, Trash, Lock, Unlock} from "lucide-react"; // ← added Lock/Unlock
+import {MapPin, Pencil, Trash, Lock, Unlock} from "lucide-react"; 
 import {useNavigate} from "react-router-dom";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
@@ -146,7 +146,6 @@ export default function TripPage() {
         navigate(`/days/${tripId}`);
     };
 
-    // ← NEW: toggle privacy from the card button (optimistic update)
     const handleTogglePrivacy = async (trip) => {
         const nextPrivate = !trip.is_private;
         try {
@@ -209,7 +208,7 @@ export default function TripPage() {
                                        onClick={() => handleTripRedirect(trip.trips_id)}>
                                   </div>
 
-                                  {/* ← NEW: privacy toggle in top-right like the heart button */}
+                                  {/*privacy toggle in top-right like the heart button */}
                                   <button
                                     className="privacy-toggle-btn"
                                     title={trip.is_private ? "Unprivate" : "Private"}

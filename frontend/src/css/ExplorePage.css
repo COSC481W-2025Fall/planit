@@ -2,7 +2,6 @@
   background: var(--bg-offwhite);
 }
 
-/* Tabs */
 .tabbar {
   display: flex;
   align-items: center;
@@ -37,13 +36,9 @@
   --pill-border: var(--accent);
 }
 
-/* Dark tweaks */
 html[data-theme="dark"] .pill { background: var(--bg-hover2); }
 html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--bg-white); }
 
-/* =========================
-   Search bar + autocomplete
-   ========================= */
 .explore-search {
   position: relative;
   max-width: 640px;
@@ -96,9 +91,6 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
 .autocomplete li + li { border-top: 1px solid var(--border); }
 .autocomplete li:hover { background: var(--bg-offwhite); }
 
-/* =================
-   Section headings
-   ================= */
 .section-title {
   font-size: 18px;
   font-weight: 600;
@@ -106,9 +98,6 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   margin: 24px 20px 12px;
 }
 
-/* =========================================
-   Carousel (buttons + viewport + track)
-   ========================================= */
 .carousel { position: relative; }
 
 .carousel-viewport {
@@ -147,9 +136,6 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
 .carousel-btn.prev { left: 6px; }
 .carousel-btn.next { right: 6px; }
 
-/* ==================
-   Trip card (public)
-   ================== */
 .trip-card.public {
   background: var(--bg-surface);
   border: 1px solid var(--border);
@@ -184,7 +170,6 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   margin: 10px 0 6px;
 }
 
-/* Meta row */
 .trip-meta {
   display: flex;
   align-items: center;
@@ -206,13 +191,8 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   gap: 6px;
 }
 
-/* ==========================
-   Like (Heart) button — icon-only
-   ========================== */
-/* Fallback heart color if your globals don't define --heart */
 :root { --heart: #FF6961; }
 
-/* Absolute position stays; visuals are removed */
 .like-button {
   position: absolute;
   top: 10px;
@@ -234,14 +214,10 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
 .like-button:focus { outline: none; box-shadow: none; }
 .like-button.liked { background: transparent !important; }
 
-/* Heart icon behavior (hover fills; liked stays filled) */
 .like-button .heart-icon { stroke: currentColor; stroke-width: 2; fill: none; transition: fill 150ms ease, stroke 150ms ease; }
 .like-button:hover .heart-icon { fill: currentColor; }
 .like-button .heart-icon.liked { fill: currentColor; stroke: none; }
 
-/* =============
-   Liked grid
-   ============= */
 .liked-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -249,18 +225,12 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   padding: 0.5rem 20px 1rem;
 }
 
-/* =========
-   Responsive
-   ========= */
 @media (max-width: 768px) {
   .section-title { margin: 20px 16px 10px; }
   .tabbar { margin-left: 16px; margin-right: 16px; }
   .explore-search { margin-left: 16px; margin-right: 16px; }
 }
 
-/* =========================
-   Dark-mode tune-ups
-   ========================= */
 html[data-theme="dark"] .explore-page .search-input-wrap {
   background: var(--bg-hover2);
   border-color: var(--border-input);
