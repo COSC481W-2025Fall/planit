@@ -279,8 +279,6 @@ it('should add a new activity', async () => {
     expect(res.body.overlappingActivities.length).toBe(0);
   });
 
-  //testing overlap check with overlaps(will need to be implemented in the future)
-
   //testing overlap check with internal server error
   it('should return 500 if internal server error occurs', async () => {
     vi.spyOn(db, 'sql').mockImplementationOnce(() => {
