@@ -394,6 +394,17 @@ body {
   border-radius: 13px;
   font-size: 14px;
   resize: none;
+  background: var(--bg-white);
+  color: var(--text);
+  caret-color: var(--text);
+}
+
+html[data-theme="dark"] .textarea-notes {
+  background: var(--bg-hover2);
+}
+
+.textarea-notes::placeholder {
+  color: var(--text-placeholder);
 }
 
 .textarea-notes:focus {
