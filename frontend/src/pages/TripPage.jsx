@@ -26,6 +26,7 @@ export default function TripPage() {
     );
     const [endDate, setEndDate] = useState(null);
     const [deleteTripId, setDeleteTripId] = useState(null);
+    const [privacyDraft, setPrivacyDraft] = useState(true);
 
     // Close dropdown if click outside
     useEffect(() => {
@@ -71,9 +72,11 @@ export default function TripPage() {
             if (editingTrip.trip_end_date) {
                 setEndDate(new Date(editingTrip.trip_end_date));
             }
+            setPrivacyDraft(editingTrip.is_private ?? true);
         } else {
             setStartDate(null);
             setEndDate(null);
+            setPrivacyDraft(true);
         }
     }, [editingTrip]);
 
@@ -208,7 +211,6 @@ export default function TripPage() {
                                        onClick={() => handleTripRedirect(trip.trips_id)}>
                                   </div>
 
-                                  {/*privacy toggle in top-right like the heart button */}
                                   <button
                                     className="privacy-toggle-btn"
                                     title={trip.is_private ? "Unprivate" : "Private"}
@@ -330,7 +332,7 @@ export default function TripPage() {
                                       trip_start_date: formData.get("startDate"),
                                       trip_end_date: formData.get("endDate"),
                                       user_id: user.user_id,
-                                      isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
+                                      isPrivate: privacyDraft //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
                                   };
                                   if (editingTrip) tripData.trips_id = editingTrip.trips_id;
                                   console.log(tripData)
@@ -387,6 +389,23 @@ export default function TripPage() {
                                   name="endDate"
                                   value={endDate ? endDate.toISOString().split("T")[0] : ""}
                                 />
+
+                                <div
+                                  style={{display: "flex", alignItems: "center", gap: "8px", margin: "8px 0 4px"}}
+                                >
+                                  <label htmlFor="privacyToggle" style={{display: "flex", alignItems: "center", gap: "8px", cursor: "pointer"}}>
+                                      <input
+                                        id="privacyToggle"
+                                        type="checkbox"
+                                        name="isPrivate"
+                                        checked={privacyDraft}
+                                        onChange={(e) => setPrivacyDraft(e.target.checked)}
+                                        style={{marginRight: "6px"}}
+                                      />
+                                      {privacyDraft ? <Lock size={16}/> : <Unlock size={16}/>}
+                                      <span>{privacyDraft ? "Private" : "Public"}</span>
+                                  </label>
+                                </div>
 
                             </form>
                         </div>

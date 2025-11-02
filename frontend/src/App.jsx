@@ -56,7 +56,6 @@ function App() {
             <Registration />
             } 
             />
-    
             <Route
                 path="/explore"
                 element={

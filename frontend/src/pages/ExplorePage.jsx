@@ -28,9 +28,21 @@ export default function ExplorePage() {
   const [liking, setLiking] = useState(new Set());
   const isLiked = (id) => likedIds.has(id);
 
+  // central like-count store
+  const [likeCounts, setLikeCounts] = useState(new Map());
+
   // search
   const [locations, setLocations] = useState([]);
   const [query, setQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
+  // autocomplete UI
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const prevSearchRef = useRef("");
+  const acWrapRef = useRef(null);
+  const searchAbortRef = useRef(null);
+  const SEARCH_DEBOUNCE_MS = 800;
+  const MIN_LEN = 2;
 
   const navigate = useNavigate();
 
@@ -40,12 +52,43 @@ export default function ExplorePage() {
 
   // helpers
   const safe = (x) => (Array.isArray(x) ? x : []);
-  const post = async (path, body = {}) => {
+  const toInt = (v) => (v == null ? 0 : Number(v) || 0);
+  const applyLikeToggle = (tripId, willLike) => {
+    setLikeCounts((prev) => {
+      const next = new Map(prev);
+      const cur = toInt(next.get(tripId));
+      const nextVal = willLike ? cur + 1 : (cur > 0 ? cur - 1 : 0);
+      next.set(tripId, nextVal);
+      return next;
+    });
+  };
+
+  // collect counts 
+  const ingestCounts = (rows) => {
+    setLikeCounts((prev) => {
+      const next = new Map(prev);
+      safe(rows).forEach((r) => {
+        if (!r || r.trips_id == null) return;
+        if (Object.prototype.hasOwnProperty.call(r, "like_count")) {
+          next.set(r.trips_id, toInt(r.like_count));
+        }
+      });
+      return next;
+    });
+  };
+
+  // get display count
+  const getLikeCount = (tripId, fallback) =>
+    likeCounts.has(tripId) ? likeCounts.get(tripId) : toInt(fallback);
+
+  // POST helper 
+  const post = async (path, body = {}, opts = {}) => {
     const res = await fetch(`${BASE}${path}`, {
       method: "POST",
       credentials: "include",
       headers: JSON_HEADERS,
       body: JSON.stringify(body),
+      signal: opts.signal,
     });
     if (!res.ok) throw new Error(path);
     return res.json();
@@ -62,7 +105,8 @@ export default function ExplorePage() {
     getAllTripLocations: () => post(`/explore/all/trip/locations`),
     getTrendingTrips: (userId) => post(`/explore/trending`, { userId }),
     getTopLikedTrips: (userId) => post(`/explore/top/liked/trips`, { userId }),
-    searchTrips: (location, userId) => post(`/explore/search`, { location, userId }),
+    searchTrips: (location, userId, opts) =>
+      post(`/explore/search`, { location, userId }, opts),
     toggleLike: ({ userId, tripId }) => post(`/likes/toggle`, { userId, tripId }),
     getLikedTripsByUser: (userId) => post(`/likes/all/trip/details`, { userId }),
   };
@@ -72,14 +116,25 @@ export default function ExplorePage() {
 
   // autocomplete suggestions
   const suggestions = useMemo(() => {
-    if (!query) return [];
-    const q = query.toLowerCase();
-    return safe(locations)
+    const q = (query || "").trim().toLowerCase();
+    if (!q) return [];
+    return locations
       .map((r) => r.trip_location)
       .filter(Boolean)
       .filter((loc) => loc.toLowerCase().includes(q))
       .slice(0, 8);
   }, [locations, query]);
+
+  // click-outside to close suggestions
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (acWrapRef.current && !acWrapRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
 
   // fetch user
   useEffect(() => {
@@ -113,7 +168,7 @@ export default function ExplorePage() {
         setTrending(safeTrending);
         setTopLiked(safeTop);
 
-        // seed liked set from flags at load time
+        ingestCounts([...safeTrending, ...safeTop]);
         const seed = new Set([
           ...safeTrending.filter((t) => t.is_liked).map((t) => t.trips_id),
           ...safeTop.filter((t) => t.is_liked).map((t) => t.trips_id),
@@ -131,22 +186,37 @@ export default function ExplorePage() {
     if (tab !== "liked" || !user?.user_id) return;
     api
       .getLikedTripsByUser(user.user_id)
-      .then((rows) => setLikedTrips(safe(rows)))
+      .then((rows) => {
+        setLikedTrips(safe(rows));
+        ingestCounts(rows);
+      })
       .catch(() => setLikedTrips([]));
   }, [tab, user?.user_id, likedIds]);
 
   // debounced search
   useEffect(() => {
     const userId = user?.user_id ?? 0;
-    if (!query) {
+    const q = (query || "").trim();
+
+    if (q.length < MIN_LEN) {
       setResults([]);
       return;
     }
-    const id = setTimeout(async () => {
+    if (q === prevSearchRef.current) return;
+
+    setIsSearching(true);
+
+    const timer = setTimeout(async () => {
+      if (searchAbortRef.current) searchAbortRef.current.abort();
+      const controller = new AbortController();
+      searchAbortRef.current = controller;
+
       try {
-        const rows = await api.searchTrips(query, userId);
+        const rows = await api.searchTrips(q, userId, { signal: controller.signal });
         const safeRows = safe(rows);
         setResults(safeRows);
+        ingestCounts(safeRows);
+
         if (safeRows.length) {
           setLikedIds((prev) => {
             const next = new Set(prev);
@@ -154,11 +224,18 @@ export default function ExplorePage() {
             return next;
           });
         }
-      } catch {
-        toast.error("Search failed.");
+        prevSearchRef.current = q;
+      } catch (err) {
+        if (err?.name !== "AbortError") toast.error("Search failed.");
+      } finally {
+        setIsSearching(false);
       }
-    }, 300);
-    return () => clearTimeout(id);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(timer);
+      if (searchAbortRef.current) searchAbortRef.current.abort();
+    };
   }, [query, user?.user_id]);
 
   // like toggle
@@ -169,27 +246,42 @@ export default function ExplorePage() {
     }
     if (liking.has(tripId)) return;
 
+    const willLike = !likedIds.has(tripId);
     setLiking((prev) => new Set(prev).add(tripId));
     setLikedIds((prev) => {
       const next = new Set(prev);
-      next.has(tripId) ? next.delete(tripId) : next.add(tripId);
+      willLike ? next.add(tripId) : next.delete(tripId);
       return next;
     });
+    applyLikeToggle(tripId, willLike);
+    if (!willLike) {
+      setLikedTrips((prev) => prev.filter((t) => t.trips_id !== tripId));
+    }
 
     try {
       const res = await api.toggleLike({ userId: user.user_id, tripId });
-      setLikedIds((prev) => {
-        const next = new Set(prev);
-        res?.liked ? next.add(tripId) : next.delete(tripId);
-        return next;
-      });
+      const serverLiked = !!res?.liked;
+
+      if (serverLiked !== willLike) {
+        // revert
+        setLikedIds((prev) => {
+          const next = new Set(prev);
+          serverLiked ? next.add(tripId) : next.delete(tripId);
+          return next;
+        });
+        applyLikeToggle(tripId, !willLike); // undo the previous toggle
+        if (!serverLiked) {
+          setLikedTrips((prev) => prev.filter((t) => t.trips_id !== tripId));
+        }
+      }
     } catch {
-      // revert
+      // revert on error
       setLikedIds((prev) => {
         const next = new Set(prev);
-        next.has(tripId) ? next.delete(tripId) : next.add(tripId);
+        willLike ? next.delete(tripId) : next.add(tripId);
         return next;
       });
+      applyLikeToggle(tripId, !willLike); // undo optimistic toggle
       toast.error("Could not update like.");
     } finally {
       setLiking((prev) => {
@@ -200,7 +292,7 @@ export default function ExplorePage() {
     }
   };
 
-  // carousel scroll helper (card width + gap)
+  // carousel scroll helper
   function scrollByOneCard(viewportRef, dir = 1) {
     const vp = viewportRef.current;
     if (!vp) return;
@@ -268,19 +360,35 @@ export default function ExplorePage() {
           </div>
 
           {/* Search */}
-          <div className="explore-search closer">
+          <div className="explore-search closer" ref={acWrapRef}>
             <div className="search-input-wrap">
               <Search size={18} />
               <input
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setShowSuggestions(true);
+                }}
                 placeholder="Search by location"
+                onFocus={() => setShowSuggestions(true)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") prevSearchRef.current = "";
+                }}
               />
+              {isSearching && <span className="searching-dot" aria-label="searching" />}
             </div>
-            {suggestions.length > 0 && (
+
+            {showSuggestions && suggestions.length > 0 && (
               <ul className="autocomplete">
                 {suggestions.map((s, i) => (
-                  <li key={i} onClick={() => setQuery(s)}>
+                  <li
+                    key={i}
+                    onClick={() => {
+                      setQuery(s);
+                      setShowSuggestions(false);
+                      prevSearchRef.current = "";
+                    }}
+                  >
                     {s}
                   </li>
                 ))}
@@ -309,13 +417,13 @@ export default function ExplorePage() {
                       <div className="carousel-track">
                         {results.length === 0 ? (
                           <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
-                            No public trips match “{query}”.
+                            {isSearching ? "Searching…" : `No public trips match “${query}”.`}
                           </div>
                         ) : (
                           results.map((t) => (
                             <TripCardPublic
                               key={`s-${t.trips_id}`}
-                              trip={t}
+                              trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
                               liked={isLiked(t.trips_id)}
                               onToggleLike={handleToggleLike}
                               onOpen={handleOpenTrip}
@@ -340,7 +448,7 @@ export default function ExplorePage() {
 
               {/* Trending carousel */}
               <section className="trips-section">
-                <div className="section-title">Trending this week</div>
+                <div className="section-title">Trending This Week</div>
 
                 <div className="carousel">
                   <button
@@ -358,7 +466,7 @@ export default function ExplorePage() {
                       {trending.map((t) => (
                         <TripCardPublic
                           key={`tr-${t.trips_id}`}
-                          trip={t}
+                          trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
                           liked={isLiked(t.trips_id)}
                           onToggleLike={handleToggleLike}
                           onOpen={handleOpenTrip}
@@ -381,7 +489,7 @@ export default function ExplorePage() {
 
               {/* Top 10 all-time carousel */}
               <section className="trips-section">
-                <div className="section-title">Top trips of all-time</div>
+                <div className="section-title">Top Trips of All-Time</div>
                 <div className="carousel">
                   <button
                     className="carousel-btn prev"
@@ -395,15 +503,15 @@ export default function ExplorePage() {
 
                   <div className="carousel-viewport" ref={topRef}>
                     <div className="carousel-track">
-                      {safe(topLiked).length === 0 ? (
+                      {topLiked.length === 0 ? (
                         <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
                           No top trips yet.
                         </div>
                       ) : (
-                        safe(topLiked).map((t) => (
+                        topLiked.map((t) => (
                           <TripCardPublic
                             key={`tl-${t.trips_id}`}
-                            trip={t}
+                            trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
                             liked={isLiked(t.trips_id)}
                             onToggleLike={handleToggleLike}
                             onOpen={handleOpenTrip}
@@ -428,7 +536,7 @@ export default function ExplorePage() {
           ) : (
             // Liked tab: grid layout
             <section className="trips-section">
-              <div className="section-title">Your liked trips</div>
+              <div className="section-title">Your Liked Trips</div>
               <div className="liked-grid">
                 {likedTrips.length === 0 ? (
                   <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
@@ -438,7 +546,7 @@ export default function ExplorePage() {
                   likedTrips.map((t) => (
                     <TripCardPublic
                       key={`lk-${t.trips_id}`}
-                      trip={t}
+                      trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
                       liked={true}
                       onToggleLike={handleToggleLike}
                       onOpen={handleOpenTrip}
