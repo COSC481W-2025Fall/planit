@@ -39,7 +39,6 @@ export default function TripDaysPage() {
   const menuRefs = useRef({});
   const { tripId } = useParams();
   const [dragFromDay, setDragFromDay] = useState("");
-  const [newDate, setNewDate] = useState(null);
 
   //responsive
   useEffect(() => {
@@ -337,7 +336,7 @@ export default function TripDaysPage() {
     const dropPosition = e.clientX < e.target.getBoundingClientRect().left + e.target.offsetWidth / 2
         ? "left"
         : "right";
-
+    
     await reorderDays(dragFromDay, overDay, dropPosition);
   };
 
@@ -350,17 +349,87 @@ export default function TripDaysPage() {
       if (dragFromDay.day_date === overDay.day_date) return;
       console.log("dropPosition: ", dropPosition);
 
-      let newDate2 = overDay.day_date;
-      await updateDay(tripId, dragFromDay.day_id, {day_date: newDate2});
-      newDate2 = dragFromDay.day_date;
-      await updateDay(tripId, overDay.day_id, {day_date: newDate2});
+      const adjustDate = (dateStr, daysToAdd) => {
+        const date = new Date(dateStr);
+        date.setDate(date.getDate() + daysToAdd);
+        return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+      };
+
+      const dragDate = new Date(dragFromDay.day_date);
+      const overDate = new Date(overDay.day_date);
+      let movedDayDate;
+
+      // if user drops day on LEFT side of existing day
+      if (dropPosition === "left") {
+        for (const eachDay of days) {
+          const eachDayDate = new Date(eachDay.day_date);
+          
+          // don't modify the day we're dragging to move
+          if (eachDay.day_id === dragFromDay.day_id) {
+            continue;
+          }
+          // past day dragged
+          if (dragDate < overDate){
+            if (eachDayDate < overDate && eachDayDate >= dragDate) {
+              // days before the drop target move back 1 day
+              const newDate = adjustDate(eachDay.day_date, -1);
+              await updateDay(tripId, eachDay.day_id, { day_date: newDate });
+              movedDayDate = adjustDate(overDay.day_date, -1);
+            }
+          }
+          // future day dragged
+          else {
+            if (eachDayDate >= overDate && eachDayDate <= dragDate) {
+              // days after the drop target move forward 1 day
+              const newDate = adjustDate(eachDay.day_date, 1);
+              await updateDay(tripId, eachDay.day_id, { day_date: newDate });
+              movedDayDate = overDay.day_date;
+
+            }
+          }
+        }
+      }
+      // if user drops day on RIGHT side of existing day
+      else {
+        for (const eachDay of days) {
+          const eachDayDate = new Date(eachDay.day_date);
+
+          // don't modify the day we're dragging to move
+          if (eachDay.day_id === dragFromDay.day_id) {
+            continue;
+          }
+
+          // past day dragged
+          if (dragDate < overDate){
+            if (eachDayDate <= overDate && eachDayDate >= dragDate) {
+              // days before the drop target move back 1 day
+              const newDate = adjustDate(eachDay.day_date, -1);
+              await updateDay(tripId, eachDay.day_id, { day_date: newDate });
+              movedDayDate = overDay.day_date;
+            }
+          }
+          // future day dragged
+          else {
+            if (eachDayDate > overDate && eachDayDate <= dragDate) {
+              // days after the drop target move forward 1 day
+              const newDate = adjustDate(eachDay.day_date, 1);
+              await updateDay(tripId, eachDay.day_id, { day_date: newDate });
+              movedDayDate = adjustDate(overDay.day_date, 1);
+            }
+          }
+        }
+      }
+
+      // Finally, update the date of the day we're dragging
+      await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate });
 
       await fetchDays();
       toast.success("Day moved successfully!");
 
       setDragFromDay(null);
     } catch (error) {
-      toast.error("Error reordering days:", error);
+      console.error("Error reordering days:", error);
+      toast.error("Error reordering days: " + error.message);
     }
   }
 
