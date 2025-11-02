@@ -6,7 +6,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
 import {createTrip, updateTrip, getTrips, deleteTrip} from "../../api/trips";
-import {MapPin, Pencil, Trash} from "lucide-react";
+import {MapPin, Pencil, Trash, Lock, Unlock} from "lucide-react"; // ← added Lock/Unlock
 import {useNavigate} from "react-router-dom";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
@@ -146,6 +146,21 @@ export default function TripPage() {
         navigate(`/days/${tripId}`);
     };
 
+    // ← NEW: toggle privacy from the card button (optimistic update)
+    const handleTogglePrivacy = async (trip) => {
+        const nextPrivate = !trip.is_private;
+        try {
+            await updateTrip({ trips_id: trip.trips_id, isPrivate: nextPrivate });
+            setTrips((prev) =>
+              prev.map((t) => (t.trips_id === trip.trips_id ? { ...t, is_private: nextPrivate } : t))
+            );
+            toast.success(nextPrivate ? "Trip set to private." : "Trip set to public.");
+        } catch (err) {
+            console.error("Privacy toggle failed:", err);
+            toast.error("Failed to update privacy.");
+        }
+    };
+
     return (
       <div className="trip-page">
           <TopBanner user={user}/>
@@ -193,6 +208,18 @@ export default function TripPage() {
                                   <div className="trip-card-image"
                                        onClick={() => handleTripRedirect(trip.trips_id)}>
                                   </div>
+
+                                  {/* ← NEW: privacy toggle in top-right like the heart button */}
+                                  <button
+                                    className="privacy-toggle-btn"
+                                    title={trip.is_private ? "Unprivate" : "Private"}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleTogglePrivacy(trip);
+                                    }}
+                                  >
+                                    {trip.is_private ? <Lock size={16}/> : <Unlock size={16}/>}
+                                  </button>
 
                                   <button
                                     className="trip-menu-button"

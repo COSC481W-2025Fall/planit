@@ -371,18 +371,6 @@ useEffect(() => {
             return;
         }
 
-<<<<<<< HEAD
-      // Update with details from popup
-      const updatePayload = {
-        activityId,
-        activity: {
-          startTime: formStartTime || null,
-          duration: formDuration === "" ? null : Number(formDuration),
-          estimatedCost: formCost === "" ? null : Number(formCost),
-          notesForActivity: notes || null
-        },
-      };
-=======
         // Build payload from the selected place
         const place = pendingPlace;
         const name = place.displayName?.text || "Activity";
@@ -393,7 +381,6 @@ useEffect(() => {
         const lat = place.location?.lat ?? place.location?.latitude ?? null;
         const lng = place.location?.lng ?? place.location?.longitude ?? null;
         const website = place.websiteUri || null;
->>>>>>> origin/planit-v2
 
         const createPayload = {
             day: pendingDayId,

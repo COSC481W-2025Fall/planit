@@ -1,11 +1,7 @@
 import React from "react";
 import {NavLink} from "react-router-dom";
 import "../css/NavBar.css";
-<<<<<<< HEAD
 import { Map, Settings, Binoculars } from "lucide-react";
-=======
-import {Map, Settings} from "lucide-react";
->>>>>>> origin/planit-v2
 
 export default function NavBar({isOpen}) {
     return (

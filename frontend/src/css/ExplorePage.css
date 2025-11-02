@@ -1,0 +1,277 @@
+.explore-page .main-content {
+  background: var(--bg-offwhite);
+}
+
+/* Tabs */
+.tabbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 20px 6px 20px;
+}
+
+.pill {
+  --pill-bg: var(--bg-surface);
+  --pill-text: var(--accent);
+  --pill-border: var(--accent);
+
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  padding: 8px 14px;
+  line-height: 1;
+  border-radius: 999px;
+  border: 1px solid var(--pill-border);
+  background: var(--pill-bg);
+  color: var(--pill-text);
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: var(--shadow-1);
+  transition: transform .15s, box-shadow .15s, background .15s, color .15s, border-color .15s;
+}
+.pill:hover { transform: translateY(-1px); box-shadow: var(--shadow-2); }
+.pill:focus { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.pill.active {
+  --pill-bg: var(--accent);
+  --pill-text: var(--bg-white);
+  --pill-border: var(--accent);
+}
+
+/* Dark tweaks */
+html[data-theme="dark"] .pill { background: var(--bg-hover2); }
+html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--bg-white); }
+
+/* =========================
+   Search bar + autocomplete
+   ========================= */
+.explore-search {
+  position: relative;
+  max-width: 640px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.explore-search.closer { margin-top: 12px; margin-bottom: 12px; }
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  box-shadow: var(--shadow-1);
+}
+.search-input-wrap input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text);
+}
+
+/* Autocomplete dropdown */
+.autocomplete {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.autocomplete li {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+}
+.autocomplete li + li { border-top: 1px solid var(--border); }
+.autocomplete li:hover { background: var(--bg-offwhite); }
+
+/* =================
+   Section headings
+   ================= */
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 24px 20px 12px;
+}
+
+/* =========================================
+   Carousel (buttons + viewport + track)
+   ========================================= */
+.carousel { position: relative; }
+
+.carousel-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 1rem 6px 1rem;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.carousel-viewport::-webkit-scrollbar { display: none; }
+
+.carousel-track {
+  display: flex;
+  gap: 15px;
+  scroll-snap-type: x mandatory;
+}
+.carousel-track > * { scroll-snap-align: start; }
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-1);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 3;
+}
+.carousel-btn:hover { box-shadow: var(--shadow-2); }
+.carousel-btn.prev { left: 6px; }
+.carousel-btn.next { right: 6px; }
+
+/* ==================
+   Trip card (public)
+   ================== */
+.trip-card.public {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+  flex: 0 0 300px;
+  box-shadow: var(--shadow-4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.trip-card.public:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-5);
+}
+
+.trip-card-image {
+  background-color: var(--accent-lite);
+  height: 180px;
+  border-radius: 15px 15px 0 0;
+}
+
+.trip-card.public .trip-card-content {
+  color: var(--text);
+  background: var(--bg-surface);
+  padding: 10px 14px 14px 14px;
+}
+
+.trip-card-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-dark);
+  margin: 10px 0 6px;
+}
+
+/* Meta row */
+.trip-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0.9;
+  font-size: 13px;
+  color: var(--text-medium);
+}
+.trip-meta svg { vertical-align: middle; margin-right: 4px; }
+.trip-date, .trip-location { color: var(--text-medium); }
+
+.trip-stats {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-dark2);
+  opacity: 0.9;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ==========================
+   Like (Heart) button — icon-only
+   ========================== */
+/* Fallback heart color if your globals don't define --heart */
+:root { --heart: #FF6961; }
+
+/* Absolute position stays; visuals are removed */
+.like-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+
+  color: var(--heart);
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+.like-button:hover { transform: scale(1.05); }
+.like-button:focus { outline: none; box-shadow: none; }
+.like-button.liked { background: transparent !important; }
+
+/* Heart icon behavior (hover fills; liked stays filled) */
+.like-button .heart-icon { stroke: currentColor; stroke-width: 2; fill: none; transition: fill 150ms ease, stroke 150ms ease; }
+.like-button:hover .heart-icon { fill: currentColor; }
+.like-button .heart-icon.liked { fill: currentColor; stroke: none; }
+
+/* =============
+   Liked grid
+   ============= */
+.liked-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 0.5rem 20px 1rem;
+}
+
+/* =========
+   Responsive
+   ========= */
+@media (max-width: 768px) {
+  .section-title { margin: 20px 16px 10px; }
+  .tabbar { margin-left: 16px; margin-right: 16px; }
+  .explore-search { margin-left: 16px; margin-right: 16px; }
+}
+
+/* =========================
+   Dark-mode tune-ups
+   ========================= */
+html[data-theme="dark"] .explore-page .search-input-wrap {
+  background: var(--bg-hover2);
+  border-color: var(--border-input);
+}
+html[data-theme="dark"] .explore-page .search-input-wrap input {
+  color: var(--static-white);
+}
+html[data-theme="dark"] .explore-page .autocomplete {
+  background: var(--bg-hover2);
+  border-color: var(--border-input);
+}
+html[data-theme="dark"] .explore-page .autocomplete li:hover {
+  background: var(--bg-hover);
+}
