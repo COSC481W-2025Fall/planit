@@ -333,16 +333,22 @@ export default function TripDaysPage() {
 
   const handleDayDrop = async (e, overDay) => {
     e.preventDefault();
-    await reorderDays(dragFromDay, overDay);
+
+    const dropPosition = e.clientX < e.target.getBoundingClientRect().left + e.target.offsetWidth / 2
+        ? "left"
+        : "right";
+
+    await reorderDays(dragFromDay, overDay, dropPosition);
   };
 
-  const reorderDays = async (dragFromDay, overDay) => {
+  const reorderDays = async (dragFromDay, overDay, dropPosition) => {
     try {
       console.log("dragFromDay: ", dragFromDay);
       console.log("overDay: ", overDay);
 
       // If user does not move card to new day, return and stop operation
       if (dragFromDay.day_date === overDay.day_date) return;
+      console.log("dropPosition: ", dropPosition);
 
       let newDate2 = overDay.day_date;
       await updateDay(tripId, dragFromDay.day_id, {day_date: newDate2});
