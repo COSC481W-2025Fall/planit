@@ -340,6 +340,10 @@ export default function TripDaysPage() {
     await reorderDays(dragFromDay, overDay, dropPosition);
   };
 
+  // To fix the bug where dragging a start or end day to the immediate card next to it causes an issue
+  // it only happens when I drag start day to the left side of the day 2 card.
+  // Or if I drag the end day to the right side of the dy 4, or 2nd to last day card.
+
   const reorderDays = async (dragFromDay, overDay, dropPosition) => {
     try {
       console.log("dragFromDay: ", dragFromDay);
@@ -361,6 +365,10 @@ export default function TripDaysPage() {
 
       // if user drops day on LEFT side of existing day
       if (dropPosition === "left") {
+        if (dragFromDay == days[0] && overDay == days[1]) {
+          toast.info("No days were moved")
+          return;
+        }
         for (const eachDay of days) {
           const eachDayDate = new Date(eachDay.day_date);
           
@@ -391,6 +399,10 @@ export default function TripDaysPage() {
       }
       // if user drops day on RIGHT side of existing day
       else {
+        if (dragFromDay == days[days.length-1] && overDay == days[days.length-2]) {
+          toast.info("No days were moved")
+          return;
+        }
         for (const eachDay of days) {
           const eachDayDate = new Date(eachDay.day_date);
 
