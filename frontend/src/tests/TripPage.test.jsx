@@ -29,7 +29,11 @@ describe("TripPage", () => {
  });
 
 
- test("renders loading state before user is loaded", () => {
+    test("renders loading spinner before user is loaded", async () => {
+        // Make fetch simulate user not logged in initially
+        global.fetch.mockResolvedValueOnce({
+            json: async () => ({ loggedIn: false }),
+        });
    render(
      <MemoryRouter>
        <TripPage />
@@ -37,8 +41,9 @@ describe("TripPage", () => {
    );
 
 
-   const loadings = screen.getAllByTestId("loader");
-   expect(loadings).toHaveLength(1);  });
+        const loader = await screen.findByTestId("loader");
+        expect(loader).toBeInTheDocument();
+    });
 
 
  test("shows empty state when no trips exist", async () => {
@@ -131,6 +136,12 @@ describe("TripPage", () => {
 
    fireEvent.click(screen.getByText("⋮")); // open dropdown
    fireEvent.click(screen.getByText(/Delete Trip/i));
+
+   await waitFor(() =>
+     expect(screen.getByText(/Are you sure you want to delete this trip/i)).toBeInTheDocument()
+   );
+
+   fireEvent.click(screen.getByText(/^Delete$/i));
 
 
    await waitFor(() =>

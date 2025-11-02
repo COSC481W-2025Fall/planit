@@ -1,18 +1,28 @@
-/* Import "Open Sans" for font use */
-@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
+@import url("https://fonts.googleapis.com/css?family=Open+Sans&display=swap");
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Open Sans", Arial, sans-serif;
+  background-color: var(--accent-lite);
+}
 
 .parent-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #e3ece6;
-  gap:5px;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: var(--accent-lite);
+  text-align: center;
+  gap: 0.75rem;
 }
 
 .login-logo {
-  width: 200px;
+  width: clamp(140px, 30vw, 220px);
   height: auto;
 }
 
@@ -21,96 +31,145 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
 }
 
 .header-container h1 {
-  color: black;
-  font-size: 25px;
+  color: var(--text);
+  font-size: clamp(1.4rem, 2vw, 1.8rem);
   font-family: Tahoma, sans-serif;
-  margin-top: 5px;
-  margin-bottom: 5px;
+  margin: 0.5rem 0;
 }
 
 .header-container p {
-  color: #7c8189;
-  font-size: 15px;
+  color: var(--muted);
+  font-size: clamp(0.9rem, 1.5vw, 1rem);
   margin-top: 5px;
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }
 
-/* White box for username */
 .username-box {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 400px;
+  background: var(--bg-surface);
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-light);
+  width: clamp(300px, 70vw, 420px);
+  max-width: 90%;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Username label */
-.username-box h3 {
-  font-family: Tahoma, sans-serif;
-  font-size: 20px;
-  margin-top: 5px;
-  font-weight: 100;
-}
-
-/* Input field */
 .username-box input[type="text"] {
   width: 100%;
   padding: 12px;
   font-size: 15px;
-  border: 1px solid white ;
+  border: 1px solid var(--accent);
   border-radius: 8px;
+  background-color: var(--bg-input);
   outline: none;
-  transition: border-color 0.2s ease;
-  border-color: #1e7a3d;
-  background-color: #f2f2f2;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 0.75rem;
 }
 
 .username-box input[type="text"]:focus {
-  border-color: #1e7a3d;
+  border-color: var(--accent);
+  box-shadow: 0 0 4px var(--accent-soft);
 }
 
-/* Save button */
 .save-button {
   width: 100%;
   padding: 12px;
-  background-color: #1e7a3d;
-  color: white;
+  background-color: var(--accent);
+  color: var(--bg-surface);
   border: none;
-  border-radius: 4px;
-  font-size: 16px;
+  border-radius: 6px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
 .save-button:hover {
-  background-color: #16582c;
-}
-
-.error-message {
-    color: red;
-    font-size: 13px;
-    text-align: left;
-    margin: 5px;
+  background-color: var(--accent-dark);
+  transform: scale(1.03);
 }
 
 .error-container {
-    min-height: 20px;
-    margin: 5px 0;
+  min-height: 20px;
+  margin: 5px 0;
+  width: 100%;
+  text-align: left;
 }
 
-@media (max-width: 600px) {
+.error-message {
+  color: var(--error);
+  font-size: 13px;
+  margin-top: 5px;
+}
+.save-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.save-button.loading {
+  pointer-events: none;
+}
+
+.button-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+/*Tablet View*/
+@media (max-width: 900px) {
   .username-box {
-    width: 90%;     
-    margin: 20px;   
+    padding: 20px;
+  }
+
+  .header-container h1 {
+    font-size: 1.6rem;
+  }
+
+  .header-container p {
+    font-size: 0.95rem;
+  }
+}
+
+/*Mobile View*/
+@media (max-width: 600px) {
+  .parent-container {
+    padding: 1.5rem;
+    justify-content: flex-start;
+  }
+
+  .login-logo {
+    width: 150px;
+    margin-top: 2rem;
+  }
+
+  .username-box {
+    width: 100%;
+    box-shadow: none;
+    border: 1px solid var(--border-alt);
+    border-radius: 10px;
+    padding: 20px;
   }
 
   .save-button {
-    width: 100%;    
-    font-size: 16px;
+    font-size: 1rem;
+    padding: 14px;
+  }
+
+  .header-container h1 {
+    font-size: 1.4rem;
+  }
+
+  .header-container p {
+    font-size: 0.9rem;
   }
 }
