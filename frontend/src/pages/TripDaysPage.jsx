@@ -13,6 +13,7 @@ import { useParams } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import axios from "axios";
+import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -826,39 +827,13 @@ export default function TripDaysPage() {
                 </>
               }
             >
-              {distanceInfo && editActivity && (
-                <div className="distance-display">
-                  <button 
-                    className="transport-toggle"
-                    onClick={toggleTransportMode}
-                    disabled={distanceLoading}
-                    title={`Switch to ${transportMode === "DRIVE" ? "walking" : "driving"} mode`}
-                  >
-                    <Car className={`icon ${transportMode === "DRIVE" ? "active" : ""}`} />
-                    <Footprints className={`icon ${transportMode === "WALK" ? "active" : ""}`} />
-                  </button>
-                  
-                  {distanceLoading ? (
-                    <MoonLoader size={16} color="#1e7a3d" speedMultiplier={0.8} />
-                  ) : (
-                    <p>
-                      {(() => {
-                        const currentData = transportMode === "DRIVE" ? distanceInfo.driving : distanceInfo.walking;
-                        if (currentData && currentData.distanceMiles != null && currentData.durationMinutes != null) {
-                          return (
-                            <>
-                              From previous activity - <strong>{distanceInfo.previousActivityName}</strong>:{" "}
-                              {currentData.distanceMiles} mi, {formatDuration(currentData.durationMinutes)}
-                            </>
-                          );
-                        } else {
-                          return <em>Route could not be computed.</em>;
-                        }
-                      })()}
-                    </p>
-                  )}
-                </div>
-              )}
+              <DistanceAndTimeInfo
+                distanceInfo={distanceInfo}
+                transportMode={transportMode}
+                distanceLoading={distanceLoading}
+                onToggleTransportMode={toggleTransportMode}
+                formatDuration={formatDuration}
+              />
 
               <label className="popup-input">
                 <span>Start Time:</span>
