@@ -250,7 +250,7 @@ export default function ActivitySearch({
           startTime: formStartTime || null,
           duration: formDuration === "" ? null : Number(formDuration),
           estimatedCost: formCost === "" ? null : Number(formCost),
-          notesForActivity: notes || null, // ok if backend ignores it
+          notesForActivity: notes || null
         },
       };
 
