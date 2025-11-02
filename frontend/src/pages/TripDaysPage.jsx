@@ -14,16 +14,17 @@ import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import OverlapWarning from "../components/OverlapWarning.jsx";
 import axios from "axios";
+import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
 export default function TripDaysPage() {
 
     //constants for data
-    const [user, setUser] = useState(null);
-    const [trip, setTrip] = useState(null);
-    const [days, setDays] = useState([]);
-    const [deleteDayId, setDeleteDayId] = useState(null);
+  const [user, setUser] = useState(null);
+  const [trip, setTrip] = useState(null);
+  const [days, setDays] = useState([]);
+  const [deleteDayId, setDeleteDayId] = useState(null);
 
   //constants for UI components
   const [openMenu, setOpenMenu] = useState(null);
@@ -37,6 +38,7 @@ export default function TripDaysPage() {
   const [openNotesPopup, setOpenNotesPopup] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [editableNote, setEditableNote] = useState("");
+  const [deleteActivity, setDeleteActivity] = useState(null);
 
   // distance calculation states
   const [distanceInfo, setDistanceInfo] = useState(null);
@@ -45,8 +47,23 @@ export default function TripDaysPage() {
   const distanceDebounce = useRef(null);
   const distanceCache = useRef({});
 
-  const [expandedDays, setExpandedDays] = useState([]);
+  const [expandedDays, setExpandedDays] = useState(() => {
+    try {
+      const saved = localStorage.getItem("planit:expandedDays");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("planit:expandedDays", JSON.stringify(expandedDays));
+    } catch {}
+  }, [expandedDays]);
+
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+  const expandedInitRef = useRef(false);
 
   const menuRefs = useRef({});
   const { tripId } = useParams();
@@ -190,8 +207,16 @@ export default function TripDaysPage() {
         })
       );
       setDays(daysWithActivities);
-      setExpandedDays(window.innerWidth <= 600 ? [] : daysWithActivities.map((day) => day.day_id));
+      const newIds = daysWithActivities.map(d => d.day_id);
 
+      if (!expandedInitRef.current) {
+        // First load: mobile = collapsed, desktop = expanded
+        setExpandedDays(window.innerWidth <= 600 ? [] : newIds);
+        expandedInitRef.current = true;
+      } else {
+        // Later fetches: keep prior choices, just drop deleted day IDs
+        setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
+      }
     } catch (err) {
       console.error(err);
     }
@@ -439,6 +464,10 @@ export default function TripDaysPage() {
     }
   };
 
+  const confirmDeleteActivity = (activity) => {
+    setDeleteActivity(activity);
+  };
+
   const updateNotesForActivity = async (id, newNote) => {
     try {
       console.log("Updating notes for activity ID:", id, "to:", newNote);
@@ -646,7 +675,7 @@ export default function TripDaysPage() {
                               <ActivityCard
                                 key={activity.activity_id}
                                 activity={activity}
-                                onDelete={handleDeleteActivity}
+                                onDelete={() => confirmDeleteActivity(activity)}
                                 onEdit={(activity) => setEditActivity(activity)}
                                 onViewNotes={(activity) => {
                                   setSelectedActivity(activity);
@@ -677,10 +706,12 @@ export default function TripDaysPage() {
           {openNotesPopup && selectedActivity && (
             <Popup
               title={"Notes for: " + selectedActivity.activity_name}
+              onClose={() => setOpenNotesPopup(false)}
               buttons={
                 <>
                   <button onClick={() => setOpenNotesPopup(false)}>Cancel</button>
                   <button
+                    className="btn-rightside"
                     onClick={() => {
                       updateNotesForActivity(selectedActivity.activity_id, editableNote);
                       setOpenNotesPopup(false);
@@ -709,6 +740,7 @@ export default function TripDaysPage() {
           {newDay && (
             <Popup
               title="New Day"
+              onClose={() => setOpenNewDay(null)}
               buttons={
                 <>
                   <button
@@ -719,6 +751,7 @@ export default function TripDaysPage() {
                   </button>
                   <button
                     type="button"
+                    className="btn-rightside"
                     onClick={handleAddDay}
                   >
                     + Add
@@ -734,6 +767,7 @@ export default function TripDaysPage() {
           {deleteDayId && (
             <Popup
               title="Delete Day"
+              onClose={() => setDeleteDayId(null)}
               buttons={
                 <>
                   <button
@@ -743,6 +777,7 @@ export default function TripDaysPage() {
                     Cancel
                   </button>
                   <button
+                    className="btn-rightside"
                     type="button"
                     onClick={() => {
                       handleDeleteDay(deleteDayId);
@@ -761,9 +796,41 @@ export default function TripDaysPage() {
             </Popup>
           )}
 
+          {deleteActivity && (
+            <Popup
+              title={`Are you sure you want to delete ${deleteActivity.activity_name}?`}
+              onClose={() => setDeleteActivity(null)}
+              buttons={
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteActivity(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-rightside"
+                    onClick={() => {
+                      handleDeleteActivity(deleteActivity.activity_id);
+                      setDeleteActivity(null);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </>
+              }
+            >
+              <p className="popup-body-text">
+                This action cannot be undone.
+              </p>
+            </Popup>
+          )}
+
           {editActivity && (
             <Popup
               title="Edit Activity"
+              onClose={() => setEditActivity(null)}
               buttons={
                 <>
                   <button
@@ -774,6 +841,7 @@ export default function TripDaysPage() {
                   </button>
                   <button
                     type="button"
+                    className="btn-rightside"
                     onClick={() => {
                       handleUpdateActivity(editActivity.activity_id, {
                         activity_startTime: editStartTime,
@@ -788,39 +856,13 @@ export default function TripDaysPage() {
                 </>
               }
             >
-              {distanceInfo && editActivity && (
-                <div className="distance-display">
-                  <button 
-                    className="transport-toggle"
-                    onClick={toggleTransportMode}
-                    disabled={distanceLoading}
-                    title={`Switch to ${transportMode === "DRIVE" ? "walking" : "driving"} mode`}
-                  >
-                    <Car className={`icon ${transportMode === "DRIVE" ? "active" : ""}`} />
-                    <Footprints className={`icon ${transportMode === "WALK" ? "active" : ""}`} />
-                  </button>
-                  
-                  {distanceLoading ? (
-                    <MoonLoader size={16} color="#1e7a3d" speedMultiplier={0.8} />
-                  ) : (
-                    <p>
-                      {(() => {
-                        const currentData = transportMode === "DRIVE" ? distanceInfo.driving : distanceInfo.walking;
-                        if (currentData && currentData.distanceMiles != null && currentData.durationMinutes != null) {
-                          return (
-                            <>
-                              From previous activity - <strong>{distanceInfo.previousActivityName}</strong>:{" "}
-                              {currentData.distanceMiles} mi, {formatDuration(currentData.durationMinutes)}
-                            </>
-                          );
-                        } else {
-                          return <em>Route could not be computed.</em>;
-                        }
-                      })()}
-                    </p>
-                  )}
-                </div>
-              )}
+              <DistanceAndTimeInfo
+                distanceInfo={distanceInfo}
+                transportMode={transportMode}
+                distanceLoading={distanceLoading}
+                onToggleTransportMode={toggleTransportMode}
+                formatDuration={formatDuration}
+              />
 
               <label className="popup-input" htmlFor="start-time-input">
                 <span>Start Time:</span>

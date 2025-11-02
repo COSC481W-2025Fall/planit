@@ -128,6 +128,7 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     flex-wrap: wrap;
 }
 
+
 .popup-buttons button {
     background-color: var(--bg-white);
     border-radius: 15px;
@@ -140,6 +141,19 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     transition: all 0.2s ease-in-out;
     font-family: "Open Sans", sans-serif;
 }
+
+.popup-buttons button.btn-rightside {
+    background: var(--accent);
+    color: var(--text-on-accent);
+    border-color: var(--accent);
+    font-weight: 700;
+}
+
+.popup-buttons button.btn-rightside:hover {
+    background: var(--accent-dark);
+    color: var(--text-on-accent);
+}
+
 
 .popup-buttons button:hover {
     background-color: var(--accent);
