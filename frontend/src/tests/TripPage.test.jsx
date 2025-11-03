@@ -4,7 +4,6 @@ import TripPage from "../pages/TripPage";
 import * as tripsApi from "../../api/trips";
 import { MemoryRouter } from "react-router-dom";
 
-vi.spyOn(tripsApi, "getTrips").mockResolvedValueOnce([]); // empty trips to trigger empty state
 
 describe("TripPage", () => {
  beforeEach(() => {
@@ -143,29 +142,75 @@ describe("TripPage", () => {
      expect(tripsApi.deleteTrip).toHaveBeenCalledWith(123)
    );
  });
- test("disables Save button and shows 'Saving...' during cooldown", async () => {
+ test("prevents duplicate trip updates by disabling Save button during submission", async () => {
+  const existingTrip = {
+    trips_id: 123,
+    trip_name: "Original Trip",
+    trip_location: "Original Location",
+    trip_start_date: "2025-01-01",
+    trip_end_date: "2025-01-05"
+  };
+
+  vi.spyOn(tripsApi, "getTrips").mockResolvedValue([existingTrip]);
+  
+  // Mock updateTrip with a delay
+  const updateTripSpy = vi.spyOn(tripsApi, "updateTrip").mockImplementation(() => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({}), 500);
+    });
+  });
+
   render(
     <MemoryRouter>
       <TripPage />
     </MemoryRouter>
   );
 
-  //  Wait until loader disappears (user loaded, page ready)
-  await waitFor(() => expect(screen.queryByTestId("loader")).not.toBeInTheDocument());
+  // Wait for trip to render
+  await waitFor(() => screen.getByText("Original Trip"));
 
-  //  Now the DatePicker exists
-  const dateInput = screen.getByPlaceholderText("Start Date");
-  fireEvent.change(dateInput, { target: { value: "11-03-2025" } });
+  // Open dropdown and click Edit
+  fireEvent.click(screen.getByText("⋮"));
+  fireEvent.click(screen.getByText(/Edit Trip/i));
 
-  // Click the Save button
-  const saveButton = screen.getByRole("button", { name: "Save" });
-  fireEvent.click(saveButton);
+  await waitFor(() => screen.getByText(/Edit Trip/i));
 
-  // Immediately after clicking, button should disable and say "Saving..."
-  await waitFor(() => expect(saveButton).toBeDisabled());
-  expect(saveButton).toHaveTextContent("Saving...");
+  // Modify the trip name
+  const nameInput = screen.getByDisplayValue("Original Trip");
+  await act(async () => {
+    fireEvent.change(nameInput, { target: { value: "Updated Trip" } });
+  });
 
-  // After cooldown (1s), it should be enabled again
-  await waitFor(() => expect(saveButton).not.toBeDisabled(), { timeout: 2000 });
+  const saveButton = screen.getByRole("button", { name: /^Save$/i });
+  
+  // Click Save
+  await act(async () => {
+    fireEvent.click(saveButton);
+  });
+
+  // Verify button is disabled
+  await waitFor(() => {
+    expect(screen.getByText(/Saving.../i)).toBeInTheDocument();
+  });
+
+  // Try multiple clicks
+  const savingButton = screen.getByRole("button", { name: /Saving.../i });
+  await act(async () => {
+    fireEvent.click(savingButton);
+    fireEvent.click(savingButton);
+  });
+
+  // Verify updateTrip was only called once
+  await waitFor(() => {
+    expect(updateTripSpy).toHaveBeenCalledTimes(1);
+  }, { timeout: 3000 });
+
+  expect(updateTripSpy).toHaveBeenCalledWith(
+    expect.objectContaining({
+      trips_id: 123,
+      trip_name: "Updated Trip"
+    })
+  );
 });
-});
+  });
+  
