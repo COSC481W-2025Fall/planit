@@ -779,3 +779,17 @@ html[data-theme="dark"] .time-picker {
 .transport-toggle:hover:not(:disabled) .icon.active {
   color: var(--accent);
 }
+
+.permission-badge-viewer-badge{
+  font-size: 0.85rem;
+  line-height: 1.2;
+  color: var(--accent);
+}
+
+.view-icon{
+  height: 0.9rem;
+  width: 0.9rem;
+  flex-shrink: 0;
+  color: var(--accent);
+  margin-top: 0.05rem;
+}
