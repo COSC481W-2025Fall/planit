@@ -26,6 +26,7 @@ export async function createTrip(trip) {
     tripEndDate: trip.trip_end_date,
     user_id: trip.user_id,
     days: trip.days,
+    imageid: trip.image_id,
     isPrivate: trip.isPrivate
   };
 
@@ -48,6 +49,7 @@ export async function createTrip(trip) {
 export async function updateTrip(trip) {
   const payload = {
     trips_id: trip.trips_id,
+    imageid: trip.image_id,
     tripName: trip.trip_name,
     tripLocation: trip.trip_location,
     tripStartDate: trip.trip_start_date,

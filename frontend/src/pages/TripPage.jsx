@@ -25,6 +25,11 @@ export default function TripPage() {
     const [startDate, setStartDate] = useState(
       editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
     );
+    //constants for image selection
+    const [images, setImages] = useState([]);
+    const [showImageSelector, setShowImageSelector] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [imageUrls, setImageUrls] = useState({});
     const [endDate, setEndDate] = useState(null);
 
     // Close dropdown if click outside
@@ -77,6 +82,53 @@ export default function TripPage() {
             setEndDate(null);
         }
     }, [editingTrip]);
+
+    // Fetch images when the selector is opened
+    useEffect(() => {
+      if (!showImageSelector) return;
+      const fetchImages = async () => {
+        try {
+          const res = await fetch(
+            (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+              "/image/readAll",
+            { credentials: "include" }
+          );
+          const data = await res.json();
+          setImages(data);
+        } catch (err) {
+          console.error("Error fetching images:", err);
+        }
+      };
+      fetchImages();
+    }, [showImageSelector]);
+
+    // Fetch image URLs for trips when component loads or trips change
+    useEffect(() => {
+      if (!trips || trips.length === 0) return;
+
+      const fetchImages = async () => {
+        const newImageUrls = {};
+
+        for (const trip of trips) {
+          if (!trip.image_id || trip.image_id === 0) continue;
+
+          try {
+            const res = await fetch(
+              `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
+              { credentials: "include" }
+            );
+
+            const data = await res.json();
+            newImageUrls[trip.trips_id] = data.imageUrl;
+          } catch (err) {
+            console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
+          }
+        }
+        setImageUrls(newImageUrls);
+      };
+
+      fetchImages();
+    }, [trips]);
 
     //Show Loader while fetching user or trips
     if (!user || !trips) {
@@ -198,7 +250,13 @@ export default function TripPage() {
               ) : (
                 trips.map((trip) => (
                   <div key={trip.trips_id} className="trip-card">
-                    <div className="trip-card-image" onClick={() => handleTripRedirect(trip.trips_id)}></div>
+                    <div className="trip-card-image" onClick={() => handleTripRedirect(trip.trips_id)}>
+                    <img
+                            src={imageUrls[trip.trips_id]}
+                            alt={trip.trip_name}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                    </div>
                     <button
                       className="trip-menu-button"
                       onClick={(e) => {
@@ -285,6 +343,7 @@ export default function TripPage() {
                                       trip_name: formData.get("name"),
                                       trip_location: formData.get("location"),
                                       trip_start_date: formData.get("startDate"),
+                                      image_id: selectedImage ? selectedImage.image_id : 1,
                                       trip_end_date: formData.get("endDate"),
                                       user_id: user.user_id,
                                       isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
@@ -337,8 +396,31 @@ export default function TripPage() {
                                 <input
                                   type="hidden"
                                   name="startDate"
-                                  value={startDate ? startDate.toISOString().split("T")[0] : ""}
+                                  value={startDate ? startDate.toISOString().split("T")[0] : ""}          
                                 />
+                                {/* Button to open image selector */}
+                  <button
+                    type="button"
+                    className="new-trip-button"
+                    onClick={() => setShowImageSelector(true)}
+                    style={{ marginTop: "10px" }}
+                  >
+                    View Images
+                  </button>
+
+                  {/* Display selected image preview */}
+                  {selectedImage && (
+                    <div style={{ marginTop: "10px" }}>
+                      <img
+                        src={selectedImage.imageUrl}
+                        alt={selectedImage.image_name}
+                        width="120"
+                        height="120"
+                        style={{ objectFit: "cover", borderRadius: "6px" }}
+                      />
+                      <p>{selectedImage.image_name}</p>
+                    </div>
+                  )}
                                  <input
                                   type="hidden"
                                   name="endDate"
@@ -347,6 +429,45 @@ export default function TripPage() {
 
                             </form>
                         </div>
+              {/* Image selector popup */}
+              {showImageSelector && (
+                <Popup
+                  title="Select an Image"
+                  buttons={
+                    <>
+                      <button type="button" onClick={() => setShowImageSelector(false)}>
+                        Done
+                      </button>
+                    </>
+                  }
+                >
+                  <div className="image-selector-grid"
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "1rem",
+                      maxHeight: "300px",
+                      overflowY: "auto",
+                    }}
+                  >
+                    {images.map((img) => (
+                      <img
+                        key={img.image_id}
+                        src={img.imageUrl}
+                        alt={img.image_name}
+                        width="120"
+                        height="120"
+                        style={{
+                          objectFit: "cover",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => setSelectedImage(img)}
+                      />
+                    ))}
+                  </div>
+                </Popup>
+              )}
                     </Popup>
                   )}
               </div>

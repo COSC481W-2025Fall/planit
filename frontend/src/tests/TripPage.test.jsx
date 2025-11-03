@@ -4,7 +4,6 @@ import TripPage from "../pages/TripPage";
 import * as tripsApi from "../../api/trips";
 import { MemoryRouter } from "react-router-dom";
 
-
 describe("TripPage", () => {
  beforeEach(() => {
    vi.restoreAllMocks();

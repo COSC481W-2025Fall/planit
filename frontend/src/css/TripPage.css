@@ -92,6 +92,27 @@
     transform: translateY(-2px);
     box-shadow: var(--shadow-5);
 }
+.image-selector-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  .image-selector-grid img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  .image-selector-grid img:hover {
+    transform: scale(1.05);
+  }
 
 .trip-card-image {
     background-color: var(--accent-lite);
