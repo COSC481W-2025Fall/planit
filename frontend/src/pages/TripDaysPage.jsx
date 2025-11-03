@@ -121,9 +121,13 @@ export default function TripDaysPage() {
     fetchDays();
   }, [tripId]);
 
-  const openAddDayPopup = (baseDateStr) => {
+  const openAddDayPopup = (baseDateStr, insertBefore = false) => {
     let nextDate;
-    if (baseDateStr) {
+    if (baseDateStr && insertBefore) {
+      const baseDate = new Date(baseDateStr);
+      nextDate = new Date(baseDate);
+      nextDate.setDate(baseDate.getDate());
+    } else if (baseDateStr) {
       const baseDate = new Date(baseDateStr);
       nextDate = new Date(baseDate);
       nextDate.setDate(baseDate.getDate() + 1);
@@ -540,7 +544,7 @@ export default function TripDaysPage() {
                             onDragOver={(e) => handleDayDragOver(e, { day_id: 'before-first', day_date: day.day_date })}
                             onDrop={(e) => handleDayDrop(e, day)}
                         >
-                          <button onClick={() => openAddDayPopup(day.day_date)}>
+                          <button onClick={() => openAddDayPopup(day.day_date, true)}>
                             <Plus size={17} className="plus-icon"/>
                           </button>
                         </div>
