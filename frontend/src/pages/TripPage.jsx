@@ -80,6 +80,15 @@ export default function TripPage() {
         }
     }, [editingTrip]);
 
+    // fully reset and close modal
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setEditingTrip(null);          // ensure next open re-initializes
+        setStartDate(null);
+        setEndDate(null);
+        setPrivacyDraft(true);         // clear any unsaved toggle
+    };
+
     //Show Loader while fetching user or trips
     if (!user || !trips) {
         return (
@@ -137,11 +146,13 @@ export default function TripPage() {
 
     const handleNewTrip = () => {
         setEditingTrip(null);
+        setPrivacyDraft(true);                
         setIsModalOpen(true);
     };
 
     const handleEditTrip = (trip) => {
         setEditingTrip(trip);
+        setPrivacyDraft(trip.is_private ?? true); 
         setIsModalOpen(true);
     };
 
@@ -310,10 +321,10 @@ export default function TripPage() {
                   {isModalOpen && (
                     <Popup
                       title=""
-                      onClose={() => setIsModalOpen(false)}
+                      onClose={handleCloseModal}
                       buttons={
                           <>
-                              <button type="button" onClick={() => setIsModalOpen(false)}>
+                              <button type="button" onClick={handleCloseModal}>
                                   Cancel
                               </button>
                                <button
