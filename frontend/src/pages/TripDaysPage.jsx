@@ -387,15 +387,19 @@ export default function TripDaysPage() {
 
     try {
       await createDay(tripId, { day_date: newDay, newDayInsertBefore});
+
       if (newDayInsertBefore) {
         await updateTrip({
           ...trip,
           trip_start_date: newDay,
         });
       }
+
       await fetchDays();
+
       setOpenNewDay(null);
       setNewDayInsertBefore(false);
+
       toast.success("New day added successfully!");
     } catch (err) {
       console.error("Error creating day:", err);
@@ -421,7 +425,6 @@ export default function TripDaysPage() {
           trip_start_date: days[1].day_date.split("T")[0],
         });
       }
-
 
       toast.success("Day has been deleted.");
     } catch (err) {
@@ -587,9 +590,11 @@ export default function TripDaysPage() {
       const overDate = new Date(overDay.day_date);
 
       let reorderedFirstDay = false;
+
       const isDropOnFirstDay = overDay.day_id === days[0].day_id;
       const isDraggedFromAfterFirst = dragDate > overDate;
       const isHoveringBeforeFirst = dragOverInfo.dayId === "before-first";
+
       if (isDropOnFirstDay && isDraggedFromAfterFirst && isHoveringBeforeFirst) {
         const first = days[0];
 
@@ -602,7 +607,9 @@ export default function TripDaysPage() {
 
         await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date });
         await fetchDays();
+        
         toast.info("Day moved");
+
         setDragFromDay(null);
         setDragOverInfo({ dayId: null, dayDate: null });
         reorderedFirstDay = true;
@@ -951,7 +958,7 @@ export default function TripDaysPage() {
                     className="btn-rightside"
                     type="button"
                     onClick={() => {
-                      handleDeleteDay(deleteDayId, newDayInsertBefore);
+                      handleDeleteDay(deleteDayId);
                       setDeleteDayId(null);
                     }}
                   >
