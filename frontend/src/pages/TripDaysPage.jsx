@@ -608,7 +608,14 @@ export default function TripDaysPage() {
             )}
           </div>
 
-          <div className="image-banner" />
+          <div className="image-banner">
+            <img
+            src={imageUrl}
+            alt={trip.trip_name}
+            // Not sure if it's possible to style this better given the ratio constraints of the image-banner box.
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+           </div>
           <div className="button-level-bar">
             <h1 className="itinerary-text">Itinerary</h1>
             <div className="itinerary-buttons">
