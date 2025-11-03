@@ -38,6 +38,7 @@ export default function TripDaysPage() {
   const [openNotesPopup, setOpenNotesPopup] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [editableNote, setEditableNote] = useState("");
+  const [isAddCooldown, setIsAddCooldown] = useState(false);
   const [deleteActivity, setDeleteActivity] = useState(null);
 
   // distance calculation states
@@ -371,17 +372,24 @@ export default function TripDaysPage() {
 
   //add a new day
   const handleAddDay = async () => {
+    if (isAddCooldown) return; // stop if still in cooldown
+    setIsAddCooldown(true);    // start cooldown
     if (!newDay) return;
 
     try {
       await createDay(tripId, { day_date: newDay });
+
       await fetchDays(); 
       setOpenNewDay(null);
       toast.success("New day added successfully!");
     } catch (err) {
       console.error("Error creating day:", err);
       toast.error("Failed to add day. Please try again.");
+    } finally {
+      // end cooldown after 3 seconds
+      setTimeout(() => setIsAddCooldown(false), 3000);
     }
+
   };
 
   //delete a day
@@ -574,7 +582,6 @@ export default function TripDaysPage() {
           </div>
 
           <div className="image-banner" />
-
           <div className="button-level-bar">
             <h1 className="itinerary-text">Itinerary</h1>
             <div className="itinerary-buttons">
@@ -751,33 +758,34 @@ export default function TripDaysPage() {
                   </button>
                   <button
                     type="button"
-                    className="btn-rightside"
                     onClick={handleAddDay}
+                    disabled={isAddCooldown}
+                    style={{
+                      opacity: isAddCooldown ? 0.5 : 1,
+                      pointerEvents: isAddCooldown ? "none" : "auto",
+                    }}
                   >
-                    + Add
-                  </button>
+                    Add +
+                  </button>                               
                 </>
               }
-            ><p className="popup-body-text">
-                Do you want to add a new day to {trip?.trip_name}?
-              </p>
+            >
+              <p className="popup-body-text">Do you want to add a new day to {trip?.trip_name}?</p>
             </Popup>
           )}
-
           {deleteDayId && (
             <Popup
               title="Delete Day"
               onClose={() => setDeleteDayId(null)}
               buttons={
                 <>
-                  <button
+\                  <button
                     type="button"
                     onClick={() => setDeleteDayId(null)}
                   >
                     Cancel
                   </button>
                   <button
-                    className="btn-rightside"
                     type="button"
                     onClick={() => {
                       handleDeleteDay(deleteDayId);
@@ -790,8 +798,38 @@ export default function TripDaysPage() {
               }
             >
               <p className="popup-body-text">
-                Are you sure you want to delete this day? You will
-                lose all activities for this day.
+                Are you sure you want to delete this day? You will lose all activities for thisday
+              </p>
+            </Popup>
+          )}
+
+          {deleteActivity && (
+            <Popup
+              title={`Are you sure you want to delete ${deleteActivity.activity_name}?`}
+              onClose={() => setDeleteActivity(null)}
+              buttons={
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteActivity(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-rightside"
+                    onClick={() => {
+                      handleDeleteActivity(deleteActivity.activity_id);
+                      setDeleteActivity(null);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </>
+              }
+            >
+              <p className="popup-body-text">
+                This action cannot be undone.
               </p>
             </Popup>
           )}
