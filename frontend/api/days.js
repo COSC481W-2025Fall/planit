@@ -7,7 +7,8 @@ async function handleResponse(res) {
     const errorText = await res.text();
     throw new Error(errorText || "Request failed");
   }
-  return res.status === 204 ? true : res.json();
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
 export async function getDays(tripId) {
