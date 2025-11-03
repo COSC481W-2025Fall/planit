@@ -187,7 +187,7 @@ export default function TripDaysPage() {
 
     try {
       await createDay(tripId, { day_date: newDay });
-      await fetchDays(); 
+      await fetchDays();
       setOpenNewDay(null);
       toast.success("New day added successfully!");
     } catch (err) {
@@ -341,18 +341,20 @@ export default function TripDaysPage() {
 
   const handleDayDrop = async (e, day) => {
     e.preventDefault();
-    console.log("draggingDay: ", dragFromDay);
-    console.log("afterDay: ", day);
     await reorderDays(dragFromDay, day);
   };
 
+  const handleDragEnd = () => {
+    setDragFromDay(null);
+    setDragOverInfo({
+      dayId: null,
+      dayDate: null,
+    });
+  };
+
+
   const reorderDays = async (dragFromDay, overDay) => {
     try {
-      console.log("dragFromDay: ", dragFromDay);
-      console.log("overDay: ", overDay);
-
-      // If user does not move card to new day, return and stop operation
-
       const adjustDate = (dateStr, daysToAdd) => {
         const date = new Date(dateStr);
         date.setDate(date.getDate() + daysToAdd);
@@ -362,15 +364,39 @@ export default function TripDaysPage() {
       const dragDate = new Date(dragFromDay.day_date);
       const overDate = new Date(overDay.day_date);
 
-      console.log("reorder, dragDate: ", dragDate);
-      console.log("reorder, afterDate: ", overDate);
+      let reorderedFirstDay = false;
+      const isDropOnFirst = overDay.day_id === days[0].day_id;
+      const isDraggedFromAfterFirst = dragDate > overDate;
+      const isHoveringBeforeFirst = dragOverInfo.dayId === "before-first";
+      if (isDropOnFirst && isDraggedFromAfterFirst && isHoveringBeforeFirst) {
+        const first = days[0];
+
+        // shift existing days forward by 1 that are before the dragged day
+        for (const d of days) {
+          if (d.day_date > dragFromDay.day_date) continue;
+          const newDate = adjustDate(d.day_date, 1);
+          await updateDay(tripId, d.day_id, { day_date: newDate });
+        }
+
+        await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date });
+
+        await fetchDays();
+        toast.info("Day moved");
+        setDragFromDay(null);
+        setDragOverInfo({ dayId: null, dayDate: null });
+        reorderedFirstDay = true;
+      }
+
+      // if dropped draggedDay is before the first day, shifting took place and should exit this method.
+      if (reorderedFirstDay) return;
+
       let movedDayDate;
 
       if (dragFromDay === days[days.length-1] && overDay === days[days.length-2]
       || dragFromDay === days[0] && overDay === days[0]
       || overDay === days[days.indexOf(dragFromDay)-1]
       || overDay === dragFromDay) {
-        toast.info("No days were moved");
+        toast.warning("No days were moved");
         setDragFromDay(null);
         setDragOverInfo({ dayId: null, index: null });
         return;
@@ -408,7 +434,7 @@ export default function TripDaysPage() {
       await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate });
 
       await fetchDays();
-      toast.success("Day moved successfully!");
+      toast.info("Day moved");
 
       setDragFromDay(null);
       setDragOverInfo({ dayId: null, index: null });
@@ -508,12 +534,24 @@ export default function TripDaysPage() {
                 const isExpanded = expandedDays.includes(day.day_id);
                 return (
                   <React.Fragment key={day.day_id}>
+                    {index === 0 && (
+                        <div
+                            className={`day-divider day-divider--first ${dragOverInfo.dayId === 'before-first' ? "day-divider--drag-over" : ""}`}
+                            onDragOver={(e) => handleDayDragOver(e, { day_id: 'before-first', day_date: day.day_date })}
+                            onDrop={(e) => handleDayDrop(e, day)}
+                        >
+                          <button onClick={() => openAddDayPopup(day.day_date)}>
+                            <Plus size={17} className="plus-icon"/>
+                          </button>
+                        </div>
+                    )}
                     <div
                         className={`day-card ${isMobile ? (isExpanded ? "expanded" : "collapsed") : ""
                         }`}
                         draggable={true}
                         key={day.day_id}
-                        onDragStart={(e) => handleDayDragStart(e, day, index)}
+                        onDragStart={(e) => handleDayDragStart(e, day)}
+                        onDragEnd={(e) => handleDragEnd(e)}
                     >
                     <div
                       className="day-header"
@@ -601,14 +639,14 @@ export default function TripDaysPage() {
                     <div
                       className={`day-divider ${dragOverInfo.dayId === day.day_id ? "day-divider--drag-over" : ""}`}
                       id={index === days.length - 1 ? "last-day-divider" : ""}
-                      draggable
-                      onDragStart={(e) => handleDayDragStart(e, day)}
-                      onDragOver={(e) => handleDayDragOver(e, day, index)}
-                      onDrop={(e) => handleDayDrop(e, day, index)}
+                      onDragOver={(e) => handleDayDragOver(e, day)}
+                      onDrop={(e) => handleDayDrop(e, day)}
                     >
+                      {!dragFromDay && (
                       <button onClick={() => openAddDayPopup(day.day_date)}>
                         <Plus size={17} className="plus-icon"/>
                       </button>
+                      )}
                     </div>
                   </React.Fragment>
                 );

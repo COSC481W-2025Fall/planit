@@ -383,10 +383,12 @@ body {
 }
 
 .day-divider--drag-over {
-  width: 2.6rem;
-  background: rgba(0,0,0,0.08);
-  border-radius: 999px;
-  transition: width 120ms ease;
+  max-width: 12.5rem;
+  min-width: 12.5rem;
+  max-height: 100rem;
+  min-height: 10rem;
+  background: rgba(0,0,0,0.06);
+  border-radius: 0.94rem;
 }
 
 .day-divider button {
