@@ -248,6 +248,13 @@ body {
 }
 
 .day-header {
+  cursor: grab;
+}
+.day-card:active .day-header {
+  cursor: grabbing;
+}
+
+.day-header {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
