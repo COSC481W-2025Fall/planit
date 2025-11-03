@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Car, Footprints, Plus} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Car, Footprints, Plus, UserPlus, X} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/Popup.css";
@@ -15,6 +15,8 @@ import { toast } from "react-toastify";
 import OverlapWarning from "../components/OverlapWarning.jsx";
 import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
+import {listParticipants, addParticipant, removeParticipant} from "../../api/trips";
+import { set } from "date-fns";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -39,6 +41,11 @@ export default function TripDaysPage() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [editableNote, setEditableNote] = useState("");
   const [deleteActivity, setDeleteActivity] = useState(null);
+
+  //constants for participants
+  const [openParticipantsPopup, setOpenParticipantsPopup] = useState(false);
+  const [participants, setParticipants] = useState([]);
+  const [participantUsername, setParticipantUsername] = useState("");
 
   // distance calculation states
   const [distanceInfo, setDistanceInfo] = useState(null);
@@ -172,6 +179,17 @@ export default function TripDaysPage() {
     const formatted = nextDate.toISOString().split("T")[0];
     setOpenNewDay(formatted);
   };
+
+  const handleOpenParticipantsPopup = async () => {
+    try {
+      const data = await listParticipants(trip.trips_id);
+      setParticipants(data.participants || []);
+      setOpenParticipantsPopup(true);
+    } catch (err) {
+      console.error("Failed to fetch participants:", err);
+      toast.error("Could not load participants.");
+    }
+  }
 
   const fetchDays = async () => {
     if (!tripId) return;
@@ -513,6 +531,35 @@ export default function TripDaysPage() {
     setOpenMenu(openMenu === dayId ? null : dayId);
   };
 
+  // add particpant to a trip
+  const handleAddParticipant = async () => {
+    if (!participantUsername.trim()) return;
+
+    try {
+      await addParticipant(trip.trips_id, participantUsername.trim());
+      const data = await listParticipants(trip.trips_id);
+      setParticipants(data.participants || []);
+      setParticipantUsername("");
+      toast.success("Participant added!");
+    } catch (err) {
+      console.error("Failed to add participant:", err);
+      toast.error(err.message || "Failed to add participant.");
+    }
+  };
+
+  // remove participant from a trip
+  const handleRemoveParticipant = async (username) => {
+
+    try {
+      await removeParticipant(trip.trips_id, username);
+      setParticipants(prev => prev.filter(p => p.username !== username));
+      toast.success("Participant removed!");
+    } catch (err) {
+      console.error("Failed to remove participant:", err);
+      toast.error(err.message || "Failed to remove participant.");
+    }
+  };
+
   //Loading State
   if (!user || !trip) {
     return (
@@ -589,9 +636,15 @@ export default function TripDaysPage() {
                   + Add Activity
                 </button>
               )}
+              <button
+                onClick={() => handleOpenParticipantsPopup()} 
+                id="participants-button">
+                <UserPlus id= "user-plus-icon" size={14}/>
+                <span>Share</span> 
+              </button>
             </div>
-          </div><
-          div className="days-scroll-zone">
+          </div>
+          <div className="days-scroll-zone">
             <div className="days-container">
             {days.length === 0 ? (
               <p className="empty-state-text">
@@ -926,6 +979,44 @@ export default function TripDaysPage() {
                 />
               </label>
             </Popup>
+          )}
+          {openParticipantsPopup && (
+            <Popup 
+              title="Participants"
+              onClose={() => setOpenParticipantsPopup(false)}
+            >
+              <div className="add-participant-form">
+                <input
+                  type="text"
+                  placeholder="Enter username to add"
+                  id="username-input"
+                  value={participantUsername}
+                  onChange={(e) => setParticipantUsername(e.target.value)}
+                />
+                <button type="button" className="add-participant-btn" onClick={handleAddParticipant}>
+                  <UserPlus size={16} /> Add
+                </button>
+              </div>
+              <div className="participants-list">
+                {participants.length === 0 ? (
+                  <p>No other participants on this trip.</p>
+                ) : (
+                  participants.map((p) => (
+                    <div key={p.user_id} className="participant-item">
+                      <span>{p.username}</span>
+                      <button
+                        type="button"
+                        className="remove-participant-btn"
+                        onClick={() => handleRemoveParticipant(p.username)}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Popup>
+          
           )}
         </main>
 

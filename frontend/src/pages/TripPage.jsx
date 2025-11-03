@@ -5,7 +5,7 @@ import NavBar from "../components/NavBar";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
-import {createTrip, updateTrip, getTrips, deleteTrip, listParticipants, addParticipant, removeParticipant} from "../../api/trips";
+import {createTrip, updateTrip, getTrips, deleteTrip} from "../../api/trips";
 import {MapPin, Pencil, Trash,  Lock, Unlock, UserPlus, X} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {MoonLoader} from "react-spinners";
@@ -27,8 +27,6 @@ export default function TripPage() {
     const [endDate, setEndDate] = useState(null);
     const [deleteTripId, setDeleteTripId] = useState(null);
     const [privacyDraft, setPrivacyDraft] = useState(true);
-    const [participants, setParticipants] = useState([]);
-    const [participantUsername, setParticipantUsername] = useState("");
 
     // Close dropdown if click outside
     useEffect(() => {
@@ -89,8 +87,6 @@ export default function TripPage() {
         setStartDate(null);
         setEndDate(null);
         setPrivacyDraft(true);         // clear any unsaved toggle
-        setParticipants([]);
-        setParticipantUsername("");
     };
 
     //Show Loader while fetching user or trips
@@ -149,56 +145,14 @@ export default function TripPage() {
         setEditingTrip(null);
         setStartDate(null);
         setEndDate(null);
-        setParticipants([]);
-        setParticipantUsername("");
         setPrivacyDraft(true);                
         setIsModalOpen(true);
     };
 
     const handleEditTrip = async (trip) => {
         setEditingTrip(trip);
-        setParticipants([]);
         setPrivacyDraft(trip.is_private ?? true); 
         setIsModalOpen(true);
-
-        // Fetch participants for this trip
-        try {
-            const data = await listParticipants(trip.trips_id);
-            setParticipants(data.participants || []);
-        } catch (err) {
-            console.error("Failed to fetch participants:", err);
-            toast.error("Could not load participants.");
-        }
-    };
-
-    // add particpant to a trip
-    const handleAddParticipant = async () => {
-        if (!editingTrip || !participantUsername.trim()) return;
-
-        try {
-            await addParticipant(editingTrip.trips_id, participantUsername.trim());
-            const data = await listParticipants(editingTrip.trips_id);
-            setParticipants(data.participants || []);
-            setParticipantUsername("");
-            toast.success("Participant added!");
-        } catch (err) {
-            console.error("Failed to add participant:", err);
-            toast.error(err.message || "Failed to add participant.");
-        }
-    };
-
-    // remove participant from a trip
-    const handleRemoveParticipant = async (username) => {
-        if (!editingTrip) return;
-
-        try {
-            await removeParticipant(editingTrip.trips_id, username);
-            setParticipants(prev => prev.filter(p => p.username !== username));
-            toast.success("Participant removed!");
-        } catch (err) {
-            console.error("Failed to remove participant:", err);
-            toast.error(err.message || "Failed to remove participant.");
-        }
     };
 
     const handleTripRedirect = (tripId) => {
@@ -471,43 +425,6 @@ export default function TripPage() {
                                     <span>Public</span>
                                   </button>
                                 </div>
-                                {editingTrip && (
-                                    <>
-                                        <hr></hr>
-                                        <div className="participants-header">
-                                            <p>Participants</p>
-                                        </div>
-                                        <div className="add-participant-form">
-                                            <input
-                                                type="text"
-                                                placeholder="Enter username to add"
-                                                value={participantUsername}
-                                                onChange={(e) => setParticipantUsername(e.target.value)}
-                                            />
-                                            <button type="button" className="add-participant-btn" onClick={handleAddParticipant}>
-                                                <UserPlus size={16} /> Add
-                                            </button>
-                                        </div>
-                                        <div className="participants-list">
-                                            {participants.length === 0 ? (
-                                                <p>No other participants on this trip.</p>
-                                            ) : (
-                                                participants.map((p) => (
-                                                    <div key={p.user_id} className="participant-item">
-                                                        <span>{p.username}</span>
-                                                        <button
-                                                            type="button"
-                                                            className="remove-participant-btn"
-                                                            onClick={() => handleRemoveParticipant(p.username)}
-                                                        >
-                                                            <X size={16} />
-                                                        </button>
-                                                    </div>
-                                                ))
-                                            )}
-                                        </div>
-                                    </>
-                                )}
                             </form>
                         </div>
                     </Popup>

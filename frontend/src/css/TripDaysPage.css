@@ -182,8 +182,20 @@ body {
   gap: 0.5rem;
 }
 
-#new-day-button,
-#add-activity-button {
+ #participants-button {
+   display: flex;
+   flex-direction: row;
+   margin: auto;
+   align-items: center;
+   justify-content: center;
+   gap: 0.25rem;
+ }
+
+ #participants-button #user-plus-icon {
+    margin-bottom: 2px;
+ }
+
+.itinerary-buttons button {
   background-color: var(--bg-surface);
   border: 0.06rem solid var(--accent);
   border-radius: var(--radius);
@@ -195,15 +207,13 @@ body {
   cursor: pointer;
 }
 
-#new-day-button:hover,
-#add-activity-button:hover {
+.itinerary-buttons button:hover {
   background-color: var(--accent);
   color: var(--bg-white);
   transform: scale(1.03);
 }
 
-#new-day-button:active,
-#add-activity-button:active {
+.itinerary-buttons button:active {
   transform: scale(0.9);
 }
 
@@ -474,6 +484,133 @@ html[data-theme="dark"] .textarea-notes {
   color-scheme: light;
 }
 
+
+
+.participants-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 16px;
+}
+
+.participants-list p {
+    font-size: 14px;
+    color: var(--text-medium);
+}
+
+.participants-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem; 
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.participants-header p {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark2);
+    margin: 0;
+}
+
+.add-participant-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.add-participant-form input {
+    flex-grow: 1; 
+    padding: 10px 12px;
+}
+
+.add-participant-form button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 12px;
+    background: var(--accent);
+    color: var(--bg-white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.add-participant-form button:hover {
+    background: var(--accent-dark);
+    transform: translateY(-1px);
+}
+
+.participants-list {
+    overflow-y: auto;
+    border: 1px solid var(--border-input);
+    border-radius: 6px;
+    background: var(--bg-input);
+    padding: 8px;
+    list-style: none;
+}
+
+.participants-list p {
+    font-size: 14px;
+    color: var(--text-medium);
+    text-align: center;
+    margin: 4px 0;
+}
+
+.participant-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.participant-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.participant-item span {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.remove-participant-btn {
+    background: none;
+    border: none;
+    color: var(--text-medium);
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background-color 0.2s;
+    border-radius: 50%;
+}
+
+.remove-participant-btn:hover {
+    color: var(--error);
+    background: var(--error-soft);
+    transform: scale(1.1);
+}
+
+#username-input {
+  padding: 12px;
+  border: 1px solid var(--border-input);
+  border-radius: 4px;
+  font-size: 14px;
+  background: var(--bg-input);
+  color: var(--text);
+}
+
 html[data-theme="dark"] .time-picker {
   color-scheme: dark;
 }
@@ -504,9 +641,20 @@ html[data-theme="dark"] .time-picker {
     font-size: 1.3em;
   }
 
-  #new-day-button,
-  #add-activity-button {
+  .itinerary-buttons button {
     font-size: 0.85rem;
+  }
+
+  .participants-list {
+    max-height: 6em;
+  }
+
+  .participants-list p {
+    font-size: 14px !important;
+  }
+
+  .participant-item span {
+    font-size: 14px;
   }
 }
 
@@ -539,8 +687,7 @@ html[data-theme="dark"] .time-picker {
     gap: 0.5rem;
   }
 
-  #new-day-button,
-  #add-activity-button {
+  .itinerary-buttons button {
     min-width: 7rem;
     font-size: 0.9rem;
     padding: 0 0.75rem;
@@ -673,8 +820,7 @@ html[data-theme="dark"] .time-picker {
     gap: 0.5rem;
   }
 
-  #new-day-button,
-  #add-activity-button {
+  .itinerary-buttons button {
     min-width: 7rem;
     font-size: 0.9rem;
     padding: 0 0.75rem;
