@@ -6,7 +6,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
 import {createTrip, updateTrip, getTrips, deleteTrip} from "../../api/trips";
-import {MapPin, Pencil, Trash} from "lucide-react";
+import {MapPin, Pencil, Trash, Lock, Unlock} from "lucide-react"; 
 import {useNavigate} from "react-router-dom";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
@@ -26,6 +26,8 @@ export default function TripPage() {
       editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
     );
     const [endDate, setEndDate] = useState(null);
+    const [deleteTripId, setDeleteTripId] = useState(null);
+    const [privacyDraft, setPrivacyDraft] = useState(true);
 
     // Close dropdown if click outside
     useEffect(() => {
@@ -72,11 +74,22 @@ export default function TripPage() {
             if (editingTrip.trip_end_date) {
                 setEndDate(new Date(editingTrip.trip_end_date));
             }
+            setPrivacyDraft(editingTrip.is_private ?? true);
         } else {
             setStartDate(null);
             setEndDate(null);
+            setPrivacyDraft(true);
         }
     }, [editingTrip]);
+
+    // fully reset and close modal
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setEditingTrip(null);          // ensure next open re-initializes
+        setStartDate(null);
+        setEndDate(null);
+        setPrivacyDraft(true);         // clear any unsaved toggle
+    };
 
     //Show Loader while fetching user or trips
     if (!user || !trips) {
@@ -93,21 +106,19 @@ export default function TripPage() {
             </div>
       </div>
         );
-      }
-  
-      // Delete trip
-      const handleDeleteTrip = async (trips_id) => {
-          if (confirm("Are you sure you want to delete this trip?")) {
-              try {
-                  await deleteTrip(trips_id);
-                  setTrips(trips.filter((trip) => trip.trips_id !== trips_id));
-                  toast.success("Trip deleted successfully!");
-              } catch (err) {
-                  console.error("Delete trip failed:", err);
-                  toast.error("Failed to delete trip. Please try again.");
-              }
-          }
-      };
+    }
+
+    // Delete trip
+    const handleDeleteTrip = async (trips_id) => {
+        try {
+            await deleteTrip(trips_id);
+            setTrips(trips.filter((trip) => trip.trips_id !== trips_id));
+            toast.success("Trip deleted successfully!");
+        } catch (err) {
+            console.error("Delete trip failed:", err);
+            toast.error("Failed to delete trip. Please try again.");
+        }
+    };
 
   // Save trip (create/update)
   const handleSaveTrip = async (tripData) => {
@@ -140,19 +151,35 @@ export default function TripPage() {
         }
     };
 
-  const handleNewTrip = () => {
-    setEditingTrip(null);
-    setIsModalOpen(true);
-  };
+    const handleNewTrip = () => {
+        setEditingTrip(null);
+        setPrivacyDraft(true);                
+        setIsModalOpen(true);
+    };
 
-  const handleEditTrip = (trip) => {
-    setEditingTrip(trip);
-    setIsModalOpen(true);
-  };
+    const handleEditTrip = (trip) => {
+        setEditingTrip(trip);
+        setPrivacyDraft(trip.is_private ?? true); 
+        setIsModalOpen(true);
+    };
 
-  const handleTripRedirect = (tripId) => {
-    navigate(`/days/${tripId}`);
-  };
+    const handleTripRedirect = (tripId) => {
+        navigate(`/days/${tripId}`);
+    };
+
+    const handleTogglePrivacy = async (trip) => {
+        const nextPrivate = !trip.is_private;
+        try {
+            await updateTrip({ trips_id: trip.trips_id, isPrivate: nextPrivate });
+            setTrips((prev) =>
+              prev.map((t) => (t.trips_id === trip.trips_id ? { ...t, is_private: nextPrivate } : t))
+            );
+            toast.success(nextPrivate ? "Trip set to private." : "Trip set to public.");
+        } catch (err) {
+            console.error("Privacy toggle failed:", err);
+            toast.error("Failed to update privacy.");
+        }
+    };
 
   return (
     <div className="trip-page">
@@ -184,76 +211,124 @@ export default function TripPage() {
               </div>
             </div>
 
-            {/* Trip cards */}
-            <div className="trip-cards">
-              {trips.length === 0 ? (
-                <div className="empty-state">
-                  <h3>No trips yet!</h3>
-                  <div>
-                    {user
-                      ? `${user.first_name}, you haven't created any trips! PlanIt now!`
-                      : <MoonLoader color="var(--accent)" size={25} />} {/* replaces text */}
-                  </div>
-                </div>
-              ) : (
-                trips.map((trip) => (
-                  <div key={trip.trips_id} className="trip-card">
-                    <div className="trip-card-image" onClick={() => handleTripRedirect(trip.trips_id)}></div>
-                    <button
-                      className="trip-menu-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenDropdownId(
-                          openDropdownId === trip.trips_id ? null : trip.trips_id
-                        );
-                      }}
-                    >
-                      ⋮
-                    </button>
+                      {/* Trip cards */}
+                      <div className="trip-cards">
+                          {trips.length === 0 ? (
+                            <div className="empty-state">
+                                <h3>No trips yet!</h3>
+                                <div>
+                                    {user
+                                      ? `${user.first_name}, you haven't created any trips! PlanIt now!`
+                                      : <MoonLoader color="var(--accent)" size={25}/>}
+                                </div>
+                            </div>
+                          ) : (
+                            trips.map((trip) => (
+                              <div key={trip.trips_id} className="trip-card">
+                                  <div className="trip-card-image"
+                                       onClick={() => handleTripRedirect(trip.trips_id)}>
+                                  </div>
 
-                    {openDropdownId === trip.trips_id && (
-                      <div className="trip-dropdown" ref={dropdownRef}>
-                        <button
-                          className="dropdown-item edit-item"
-                          onClick={() => {
-                            handleEditTrip(trip);
-                            setOpenDropdownId(null);
-                          }}
-                        >
-                          <Pencil size={16} /> Edit Trip
-                        </button>
-                        <button
-                          className="dropdown-item delete-item"
-                          onClick={() => {
-                            handleDeleteTrip(trip.trips_id);
-                            setOpenDropdownId(null);
-                          }}
-                        >
-                          <Trash size={16} /> Delete Trip
-                        </button>
+                                  <button
+                                    className="privacy-toggle-btn"
+                                    title={trip.is_private ? "Unprivate" : "Private"}
+                                    disabled={isModalOpen}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (isModalOpen) return;
+                                      handleTogglePrivacy(trip);
+                                    }}
+                                  >
+                                    {trip.is_private ? <Lock size={16}/> : <Unlock size={16}/>}
+                                  </button>
+
+                                  <button
+                                    className="trip-menu-button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDropdownId(
+                                          openDropdownId === trip.trips_id ? null : trip.trips_id
+                                        );
+                                    }}
+                                  >
+                                      ⋮
+                                  </button>
+
+                                  {openDropdownId === trip.trips_id && (
+                                    <div className="trip-dropdown" ref={dropdownRef}>
+                                        <button
+                                          className="dropdown-item edit-item"
+                                          onClick={() => {
+                                              handleEditTrip(trip);
+                                              setOpenDropdownId(null);
+                                          }}
+                                        >
+                                            <Pencil size={16}/> Edit Trip
+                                        </button>
+                                        <button
+                                            className="dropdown-item delete-item"
+                                            onClick={() => {
+                                                setDeleteTripId(trip.trips_id);
+                                                setOpenDropdownId(null);
+                                            }}
+                                            >
+                                                <Trash size={16} /> Delete Trip
+                                            </button>
+                                    </div>
+                                  )}
+
+                                  <div
+                                    className="trip-card-content"
+                                    onClick={() => handleTripRedirect(trip.trips_id)}
+                                  >
+                                      <h3 className="trip-card-title">{trip.trip_name}</h3>
+                                      <div className="trip-location">
+                                          <MapPin size={16} style={{marginRight: "4px"}}/>
+                                          {trip.trip_location || "Location not set"}
+                                      </div>
+                                  </div>
+                              </div>
+                            ))
+                          )}
                       </div>
+                  </div>
+
+                    {deleteTripId && (
+                        <Popup
+                            title="Delete Trip"
+                            onClose={() => setDeleteTripId(null)}
+                            buttons={
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDeleteTripId(null)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                      className="btn-rightside"
+                                        type="button"
+                                        onClick={() => {
+                                            handleDeleteTrip(deleteTripId);
+                                            setDeleteTripId(null);
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+                                </>
+                            }
+                        >
+                            <p className="popup-body-text">
+                                Are you sure you want to delete this trip? This action cannot be undone.
+                            </p>
+                        </Popup>
                     )}
-
-                    <div
-                      className="trip-card-content"
-                      onClick={() => handleTripRedirect(trip.trips_id)}
-                    >
-                      <h3 className="trip-card-title">{trip.trip_name}</h3>
-                      <div className="trip-location">
-                        <MapPin size={16} style={{ marginRight: "4px" }} />
-                        {trip.trip_location || "Location not set"}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
 
                   {/* Modal for creating/editing trips */}
                   {isModalOpen && (
                     <Popup
                       title=""
+                      onClose={handleCloseModal}
                       buttons={
                         <>
                           <button
@@ -270,7 +345,7 @@ export default function TripPage() {
                           </button>
                               <button type="button" onClick={() => !isSaving && setIsModalOpen(false)}>
                                   Cancel
-                              </button>
+                              </button>                           
                           </>
                       }
                     >
@@ -287,7 +362,7 @@ export default function TripPage() {
                                       trip_start_date: formData.get("startDate"),
                                       trip_end_date: formData.get("endDate"),
                                       user_id: user.user_id,
-                                      isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
+                                      isPrivate: privacyDraft //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
                                   };
                                   if (editingTrip) tripData.trips_id = editingTrip.trips_id;
                                   console.log(tripData)
@@ -344,6 +419,27 @@ export default function TripPage() {
                                   name="endDate"
                                   value={endDate ? endDate.toISOString().split("T")[0] : ""}
                                 />
+
+                                <div className="privacy-row">
+                                  <button
+                                    type="button"
+                                    onClick={() => setPrivacyDraft(true)}
+                                    title="Private"
+                                    className={`privacy-chip ${privacyDraft ? "active" : ""}`}
+                                  >
+                                    <Lock size={16}/>
+                                    <span>Private</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setPrivacyDraft(false)}
+                                    title="Public"
+                                    className={`privacy-chip ${!privacyDraft ? "active" : ""}`}
+                                  >
+                                    <Unlock size={16}/>
+                                    <span>Public</span>
+                                  </button>
+                                </div>
 
                             </form>
                         </div>

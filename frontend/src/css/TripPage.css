@@ -205,6 +205,45 @@
     border: 1px solid var(--border-input);
     border-radius: 4px;
     font-size: 14px;
+    background: var(--bg-input);
+    color: var(--text);
+}
+
+.modal-content input::placeholder {
+    color: var(--text-placeholder);
+    opacity: 1;
+}
+
+.modal-content input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.modal-content :is(
+  input,
+  .react-datepicker__input-container input,
+  .date-input
+):focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+html[data-theme="dark"] .modal-content input {
+    background: var(--bg-hover2);
+    color: var(--static-white);
+    border-color: var(--border-input);
+}
+
+html[data-theme="dark"] .modal-content input::placeholder {
+    color: var(--text-placeholder);
+}
+
+/* Autofill (Chrome/Safari) */
+html[data-theme="dark"] .modal-content input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px var(--bg-hover2) inset;
+    -webkit-text-fill-color: var(--text-strong);
 }
 
 /* Tablets */
@@ -263,6 +302,67 @@
     }
 }
 
+html[data-theme="dark"] .trip-page :is(
+  .search-input,
+  input[type="search"],
+  .react-datepicker__input-container input,
+  .date-input
+) {
+    background: var(--bg-hover2) !important;
+    color: var(--static-white) !important;
+    border: 1px solid var(--border-input) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .trip-page :is(
+  .search-input,
+  input[type="search"],
+  .react-datepicker__input-container input,
+  .date-input
+)::placeholder {
+    color: var(--text-placeholder) !important;
+    opacity: 1;
+}
+
+html[data-theme="dark"] .trip-page :is(
+  .search-input,
+  input[type="search"],
+  .react-datepicker__input-container input,
+  .date-input
+):-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px var(--static-white) inset !important;
+    -webkit-text-fill-color: var(--static-black) !important;
+}
+
+html[data-theme="dark"] .react-datepicker__header {
+    background: var(--bg-hover);
+    border-bottom: 1px solid var(--border-light);
+}
+
+html[data-theme="dark"] .react-datepicker,
+html[data-theme="dark"] .react-datepicker__month-container,
+html[data-theme="dark"] .react-datepicker__month {
+    background: var(--bg-hover2) !important;
+    color: var(--text-strong) !important;
+    border-color: var(--border-light) !important;
+}
+
+html[data-theme="dark"] .react-datepicker__day-name,
+html[data-theme="dark"] .react-datepicker__day {
+    color: var(--text-strong) !important;
+}
+
+html[data-theme="dark"] .react-datepicker__day:hover {
+    background: var(--accent-soft) !important;
+    color: var(--text-strong) !important;
+}
+
+html[data-theme="dark"] .react-datepicker__day--selected,
+html[data-theme="dark"] .react-datepicker__day--keyboard-selected {
+    background: var(--accent) !important;
+    color: var(--text-on-accent) !important;
+}
+
 .trip-menu-button {
     position: absolute;
     bottom: 12px;
@@ -313,4 +413,69 @@ select:focus {
     background-color: var(--accent) !important;
     color: var(--text-on-accent) !important;
     font-weight: bold;
+}
+
+.privacy-toggle-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text-dark2);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-1);
+    z-index: 2;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, color 0.12s ease;
+}
+
+.privacy-toggle-btn:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-2);
+    color: var(--accent);
+}
+
+/* --- moved from inline styles in TripPage.jsx --- */
+.privacy-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 4px;
+}
+
+.privacy-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-surface);
+    color: var(--text-medium);
+    font: size 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.privacy-chip.active {
+    background: var(--accent);
+    color: var(--bg-white);
+    border-color: var(--accent);
+    font-weight: 500;
+}
+
+.privacy-chip:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-1);
+}
+
+/* scale icons to match smaller text */
+.privacy-chip svg {
+  width: 14px;
+  height: 14px;
 }
