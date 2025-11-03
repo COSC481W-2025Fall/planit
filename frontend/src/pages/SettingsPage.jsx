@@ -85,18 +85,15 @@ export default function SettingsPage() {
             <div className="setting-with-sidebar">
                 <NavBar/>
                 <div className="setting-main-content">
-                    <div className="settings-section">
                         {/* Header row */}
                         <div className="settings-header">
                             <div className="settingss-title-section">
-                                <div className="settings-title" data-testid="settings-title">Settings</div>
-                                <div className="settings-subtitle">
-                                    Update your profile information or view your stats
-                                </div>
+                                <div className="settings-title">Settings</div>
                             </div>
                         </div>
+                        <div className="settings-section">
                             {/*Section to update info*/}
-                            <div className="settings-card">
+                            <div className="info-card">
                                 <h3>Update Information</h3>
                                 <div className="settings-form">
                                     <label>
@@ -119,7 +116,7 @@ export default function SettingsPage() {
                              </div>
 
                              {/* Viewing stats section*/}
-                             <div className="settings-card">
+                             <div className="stats-card">
                                 <h3>User Stats</h3>
                                 <div className="stats">
                                     <p>Number of Trips Made:</p>
@@ -127,6 +124,7 @@ export default function SettingsPage() {
                                     <p>Most Expensive Trip:</p>
                                     <p>Cheapest Trip:</p>
                                     <p>Total Money Spent:</p>
+                                    <p>Total Likes: </p>
                                 </div>
                              </div>
                      </div>

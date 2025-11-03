@@ -7,7 +7,8 @@
 
 .settings-section {
     position: static;
-    padding: 20px;
+    padding-left: 20px;
+    padding-bottom: 20px;
     min-height: 100dvh;
     background: var(--bg-offwhite);
     width: 100%;
@@ -17,6 +18,7 @@
     overflow-y: auto;
     overflow: visible;
     z-index: 0;
+
 }
 
 .setting-with-sidebar {
@@ -27,11 +29,17 @@
     transition: margin 0.3s ease-in-out;
 }
 
-.settings-card {
-    display: flex;
-    flex-direction: column;
+.stats-card {
     gap: 1rem;
-    max-width: 600px;
+    background: var(--bg-surface);
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-2);
+    margin-top: 1rem;
+}
+
+.info-card {
+    gap: 1rem;
     background: var(--bg-surface);
     padding: 2rem;
     border-radius: var(--radius);
@@ -71,25 +79,21 @@
     width: 100%;
 }
 
+.settings-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text-dark2);
+    margin: 20px 0px 8px 25px;
+    font-family: Tahoma, sans-serif;
+}
+
+
 .settings-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    margin-bottom: 30px;
     gap: 1rem;
-}
-
-.Settings-title-section {
-    flex: 1;
-}
-
-.settings-title {
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--text-dark2);
-    margin: 0 0 8px 0;
-    font-family: Tahoma, sans-serif;
 }
 
 .settings-subtitle {
