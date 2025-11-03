@@ -38,10 +38,14 @@ export async function updateDay(tripId, dayId, { day_date }) {
   return handleResponse(res);
 }
 
-export async function deleteDay(tripId, dayId) {
+export async function deleteDay(tripId, dayId, isFirstDay) {
   const res = await fetch(`${API_BASE_URL}/trips/${tripId}/days/${dayId}`, {
     method: "DELETE",
+    headers: {
+      "Content-Type": "application/json"
+    },
     credentials: "include",
+    body: JSON.stringify({ isFirstDay: isFirstDay }),
   });
   return handleResponse(res);
 }

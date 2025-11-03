@@ -407,8 +407,22 @@ export default function TripDaysPage() {
   const handleDeleteDay = async (dayId) => {
     try {
       if (openMenu === dayId) setOpenMenu(null);
-      await deleteDay(tripId, dayId);
+
+      // detects if first day is being deleted
+      const isFirstDay = days.length > 0 && dayId === days[0].day_id;
+
+      await deleteDay(tripId, dayId, isFirstDay);
       await fetchDays();
+
+      if (isFirstDay) {
+        // if first day is deleted, update trip start date
+        await updateTrip({
+          ...trip,
+          trip_start_date: days[1].day_date.split("T")[0],
+        });
+      }
+
+
       toast.success("Day has been deleted.");
     } catch (err) {
       console.error("Error deleting day:", err);
@@ -937,7 +951,7 @@ export default function TripDaysPage() {
                     className="btn-rightside"
                     type="button"
                     onClick={() => {
-                      handleDeleteDay(deleteDayId);
+                      handleDeleteDay(deleteDayId, newDayInsertBefore);
                       setDeleteDayId(null);
                     }}
                   >

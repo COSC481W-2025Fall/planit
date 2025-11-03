@@ -139,6 +139,9 @@ export const deleteDay = async (req, res) => {
   // get dayId from URL params
   const dayId = req.params.id;
 
+  const isFirstDay = req.body?.isFirstDay ?? false;
+  console.log("isFirstDay: ", isFirstDay);
+
   try {
     // get the date from the day we are deleting
     const daysToFetch = await sql`
@@ -154,7 +157,7 @@ export const deleteDay = async (req, res) => {
 
     const deletedDate = daysToFetch[0].day_date;
 
-    if (deletedDate) {
+    if (deletedDate && !isFirstDay) {
       await sql.transaction(() => [
         sql`
           DELETE FROM days
