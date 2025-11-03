@@ -1,6 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
 
 :root {
+    --sb-size: 10px;
+    --sb-thumb: var(--scrollbar-thumb);
+    --sb-track: var(--scrollbar-track);
+    --sb-thumb-hover: var(--scrollbar-thumb-hover);
+
     --accent: #1e7a3d;
     --accent-dark: #145c2c;
     --accent-lite: #e3ece6;
@@ -97,10 +102,6 @@
     --scrollbar-thumb1: #3b475b;
     --scrollbar-thumb-hover1: #4a5871;
 
-    --sb-size: 10px;
-    --sb-thumb: var(--scrollbar-thumb);
-    --sb-track: var(--scrollbar-track);
-    --sb-thumb-hover: var(--scrollbar-thumb-hover);
 
     --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.55);
     --shadow-strong: 0 8px 30px rgba(0, 0, 0, 0.6);

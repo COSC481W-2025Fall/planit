@@ -286,6 +286,7 @@ export default function TripPage() {
                                         Cancel
                                     </button>
                                     <button
+                                      className="btn-rightside"
                                         type="button"
                                         onClick={() => {
                                             handleDeleteTrip(deleteTripId);
@@ -313,7 +314,9 @@ export default function TripPage() {
                               <button type="button" onClick={() => setIsModalOpen(false)}>
                                   Cancel
                               </button>
-                               <button type="submit" form="trip-form">
+                               <button
+                                 className="btn-rightside"
+                                 type="submit" form="trip-form">
                                   Save
                               </button>
                           </>
