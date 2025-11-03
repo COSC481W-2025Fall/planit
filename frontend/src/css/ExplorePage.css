@@ -225,13 +225,7 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   opacity: 0.9;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-}
-
-/* NEW: keep the count-heart looking like the like heart */
-.trip-stats .heart-icon { stroke: currentColor; stroke-width: 2; fill: none; }
-.trip-stats .heart-icon.count { /* if you want it red, uncomment next line */
-  /* color: var(--heart); */
+  gap: 4px;
 }
 
 :root { --heart: #FF6961; }
@@ -259,6 +253,31 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
 .like-button:hover .heart-icon { fill: currentColor; }
 .like-button .heart-icon.liked { fill: currentColor; stroke: none; }
 
+.trip-stats .like-button {
+  position: static;              
+  width: 24px;                   
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  vertical-align: middle;        
+  transform: translateY(1px);    
+}
+.trip-stats .like-button .heart-icon {
+  width: 18px;                   
+  height: 18px;
+  vertical-align: middle;
+}
+.trip-stats span {
+  line-height: 1;
+}
+
 .liked-grid {
   display: flex;
   flex-wrap: wrap;
@@ -267,7 +286,6 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   padding: 0.5rem 20px 1rem;
 }
 
-/* OPTIONAL/REUSABLE: pill-style lock/unlock toggle for privacy (drop into Trip modal) */
 .privacy-toggle {
   display: inline-flex;
   border: 1px solid var(--border);

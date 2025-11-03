@@ -15,14 +15,6 @@ export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
     >
       <div className="trip-card-image" />
 
-      <button
-        className={`like-button ${liked ? "liked" : ""}`}
-        title={liked ? "Unlike" : "Like"}
-        onClick={onLike}
-      >
-        <Heart size={18} className={`heart-icon ${liked ? "liked" : ""}`} />
-      </button>
-
       <div className="trip-card-content">
         <h3 className="trip-card-title">{trip.trip_name}</h3>
 
@@ -46,8 +38,31 @@ export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
           )}
         </div>
 
-        <div className="trip-stats" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-          <Heart size={16} className="heart-icon count" aria-hidden="true" />
+        <div
+          className="trip-stats"
+          style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+        >
+          <button
+            className={`like-button ${liked ? "liked" : ""}`}
+            title={liked ? "Unlike" : "Like"}
+            onClick={onLike}
+            style={{
+              position: "static",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+              background: "transparent",
+              border: "none",
+              lineHeight: 0,
+              cursor: "pointer",
+              width: "auto",         // shrink to icon width
+              height: "auto",
+              marginLeft: "-2px"     // nudge left to align with MapPin row
+            }}
+          >
+            <Heart size={18} className={`heart-icon ${liked ? "liked" : ""}`} />
+          </button>
           <span>{trip.like_count ?? 0}</span>
         </div>
       </div>

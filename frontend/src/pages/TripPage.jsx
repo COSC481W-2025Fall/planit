@@ -214,8 +214,10 @@ export default function TripPage() {
                                   <button
                                     className="privacy-toggle-btn"
                                     title={trip.is_private ? "Unprivate" : "Private"}
+                                    disabled={isModalOpen}
                                     onClick={(e) => {
                                       e.stopPropagation();
+                                      if (isModalOpen) return;
                                       handleTogglePrivacy(trip);
                                     }}
                                   >
