@@ -17,12 +17,12 @@ export async function getDays(tripId) {
   return handleResponse(res);
 }
 
-export async function createDay(tripId, { day_date }) {
+export async function createDay(tripId, { day_date, newDayInsertBefore}) {
   const res = await fetch(`${API_BASE_URL}/trips/${tripId}/days`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ day_date }),
+    body: JSON.stringify({ day_date, newDayInsertBefore }),
   });
   return handleResponse(res);
 }

@@ -23,6 +23,7 @@ export default function TripDaysPage() {
   //constants for UI components
   const [openMenu, setOpenMenu] = useState(null);
   const [newDay, setOpenNewDay] = useState(null);
+  const [newDayInsertBefore, setNewDayInsertBefore] = useState(false);
   const [openActivitySearch, setOpenActivitySearch] = useState(false);
   const [editActivity, setEditActivity] = useState(null);
   const [editStartTime, setEditStartTime] = useState("");
@@ -126,7 +127,7 @@ export default function TripDaysPage() {
     if (baseDateStr && insertBefore) {
       const baseDate = new Date(baseDateStr);
       nextDate = new Date(baseDate);
-      nextDate.setDate(baseDate.getDate());
+      nextDate.setDate(baseDate.getDate()-1);
     } else if (baseDateStr) {
       const baseDate = new Date(baseDateStr);
       nextDate = new Date(baseDate);
@@ -142,6 +143,7 @@ export default function TripDaysPage() {
 
     const formatted = nextDate.toISOString().split("T")[0];
     setOpenNewDay(formatted);
+    setNewDayInsertBefore(insertBefore);
   };
 
   const fetchDays = async () => {
@@ -190,9 +192,10 @@ export default function TripDaysPage() {
     if (!newDay) return;
 
     try {
-      await createDay(tripId, { day_date: newDay });
+      await createDay(tripId, { day_date: newDay, newDayInsertBefore});
       await fetchDays();
       setOpenNewDay(null);
+      setNewDayInsertBefore(false);
       toast.success("New day added successfully!");
     } catch (err) {
       console.error("Error creating day:", err);
