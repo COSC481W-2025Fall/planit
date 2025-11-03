@@ -68,7 +68,7 @@ export default function TripDaysPage() {
   const menuRefs = useRef({});
   const { tripId } = useParams();
 
-  const canEdit = userRole === "owner" || userRole === "shared";
+  const canEdit = userRole === "owner" || userRole === "participant";
   const isViewer = userRole === "viewer";
 
   //responsive
