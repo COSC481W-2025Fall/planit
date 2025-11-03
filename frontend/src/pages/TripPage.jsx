@@ -6,7 +6,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
 import {createTrip, updateTrip, getTrips, deleteTrip, listParticipants, addParticipant, removeParticipant} from "../../api/trips";
-import {MapPin, Pencil, Trash, UserPlus, X} from "lucide-react";
+import {MapPin, Pencil, Trash,  Lock, Unlock, UserPlus, X} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
@@ -26,6 +26,7 @@ export default function TripPage() {
     );
     const [endDate, setEndDate] = useState(null);
     const [deleteTripId, setDeleteTripId] = useState(null);
+    const [privacyDraft, setPrivacyDraft] = useState(true);
     const [participants, setParticipants] = useState([]);
     const [participantUsername, setParticipantUsername] = useState("");
 
@@ -73,11 +74,24 @@ export default function TripPage() {
             if (editingTrip.trip_end_date) {
                 setEndDate(new Date(editingTrip.trip_end_date));
             }
+            setPrivacyDraft(editingTrip.is_private ?? true);
         } else {
             setStartDate(null);
             setEndDate(null);
+            setPrivacyDraft(true);
         }
     }, [editingTrip]);
+
+    // fully reset and close modal
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setEditingTrip(null);          // ensure next open re-initializes
+        setStartDate(null);
+        setEndDate(null);
+        setPrivacyDraft(true);         // clear any unsaved toggle
+        setParticipants([]);
+        setParticipantUsername("");
+    };
 
     //Show Loader while fetching user or trips
     if (!user || !trips) {
@@ -95,15 +109,6 @@ export default function TripPage() {
           </div>
         );
     }
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setEditingTrip(null);
-        setStartDate(null);
-        setEndDate(null);
-        setParticipants([]);
-        setParticipantUsername("");
-    };
 
     // Delete trip
     const handleDeleteTrip = async (trips_id) => {
@@ -133,7 +138,7 @@ export default function TripPage() {
                 let tripsArray = updatedTrips.trips || [];
                 setTrips(tripsArray.sort((a, b) => a.trips_id - b.trips_id));
             }
-            closeModal();
+            handleCloseModal();
         } catch (err) {
             console.error("Save trip failed:", err);
             toast.error("Could not save trip. Please try again.");
@@ -146,18 +151,14 @@ export default function TripPage() {
         setEndDate(null);
         setParticipants([]);
         setParticipantUsername("");
+        setPrivacyDraft(true);                
         setIsModalOpen(true);
     };
 
     const handleEditTrip = async (trip) => {
         setEditingTrip(trip);
-        setStartDate(new Date(trip.trip_start_date));
-        if (trip.trip_end_date) {
-            setEndDate(new Date(trip.trip_end_date));
-        } else {
-            setEndDate(null);
-        }
         setParticipants([]);
+        setPrivacyDraft(trip.is_private ?? true); 
         setIsModalOpen(true);
 
         // Fetch participants for this trip
@@ -202,6 +203,20 @@ export default function TripPage() {
 
     const handleTripRedirect = (tripId) => {
         navigate(`/days/${tripId}`);
+    };
+
+    const handleTogglePrivacy = async (trip) => {
+        const nextPrivate = !trip.is_private;
+        try {
+            await updateTrip({ trips_id: trip.trips_id, isPrivate: nextPrivate });
+            setTrips((prev) =>
+              prev.map((t) => (t.trips_id === trip.trips_id ? { ...t, is_private: nextPrivate } : t))
+            );
+            toast.success(nextPrivate ? "Trip set to private." : "Trip set to public.");
+        } catch (err) {
+            console.error("Privacy toggle failed:", err);
+            toast.error("Failed to update privacy.");
+        }
     };
 
     return (
@@ -251,6 +266,19 @@ export default function TripPage() {
                                   <div className="trip-card-image"
                                        onClick={() => handleTripRedirect(trip.trips_id)}>
                                   </div>
+
+                                  <button
+                                    className="privacy-toggle-btn"
+                                    title={trip.is_private ? "Unprivate" : "Private"}
+                                    disabled={isModalOpen}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (isModalOpen) return;
+                                      handleTogglePrivacy(trip);
+                                    }}
+                                  >
+                                    {trip.is_private ? <Lock size={16}/> : <Unlock size={16}/>}
+                                  </button>
 
                                   <button
                                     className="trip-menu-button"
@@ -338,10 +366,10 @@ export default function TripPage() {
                   {isModalOpen && (
                     <Popup
                       title=""
-                      onClose={closeModal}
+                      onClose={handleCloseModal}
                       buttons={
                           <>
-                              <button type="button" onClick={closeModal}>
+                              <button type="button" onClick={handleCloseModal}>
                                   Cancel
                               </button>
                                <button
@@ -365,7 +393,7 @@ export default function TripPage() {
                                       trip_start_date: formData.get("startDate"),
                                       trip_end_date: formData.get("endDate"),
                                       user_id: user.user_id,
-                                      isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
+                                      isPrivate: privacyDraft //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
                                   };
                                   if (editingTrip) tripData.trips_id = editingTrip.trips_id;
                                   console.log(tripData)
@@ -422,6 +450,27 @@ export default function TripPage() {
                                   name="endDate"
                                   value={endDate ? endDate.toISOString().split("T")[0] : ""}
                                 />
+                                {/* toggle for privacy of trip */}
+                                <div className="privacy-row">
+                                  <button
+                                    type="button"
+                                    onClick={() => setPrivacyDraft(true)}
+                                    title="Private"
+                                    className={`privacy-chip ${privacyDraft ? "active" : ""}`}
+                                  >
+                                    <Lock size={16}/>
+                                    <span>Private</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setPrivacyDraft(false)}
+                                    title="Public"
+                                    className={`privacy-chip ${!privacyDraft ? "active" : ""}`}
+                                  >
+                                    <Unlock size={16}/>
+                                    <span>Public</span>
+                                  </button>
+                                </div>
                                 {editingTrip && (
                                     <>
                                         <hr></hr>

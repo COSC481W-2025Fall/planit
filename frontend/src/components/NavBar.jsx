@@ -1,7 +1,7 @@
 import React from "react";
 import {NavLink} from "react-router-dom";
 import "../css/NavBar.css";
-import {Map, Settings, Users} from "lucide-react";
+import {Map, Settings, Binoculars, Users} from "lucide-react";
 
 export default function NavBar({isOpen}) {
     return (
@@ -25,6 +25,17 @@ export default function NavBar({isOpen}) {
                 >
                     <Users className="nav-icon" size={20}/>
                     <span>Shared With Me</span>
+                </NavLink>
+
+                <NavLink
+                    to="/explore"
+                    end
+                    className={({ isActive }) =>
+                        "nav-item" + (isActive ? " active" : "")
+                    }
+                >
+                    <Binoculars className="nav-icon" size={20} />
+                    <span>Explore</span>
                 </NavLink>
 
                 <NavLink

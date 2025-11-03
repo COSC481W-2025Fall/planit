@@ -12,6 +12,7 @@ import ActivityCard from "../components/ActivityCard.jsx";
 import { useParams } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
+import OverlapWarning from "../components/OverlapWarning.jsx";
 import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 
@@ -863,8 +864,16 @@ export default function TripDaysPage() {
                 formatDuration={formatDuration}
               />
 
-              <label className="popup-input">
+              <label className="popup-input" htmlFor="start-time-input">
                 <span>Start Time:</span>
+                <span>
+                  <OverlapWarning
+                    formStartTime={editStartTime}
+                    formDuration={editDuration}
+                    selectedDay={days.findIndex(d => d.day_id === editActivity.day_id) + 1}
+                    dayIds={days.map((d) => d.day_id)}
+                  />
+                </span>
                 <input className = "time-picker"
                   type="time"
                   value={editStartTime}

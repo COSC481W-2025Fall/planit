@@ -1,0 +1,348 @@
+.explore-page .main-content {
+  background: var(--bg-offwhite);
+  display: grid;
+  grid-template-columns: minmax(320px, 640px) 1fr;
+  grid-template-rows: auto auto 1fr;
+  column-gap: 20px;
+  align-items: start;
+}
+
+.trips-header {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+.tabbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 20px 12px 0; 
+  grid-column: 2;
+  grid-row: 2;            
+  align-self: center;     
+  justify-self: start;
+}
+
+.pill {
+  --pill-bg: var(--bg-surface);
+  --pill-text: var(--accent);
+  --pill-border: var(--accent);
+
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  padding: 8px 14px;
+  line-height: 1;
+  border-radius: 999px;
+  border: 1px solid var(--pill-border);
+  background: var(--pill-bg);
+  color: var(--pill-text);
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: var(--shadow-1);
+  transition: transform .15s, box-shadow .15s, background .15s, color .15s, border-color .15s;
+}
+.pill:hover { transform: translateY(-1px); box-shadow: var(--shadow-2); }
+.pill:focus { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.pill.active {
+  --pill-bg: var(--accent);
+  --pill-text: var(--bg-white);
+  --pill-border: var(--accent);
+}
+
+html[data-theme="dark"] .pill { background: var(--bg-hover2); }
+html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--bg-white); }
+
+.explore-search {
+  position: relative;
+  max-width: 640px;
+  margin-left: 20px;
+  margin-right: 0;       
+  grid-column: 1;
+  grid-row: 2;            
+  align-self: center;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.explore-search.closer { 
+  margin-top: 12px;
+  margin-bottom: 12px; 
+}
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  box-shadow: var(--shadow-1);
+}
+.search-input-wrap input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text);
+}
+
+/* Autocomplete dropdown */
+.autocomplete {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.autocomplete li {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+}
+.autocomplete li + li { border-top: 1px solid var(--border); }
+.autocomplete li:hover { background: var(--bg-offwhite); }
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 24px 20px 12px;
+}
+
+.trips-section { 
+  grid-column: 1 / -1; 
+}
+
+.carousel { position: relative; }
+
+.carousel-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 1rem 6px 1rem;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.carousel-viewport::-webkit-scrollbar { display: none; }
+
+.carousel-track {
+  display: flex;
+  gap: 15px;
+  scroll-snap-type: x mandatory;
+}
+.carousel-track > * { scroll-snap-align: start; }
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text);
+  box-shadow: var(--shadow-1);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 3;
+}
+.carousel-btn:hover { box-shadow: var(--shadow-2); }
+.carousel-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.carousel-btn svg { width: 18px; height: 18px; stroke: currentColor; }
+.carousel-btn.prev { left: 6px; }
+.carousel-btn.next { right: 6px; }
+
+html[data-theme="dark"] .carousel-btn {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-white);
+}
+html[data-theme="dark"] .carousel-btn:hover { box-shadow: var(--shadow-2); }
+html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.trip-card.public {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+  flex: 0 0 300px;
+  box-shadow: var(--shadow-4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.trip-card.public:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-5);
+}
+
+.trip-card-image {
+  background-color: var(--accent-lite);
+  height: 180px;
+  border-radius: 15px 15px 0 0;
+}
+
+.trip-card.public .trip-card-content {
+  color: var(--text);
+  background: var(--bg-surface);
+  padding: 10px 14px 14px 14px;
+}
+
+.trip-card-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-dark);
+  margin: 10px 0 6px;
+}
+
+.trip-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0.9;
+  font-size: 0.9rem;
+  color: var(--text-medium);
+}
+.trip-meta svg { vertical-align: middle; margin-right: 2px !important; }
+.trip-date, .trip-location { color: var(--text-medium); font-size: 0.9rem; }
+
+.trip-stats {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: var(--text-dark2);
+  opacity: 0.9;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+:root { --heart: #FF6961; }
+
+.like-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--heart);
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+.like-button:hover { transform: scale(1.05); }
+.like-button:focus { outline: none; box-shadow: none; }
+.like-button.liked { background: transparent !important; }
+
+.like-button .heart-icon { stroke: currentColor; stroke-width: 2; fill: none; transition: fill 150ms ease, stroke 150ms ease; }
+.like-button:hover .heart-icon { fill: currentColor; }
+.like-button .heart-icon.liked { fill: currentColor; stroke: none; }
+
+.trip-stats .like-button {
+  position: static;              
+  width: 24px;                   
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  vertical-align: middle;        
+  transform: translateY(1px);    
+}
+.trip-stats .like-button .heart-icon {
+  width: 18px;                   
+  height: 18px;
+  vertical-align: middle;
+}
+.trip-stats span {
+  line-height: 1;
+}
+
+.liked-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  padding: 0.5rem 20px 1rem;
+}
+
+.privacy-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-surface);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+.privacy-toggle .seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-medium);
+}
+.privacy-toggle .seg.active {
+  background: var(--accent);
+  color: var(--bg-white);
+}
+.privacy-toggle .seg:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/*large tablets*/
+@media (max-width: 992px) {
+ .tabbar { gap: 8px; }
+ .trip-card.public { flex-basis: clamp(240px, 46vw, 280px); }
+}
+
+/*large phones/small tablets*/
+@media (max-width: 768px) {
+ .section-title { margin: 20px 16px 10px; }
+ .tabbar { margin-inline: 16px; }
+ .explore-search { margin-inline: 16px; }
+ .trip-card.public { flex-basis: clamp(240px, 62vw, 280px); }
+ .trip-meta { gap: 8px; }
+}
+
+/*phones*/
+@media (max-width: 480px) {
+ .pill { padding: 10px 14px; font-size: 14px; }
+ .trip-card.public { flex-basis: 86vw; }
+ .trip-card-image { height: clamp(132px, 40vw, 168px); }
+}
+
+/*reduced motion*/
+@media (prefers-reduced-motion: reduce) {
+ .pill,
+ .trip-card.public,
+ .like-button,
+ .carousel-viewport {
+   transition: none !important;
+   scroll-behavior: auto !important;
+ }
+}

@@ -95,6 +95,17 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     color: var(--muted);
 }
 
+.overlap-warning {
+    color: tomato;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.overlap-items {
+    list-style-position: inside;
+}
+
 .popup-input input {
     padding: 10px 12px;
     border: 1px solid var(--border-light);
