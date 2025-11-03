@@ -1,9 +1,10 @@
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent, act } from "@testing-library/react";
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import TripPage from "../pages/TripPage";
 import * as tripsApi from "../../api/trips";
 import { MemoryRouter } from "react-router-dom";
 
+vi.spyOn(tripsApi, "getTrips").mockResolvedValueOnce([]); // empty trips to trigger empty state
 
 describe("TripPage", () => {
  beforeEach(() => {
@@ -142,4 +143,29 @@ describe("TripPage", () => {
      expect(tripsApi.deleteTrip).toHaveBeenCalledWith(123)
    );
  });
+ test("disables Save button and shows 'Saving...' during cooldown", async () => {
+  render(
+    <MemoryRouter>
+      <TripPage />
+    </MemoryRouter>
+  );
+
+  //  Wait until loader disappears (user loaded, page ready)
+  await waitFor(() => expect(screen.queryByTestId("loader")).not.toBeInTheDocument());
+
+  //  Now the DatePicker exists
+  const dateInput = screen.getByPlaceholderText("Start Date");
+  fireEvent.change(dateInput, { target: { value: "11-03-2025" } });
+
+  // Click the Save button
+  const saveButton = screen.getByRole("button", { name: "Save" });
+  fireEvent.click(saveButton);
+
+  // Immediately after clicking, button should disable and say "Saving..."
+  await waitFor(() => expect(saveButton).toBeDisabled());
+  expect(saveButton).toHaveTextContent("Saving...");
+
+  // After cooldown (1s), it should be enabled again
+  await waitFor(() => expect(saveButton).not.toBeDisabled(), { timeout: 2000 });
+});
 });
