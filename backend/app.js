@@ -16,6 +16,7 @@ import imageRoutes from "./routes/imageRoutes.js";
 import likesRoutes from "./routes/likesRoutes.js";
 import exploreRoutes from "./routes/exploreRoutes.js";
 import routesAPIRoutes from "./routes/routesAPIRoutes.js";
+import shareRoutes from "./routes/sharedTripsRoutes.js";
 
 
 const app = express();
@@ -66,5 +67,6 @@ app.use("/image", imageRoutes);
 app.use("/likes", likesRoutes);
 app.use("/explore", exploreRoutes);
 app.use("/routesAPI", routesAPIRoutes);
+app.use("/share", shareRoutes);
 
 export default app; // <- export the app for tests

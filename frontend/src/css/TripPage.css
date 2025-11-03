@@ -230,6 +230,18 @@
     box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
+.participants-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 16px;
+}
+
+.participants-list p {
+    font-size: 14px;
+    color: var(--text-medium);
+}
+
 html[data-theme="dark"] .modal-content input {
     background: var(--bg-hover2);
     color: var(--static-white);

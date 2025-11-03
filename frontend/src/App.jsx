@@ -8,6 +8,7 @@ import PublicRoute from "./components/PublicRoute";
 import SettingsPage from "./pages/SettingsPage";
 import TripDaysPage from "./pages/TripDaysPage"
 import Registration from "./pages/NewUserSignUpPage";
+import SharedTripPage from "./pages/SharedTripPage";
 
 function App() {
     return (
@@ -48,7 +49,14 @@ function App() {
                     </ProtectedRoute>
                 }
             />
-
+            <Route
+                path="/sharedTrips"
+                element={
+                    <ProtectedRoute>
+                        <SharedTripPage />
+                    </ProtectedRoute>
+                }
+            />
             <Route 
             path="/registration" 
             element={

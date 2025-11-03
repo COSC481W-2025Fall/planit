@@ -5,8 +5,8 @@ import NavBar from "../components/NavBar";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
-import {createTrip, updateTrip, getTrips, deleteTrip} from "../../api/trips";
-import {MapPin, Pencil, Trash} from "lucide-react";
+import {createTrip, updateTrip, getTrips, deleteTrip, listParticipants, addParticipant, removeParticipant} from "../../api/trips";
+import {MapPin, Pencil, Trash, UserPlus, X} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
@@ -26,6 +26,8 @@ export default function TripPage() {
     );
     const [endDate, setEndDate] = useState(null);
     const [deleteTripId, setDeleteTripId] = useState(null);
+    const [participants, setParticipants] = useState([]);
+    const [participantUsername, setParticipantUsername] = useState("");
 
     // Close dropdown if click outside
     useEffect(() => {
@@ -94,6 +96,15 @@ export default function TripPage() {
         );
     }
 
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setEditingTrip(null);
+        setStartDate(null);
+        setEndDate(null);
+        setParticipants([]);
+        setParticipantUsername("");
+    };
+
     // Delete trip
     const handleDeleteTrip = async (trips_id) => {
         try {
@@ -122,10 +133,7 @@ export default function TripPage() {
                 let tripsArray = updatedTrips.trips || [];
                 setTrips(tripsArray.sort((a, b) => a.trips_id - b.trips_id));
             }
-            setEndDate(null);
-            setStartDate(null);        
-            setEditingTrip(null);
-            setIsModalOpen(false);
+            closeModal();
         } catch (err) {
             console.error("Save trip failed:", err);
             toast.error("Could not save trip. Please try again.");
@@ -134,12 +142,62 @@ export default function TripPage() {
 
     const handleNewTrip = () => {
         setEditingTrip(null);
+        setStartDate(null);
+        setEndDate(null);
+        setParticipants([]);
+        setParticipantUsername("");
         setIsModalOpen(true);
     };
 
-    const handleEditTrip = (trip) => {
+    const handleEditTrip = async (trip) => {
         setEditingTrip(trip);
+        setStartDate(new Date(trip.trip_start_date));
+        if (trip.trip_end_date) {
+            setEndDate(new Date(trip.trip_end_date));
+        } else {
+            setEndDate(null);
+        }
+        setParticipants([]); // Clear old participants
         setIsModalOpen(true);
+
+        // Fetch participants for this trip
+        try {
+            const data = await listParticipants(trip.trips_id);
+            setParticipants(data.participants || []);
+        } catch (err) {
+            console.error("Failed to fetch participants:", err);
+            toast.error("Could not load participants.");
+        }
+    };
+
+    const handleAddParticipant = async () => {
+        if (!editingTrip || !participantUsername.trim()) return;
+
+        try {
+            await addParticipant(editingTrip.trips_id, participantUsername.trim());
+            // Re-fetch list to get the new participant
+            const data = await listParticipants(editingTrip.trips_id);
+            setParticipants(data.participants || []);
+            setParticipantUsername(""); // Clear input
+            toast.success("Participant added!");
+        } catch (err) {
+            console.error("Failed to add participant:", err);
+            toast.error(err.message || "Failed to add participant."); // Show backend error
+        }
+    };
+
+    const handleRemoveParticipant = async (username) => {
+        if (!editingTrip) return;
+
+        try {
+            await removeParticipant(editingTrip.trips_id, username);
+            // Optimistically update state
+            setParticipants(prev => prev.filter(p => p.username !== username));
+            toast.success("Participant removed!");
+        } catch (err) {
+            console.error("Failed to remove participant:", err);
+            toast.error(err.message || "Failed to remove participant.");
+        }
     };
 
     const handleTripRedirect = (tripId) => {
@@ -279,10 +337,10 @@ export default function TripPage() {
                   {isModalOpen && (
                     <Popup
                       title=""
-                      onClose={() => setIsModalOpen(false)}
+                      onClose={closeModal}
                       buttons={
                           <>
-                              <button type="button" onClick={() => setIsModalOpen(false)}>
+                              <button type="button" onClick={closeModal}>
                                   Cancel
                               </button>
                                <button type="submit" form="trip-form">
@@ -361,7 +419,49 @@ export default function TripPage() {
                                   name="endDate"
                                   value={endDate ? endDate.toISOString().split("T")[0] : ""}
                                 />
-
+                                {editingTrip && (
+                                    <>
+                                        <hr></hr>
+                                        <div className="participants-header">
+                                            <p>Participants</p>
+                                        </div>
+                                        <div className="add-participant-form">
+                                            <input
+                                                type="text"
+                                                placeholder="Enter username to add"
+                                                value={participantUsername}
+                                                onChange={(e) => setParticipantUsername(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        handleAddParticipant();
+                                                    }
+                                                }}
+                                            />
+                                            <button type="button" onClick={handleAddParticipant}>
+                                                <UserPlus size={16} /> Add
+                                            </button>
+                                        </div>
+                                        <div className="participants-list">
+                                            {participants.length === 0 ? (
+                                                <p>No other participants on this trip.</p>
+                                            ) : (
+                                                participants.map((p) => (
+                                                    <div key={p.user_id} className="participant-item">
+                                                        <span>{p.username}</span>
+                                                        <button
+                                                            type="button"
+                                                            className="remove-participant-btn"
+                                                            onClick={() => handleRemoveParticipant(p.username)}
+                                                        >
+                                                            <X size={16} />
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </>
+                                )}
                             </form>
                         </div>
                     </Popup>
