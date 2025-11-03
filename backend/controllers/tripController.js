@@ -161,7 +161,7 @@ export const updateTrip = async (req, res) => {
         if (updates.length > 0) {
             values.push(trips_id);
             values.push(userId);
-            paramCount++;
+            //paramCount++;
 
             const query = `
                 UPDATE trips 
