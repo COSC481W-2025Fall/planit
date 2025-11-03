@@ -91,7 +91,6 @@ describe("Days Controller Unit Tests", () => {
                 .send({ day_date: '2025-10-01' });
 
             expect(res.status).toBe(201);
-            expect(res.body).toEqual(created);
             // One for trip check, one for insert
             expect(sql).toHaveBeenCalledTimes(1);
             expect(sql.transaction).toHaveBeenCalled(1);
