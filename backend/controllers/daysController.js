@@ -3,7 +3,7 @@ import { sql } from "../config/db.js";
 
 // read all days for a specific trip
 export const readDays = async (req, res) => {
-  // trip is loaded by loadOwnedTrip middleware
+  // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
   }
@@ -30,9 +30,14 @@ export const readDays = async (req, res) => {
 
 // create a new day for a specific trip
 export const createDay = async (req, res) => {
-  // trip is loaded by loadOwnedTrip middleware
+  // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
+  }
+
+  // Only owners and shared users can create days
+  if (req.tripPermission === "viewer") {
+    return res.status(403).json({ error: "You don't have permission to modify this trip" });
   }
 
   // get tripId from loaded trip
@@ -75,9 +80,14 @@ export const createDay = async (req, res) => {
 
 // update an existing day for a specific trip
 export const updateDay = async (req, res) => {
-  // trip is loaded by loadOwnedTrip middleware
+  // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
+  }
+
+  // Only owners and shared users can update days
+  if (req.tripPermission === "viewer") {
+    return res.status(403).json({ error: "You don't have permission to modify this trip" });
   }
 
   // get tripId from loaded trip
@@ -112,9 +122,14 @@ export const updateDay = async (req, res) => {
 
 // delete a day for a specific trip
 export const deleteDay = async (req, res) => {
-  // trip is loaded by loadOwnedTrip middleware
+  // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
+  }
+
+  // Only owners and shared users can delete days
+  if (req.tripPermission === "viewer") {
+    return res.status(403).json({ error: "You don't have permission to modify this trip" });
   }
 
   // get tripId from loaded trip
