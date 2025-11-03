@@ -439,7 +439,7 @@ html[data-theme="dark"] .textarea-notes {
   min-width: 12.5rem;
   max-height: 100rem;
   min-height: 10rem;
-  background: rgba(0,0,0,0.06);
+  background: var(--accent-lite);
   border-radius: 0.94rem;
 }
 
