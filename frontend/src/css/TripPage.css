@@ -242,6 +242,111 @@
     color: var(--text-medium);
 }
 
+.participants-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem; 
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.participants-header p {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark2);
+    margin: 0;
+}
+
+.add-participant-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.add-participant-form input {
+    flex-grow: 1; 
+    padding: 10px 12px;
+}
+
+.add-participant-form button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 12px;
+    background: var(--accent);
+    color: var(--bg-white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.add-participant-form button:hover {
+    background: var(--accent-dark);
+    transform: translateY(-1px);
+}
+
+.participants-list {
+    max-height: 5em;
+    overflow-y: auto;
+    border: 1px solid var(--border-input);
+    border-radius: 6px;
+    background: var(--bg-input);
+    padding: 8px;
+    list-style: none;
+}
+
+.participants-list p {
+    font-size: 14px;
+    color: var(--text-medium);
+    text-align: center;
+    margin: 4px 0;
+}
+
+.participant-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.participant-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.participant-item span {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.remove-participant-btn {
+    background: none;
+    border: none;
+    color: var(--text-medium);
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background-color 0.2s;
+    border-radius: 50%;
+}
+
+.remove-participant-btn:hover {
+    color: var(--error);
+    background: var(--error-soft);
+    transform: scale(1.1);
+}
+
 html[data-theme="dark"] .modal-content input {
     background: var(--bg-hover2);
     color: var(--static-white);
@@ -280,6 +385,18 @@ html[data-theme="dark"] .modal-content input:-webkit-autofill {
 
     .trip-cards {
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+
+    .participants-list {
+        max-height: 6em;
+    }
+
+    .participants-list p {
+        font-size: 14px !important;
+    }
+
+    .participant-item span {
+        font-size: 14px;
     }
 }
 

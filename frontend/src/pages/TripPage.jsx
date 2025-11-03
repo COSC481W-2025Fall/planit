@@ -434,14 +434,8 @@ export default function TripPage() {
                                                 placeholder="Enter username to add"
                                                 value={participantUsername}
                                                 onChange={(e) => setParticipantUsername(e.target.value)}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') {
-                                                        e.preventDefault();
-                                                        handleAddParticipant();
-                                                    }
-                                                }}
                                             />
-                                            <button type="button" onClick={handleAddParticipant}>
+                                            <button type="button" className="add-participant-btn" onClick={handleAddParticipant}>
                                                 <UserPlus size={16} /> Add
                                             </button>
                                         </div>
