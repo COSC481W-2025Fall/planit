@@ -89,12 +89,14 @@ export const addParticipant = async (req, res) => {
         LIMIT 1
     `;
 
-        await sendParticipantAddedEmail({
+    /* We will try to make emails work in a future PBI
+       await sendParticipantAddedEmail({
             toEmail: user.email,
             toUsername: user.username,
             tripTitle: tripRow.trip_name,
             ownerUsername: tripRow.owner_username,
         });
+    */
 
         res.json({ message: "Participant added to shared trip." });
     }
