@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import OverlapWarning from "../components/OverlapWarning.jsx";
 import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
+import {updateTrip} from "../../api/trips.js";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -386,6 +387,12 @@ export default function TripDaysPage() {
 
     try {
       await createDay(tripId, { day_date: newDay, newDayInsertBefore});
+      if (newDayInsertBefore) {
+        await updateTrip({
+          ...trip,
+          trip_start_date: newDay,
+        });
+      }
       await fetchDays();
       setOpenNewDay(null);
       setNewDayInsertBefore(false);
@@ -580,7 +587,6 @@ export default function TripDaysPage() {
         }
 
         await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date });
-
         await fetchDays();
         toast.info("Day moved");
         setDragFromDay(null);
