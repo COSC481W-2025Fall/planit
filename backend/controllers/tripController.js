@@ -217,18 +217,49 @@ export const readTrip = async (req, res) => {
 
     try {
         const trips_id = req.params.tripId;
+        const userId = req.user.user_id;
 
-        const result = await sql`
+        // let grab the trip.
+         const tripResult = await sql`
             SELECT *
             FROM trips
-            WHERE trips_id = ${trips_id} AND user_id = ${req.user.user_id}
+            WHERE trips_id = ${trips_id}
         `;
 
-        if (result.length === 0){
+        // if we cant find the trip send a 404 to the user, FRONTEND LETS MAKE A CUSTOM 404 SCREEN IT BE COOL
+        if (tripResult.length === 0) {
             return res.status(404).json({ error: "Trip not found, read unsuccessful" });
         }
 
-        res.json(result[0]);
+        const trip = tripResult[0];
+
+        // now lets check if the user is an owner, we will know if they're a owner if their id is associated to the trip in the trips table
+        const isOwner = trip.user_id == userId;
+
+        // now lets check if the user is a participant of this certain trip.
+        const participants = await sql`
+            SELECT *
+            FROM shared
+            WHERE trip_id = ${trips_id} AND user_id = ${userId}
+        `;
+
+        const isPartipicate = participants.length > 0 ;
+
+        // Allow access if:
+        // 1. User is the owner
+        // 2. User has shared access
+        // 3. Trip is public (not private)
+        if (isOwner || isPartipicate || !trip.is_private) {
+            // Include the user's access level in the response
+            const userRole = isOwner ? 'owner' : (isPartipicate ? 'partipicate' : 'viewer');
+            
+            res.json({
+                ...trip,
+                user_role: userRole
+            });
+        } else {
+            return res.status(403).json({ error: "Access denied. You don't have permission to view this trip." });
+        }
     }
     catch (err) {
         console.error("Error reading trip:", err);
