@@ -40,6 +40,8 @@
     cursor: pointer;
     font-weight: 500;
     transition: background 0.2s, color 0.2s, transform 0.15s, box-shadow 0.15s;
+    white-space: nowrap;
+    flex: 0 0 auto;
 }
 
 .sign-out:hover {
@@ -76,6 +78,21 @@
     cursor: pointer;
     padding: 0.25rem;
 }
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.3rem;
+    width: 2.3rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text);
+    cursor: pointer;
+}
+.theme-toggle:hover {
+    box-shadow: var(--shadow-1);
+}
 
 @media (max-width: 900px) {
     .hamburger {
@@ -98,10 +115,10 @@
         height: 2rem;
     }
 }
+
 @media (max-width: 340px) {
     .sign-out {
         font-size: 0.75rem;
-        padding: 0.3rem 0.6rem;
         white-space: nowrap;
     }
 
