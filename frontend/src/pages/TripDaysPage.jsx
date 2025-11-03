@@ -328,8 +328,6 @@ export default function TripDaysPage() {
   //Drag and Drop
   const handleDayDragStart = (e, day) => {
     setDragFromDay(day);
-
-    try { e.dataTransfer.setData("text/plain", String(day)); } catch (_) {}
     e.dataTransfer.effectAllowed = "move";
   };
 
@@ -356,7 +354,6 @@ export default function TripDaysPage() {
     });
   };
 
-
   const reorderDays = async (dragFromDay, overDay) => {
     try {
       const adjustDate = (dateStr, daysToAdd) => {
@@ -369,10 +366,10 @@ export default function TripDaysPage() {
       const overDate = new Date(overDay.day_date);
 
       let reorderedFirstDay = false;
-      const isDropOnFirst = overDay.day_id === days[0].day_id;
+      const isDropOnFirstDay = overDay.day_id === days[0].day_id;
       const isDraggedFromAfterFirst = dragDate > overDate;
       const isHoveringBeforeFirst = dragOverInfo.dayId === "before-first";
-      if (isDropOnFirst && isDraggedFromAfterFirst && isHoveringBeforeFirst) {
+      if (isDropOnFirstDay && isDraggedFromAfterFirst && isHoveringBeforeFirst) {
         const first = days[0];
 
         // shift existing days forward by 1 that are before the dragged day
@@ -433,7 +430,6 @@ export default function TripDaysPage() {
         }
       }
 
-
       // Finally, update the date of the day we're dragging
       await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate });
 
@@ -443,7 +439,6 @@ export default function TripDaysPage() {
       setDragFromDay(null);
       setDragOverInfo({ dayId: null, index: null });
     } catch (error) {
-      console.error("Error reordering days:", error);
       toast.error("Error reordering days: " + error.message);
     }
   }
@@ -544,9 +539,11 @@ export default function TripDaysPage() {
                             onDragOver={(e) => handleDayDragOver(e, { day_id: 'before-first', day_date: day.day_date })}
                             onDrop={(e) => handleDayDrop(e, day)}
                         >
+                          {!dragFromDay && (
                           <button onClick={() => openAddDayPopup(day.day_date, true)}>
                             <Plus size={17} className="plus-icon"/>
                           </button>
+                              )}
                         </div>
                     )}
                     <div
