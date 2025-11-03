@@ -363,7 +363,6 @@ html[data-theme="dark"] .react-datepicker__day--keyboard-selected {
     color: var(--text-on-accent) !important;
 }
 
-
 .trip-menu-button {
     position: absolute;
     bottom: 12px;
@@ -440,3 +439,43 @@ select:focus {
     color: var(--accent);
 }
 
+/* --- moved from inline styles in TripPage.jsx --- */
+.privacy-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 4px;
+}
+
+.privacy-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-surface);
+    color: var(--text-medium);
+    font: size 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.privacy-chip.active {
+    background: var(--accent);
+    color: var(--bg-white);
+    border-color: var(--accent);
+    font-weight: 500;
+}
+
+.privacy-chip:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-1);
+}
+
+/* scale icons to match smaller text */
+.privacy-chip svg {
+  width: 14px;
+  height: 14px;
+}

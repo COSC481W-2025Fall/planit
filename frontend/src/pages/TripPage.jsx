@@ -393,21 +393,25 @@ export default function TripPage() {
                                   value={endDate ? endDate.toISOString().split("T")[0] : ""}
                                 />
 
-                                <div
-                                  style={{display: "flex", alignItems: "center", gap: "8px", margin: "8px 0 4px"}}
-                                >
-                                  <label htmlFor="privacyToggle" style={{display: "flex", alignItems: "center", gap: "8px", cursor: "pointer"}}>
-                                      <input
-                                        id="privacyToggle"
-                                        type="checkbox"
-                                        name="isPrivate"
-                                        checked={privacyDraft}
-                                        onChange={(e) => setPrivacyDraft(e.target.checked)}
-                                        style={{marginRight: "6px"}}
-                                      />
-                                      {privacyDraft ? <Lock size={16}/> : <Unlock size={16}/>}
-                                      <span>{privacyDraft ? "Private" : "Public"}</span>
-                                  </label>
+                                <div className="privacy-row">
+                                  <button
+                                    type="button"
+                                    onClick={() => setPrivacyDraft(true)}
+                                    title="Private"
+                                    className={`privacy-chip ${privacyDraft ? "active" : ""}`}
+                                  >
+                                    <Lock size={16}/>
+                                    <span>Private</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setPrivacyDraft(false)}
+                                    title="Public"
+                                    className={`privacy-chip ${!privacyDraft ? "active" : ""}`}
+                                  >
+                                    <Unlock size={16}/>
+                                    <span>Public</span>
+                                  </button>
                                 </div>
 
                             </form>

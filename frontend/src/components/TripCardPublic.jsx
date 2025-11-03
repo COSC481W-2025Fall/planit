@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, ThumbsUp, MapPin, Calendar } from "lucide-react";
+import { Heart, MapPin, Calendar } from "lucide-react";
 
 export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
   const onLike = (e) => {
@@ -47,7 +47,7 @@ export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
         </div>
 
         <div className="trip-stats" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-          <ThumbsUp size={16} />
+          <Heart size={16} className="heart-icon count" aria-hidden="true" />
           <span>{trip.like_count ?? 0}</span>
         </div>
       </div>

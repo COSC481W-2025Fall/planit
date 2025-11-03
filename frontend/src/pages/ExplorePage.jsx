@@ -184,14 +184,23 @@ export default function ExplorePage() {
   // refetch liked trips when opening Liked tab or likes change
   useEffect(() => {
     if (tab !== "liked" || !user?.user_id) return;
+    let cancelled = false;
     api
       .getLikedTripsByUser(user.user_id)
       .then((rows) => {
-        setLikedTrips(safe(rows));
-        ingestCounts(rows);
+        if (cancelled) return;
+        const safeRows = safe(rows);
+        setLikedTrips(safeRows);
+        ingestCounts(safeRows);
+        setLikedIds((prev) => {
+          const next = new Set(prev);
+          safeRows.forEach((r) => next.add(r.trips_id));
+          return next;
+        });
       })
       .catch(() => setLikedTrips([]));
-  }, [tab, user?.user_id, likedIds]);
+    return () => { cancelled = true; };
+  }, [tab, user?.user_id]);
 
   // debounced search
   useEffect(() => {
@@ -239,7 +248,7 @@ export default function ExplorePage() {
   }, [query, user?.user_id]);
 
   // like toggle
-  const handleToggleLike = async (tripId) => {
+  const handleToggleLike = async (tripId, tripData) => {
     if (!user?.user_id) {
       toast.info("Log in to like trips.");
       return;
@@ -269,9 +278,14 @@ export default function ExplorePage() {
           serverLiked ? next.add(tripId) : next.delete(tripId);
           return next;
         });
-        applyLikeToggle(tripId, !willLike); // undo the previous toggle
+        applyLikeToggle(tripId, !willLike);
         if (!serverLiked) {
+          // unliked, ensure it's removed
           setLikedTrips((prev) => prev.filter((t) => t.trips_id !== tripId));
+        } else if (serverLiked && !willLike && tripData) {
+          setLikedTrips((prev) => {
+            return prev.some((t) => t.trips_id === tripId) ? prev : [tripData, ...prev];
+          });
         }
       }
     } catch {
@@ -281,7 +295,12 @@ export default function ExplorePage() {
         willLike ? next.delete(tripId) : next.add(tripId);
         return next;
       });
-      applyLikeToggle(tripId, !willLike); // undo optimistic toggle
+      applyLikeToggle(tripId, !willLike);
+      if (!willLike && tripData) {
+        setLikedTrips((prev) => {
+          return prev.some((t) => t.trips_id === tripId) ? prev : [tripData, ...prev];
+        });
+      }
       toast.error("Could not update like.");
     } finally {
       setLiking((prev) => {
@@ -548,7 +567,7 @@ export default function ExplorePage() {
                       key={`lk-${t.trips_id}`}
                       trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
                       liked={true}
-                      onToggleLike={handleToggleLike}
+                      onToggleLike={(id) => handleToggleLike(id, t)}
                       onOpen={handleOpenTrip}
                     />
                   ))

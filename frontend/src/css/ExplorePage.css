@@ -2,6 +2,7 @@
   background: var(--bg-offwhite);
   display: grid;
   grid-template-columns: minmax(320px, 640px) 1fr;
+  grid-template-rows: auto auto 1fr;
   column-gap: 20px;
   align-items: start;
 }
@@ -19,6 +20,7 @@
   grid-column: 2;
   grid-row: 2;            
   align-self: center;     
+  justify-self: start;
 }
 
 .pill {
@@ -58,8 +60,14 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   margin-right: 0;       
   grid-column: 1;
   grid-row: 2;            
+  align-self: center;
+  margin-top: 12px;
+  margin-bottom: 12px;
 }
-.explore-search.closer { margin-top: 12px; margin-bottom: 12px; }
+.explore-search.closer { 
+  margin-top: 12px;
+  margin-bottom: 12px; 
+}
 
 .search-input-wrap {
   display: flex;
@@ -112,7 +120,9 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   margin: 24px 20px 12px;
 }
 
-.trips-section { grid-column: 1 / -1; }
+.trips-section { 
+  grid-column: 1 / -1; 
+}
 
 .carousel { position: relative; }
 
@@ -142,7 +152,6 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--bg-surface);
-  /* ensure arrow icons pick up this color */
   color: var(--text);
   box-shadow: var(--shadow-1);
   display: grid;
@@ -156,7 +165,6 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
 .carousel-btn.prev { left: 6px; }
 .carousel-btn.next { right: 6px; }
 
-/* Dark mode: use accent for better contrast on arrows */
 html[data-theme="dark"] .carousel-btn {
   background: var(--accent);
   border-color: var(--accent);
@@ -220,6 +228,12 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   gap: 6px;
 }
 
+/* NEW: keep the count-heart looking like the like heart */
+.trip-stats .heart-icon { stroke: currentColor; stroke-width: 2; fill: none; }
+.trip-stats .heart-icon.count { /* if you want it red, uncomment next line */
+  /* color: var(--heart); */
+}
+
 :root { --heart: #FF6961; }
 
 .like-button {
@@ -246,10 +260,40 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
 .like-button .heart-icon.liked { fill: currentColor; stroke: none; }
 
 .liked-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
   gap: 1.5rem;
   padding: 0.5rem 20px 1rem;
+}
+
+/* OPTIONAL/REUSABLE: pill-style lock/unlock toggle for privacy (drop into Trip modal) */
+.privacy-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-surface);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+.privacy-toggle .seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-medium);
+}
+.privacy-toggle .seg.active {
+  background: var(--accent);
+  color: var(--bg-white);
+}
+.privacy-toggle .seg:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 /*large tablets*/
@@ -267,14 +311,12 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
  .trip-meta { gap: 8px; }
 }
 
-
 /*phones*/
 @media (max-width: 480px) {
  .pill { padding: 10px 14px; font-size: 14px; }
  .trip-card.public { flex-basis: 86vw; }
  .trip-card-image { height: clamp(132px, 40vw, 168px); }
 }
-
 
 /*reduced motion*/
 @media (prefers-reduced-motion: reduce) {
