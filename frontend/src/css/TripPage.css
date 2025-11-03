@@ -226,6 +226,45 @@
     border: 1px solid var(--border-input);
     border-radius: 4px;
     font-size: 14px;
+    background: var(--bg-input);
+    color: var(--text);
+}
+
+.modal-content input::placeholder {
+    color: var(--text-placeholder);
+    opacity: 1;
+}
+
+.modal-content input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.modal-content :is(
+  input,
+  .react-datepicker__input-container input,
+  .date-input
+):focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+html[data-theme="dark"] .modal-content input {
+    background: var(--bg-hover2);
+    color: var(--static-white);
+    border-color: var(--border-input);
+}
+
+html[data-theme="dark"] .modal-content input::placeholder {
+    color: var(--text-placeholder);
+}
+
+/* Autofill (Chrome/Safari) */
+html[data-theme="dark"] .modal-content input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px var(--bg-hover2) inset;
+    -webkit-text-fill-color: var(--text-strong);
 }
 
 /* Tablets */
@@ -283,6 +322,68 @@
         font-size: 0.95rem;
     }
 }
+
+html[data-theme="dark"] .trip-page :is(
+  .search-input,
+  input[type="search"],
+  .react-datepicker__input-container input,
+  .date-input
+) {
+    background: var(--bg-hover2) !important;
+    color: var(--static-white) !important;
+    border: 1px solid var(--border-input) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .trip-page :is(
+  .search-input,
+  input[type="search"],
+  .react-datepicker__input-container input,
+  .date-input
+)::placeholder {
+    color: var(--text-placeholder) !important;
+    opacity: 1;
+}
+
+html[data-theme="dark"] .trip-page :is(
+  .search-input,
+  input[type="search"],
+  .react-datepicker__input-container input,
+  .date-input
+):-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px var(--static-white) inset !important;
+    -webkit-text-fill-color: var(--static-black) !important;
+}
+
+html[data-theme="dark"] .react-datepicker__header {
+    background: var(--bg-hover);
+    border-bottom: 1px solid var(--border-light);
+}
+
+html[data-theme="dark"] .react-datepicker,
+html[data-theme="dark"] .react-datepicker__month-container,
+html[data-theme="dark"] .react-datepicker__month {
+    background: var(--bg-hover2) !important;
+    color: var(--text-strong) !important;
+    border-color: var(--border-light) !important;
+}
+
+html[data-theme="dark"] .react-datepicker__day-name,
+html[data-theme="dark"] .react-datepicker__day {
+    color: var(--text-strong) !important;
+}
+
+html[data-theme="dark"] .react-datepicker__day:hover {
+    background: var(--accent-soft) !important;
+    color: var(--text-strong) !important;
+}
+
+html[data-theme="dark"] .react-datepicker__day--selected,
+html[data-theme="dark"] .react-datepicker__day--keyboard-selected {
+    background: var(--accent) !important;
+    color: var(--text-on-accent) !important;
+}
+
 
 .trip-menu-button {
     position: absolute;

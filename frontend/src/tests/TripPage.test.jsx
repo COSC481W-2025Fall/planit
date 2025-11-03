@@ -136,6 +136,12 @@ describe("TripPage", () => {
    fireEvent.click(screen.getByText("⋮")); // open dropdown
    fireEvent.click(screen.getByText(/Delete Trip/i));
 
+   await waitFor(() =>
+     expect(screen.getByText(/Are you sure you want to delete this trip/i)).toBeInTheDocument()
+   );
+
+   fireEvent.click(screen.getByText(/^Delete$/i));
+
 
    await waitFor(() =>
      expect(tripsApi.deleteTrip).toHaveBeenCalledWith(123)

@@ -31,6 +31,7 @@ export default function TripPage() {
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageUrls, setImageUrls] = useState({});
     const [endDate, setEndDate] = useState(null);
+    const [deleteTripId, setDeleteTripId] = useState(null);
 
     // Close dropdown if click outside
     useEffect(() => {
@@ -145,21 +146,19 @@ export default function TripPage() {
             </div>
       </div>
         );
-      }
-  
-      // Delete trip
-      const handleDeleteTrip = async (trips_id) => {
-          if (confirm("Are you sure you want to delete this trip?")) {
-              try {
-                  await deleteTrip(trips_id);
-                  setTrips(trips.filter((trip) => trip.trips_id !== trips_id));
-                  toast.success("Trip deleted successfully!");
-              } catch (err) {
-                  console.error("Delete trip failed:", err);
-                  toast.error("Failed to delete trip. Please try again.");
-              }
-          }
-      };
+    }
+
+    // Delete trip
+    const handleDeleteTrip = async (trips_id) => {
+        try {
+            await deleteTrip(trips_id);
+            setTrips(trips.filter((trip) => trip.trips_id !== trips_id));
+            toast.success("Trip deleted successfully!");
+        } catch (err) {
+            console.error("Delete trip failed:", err);
+            toast.error("Failed to delete trip. Please try again.");
+        }
+    };
 
   // Save trip (create/update)
   const handleSaveTrip = async (tripData) => {
@@ -269,65 +268,97 @@ export default function TripPage() {
                       ⋮
                     </button>
 
-                    {openDropdownId === trip.trips_id && (
-                      <div className="trip-dropdown" ref={dropdownRef}>
-                        <button
-                          className="dropdown-item edit-item"
-                          onClick={() => {
-                            handleEditTrip(trip);
-                            setOpenDropdownId(null);
-                          }}
-                        >
-                          <Pencil size={16} /> Edit Trip
-                        </button>
-                        <button
-                          className="dropdown-item delete-item"
-                          onClick={() => {
-                            handleDeleteTrip(trip.trips_id);
-                            setOpenDropdownId(null);
-                          }}
-                        >
-                          <Trash size={16} /> Delete Trip
-                        </button>
-                      </div>
-                    )}
+                                  {openDropdownId === trip.trips_id && (
+                                    <div className="trip-dropdown" ref={dropdownRef}>
+                                        <button
+                                          className="dropdown-item edit-item"
+                                          onClick={() => {
+                                              handleEditTrip(trip);
+                                              setOpenDropdownId(null);
+                                          }}
+                                        >
+                                            <Pencil size={16}/> Edit Trip
+                                        </button>
+                                        <button
+                                            className="dropdown-item delete-item"
+                                            onClick={() => {
+                                                setDeleteTripId(trip.trips_id);
+                                                setOpenDropdownId(null);
+                                            }}
+                                            >
+                                                <Trash size={16} /> Delete Trip
+                                            </button>
+                                    </div>
+                                  )}
 
-                    <div
-                      className="trip-card-content"
-                      onClick={() => handleTripRedirect(trip.trips_id)}
-                    >
-                      <h3 className="trip-card-title">{trip.trip_name}</h3>
-                      <div className="trip-location">
-                        <MapPin size={16} style={{ marginRight: "4px" }} />
-                        {trip.trip_location || "Location not set"}
+                                  <div
+                                    className="trip-card-content"
+                                    onClick={() => handleTripRedirect(trip.trips_id)}
+                                  >
+                                      <h3 className="trip-card-title">{trip.trip_name}</h3>
+                                      <div className="trip-location">
+                                          <MapPin size={16} style={{marginRight: "4px"}}/>
+                                          {trip.trip_location || "Location not set"}
+                                      </div>
+                                  </div>
+                              </div>
+                            ))
+                          )}
                       </div>
-                    </div>
                   </div>
-                ))
-              )}
-            </div>
-          </div>
+
+                    {deleteTripId && (
+                        <Popup
+                            title="Delete Trip"
+                            onClose={() => setDeleteTripId(null)}
+                            buttons={
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDeleteTripId(null)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                      className="btn-rightside"
+                                        type="button"
+                                        onClick={() => {
+                                            handleDeleteTrip(deleteTripId);
+                                            setDeleteTripId(null);
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+                                </>
+                            }
+                        >
+                            <p className="popup-body-text">
+                                Are you sure you want to delete this trip? This action cannot be undone.
+                            </p>
+                        </Popup>
+                    )}
 
                   {/* Modal for creating/editing trips */}
                   {isModalOpen && (
                     <Popup
                       title=""
+                      onClose={() => setIsModalOpen(false)}
                       buttons={
-                        <>
-                          <button
-                            type="submit"
-                            form="trip-form"
-                            disabled={isSaving}
-                            style={{
-                              opacity: isSaving ? 0.5 : 1,       // gray out when saving
-                              pointerEvents: isSaving ? "none" : "auto", // disable clicks
-                              transition: "opacity 0.3s ease",
-                            }}
-                          >
-                            {isSaving ? "Saving..." : "Save"}
-                          </button>
+                        <>                        
                               <button type="button" onClick={() => !isSaving && setIsModalOpen(false)}>
                                   Cancel
+                              </button>
+                               <button
+                                 className="btn-rightside"
+                                 type="submit" form="trip-form"
+                                 disabled={isSaving}
+                                 style={{
+                                  opacity: isSaving ? 0.5 : 1,       // gray out when saving
+                                  pointerEvents: isSaving ? "none" : "auto", // disable clicks
+                                  transition: "opacity 0.3s ease",
+                                }}
+                                 >
+                                {isSaving ? "Saving..." : "Save"}
                               </button>
                           </>
                       }
