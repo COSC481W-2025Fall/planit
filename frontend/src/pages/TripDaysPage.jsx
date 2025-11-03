@@ -59,7 +59,7 @@ export default function TripDaysPage() {
   useEffect(() => {
     try {
       localStorage.setItem("planit:expandedDays", JSON.stringify(expandedDays));
-    } catch { }
+    } catch {}
   }, [expandedDays]);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
@@ -253,7 +253,6 @@ export default function TripDaysPage() {
   async function findDistance(origin, destination, transportation, previousActivity) {
     // create cache key
     const cacheKey = `${origin.latitude},${origin.longitude}-${destination.latitude},${destination.longitude}`;
-
     // check if we already have both distances cached
     if (distanceCache.current[cacheKey]?.DRIVE && distanceCache.current[cacheKey]?.WALK) {
       const cached = distanceCache.current[cacheKey];
@@ -269,7 +268,6 @@ export default function TripDaysPage() {
 
     try {
       setDistanceLoading(true);
-
       // fetch both modes in parallel
       const [driveRes, walkRes] = await Promise.all([
         axios.post(`${BASE_URL}/routesAPI/distance/between/activity`, {
@@ -288,7 +286,6 @@ export default function TripDaysPage() {
         distanceMiles: driveRes.data.distanceMiles,
         durationMinutes: Math.round(driveRes.data.durationSeconds / 60)
       };
-
       const walkData = {
         distanceMiles: walkRes.data.distanceMiles,
         durationMinutes: Math.round(walkRes.data.durationSeconds / 60)
@@ -331,7 +328,6 @@ export default function TripDaysPage() {
         };
 
         const newTime = timeToMinutes(startTime);
-
         // find the day that contains this activity
         const currentDay = days.find(day =>
           day.activities?.some(act => act.activity_id === editActivity.activity_id)
@@ -347,7 +343,6 @@ export default function TripDaysPage() {
 
         for (let i = 0; i < dayActivities.length; i++) {
           const currActivity = dayActivities[i];
-
           // skip the activity being edited
           if (currActivity.activity_id === editActivity.activity_id) continue;
 
@@ -390,7 +385,7 @@ export default function TripDaysPage() {
 
     try {
       await createDay(tripId, { day_date: newDay });
-      await fetchDays();
+      await fetchDays(); 
       setOpenNewDay(null);
       toast.success("New day added successfully!");
     } catch (err) {
@@ -928,10 +923,9 @@ export default function TripDaysPage() {
                 onToggleTransportMode={toggleTransportMode}
                 formatDuration={formatDuration}
               />
-
               <label className="popup-input">
                 <span>Start Time:</span>
-                <input className="time-picker"
+                <input className = "time-picker"
                   type="time"
                   value={editStartTime}
                   onChange={(e) => {
