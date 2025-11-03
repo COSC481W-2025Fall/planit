@@ -157,7 +157,7 @@ export default function TripPage() {
         } else {
             setEndDate(null);
         }
-        setParticipants([]); // Clear old participants
+        setParticipants([]);
         setIsModalOpen(true);
 
         // Fetch participants for this trip
@@ -170,28 +170,28 @@ export default function TripPage() {
         }
     };
 
+    // add particpant to a trip
     const handleAddParticipant = async () => {
         if (!editingTrip || !participantUsername.trim()) return;
 
         try {
             await addParticipant(editingTrip.trips_id, participantUsername.trim());
-            // Re-fetch list to get the new participant
             const data = await listParticipants(editingTrip.trips_id);
             setParticipants(data.participants || []);
-            setParticipantUsername(""); // Clear input
+            setParticipantUsername("");
             toast.success("Participant added!");
         } catch (err) {
             console.error("Failed to add participant:", err);
-            toast.error(err.message || "Failed to add participant."); // Show backend error
+            toast.error(err.message || "Failed to add participant.");
         }
     };
 
+    // remove participant from a trip
     const handleRemoveParticipant = async (username) => {
         if (!editingTrip) return;
 
         try {
             await removeParticipant(editingTrip.trips_id, username);
-            // Optimistically update state
             setParticipants(prev => prev.filter(p => p.username !== username));
             toast.success("Participant removed!");
         } catch (err) {
@@ -316,6 +316,7 @@ export default function TripPage() {
                                         Cancel
                                     </button>
                                     <button
+                                      className="btn-rightside"
                                         type="button"
                                         onClick={() => {
                                             handleDeleteTrip(deleteTripId);
@@ -343,7 +344,9 @@ export default function TripPage() {
                               <button type="button" onClick={closeModal}>
                                   Cancel
                               </button>
-                               <button type="submit" form="trip-form">
+                               <button
+                                 className="btn-rightside"
+                                 type="submit" form="trip-form">
                                   Save
                               </button>
                           </>

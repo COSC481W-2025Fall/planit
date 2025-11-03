@@ -67,6 +67,6 @@ app.use("/image", imageRoutes);
 app.use("/likes", likesRoutes);
 app.use("/explore", exploreRoutes);
 app.use("/routesAPI", routesAPIRoutes);
-app.use("/share", shareRoutes);
+app.use("/shared" , shareRoutes)
 
 export default app; // <- export the app for tests

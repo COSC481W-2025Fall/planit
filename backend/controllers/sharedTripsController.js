@@ -1,6 +1,23 @@
 import { sql } from "../config/db.js";
 import { sendParticipantAddedEmail } from "../utils/mailer.js";
 
+export const readAllUsernames = async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ loggedIn: false });
+    }
+    try{
+        const usernames = await sql`
+            SELECT username
+            FROM users
+        `;
+
+        return res.status(200).json(usernames);
+
+    } catch (err){
+        return res.status(500).json({error: "Internal Server Error"});
+    }
+}
+
 // list all trips shared with the logged-in user
 export const readAllSharedTrips = async (req, res) => {
     if (!req.user) {

@@ -87,7 +87,7 @@ export async function deleteTrip(trips_id) {
 
 // get all trips shared with the user
 export async function getSharedTrips(user_id) {
-  const res = await fetch(`${API_BASE_URL}/share/readAllSharedTrips?user_id=${user_id}`, {
+  const res = await fetch(`${API_BASE_URL}/shared/readAllSharedTrips?user_id=${user_id}`, {
     method: "GET",
     credentials: "include",
   });
@@ -101,7 +101,7 @@ export async function getSharedTrips(user_id) {
 
 //list all participants for a trip
 export async function listParticipants(tripId) {
-  const res = await fetch(`${API_BASE_URL}/share/listParticipants?tripId=${tripId}`, {
+  const res = await fetch(`${API_BASE_URL}/shared/listParticipants?tripId=${tripId}`, {
     method: "GET",
     credentials: "include",
   });
@@ -114,7 +114,7 @@ export async function listParticipants(tripId) {
 
 // Add participant to a trip
 export async function addParticipant(tripId, username) {
-  const res = await fetch(`${API_BASE_URL}/share/addParticipant`, {
+  const res = await fetch(`${API_BASE_URL}/shared/addParticipant`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -129,7 +129,7 @@ export async function addParticipant(tripId, username) {
 
 // Remove participant from a trip
 export async function removeParticipant(tripId, username) {
-  const res = await fetch(`${API_BASE_URL}/share/removeParticipant`, {
+  const res = await fetch(`${API_BASE_URL}/shared/removeParticipant`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
