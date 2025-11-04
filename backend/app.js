@@ -16,7 +16,7 @@ import imageRoutes from "./routes/imageRoutes.js";
 import likesRoutes from "./routes/likesRoutes.js";
 import exploreRoutes from "./routes/exploreRoutes.js";
 import routesAPIRoutes from "./routes/routesAPIRoutes.js";
-import shareRoutes from "./routes/sharedTripsRoutes.js"
+import shareRoutes from "./routes/sharedTripsRoutes.js";
 
 
 const app = express();

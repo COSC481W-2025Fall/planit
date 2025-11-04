@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Car, Footprints, Plus} from "lucide-react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -17,6 +17,7 @@ import OverlapWarning from "../components/OverlapWarning.jsx";
 import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 import {updateTrip} from "../../api/trips.js";
+import {listParticipants, addParticipant, removeParticipant} from "../../api/trips";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -45,6 +46,21 @@ export default function TripDaysPage() {
   //Constants for image url
   const [imageUrl, setImageUrl] = useState(null);
   const [deleteActivity, setDeleteActivity] = useState(null);
+
+  //constants for participants
+  const [openParticipantsPopup, setOpenParticipantsPopup] = useState(false);
+  const [participants, setParticipants] = useState([]);
+  const [participantUsername, setParticipantUsername] = useState("");
+  const [allUsernames, setAllUsernames] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const participantFormRef = useRef(null);
+  const MAX_DISPLAY_PFP = 4;
+  const visibleParticipants = participants.slice(0, MAX_DISPLAY_PFP - 1);
+  const hiddenParticipants = participants.slice(MAX_DISPLAY_PFP - 1);
+  const hiddenCount = participants.length - visibleParticipants.length;
+  const hiddenUsernamesString = hiddenParticipants
+    .map(p => p.username)
+    .join('\n');
 
   // distance calculation states
   const [distanceInfo, setDistanceInfo] = useState(null);
@@ -110,6 +126,19 @@ export default function TripDaysPage() {
         if (data.loggedIn !== false) setUser(data);
       })
       .catch((err) => console.error("User fetch error:", err));
+
+    fetch(
+      (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+      "/shared/all/usernames",
+      { credentials: "include" }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setAllUsernames(data.map(u => u.username));
+        }
+      })
+      .catch((err) => console.error("Usernames fetch error:", err));
   }, []);
 
   //get the trip
@@ -214,6 +243,17 @@ export default function TripDaysPage() {
     setOpenNewDay(formatted);
     setNewDayInsertBefore(insertBefore);
   };
+
+  const handleOpenParticipantsPopup = async () => {
+    try {
+      const data = await listParticipants(trip.trips_id);
+      setParticipants(data.participants || []);
+      setOpenParticipantsPopup(true);
+    } catch (err) {
+      console.error("Failed to fetch participants:", err);
+      toast.error("Could not load participants.");
+    }
+  }
 
   const fetchDays = async () => {
     if (!tripId) return;
@@ -706,6 +746,72 @@ export default function TripDaysPage() {
     }
   }
 
+  // add particpant to a trip
+  const handleAddParticipant = async () => {
+    if (!participantUsername.trim()) return;
+
+    try {
+      await addParticipant(trip.trips_id, participantUsername.trim());
+      const data = await listParticipants(trip.trips_id);
+      setParticipants(data.participants || []);
+      setParticipantUsername("");
+      setShowSuggestions(false);
+      toast.success("Participant added!");
+    } catch (err) {
+      console.error("Failed to add participant:", err);
+      toast.error(err.message || "Failed to add participant.");
+    }
+  };
+
+  // remove participant from a trip
+  const handleRemoveParticipant = async (username) => {
+    try {
+      await removeParticipant(trip.trips_id, username);
+      setParticipants(prev => prev.filter(p => p.username !== username));
+      toast.success("Participant removed!");
+    } catch (err) {
+      console.error("Failed to remove participant:", err);
+      toast.error(err.message || "Failed to remove participant.");
+    }
+  };
+
+  // participant username suggestions
+  const participantSuggestions = useMemo(() => {
+    const q = (participantUsername || "").trim().toLowerCase();
+    if (!q) return [];
+    return allUsernames
+      .filter((name) => name.toLowerCase().includes(q))
+      .filter((name) => name !== user?.username)
+      .slice(0, 4);
+  }, [allUsernames, participantUsername, user?.username]);
+
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (participantFormRef.current && !participantFormRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    
+    if (openParticipantsPopup) {
+      document.addEventListener("mousedown", onDocClick);
+    }
+    
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, [openParticipantsPopup]);
+
+  useEffect(() => {
+    if (trip?.trips_id) {
+      listParticipants(trip.trips_id)
+        .then(data => {
+          setParticipants(data.participants || []);
+        })
+        .catch(err => {
+          // Don't toast here, as it's a background load
+          console.error("Failed to fetch participants for title display:", err);
+        });
+    }
+  }, [trip?.trips_id]);
+
   //Loading State
   if (!user || !trip) {
     return (
@@ -736,7 +842,51 @@ export default function TripDaysPage() {
       <div className="content-with-sidebar">
         <NavBar />
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
-          <h1 className="trip-title">{trip.trip_name}</h1>
+          <div className="title-div">
+            <h1 className="trip-title">{trip.trip_name}</h1>
+            <div className="participant-photos">
+              {user && (
+                user.photo ? (
+                  <img
+                    className="participant-pfp"
+                    src={user.photo}
+                    alt={user.username}
+                    title={user.username}
+                  />
+                ) : (
+                  <div className="participant-pfp placeholder" title={user.username}>
+                    {user.username?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                )
+              )}
+
+              {visibleParticipants.map(p => (
+                p.photo ? (
+                  <img
+                    key={p.user_id}
+                    className="participant-pfp"
+                    src={p.photo}
+                    alt={p.username}
+                    title={p.username}
+                  />
+                ) : (
+                  <div
+                    key={p.user_id}
+                    className="participant-pfp placeholder"
+                    title={p.username}
+                  >
+                    {p.username?.charAt(0).toUpperCase() || '?'}
+                  </div>
+                )
+              ))}
+
+              {hiddenCount > 0 && (
+                <div className="participant-pfp placeholder remainder" title={hiddenUsernamesString}>
+                  +{hiddenCount}
+                </div>
+              )}
+            </div>
+          </div>
 
           <div className="trip-info">
             <div className="trip-location">
@@ -787,9 +937,15 @@ export default function TripDaysPage() {
                   + Add Activity
                 </button>
               )}
+              <button
+                onClick={() => handleOpenParticipantsPopup()} 
+                id="participants-button">
+                <UserPlus id= "user-plus-icon" size={14}/>
+                <span>Share</span> 
+              </button>
             </div>
-          </div><
-          div className="days-scroll-zone">
+          </div>
+          <div className="days-scroll-zone">
             <div className="days-container">
             {days.length === 0 ? (
               <p className="empty-state-text">
@@ -1173,6 +1329,68 @@ export default function TripDaysPage() {
                 />
               </label>
             </Popup>
+          )}
+          {openParticipantsPopup && (
+            <Popup 
+              id="participants-popup"
+              title="Participants"
+              onClose={() => setOpenParticipantsPopup(false)}
+            >
+              <div className="add-participant-form" ref={participantFormRef}>
+                <div className="search-wrap">
+                  <input
+                    type="text"
+                    placeholder="Enter username to add"
+                    id="username-input"
+                    value={participantUsername}
+                    onChange={(e) => setParticipantUsername(e.target.value)}
+                    onFocus={() => setShowSuggestions(true)}
+                    autocapitalize="off"
+                    autocomplete="off"
+                    autocorrect="off"
+                    spellcheck="false"
+                  />
+
+                  {showSuggestions && participantSuggestions.length > 0 && (
+                    <ul className="autocomplete">
+                      {participantSuggestions.map((s, i) => (
+                        <li
+                          key={i}
+                          onClick={() => {
+                            setParticipantUsername(s);
+                            setShowSuggestions(false);
+                          }}
+                        >
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <button type="button" className="add-participant-btn" onClick={handleAddParticipant}>
+                  <UserPlus size={16} /> Add
+                </button>
+              </div>
+              <div className="participants-list">
+                {participants.length === 0 ? (
+                  <p>No other participants on this trip.</p>
+                ) : (
+                  participants.map((p) => (
+                    <div key={p.user_id} className="participant-item">
+                      <span>{p.username}</span>
+                      <button
+                        type="button"
+                        className="remove-participant-btn"
+                        onClick={() => handleRemoveParticipant(p.username)}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Popup>
+          
           )}
         </main>
 
