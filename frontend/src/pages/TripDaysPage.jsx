@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Car, Footprints, Plus, UserPlus, X} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
@@ -46,6 +46,9 @@ export default function TripDaysPage() {
   const [openParticipantsPopup, setOpenParticipantsPopup] = useState(false);
   const [participants, setParticipants] = useState([]);
   const [participantUsername, setParticipantUsername] = useState("");
+  const [allUsernames, setAllUsernames] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const participantFormRef = useRef(null);
 
   // distance calculation states
   const [distanceInfo, setDistanceInfo] = useState(null);
@@ -106,6 +109,19 @@ export default function TripDaysPage() {
         if (data.loggedIn !== false) setUser(data);
       })
       .catch((err) => console.error("User fetch error:", err));
+
+    fetch(
+      (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+      "/shared/all/usernames",
+      { credentials: "include" }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setAllUsernames(data.map(u => u.username));
+        }
+      })
+      .catch((err) => console.error("Usernames fetch error:", err));
   }, []);
 
   //get the trip
@@ -540,6 +556,7 @@ export default function TripDaysPage() {
       const data = await listParticipants(trip.trips_id);
       setParticipants(data.participants || []);
       setParticipantUsername("");
+      setShowSuggestions(false);
       toast.success("Participant added!");
     } catch (err) {
       console.error("Failed to add participant:", err);
@@ -549,7 +566,6 @@ export default function TripDaysPage() {
 
   // remove participant from a trip
   const handleRemoveParticipant = async (username) => {
-
     try {
       await removeParticipant(trip.trips_id, username);
       setParticipants(prev => prev.filter(p => p.username !== username));
@@ -559,6 +575,30 @@ export default function TripDaysPage() {
       toast.error(err.message || "Failed to remove participant.");
     }
   };
+
+  // participant username suggestions
+  const participantSuggestions = useMemo(() => {
+    const q = (participantUsername || "").trim().toLowerCase();
+    if (!q) return [];
+    return allUsernames
+      .filter((name) => name.toLowerCase().includes(q))
+      .filter((name) => name !== user?.username)
+      .slice(0, 4);
+  }, [allUsernames, participantUsername, user?.username]);
+
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (participantFormRef.current && !participantFormRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    
+    if (openParticipantsPopup) {
+      document.addEventListener("mousedown", onDocClick);
+    }
+    
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, [openParticipantsPopup]);
 
   //Loading State
   if (!user || !trip) {
@@ -985,14 +1025,33 @@ export default function TripDaysPage() {
               title="Participants"
               onClose={() => setOpenParticipantsPopup(false)}
             >
-              <div className="add-participant-form">
-                <input
-                  type="text"
-                  placeholder="Enter username to add"
-                  id="username-input"
-                  value={participantUsername}
-                  onChange={(e) => setParticipantUsername(e.target.value)}
-                />
+              <div className="add-participant-form" ref={participantFormRef}>
+                <div className="search-wrap">
+                  <input
+                    type="text"
+                    placeholder="Enter username to add"
+                    id="username-input"
+                    value={participantUsername}
+                    onChange={(e) => setParticipantUsername(e.target.value)}
+                    onFocus={() => setShowSuggestions(true)}
+                  />
+
+                  {showSuggestions && participantSuggestions.length > 0 && (
+                    <ul className="autocomplete">
+                      {participantSuggestions.map((s, i) => (
+                        <li
+                          key={i}
+                          onClick={() => {
+                            setParticipantUsername(s);
+                            setShowSuggestions(false);
+                          }}
+                        >
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
                 <button type="button" className="add-participant-btn" onClick={handleAddParticipant}>
                   <UserPlus size={16} /> Add
                 </button>

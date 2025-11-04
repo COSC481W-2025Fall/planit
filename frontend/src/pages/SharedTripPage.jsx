@@ -94,19 +94,6 @@ export default function TripPage() {
                                         <div className="trip-card-image"
                                             onClick={() => handleTripRedirect(trip.trips_id)}>
                                         </div>
-
-                                        <button
-                                            className="trip-menu-button"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setOpenDropdownId(
-                                                    openDropdownId === trip.trips_id ? null : trip.trips_id
-                                                );
-                                            }}
-                                        >
-                                            ⋮
-                                        </button>
-
                                         {openDropdownId === trip.trips_id && (
                                             <div className="trip-dropdown" ref={dropdownRef}>
                                             </div>
