@@ -51,6 +51,13 @@ export default function TripDaysPage() {
   const [allUsernames, setAllUsernames] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const participantFormRef = useRef(null);
+  const MAX_DISPLAY_PFP = 4;
+  const visibleParticipants = participants.slice(0, MAX_DISPLAY_PFP - 1);
+  const hiddenParticipants = participants.slice(MAX_DISPLAY_PFP - 1);
+  const hiddenCount = participants.length - visibleParticipants.length;
+  const hiddenUsernamesString = hiddenParticipants
+    .map(p => p.username)
+    .join('\n');
 
   // distance calculation states
   const [distanceInfo, setDistanceInfo] = useState(null);
@@ -763,6 +770,19 @@ export default function TripDaysPage() {
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [openParticipantsPopup]);
 
+  useEffect(() => {
+    if (trip?.trips_id) {
+      listParticipants(trip.trips_id)
+        .then(data => {
+          setParticipants(data.participants || []);
+        })
+        .catch(err => {
+          // Don't toast here, as it's a background load
+          console.error("Failed to fetch participants for title display:", err);
+        });
+    }
+  }, [trip?.trips_id]);
+
   //Loading State
   if (!user || !trip) {
     return (
@@ -793,7 +813,51 @@ export default function TripDaysPage() {
       <div className="content-with-sidebar">
         <NavBar />
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
-          <h1 className="trip-title">{trip.trip_name}</h1>
+          <div className="title-div">
+            <h1 className="trip-title">{trip.trip_name}</h1>
+            <div className="participant-photos">
+              {user && (
+                user.photo ? (
+                  <img
+                    className="participant-pfp"
+                    src={user.photo}
+                    alt={user.username}
+                    title={user.username}
+                  />
+                ) : (
+                  <div className="participant-pfp placeholder" title={user.username}>
+                    {user.username?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                )
+              )}
+
+              {visibleParticipants.map(p => (
+                p.photo ? (
+                  <img
+                    key={p.user_id}
+                    className="participant-pfp"
+                    src={p.photo}
+                    alt={p.username}
+                    title={p.username}
+                  />
+                ) : (
+                  <div
+                    key={p.user_id}
+                    className="participant-pfp placeholder"
+                    title={p.username}
+                  >
+                    {p.username?.charAt(0).toUpperCase() || '?'}
+                  </div>
+                )
+              ))}
+
+              {hiddenCount > 0 && (
+                <div className="participant-pfp placeholder remainder" title={hiddenUsernamesString}>
+                  +{hiddenCount}
+                </div>
+              )}
+            </div>
+          </div>
 
           <div className="trip-info">
             <div className="trip-location">
@@ -1236,6 +1300,7 @@ export default function TripDaysPage() {
           )}
           {openParticipantsPopup && (
             <Popup 
+              id="participants-popup"
               title="Participants"
               onClose={() => setOpenParticipantsPopup(false)}
             >
@@ -1248,6 +1313,10 @@ export default function TripDaysPage() {
                     value={participantUsername}
                     onChange={(e) => setParticipantUsername(e.target.value)}
                     onFocus={() => setShowSuggestions(true)}
+                    autocapitalize="off"
+                    autocomplete="off"
+                    autocorrect="off"
+                    spellcheck="false"
                   />
 
                   {showSuggestions && participantSuggestions.length > 0 && (

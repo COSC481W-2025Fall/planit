@@ -501,7 +501,41 @@ html[data-theme="dark"] .textarea-notes {
   color-scheme: light;
 }
 
+.title-div {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+}
 
+.participant-photos {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: var(--bg-surface);
+  padding: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 20px;
+}
+
+.participant-pfp {
+  height: 1.8rem;
+  width: 1.8rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-1);
+}
+
+.participant-pfp.placeholder {
+  background: var(--accent-lite);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--muted);
+}
 
 .participants-header {
     display: flex;
@@ -571,6 +605,8 @@ html[data-theme="dark"] .textarea-notes {
     background: var(--bg-input);
     padding: 8px;
     list-style: none;
+    min-height: 150px;
+    max-height: 300px;
 }
 
 .participants-list p {
@@ -578,6 +614,7 @@ html[data-theme="dark"] .textarea-notes {
     color: var(--text-medium);
     text-align: center;
     margin: 4px 0;
+    padding-top: 50px;
 }
 
 .participant-item {
@@ -713,7 +750,7 @@ html[data-theme="dark"] .time-picker {
 
   .participants-list p {
     font-size: 14px !important;
-  }
+  } 
 
   .participant-item span {
     font-size: 14px;
@@ -778,6 +815,14 @@ html[data-theme="dark"] .time-picker {
 
   .day-divider button {
     opacity: 0.5;
+  }
+
+  .participants-list {
+    min-height: 100px;
+  }
+
+  .participants-list p{
+    padding-top: 25px;
   }
 }
 
