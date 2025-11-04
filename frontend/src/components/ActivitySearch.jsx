@@ -7,6 +7,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import {Star, Car, Footprints} from "lucide-react";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
+import OverlapWarning from "./OverlapWarning.jsx";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 
 
@@ -588,8 +589,6 @@ useEffect(() => {
                                 Cancel
                             </button>
                             <button
-                              className="btn-rightside"
-                             
                                 type="button"
                                 onClick={handleSaveDetails}
                                 disabled={saving}
@@ -613,8 +612,16 @@ useEffect(() => {
               formatDuration={formatDuration}
             />
 
-                    <label className="popup-input">
+                    <label className="popup-input" htmlFor="start-time-input">
                         <span>Start time</span>
+                        <span>
+                            <OverlapWarning
+                                formStartTime={formStartTime}
+                                formDuration={formDuration}
+                                selectedDay={selectedDay}
+                                dayIds={dayIds}
+                            />
+                        </span>
                         <input className = "time-picker"
                             type="time"
                             value={formStartTime}

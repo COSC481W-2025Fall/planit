@@ -212,3 +212,26 @@ export const updateNotesForActivity = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const checkOverlappingTimes = async (req, res) => {
+    try {
+        const { dayId, proposedStartTime, proposedDuration} = req.body;
+        if (!dayId || !proposedStartTime || !proposedDuration) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+        const proposedStartTs = `${proposedStartTime}:00`;
+        const proposedDurationInterval = `${Number(proposedDuration)} minutes`;
+        const overlappingActivities = await sql`
+            SELECT * FROM activities
+            WHERE "day_id" = ${dayId}
+            AND (
+                (${proposedStartTs} < ("activity_startTime" + "activity_duration"))
+                AND ((${proposedStartTs} + ${proposedDurationInterval}::interval) > "activity_startTime")
+            );
+        `;
+        return res.status(200).json({ overlappingActivities });
+    } catch (err) {
+        console.error("Error checking overlapping times:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};

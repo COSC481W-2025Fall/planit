@@ -41,29 +41,45 @@ export const createDay = async (req, res) => {
   // validate input
   const date = req.body?.day_date || null;
 
+  const newDayInsertBefore = req.body?.newDayInsertBefore || null;
+
   // make sure we have a date
   if (!date) {
     return res.status(400).json({ error: "A valid day_date is required." });
   }
 
+
   try {
-    const results = await sql.transaction(() => [
-      // shift all existing dates forward by 1
-      sql`
+    let newDay;
+    if (!newDayInsertBefore){
+      const [rows] = await sql.transaction(() => [
+        // shift all existing dates forward by 1
+        sql`
         UPDATE days
         SET day_date = day_date + INTERVAL '1 day'
         WHERE trip_id = ${tripId} AND day_date >= ${date}
       `,
 
-      // insert new day
-      sql`
+        // insert new day
+        sql`
         INSERT INTO days (trip_id, day_date)
         VALUES (${tripId}, ${date})
         RETURNING day_id, trip_id, day_date
       `
-    ]);
+      ]);
+      newDay = rows[0];
 
-    const newDay = results[1][0];
+    } else {
+      const [rows] = await sql.transaction(() => [
+        // insert new day
+        sql`
+        INSERT INTO days (trip_id, day_date)
+        VALUES (${tripId}, ${date})
+        RETURNING day_id, trip_id, day_date
+      `
+      ]);
+      newDay = rows[0];
+    }
 
     res.status(201).json(newDay);
 
@@ -123,6 +139,9 @@ export const deleteDay = async (req, res) => {
   // get dayId from URL params
   const dayId = req.params.id;
 
+  const isFirstDay = req.body?.isFirstDay ?? false;
+  console.log("isFirstDay: ", isFirstDay);
+
   try {
     // get the date from the day we are deleting
     const daysToFetch = await sql`
@@ -138,7 +157,7 @@ export const deleteDay = async (req, res) => {
 
     const deletedDate = daysToFetch[0].day_date;
 
-    if (deletedDate) {
+    if (deletedDate && !isFirstDay) {
       await sql.transaction(() => [
         sql`
           DELETE FROM days

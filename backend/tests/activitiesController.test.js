@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'; 
 import request from 'supertest';
+import * as db from '../config/db.js';
 
 // Mock the database module
 vi.mock('@neondatabase/serverless', () => {
@@ -124,6 +125,7 @@ import express from 'express';
    readSingleActivity,
    updateActivity,
    deleteActivity,
+   checkOverlappingTimes,
  } from '../controllers/activitiesController.js';
 
  // tiny app just for Activities routes
@@ -134,6 +136,7 @@ import express from 'express';
  app.get('/activities/read/single', readSingleActivity);
  app.put('/activities/update', updateActivity);
  app.delete('/activities/delete', deleteActivity);
+ app.post('/activities/check-overlap', checkOverlappingTimes);
 
 let createdActivityId;
 
@@ -250,4 +253,46 @@ it('should add a new activity', async () => {
       .send({});
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/missing required fields/i);
+  });
+
+  //testing overlap check
+  it('should return 400 for missing required fields', async () => {
+    const res = await request(app)
+      .post('/activities/check-overlap')
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/missing required fields/i);
+  });
+
+  //testing overlap check with no overlaps
+  it('should return 200 and empty array when no overlaps', async () => {
+    const res = await request(app)
+      .post('/activities/check-overlap')
+      .send({
+        dayId: 1,
+        proposedStartTime: '09:00',
+        proposedDuration: 60,
+      });
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.overlappingActivities)).toBe(true);
+    expect(res.body.overlappingActivities.length).toBe(0);
+  });
+
+  //testing overlap check with internal server error
+  it('should return 500 if internal server error occurs', async () => {
+    vi.spyOn(db, 'sql').mockImplementationOnce(() => {
+      throw new Error('DB error');
+    });
+
+    const res = await request(app)
+      .post('/activities/check-overlap')
+      .send({
+        dayId: 1,
+        proposedStartTime: '09:00',
+        proposedDuration: 60,
+      });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/internal server error/i);
   });

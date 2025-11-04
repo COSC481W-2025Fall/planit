@@ -1,4 +1,4 @@
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent, act } from "@testing-library/react";
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import TripPage from "../pages/TripPage";
 import * as tripsApi from "../../api/trips";
@@ -145,4 +145,75 @@ describe("TripPage", () => {
      expect(tripsApi.deleteTrip).toHaveBeenCalledWith(123)
    );
  });
+ test("prevents duplicate trip updates by disabling Save button during submission", async () => {
+  const existingTrip = {
+    trips_id: 123,
+    trip_name: "Original Trip",
+    trip_location: "Original Location",
+    trip_start_date: "2025-01-01",
+    trip_end_date: "2025-01-05"
+  };
+
+  vi.spyOn(tripsApi, "getTrips").mockResolvedValue([existingTrip]);
+  
+  // Mock updateTrip with a delay
+  const updateTripSpy = vi.spyOn(tripsApi, "updateTrip").mockImplementation(() => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({}), 500);
+    });
+  });
+
+  render(
+    <MemoryRouter>
+      <TripPage />
+    </MemoryRouter>
+  );
+
+  // Wait for trip to render
+  await waitFor(() => screen.getByText("Original Trip"));
+
+  // Open dropdown and click Edit
+  fireEvent.click(screen.getByText("⋮"));
+  fireEvent.click(screen.getByText(/Edit Trip/i));
+
+  await waitFor(() => screen.getByText(/Edit Trip/i));
+
+  // Modify the trip name
+  const nameInput = screen.getByDisplayValue("Original Trip");
+  await act(async () => {
+    fireEvent.change(nameInput, { target: { value: "Updated Trip" } });
+  });
+
+  const saveButton = screen.getByRole("button", { name: /^Save$/i });
+  
+  // Click Save
+  await act(async () => {
+    fireEvent.click(saveButton);
+  });
+
+  // Verify button is disabled
+  await waitFor(() => {
+    expect(screen.getByText(/Saving.../i)).toBeInTheDocument();
+  });
+
+  // Try multiple clicks
+  const savingButton = screen.getByRole("button", { name: /Saving.../i });
+  await act(async () => {
+    fireEvent.click(savingButton);
+    fireEvent.click(savingButton);
+  });
+
+  // Verify updateTrip was only called once
+  await waitFor(() => {
+    expect(updateTripSpy).toHaveBeenCalledTimes(1);
+  }, { timeout: 3000 });
+
+  expect(updateTripSpy).toHaveBeenCalledWith(
+    expect.objectContaining({
+      trips_id: 123,
+      trip_name: "Updated Trip"
+    })
+  );
 });
+  });
+  
