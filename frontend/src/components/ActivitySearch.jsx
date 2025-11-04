@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "../css/ActivitySearch.css";
 import "../css/Popup.css";
@@ -38,7 +38,12 @@ const toPriceSymbol = (level) => {
     }
 };
 
-export default function ActivitySearch({onClose, days, dayIds = [], onActivityAdded,}) {
+export default function ActivitySearch({
+    onClose,
+    days,
+    dayIds = [],
+    onActivityAdded,
+}) {
     const [query, setQuery] = useState("");
     const [cityQuery, setCityQuery] = useState("");
     const [results, setResults] = useState([]);
@@ -46,6 +51,7 @@ export default function ActivitySearch({onClose, days, dayIds = [], onActivityAd
     const [selectedDay, setSelectedDay] = useState("");
     const [creating, setCreating] = useState(false);
     const [loading, setLoading] = useState(false);
+
     // popup state
     const [showDetails, setShowDetails] = useState(false);
     const [formStartTime, setFormStartTime] = useState("");
@@ -186,8 +192,8 @@ useEffect(() => {
             try {
                 const res = await axios.post(
                     `${BASE_URL}/placesAPI/cityAutocomplete`,
-                    {query: cityQuery},
-                    {withCredentials: true}
+                    { query: cityQuery },
+                    { withCredentials: true }
                 );
                 const suggestions = res.data.result?.suggestions || [];
                 setCityResults(suggestions.slice(0, 5));
@@ -404,7 +410,7 @@ useEffect(() => {
             const createRes = await axios.post(
                 `${BASE_URL}/activities/create`,
                 createPayload,
-                {withCredentials: true}
+                { withCredentials: true }
             );
             const created = createRes.data?.activity;
             const activityId = created?.activity_id ?? created?.id;
@@ -514,7 +520,7 @@ useEffect(() => {
                 <div className="search-results">
                     {loading ? (
                         <div className="loading-container">
-                            <MoonLoader color="var(--accent)" size={50} speedMultiplier={0.9}/>
+                            <MoonLoader color="var(--accent)" size={50} speedMultiplier={0.9} />
                         </div>
                     ) : results.length > 0 ? (
                         results.map((place, idx) => (
@@ -527,7 +533,7 @@ useEffect(() => {
                                     <p className="detail">
                                         {place.rating !== undefined ? (
                                             <span className="stars">
-                                              <Star className="star" size={16} fill="currentColor"/>
+                                                <Star className="star" size={16} fill="currentColor" />
                                                 {` ${place.rating}`}
                                             </span>
                                         ) : (
@@ -583,8 +589,16 @@ useEffect(() => {
                                 Cancel
                             </button>
                             <button
-                              className="btn-rightside"
-                              type="button" onClick={handleSaveDetails} disabled={saving}>
+                                type="button"
+                                onClick={handleSaveDetails}
+                                disabled={saving}
+                                style={{
+                                    opacity: saving ? 0.5 : 1,
+                                    pointerEvents: saving ? "none" : "auto",
+                                    cursor: saving ? "not-allowed" : "pointer",
+                                    transition: "opacity 0.3s ease"
+                                }}
+                            >
                                 {saving ? "Saving..." : "Save"}
                             </button>
                         </>

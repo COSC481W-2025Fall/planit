@@ -20,6 +20,7 @@ export default function TripPage() {
     const [editingTrip, setEditingTrip] = useState(null);
     const [openDropdownId, setOpenDropdownId] = useState(null);
     const dropdownRef = useRef(null);
+    const [isSaving, setIsSaving] = useState(false);
     const navigate = useNavigate();
     const [startDate, setStartDate] = useState(
       editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
@@ -30,33 +31,34 @@ export default function TripPage() {
 
     // Close dropdown if click outside
     useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-                setOpenDropdownId(null);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+      const handleClickOutside = (e) => {
+          if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+              setOpenDropdownId(null);
+          }
+      };
+      document.addEventListener("mousedown", 
+      handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [])
 
     // Get user details
     useEffect(() => {
-        fetch(
-          (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
-          "/auth/login/details",
-          {credentials: "include"}
-        )
-          .then((res) => res.json())
-          .then((data) => {
-              if (data.loggedIn === false) return;
-              setUser({...data});
-          })
-          .catch((err) => console.error("User fetch error:", err));
-    }, []);
+      fetch(
+        (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+        "/auth/login/details",
+        {credentials: "include"}
+      )
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.loggedIn === false) return;
+            setUser({...data});
+        })
+        .catch((err) => console.error("User fetch error:", err));
+  }, []);
 
     // Fetch trips once user is loaded
     useEffect(() => {
-        if (!user?.user_id) return;
+      if (!user?.user_id) return;
 
         getTrips(user.user_id)
           .then((data) => {
@@ -91,18 +93,18 @@ export default function TripPage() {
 
     //Show Loader while fetching user or trips
     if (!user || !trips) {
-        return (
-          <div className="trip-page">
-              <TopBanner user={user}/>
-              <div className="content-with-sidebar">
-                  <NavBar/>
-                  <div className="main-content">
-                      <div className="page-loading-container">
-                          <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
-                      </div>
-                  </div>
-              </div>
-          </div>
+      return (
+        <div className="trip-page">
+            <TopBanner user={user}/>
+            <div className="content-with-sidebar">
+                <NavBar/>
+                <div className="main-content">
+                    <div className="page-loading-container">
+                        <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
+                    </div>
+                </div>
+            </div>
+      </div>
         );
     }
 
@@ -118,16 +120,19 @@ export default function TripPage() {
         }
     };
 
-    // Save trip (create/update)
-    const handleSaveTrip = async (tripData) => {
-        try {
-            if (editingTrip) {
-                await updateTrip({...tripData, trips_id: editingTrip.trips_id});
-                toast.success("Trip updated successfully!");
-            } else {
-                await createTrip(tripData);
-                toast.success("Trip created successfully!");
-            }
+  // Save trip (create/update)
+  const handleSaveTrip = async (tripData) => {
+    if (isSaving) return;
+    setIsSaving(true);
+
+    try {
+      if (editingTrip) {
+        await updateTrip({ ...tripData, trips_id: editingTrip.trips_id });
+        toast.success("Trip updated successfully!");
+      } else {
+        await createTrip(tripData);
+        toast.success("Trip created successfully!");
+      }
 
             if (user && user.user_id) {
                 const updatedTrips = await getTrips(user.user_id);
@@ -141,6 +146,8 @@ export default function TripPage() {
         } catch (err) {
             console.error("Save trip failed:", err);
             toast.error("Could not save trip. Please try again.");
+        } finally {
+          setTimeout(() => setIsSaving(false), 1000);
         }
     };
 
@@ -174,35 +181,35 @@ export default function TripPage() {
         }
     };
 
-    return (
-      <div className="trip-page">
-          <TopBanner user={user}/>
-          <div className="content-with-sidebar">
-              <NavBar/>
-              <div className="main-content">
-                  <div className="trips-section">
-                      {/* Header row */}
-                      <div className="trips-header">
-                          <div className="trips-title-section">
-                              <div className="trips-title">
-                                  {user
-                                    ? `${user.first_name} ${user.last_name}'s Trips`
-                                    : <MoonLoader color="var(--accent)" size={30}/>}
-                              </div>
-                              <div className="trips-subtitle">
-                                  Plan and manage your upcoming trips
-                              </div>
-                          </div>
+  return (
+    <div className="trip-page">
+      <TopBanner user={user} />
+      <div className="content-with-sidebar">
+        <NavBar />
+        <div className="main-content">
+          <div className="trips-section">
+            {/* Header row */}
+            <div className="trips-header">
+              <div className="trips-title-section">
+                <div className="trips-title">
+                  {user
+                    ? `${user.first_name} ${user.last_name}'s Trips`
+                    : <MoonLoader color="var(--accent)" size={30} />}
+                </div>
+                <div className="trips-subtitle">
+                  Plan and manage your upcoming trips
+                </div>
+              </div>
 
-                          <div className="banner-controls">
-                              <button className="new-trip-button" onClick={handleNewTrip}>
-                                  + New Trip
-                              </button>
-                              <button className="filter-button">
-                                  <span className="filter-icon"></span> Filter
-                              </button>
-                          </div>
-                      </div>
+              <div className="banner-controls">
+                <button className="new-trip-button" onClick={handleNewTrip}>
+                  + New Trip
+                </button>
+                <button className="filter-button">
+                  <span className="filter-icon"></span> Filter
+                </button>
+              </div>
+            </div>
 
                       {/* Trip cards */}
                       <div className="trip-cards">
@@ -323,15 +330,22 @@ export default function TripPage() {
                       title=""
                       onClose={handleCloseModal}
                       buttons={
-                          <>
-                              <button type="button" onClick={handleCloseModal}>
+                        <>
+                          <button
+                            type="submit"
+                            form="trip-form"
+                            disabled={isSaving}
+                            style={{
+                              opacity: isSaving ? 0.5 : 1,       // gray out when saving
+                              pointerEvents: isSaving ? "none" : "auto", // disable clicks
+                              transition: "opacity 0.3s ease",
+                            }}
+                          >
+                            {isSaving ? "Saving..." : "Save"}
+                          </button>
+                              <button type="button" onClick={() => !isSaving && setIsModalOpen(false)}>
                                   Cancel
-                              </button>
-                               <button
-                                 className="btn-rightside"
-                                 type="submit" form="trip-form">
-                                  Save
-                              </button>
+                              </button>                           
                           </>
                       }
                     >
