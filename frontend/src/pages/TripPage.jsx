@@ -6,7 +6,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
 import {createTrip, updateTrip, getTrips, deleteTrip} from "../../api/trips";
-import {MapPin, Pencil, Trash, Lock, Unlock} from "lucide-react"; 
+import {MapPin, Pencil, Trash,  Lock, Unlock, UserPlus, X} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
@@ -139,10 +139,7 @@ export default function TripPage() {
                 let tripsArray = updatedTrips.trips || [];
                 setTrips(tripsArray.sort((a, b) => a.trips_id - b.trips_id));
             }
-            setEndDate(null);
-            setStartDate(null);        
-            setEditingTrip(null);
-            setIsModalOpen(false);
+            handleCloseModal();
         } catch (err) {
             console.error("Save trip failed:", err);
             toast.error("Could not save trip. Please try again.");
@@ -153,11 +150,13 @@ export default function TripPage() {
 
     const handleNewTrip = () => {
         setEditingTrip(null);
+        setStartDate(null);
+        setEndDate(null);
         setPrivacyDraft(true);                
         setIsModalOpen(true);
     };
 
-    const handleEditTrip = (trip) => {
+    const handleEditTrip = async (trip) => {
         setEditingTrip(trip);
         setPrivacyDraft(trip.is_private ?? true); 
         setIsModalOpen(true);
@@ -419,7 +418,6 @@ export default function TripPage() {
                                   name="endDate"
                                   value={endDate ? endDate.toISOString().split("T")[0] : ""}
                                 />
-
                                 <div className="privacy-row">
                                   <button
                                     type="button"
@@ -440,7 +438,6 @@ export default function TripPage() {
                                     <span>Public</span>
                                   </button>
                                 </div>
-
                             </form>
                         </div>
                     </Popup>

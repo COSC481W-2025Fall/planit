@@ -269,6 +269,7 @@ html[data-theme="dark"] .modal-content input:-webkit-autofill {
     .trip-cards {
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     }
+
 }
 
 /* Mobile */

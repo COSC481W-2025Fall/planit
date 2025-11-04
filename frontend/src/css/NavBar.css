@@ -1,5 +1,5 @@
 .sidebar {
-    width: 11.5rem;
+    width: 11.74rem;
     min-height: 100%;
     background: var(--bg-surface);
     border-right: 1px solid var(--border);
@@ -73,7 +73,7 @@
 
 @media (max-width: 600px) {
     .sidebar {
-        width: 10rem;
+        width: 11.53rem;
     }
 
     .nav-item {

@@ -173,6 +173,10 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     background-color: var(--accent);
 }
 
+ #participants-popup {
+    max-width: 500px !important;
+ }
+
 /*Responsive*/
 @media (max-width: 768px) {
     .popup-screen-overlay {
