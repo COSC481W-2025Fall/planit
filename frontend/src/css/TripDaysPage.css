@@ -990,7 +990,16 @@ html[data-theme="dark"] .time-picker {
     display: none;
   }
 }
-
+@media (max-width: 600px) {
+  .image-banner { height: auto; }
+  .image-banner img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    margin-bottom: 1rem;
+  }
+}
 .distance-display {
   display: flex;
   align-items: center;
