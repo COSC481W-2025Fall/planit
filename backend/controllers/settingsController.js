@@ -66,9 +66,9 @@ export const getTotalLikes = async (req, res) => {
         }
         //selects all likes that belong to the userID taken
         const likes = await sql`
-        SELECT COUNT(l.like_id) AS total_likes
+        SELECT COUNT(l.trip_id) AS total_likes
         FROM likes AS L
-        JOIN trips AS T ON L.trip_id = T.trip_id
+        JOIN trips AS T ON L.trip_id = T.trips_id
         WHERE T.user_id = ${userID};
         `;  
         //returns total likes in json
