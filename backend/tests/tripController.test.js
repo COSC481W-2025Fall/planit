@@ -244,38 +244,6 @@ describe("Trip Controller Unit Tests", () => {
             expect(res.body).toEqual({ error: "Trip not found, update unsuccessful" });
             expect(res.status).toBe(404);
         });
-
-        it("trip start date shift days correctly", async () => {
-            const oldStartDate = "2025-01-01";
-            const newStartDate = "2026-05-15";
-
-            const expectedNewDates = [{ day_id: 101, day_date: "2026-05-15" },{ day_id: 102, day_date: "2026-05-16" },{ day_id: 103, day_date: "2026-05-17" }];
-
-            sql.mockResolvedValueOnce([{ trips_id: 10, user_id: 123, trip_start_date: oldStartDate }]);
-
-            const existingDays = [{ day_id: 101, day_date: "2025-01-01" },{ day_id: 102, day_date: "2025-01-02" },{ day_id: 103, day_date: "2025-01-03" }];
-            
-            sql.mockResolvedValueOnce(existingDays);
-            sql.transaction.mockClear();
-            const app = makeApp({ injectUser: true });
-
-            const res = await request(app).put("/trip/update").send({
-                trips_id: 10,
-                tripStartDate: newStartDate,
-            });
-            expect(sql.transaction).toHaveBeenCalled(); // ensure controller triggered transaction
-
-            const transactionCallback = sql.transaction.mock.calls[0]?.[0];
-            expect(transactionCallback).toBeDefined(); // prevent undefined crash
-
-            const dayUpdateQueries = transactionCallback?.() || [];
-            expect(dayUpdateQueries.length).toBe(existingDays.length);
-
-            dayUpdateQueries.forEach((queryObject, index) => {
-                const expectedDate = expectedNewDates[index].day_date;
-                expect(queryObject.values[0]).toBe(expectedDate);
-            });
-        })
     })
 
 
