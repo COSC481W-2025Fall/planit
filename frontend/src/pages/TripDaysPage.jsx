@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Car, Footprints, Plus} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
+import "../css/ImageBanner.css";
 import "../css/Popup.css";
 import Popup from "../components/Popup";
 import ActivitySearch from "../components/ActivitySearch.jsx";
@@ -37,7 +38,6 @@ export default function TripDaysPage() {
   const [openNotesPopup, setOpenNotesPopup] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [editableNote, setEditableNote] = useState("");
-  const [isAddCooldown, setIsAddCooldown] = useState(false);
   //Constants for image url
   const [imageUrl, setImageUrl] = useState(null);
   const [deleteActivity, setDeleteActivity] = useState(null);
@@ -399,8 +399,6 @@ export default function TripDaysPage() {
 
   //add a new day
   const handleAddDay = async () => {
-    if (isAddCooldown) return; // stop if still in cooldown
-    setIsAddCooldown(true);    // start cooldown
     if (!newDay) return;
 
     try {
@@ -412,10 +410,7 @@ export default function TripDaysPage() {
     } catch (err) {
       console.error("Error creating day:", err);
       toast.error("Failed to add day. Please try again.");
-    } finally {
-      // end cooldown after 3 seconds
-      setTimeout(() => setIsAddCooldown(false), 3000);
-    }
+    } 
 
   };
 
@@ -612,6 +607,7 @@ export default function TripDaysPage() {
             <img
             src={imageUrl}
             alt={trip.trip_name}
+            id={`image${trip.image_id}`}
             // Not sure if it's possible to style this better given the ratio constraints of the image-banner box.
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
       />
@@ -793,12 +789,7 @@ export default function TripDaysPage() {
                   <button
                     type="button"
                     className="btn-rightside"
-                    onClick={handleAddDay}
-                    disabled={isAddCooldown}
-                    style={{
-                      opacity: isAddCooldown ? 0.5 : 1,
-                      pointerEvents: isAddCooldown ? "none" : "auto",
-                    }}
+                    onClick={handleAddDay}                 
                   >
                     Add +
                   </button>                               

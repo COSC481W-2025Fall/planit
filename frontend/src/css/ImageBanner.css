@@ -1,5 +1,168 @@
+/*Flower Default image*/
+#image1
+{
+    border-radius: 0.94rem;
+    object-position: -3px -100px;
+}
+/*Canyon*/
+#image2
+{
+    border-radius: 0.94rem;
+
+}
+/*Ancient Ruins*/
+#image3
+{
+    border-radius: 0.94rem;
+
+}
+/* Country Side */
+#image4
+{
+    border-radius: 0.94rem;
+
+}
+/*Beach*/
+#image5
+{
+    border-radius: 0.94rem;
+
+}
+/*Downtown*/
+#image6
+{
+    border-radius: 0.94rem;
+    object-position: 0px -390px;
+}
+@media (max-width: 768px) {
+    #image6 {
+      object-position: 0px 0px; 
+      object-fit: cover; 
+
+    }
+}
+/*European City*/
+#image7
+{
+    border-radius: 0.94rem;
+    object-position: 0px -369px;
+
+}
+@media (max-width: 768px) {
+    #image7 {
+      object-position: 0px 0px; 
+      object-fit: cover; 
+
+    }
+}
+/* Mountains */
+#image8
+{
+    border-radius: 0.94rem;
+
+}
+/* Boats*/
+#image9
+{
+    border-radius: 0.94rem;
+
+}
 
 #image10
 {
-    object-position: -4px 1px;
+    object-position: -3px -127px;
+    border-radius: 0.94rem;
+
+
 }
+/*Mediterranean*/
+#image11
+{
+    border-radius: 0.94rem;
+
+}
+/*pool*/
+#image12
+{
+    border-radius: 0.94rem;
+
+}
+/*Ski image*/
+#image13
+{
+    border-radius: 0.94rem;
+    object-position: 5px -315px;
+}
+@media (max-width: 768px) {
+    #image13 {
+      object-position: 0px 0px; 
+      object-fit: cover; 
+
+    }
+}
+/*Desert*/
+#image14
+{
+    border-radius: 0.94rem;
+    object-position: 3px -120px;
+
+
+}
+@media (max-width: 768px) {
+    #image14 {
+      object-position: 0px 0px; 
+      object-fit: cover; 
+
+    }
+}
+/*Safari*/
+#image15
+{
+    border-radius: 0.94rem;
+
+}
+/*Rainforest*/
+#image16
+{
+    border-radius: 0.94rem;
+
+}
+/* Snowy Forest*/
+#image17
+{
+    border-radius: 0.94rem;
+
+}
+/*Volcano*/
+#image18
+{
+    border-radius: 0.94rem;
+
+}
+/*Waterfall*/
+#image19
+{
+    border-radius: 0.94rem;
+
+}
+/*Beach*/
+#image20
+{
+    border-radius: 0.94rem;
+
+}
+/*City*/
+#image21
+{
+    border-radius: 0.94rem;
+
+}
+/* Mobile view */
+@media (max-width: 768px) {
+    #image10 {
+      object-position: 0px -10px; 
+      object-fit: cover; 
+
+    }
+  }
+  

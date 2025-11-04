@@ -162,8 +162,6 @@ export default function TripPage() {
 
   // Save trip (create/update)
   const handleSaveTrip = async (tripData) => {
-    if (isSaving) return;
-    setIsSaving(true);
 
     try {
       if (editingTrip) {
@@ -186,9 +184,7 @@ export default function TripPage() {
         } catch (err) {
             console.error("Save trip failed:", err);
             toast.error("Could not save trip. Please try again.");
-        } finally {
-          setTimeout(() => setIsSaving(false), 1000);
-        }
+        } 
     };
 
   const handleNewTrip = () => {
@@ -350,15 +346,9 @@ export default function TripPage() {
                               </button>
                                <button
                                  className="btn-rightside"
-                                 type="submit" form="trip-form"
-                                 disabled={isSaving}
-                                 style={{
-                                  opacity: isSaving ? 0.5 : 1,       // gray out when saving
-                                  pointerEvents: isSaving ? "none" : "auto", // disable clicks
-                                  transition: "opacity 0.3s ease",
-                                }}
+                                 type="submit" form="trip-form"                               
                                  >
-                                {isSaving ? "Saving..." : "Save"}
+                                Save
                               </button>
                           </>
                       }

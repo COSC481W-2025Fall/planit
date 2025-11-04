@@ -7,8 +7,6 @@ import { MemoryRouter } from "react-router-dom";
 describe("TripPage", () => {
  beforeEach(() => {
    vi.restoreAllMocks();
-
-
    // Mock fetch for login details
    global.fetch = vi.fn((url) => {
      if (url.includes("/auth/login/details")) {
