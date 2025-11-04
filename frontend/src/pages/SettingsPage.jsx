@@ -156,7 +156,7 @@ export default function SettingsPage() {
                     {/* Header row */}
                     <div className="settings-header">
                         <div className="settingss-title-section">
-                            <div className="settings-title">Settings</div>
+                            <div className="settings-title" data-testid="settings-title">Settings</div>
                         </div>
                     </div>
 
