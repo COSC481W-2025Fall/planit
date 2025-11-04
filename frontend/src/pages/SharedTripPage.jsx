@@ -19,6 +19,9 @@ export default function TripPage() {
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
 
+    // images for trip cards
+    const [imageUrls, setImageUrls] = useState({})
+
     // Get user details
     useEffect(() => {
         fetch(
@@ -49,6 +52,33 @@ export default function TripPage() {
     const handleTripRedirect = (tripId) => {
         navigate(`/days/${tripId}`);
     };
+
+    useEffect(() => {
+        if (!trips || trips.length === 0) return;
+
+        const fetchImages = async () => {
+            const newImageUrls = {};
+
+            for (const trip of trips) {
+                if (!trip.image_id || trip.image_id === 0) continue;
+
+                try {
+                    const res = await fetch(
+                        `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
+                        { credentials: "include" }
+                    );
+
+                    const data = await res.json();
+                    newImageUrls[trip.trips_id] = data.imageUrl;
+                } catch (err) {
+                    console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
+                }
+            }
+            setImageUrls(newImageUrls);
+        };
+
+        fetchImages();
+    }, [trips]);
 
     return (
         <div className="trip-page">
@@ -93,6 +123,11 @@ export default function TripPage() {
                                     <div key={trip.trips_id} className="trip-card">
                                         <div className="trip-card-image"
                                             onClick={() => handleTripRedirect(trip.trips_id)}>
+                                            <img
+                                                src={imageUrls[trip.trips_id]}
+                                                alt={trip.trip_name}
+                                                className="trip-card-img"
+                                            />
                                         </div>
                                         {openDropdownId === trip.trips_id && (
                                             <div className="trip-dropdown" ref={dropdownRef}>
