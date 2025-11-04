@@ -4,31 +4,36 @@ import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 
 export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
   const [imageUrl, setImageUrl] = useState(null);
+  const [imageFetched, setImageFetched] = useState(false);
 
   const onLike = (e) => {
     e.stopPropagation();
     onToggleLike?.(trip.trips_id);
   };
 
-  //Retrieve image
   useEffect(() => {
     const fetchImage = async () => {
+      // Don't refetch if the image has already been fetched
+      if (imageFetched) return;
+
       try {
-        //console.log("This is the trip: ", trip);
         const res = await fetch(
           `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
           { credentials: "include" }
         );
+        if (!res.ok) throw new Error("Failed to fetch image");
 
         const data = await res.json();
         setImageUrl(data.imageUrl);
+        setImageFetched(true);
       } catch (err) {
         console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
       }
     };
 
     fetchImage();
-  }, [trip]);
+
+  }, [trip, imageFetched]);
 
   return (
     <div
