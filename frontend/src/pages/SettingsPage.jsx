@@ -35,7 +35,6 @@ export default function SettingsPage() {
             const loadStats = async () => {
                 try {
                     const statsData = await fetchUserStats(user.user_id);
-                    console.log("Fetched stats:", statsData);
                     setStats(statsData);
                 } catch (err) {
                     console.error("Error loading stats:", err);
