@@ -429,8 +429,7 @@ export default function TripPage() {
                                       trip_name: formData.get("name"),
                                       trip_location: formData.get("location"),
                                       trip_start_date: formData.get("startDate"),
-                                      image_id: selectedImage ? selectedImage.image_id : 1,
-                                      trip_end_date: formData.get("endDate"),
+                                      image_id: selectedImage ? selectedImage.image_id : (editingTrip?.image_id ?? 1),                                      trip_end_date: formData.get("endDate"),
                                       user_id: user.user_id,
                                       isPrivate: privacyDraft //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
                                   };
