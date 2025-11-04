@@ -2,11 +2,12 @@
   background: var(--bg-offwhite);
   display: grid;
   grid-template-columns: minmax(320px, 640px) 1fr;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto;
+  grid-auto-rows: auto;
   column-gap: 20px;
   align-items: start;
+  align-content: start;
 }
-
 .trips-header {
   grid-column: 1 / -1;
   grid-row: 1;
@@ -314,35 +315,40 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-/*large tablets*/
+/* large tablets */
 @media (max-width: 992px) {
- .tabbar { gap: 8px; }
- .trip-card.public { flex-basis: clamp(240px, 46vw, 280px); }
+  .tabbar { gap: 8px; }
+  .trip-card.public { flex-basis: clamp(240px, 46vw, 280px); }
 }
 
-/*large phones/small tablets*/
+/* large phones / small tablets */
 @media (max-width: 768px) {
- .section-title { margin: 20px 16px 10px; }
- .tabbar { margin-inline: 16px; }
- .explore-search { margin-inline: 16px; }
- .trip-card.public { flex-basis: clamp(240px, 62vw, 280px); }
- .trip-meta { gap: 8px; }
+  .section-title { margin: 20px 16px 10px; }
+
+  .tabbar {
+    margin-inline: 16px;
+    grid-column: 1;
+    grid-row: 3;
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .explore-search {
+    margin-inline: 16px;
+    grid-column: 1;
+    grid-row: 2;
+    max-width: 100%;
+  }
+
+  .trip-card.public { flex-basis: clamp(240px, 80vw, 280px); }
+  .trip-meta { gap: 8px; }
 }
 
-/*phones*/
+/* phones */
 @media (max-width: 480px) {
- .pill { padding: 10px 14px; font-size: 14px; }
- .trip-card.public { flex-basis: 86vw; }
- .trip-card-image { height: clamp(132px, 40vw, 168px); }
-}
-
-/*reduced motion*/
-@media (prefers-reduced-motion: reduce) {
- .pill,
- .trip-card.public,
- .like-button,
- .carousel-viewport {
-   transition: none !important;
-   scroll-behavior: auto !important;
- }
+  .pill { padding: 10px 14px; font-size: 14px; }
+  .trip-card.public { flex-basis: 88vw; }
+  .trip-card-image { height: clamp(132px, 40vw, 168px); }
+  .tabbar { margin: 8px 12px 0; flex-wrap: wrap; }
+  .explore-search { margin: 12px; max-width: 100%; }
 }
