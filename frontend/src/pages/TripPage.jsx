@@ -6,7 +6,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
 import {createTrip, updateTrip, getTrips, deleteTrip} from "../../api/trips";
-import {MapPin, Pencil, Trash} from "lucide-react";
+import {MapPin, Pencil, Trash, Lock, Unlock} from "lucide-react"; 
 import {useNavigate} from "react-router-dom";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
@@ -20,42 +20,45 @@ export default function TripPage() {
     const [editingTrip, setEditingTrip] = useState(null);
     const [openDropdownId, setOpenDropdownId] = useState(null);
     const dropdownRef = useRef(null);
+    const [isSaving, setIsSaving] = useState(false);
     const navigate = useNavigate();
     const [startDate, setStartDate] = useState(
       editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
     );
     const [endDate, setEndDate] = useState(null);
     const [deleteTripId, setDeleteTripId] = useState(null);
+    const [privacyDraft, setPrivacyDraft] = useState(true);
 
     // Close dropdown if click outside
     useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-                setOpenDropdownId(null);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+      const handleClickOutside = (e) => {
+          if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+              setOpenDropdownId(null);
+          }
+      };
+      document.addEventListener("mousedown", 
+      handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [])
 
     // Get user details
     useEffect(() => {
-        fetch(
-          (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
-          "/auth/login/details",
-          {credentials: "include"}
-        )
-          .then((res) => res.json())
-          .then((data) => {
-              if (data.loggedIn === false) return;
-              setUser({...data});
-          })
-          .catch((err) => console.error("User fetch error:", err));
-    }, []);
+      fetch(
+        (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+        "/auth/login/details",
+        {credentials: "include"}
+      )
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.loggedIn === false) return;
+            setUser({...data});
+        })
+        .catch((err) => console.error("User fetch error:", err));
+  }, []);
 
     // Fetch trips once user is loaded
     useEffect(() => {
-        if (!user?.user_id) return;
+      if (!user?.user_id) return;
 
         getTrips(user.user_id)
           .then((data) => {
@@ -71,26 +74,37 @@ export default function TripPage() {
             if (editingTrip.trip_end_date) {
                 setEndDate(new Date(editingTrip.trip_end_date));
             }
+            setPrivacyDraft(editingTrip.is_private ?? true);
         } else {
             setStartDate(null);
             setEndDate(null);
+            setPrivacyDraft(true);
         }
     }, [editingTrip]);
 
+    // fully reset and close modal
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setEditingTrip(null);          // ensure next open re-initializes
+        setStartDate(null);
+        setEndDate(null);
+        setPrivacyDraft(true);         // clear any unsaved toggle
+    };
+
     //Show Loader while fetching user or trips
     if (!user || !trips) {
-        return (
-          <div className="trip-page">
-              <TopBanner user={user}/>
-              <div className="content-with-sidebar">
-                  <NavBar/>
-                  <div className="main-content">
-                      <div className="page-loading-container">
-                          <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
-                      </div>
-                  </div>
-              </div>
-          </div>
+      return (
+        <div className="trip-page">
+            <TopBanner user={user}/>
+            <div className="content-with-sidebar">
+                <NavBar/>
+                <div className="main-content">
+                    <div className="page-loading-container">
+                        <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
+                    </div>
+                </div>
+            </div>
+      </div>
         );
     }
 
@@ -106,16 +120,19 @@ export default function TripPage() {
         }
     };
 
-    // Save trip (create/update)
-    const handleSaveTrip = async (tripData) => {
-        try {
-            if (editingTrip) {
-                await updateTrip({...tripData, trips_id: editingTrip.trips_id});
-                toast.success("Trip updated successfully!");
-            } else {
-                await createTrip(tripData);
-                toast.success("Trip created successfully!");
-            }
+  // Save trip (create/update)
+  const handleSaveTrip = async (tripData) => {
+    if (isSaving) return;
+    setIsSaving(true);
+
+    try {
+      if (editingTrip) {
+        await updateTrip({ ...tripData, trips_id: editingTrip.trips_id });
+        toast.success("Trip updated successfully!");
+      } else {
+        await createTrip(tripData);
+        toast.success("Trip created successfully!");
+      }
 
             if (user && user.user_id) {
                 const updatedTrips = await getTrips(user.user_id);
@@ -129,16 +146,20 @@ export default function TripPage() {
         } catch (err) {
             console.error("Save trip failed:", err);
             toast.error("Could not save trip. Please try again.");
+        } finally {
+          setTimeout(() => setIsSaving(false), 1000);
         }
     };
 
     const handleNewTrip = () => {
         setEditingTrip(null);
+        setPrivacyDraft(true);                
         setIsModalOpen(true);
     };
 
     const handleEditTrip = (trip) => {
         setEditingTrip(trip);
+        setPrivacyDraft(trip.is_private ?? true); 
         setIsModalOpen(true);
     };
 
@@ -146,35 +167,49 @@ export default function TripPage() {
         navigate(`/days/${tripId}`);
     };
 
-    return (
-      <div className="trip-page">
-          <TopBanner user={user}/>
-          <div className="content-with-sidebar">
-              <NavBar/>
-              <div className="main-content">
-                  <div className="trips-section">
-                      {/* Header row */}
-                      <div className="trips-header">
-                          <div className="trips-title-section">
-                              <div className="trips-title">
-                                  {user
-                                    ? `${user.first_name} ${user.last_name}'s Trips`
-                                    : <MoonLoader color="var(--accent)" size={30}/>}
-                              </div>
-                              <div className="trips-subtitle">
-                                  Plan and manage your upcoming trips
-                              </div>
-                          </div>
+    const handleTogglePrivacy = async (trip) => {
+        const nextPrivate = !trip.is_private;
+        try {
+            await updateTrip({ trips_id: trip.trips_id, isPrivate: nextPrivate });
+            setTrips((prev) =>
+              prev.map((t) => (t.trips_id === trip.trips_id ? { ...t, is_private: nextPrivate } : t))
+            );
+            toast.success(nextPrivate ? "Trip set to private." : "Trip set to public.");
+        } catch (err) {
+            console.error("Privacy toggle failed:", err);
+            toast.error("Failed to update privacy.");
+        }
+    };
 
-                          <div className="banner-controls">
-                              <button className="new-trip-button" onClick={handleNewTrip}>
-                                  + New Trip
-                              </button>
-                              <button className="filter-button">
-                                  <span className="filter-icon"></span> Filter
-                              </button>
-                          </div>
-                      </div>
+  return (
+    <div className="trip-page">
+      <TopBanner user={user} />
+      <div className="content-with-sidebar">
+        <NavBar />
+        <div className="main-content">
+          <div className="trips-section">
+            {/* Header row */}
+            <div className="trips-header">
+              <div className="trips-title-section">
+                <div className="trips-title">
+                  {user
+                    ? `${user.first_name} ${user.last_name}'s Trips`
+                    : <MoonLoader color="var(--accent)" size={30} />}
+                </div>
+                <div className="trips-subtitle">
+                  Plan and manage your upcoming trips
+                </div>
+              </div>
+
+              <div className="banner-controls">
+                <button className="new-trip-button" onClick={handleNewTrip}>
+                  + New Trip
+                </button>
+                <button className="filter-button">
+                  <span className="filter-icon"></span> Filter
+                </button>
+              </div>
+            </div>
 
                       {/* Trip cards */}
                       <div className="trip-cards">
@@ -193,6 +228,19 @@ export default function TripPage() {
                                   <div className="trip-card-image"
                                        onClick={() => handleTripRedirect(trip.trips_id)}>
                                   </div>
+
+                                  <button
+                                    className="privacy-toggle-btn"
+                                    title={trip.is_private ? "Unprivate" : "Private"}
+                                    disabled={isModalOpen}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (isModalOpen) return;
+                                      handleTogglePrivacy(trip);
+                                    }}
+                                  >
+                                    {trip.is_private ? <Lock size={16}/> : <Unlock size={16}/>}
+                                  </button>
 
                                   <button
                                     className="trip-menu-button"
@@ -280,17 +328,24 @@ export default function TripPage() {
                   {isModalOpen && (
                     <Popup
                       title=""
-                      onClose={() => setIsModalOpen(false)}
+                      onClose={handleCloseModal}
                       buttons={
-                          <>
-                              <button type="button" onClick={() => setIsModalOpen(false)}>
+                        <>
+                          <button
+                            type="submit"
+                            form="trip-form"
+                            disabled={isSaving}
+                            style={{
+                              opacity: isSaving ? 0.5 : 1,       // gray out when saving
+                              pointerEvents: isSaving ? "none" : "auto", // disable clicks
+                              transition: "opacity 0.3s ease",
+                            }}
+                          >
+                            {isSaving ? "Saving..." : "Save"}
+                          </button>
+                              <button type="button" onClick={() => !isSaving && setIsModalOpen(false)}>
                                   Cancel
-                              </button>
-                               <button
-                                 className="btn-rightside"
-                                 type="submit" form="trip-form">
-                                  Save
-                              </button>
+                              </button>                           
                           </>
                       }
                     >
@@ -307,7 +362,7 @@ export default function TripPage() {
                                       trip_start_date: formData.get("startDate"),
                                       trip_end_date: formData.get("endDate"),
                                       user_id: user.user_id,
-                                      isPrivate: true //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
+                                      isPrivate: privacyDraft //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
                                   };
                                   if (editingTrip) tripData.trips_id = editingTrip.trips_id;
                                   console.log(tripData)
@@ -364,6 +419,27 @@ export default function TripPage() {
                                   name="endDate"
                                   value={endDate ? endDate.toISOString().split("T")[0] : ""}
                                 />
+
+                                <div className="privacy-row">
+                                  <button
+                                    type="button"
+                                    onClick={() => setPrivacyDraft(true)}
+                                    title="Private"
+                                    className={`privacy-chip ${privacyDraft ? "active" : ""}`}
+                                  >
+                                    <Lock size={16}/>
+                                    <span>Private</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setPrivacyDraft(false)}
+                                    title="Public"
+                                    className={`privacy-chip ${!privacyDraft ? "active" : ""}`}
+                                  >
+                                    <Unlock size={16}/>
+                                    <span>Public</span>
+                                  </button>
+                                </div>
 
                             </form>
                         </div>

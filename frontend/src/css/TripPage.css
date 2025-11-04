@@ -363,7 +363,6 @@ html[data-theme="dark"] .react-datepicker__day--keyboard-selected {
     color: var(--text-on-accent) !important;
 }
 
-
 .trip-menu-button {
     position: absolute;
     bottom: 12px;
@@ -414,4 +413,69 @@ select:focus {
     background-color: var(--accent) !important;
     color: var(--text-on-accent) !important;
     font-weight: bold;
+}
+
+.privacy-toggle-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text-dark2);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-1);
+    z-index: 2;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, color 0.12s ease;
+}
+
+.privacy-toggle-btn:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-2);
+    color: var(--accent);
+}
+
+/* --- moved from inline styles in TripPage.jsx --- */
+.privacy-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 4px;
+}
+
+.privacy-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-surface);
+    color: var(--text-medium);
+    font: size 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.privacy-chip.active {
+    background: var(--accent);
+    color: var(--bg-white);
+    border-color: var(--accent);
+    font-weight: 500;
+}
+
+.privacy-chip:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-1);
+}
+
+/* scale icons to match smaller text */
+.privacy-chip svg {
+  width: 14px;
+  height: 14px;
 }

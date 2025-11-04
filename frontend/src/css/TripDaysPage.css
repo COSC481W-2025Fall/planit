@@ -248,6 +248,13 @@ body {
 }
 
 .day-header {
+  cursor: grab;
+}
+.day-card:active .day-header {
+  cursor: grabbing;
+}
+
+.day-header {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -432,6 +439,15 @@ html[data-theme="dark"] .textarea-notes {
 
 .day-divider:hover {
   width: 2.6rem;
+}
+
+.day-divider--drag-over {
+  max-width: 12.5rem;
+  min-width: 12.5rem;
+  max-height: 100rem;
+  min-height: 10rem;
+  background: var(--accent-lite);
+  border-radius: 0.94rem;
 }
 
 .day-divider button {
