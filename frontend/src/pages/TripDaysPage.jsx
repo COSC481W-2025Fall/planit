@@ -18,6 +18,7 @@ import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 import {updateTrip} from "../../api/trips.js";
 import {listParticipants, addParticipant, removeParticipant} from "../../api/trips";
+import { useNavigate } from "react-router-dom";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -69,6 +70,9 @@ export default function TripDaysPage() {
   const [distanceLoading, setDistanceLoading] = useState(false);
   const distanceDebounce = useRef(null);
   const distanceCache = useRef({});
+
+  const navigate = useNavigate();
+
 
   const [expandedDays, setExpandedDays] = useState(() => {
     try {
@@ -155,13 +159,21 @@ export default function TripDaysPage() {
       `/trip/read/${tripId}`,
       { credentials: "include" }
     )
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 404 || res.status === 403) {
+          navigate('/trip');
+          return null;
+        }
+        return res.json();
+      })
       .then((data) => {
-        setTrip(data);
-        setUserRole(data.user_role); 
+        if (data) {
+          setTrip(data);
+          setUserRole(data.user_role);
+        }
       })
       .catch((err) => console.error("Trip fetch error:", err));
-  }, [tripId]);
+  }, [tripId, navigate]);
 
   //Fetch banner image url
   useEffect(() => {
@@ -228,8 +240,11 @@ export default function TripDaysPage() {
 
   //Fetch Days
   useEffect(() => {
-    fetchDays();
-  }, [tripId]);
+    // only fetch the days if the trip exists
+    if(trip){
+      fetchDays();
+    }
+  }, [tripId, trip]);
 
   const openAddDayPopup = (baseDateStr, insertBefore = false) => {
     if (!canEdit) {
