@@ -141,6 +141,7 @@ export default function TripPage() {
         setStartDate(null);
         setEndDate(null);
         setPrivacyDraft(true);         // clear any unsaved toggle
+        setSelectedImage(null);
     };
 
     //Show Loader while fetching user or trips
@@ -209,10 +210,26 @@ export default function TripPage() {
         setIsModalOpen(true);
     };
 
-    const handleEditTrip = (trip) => {
+    const handleEditTrip = async(trip) => {
         setEditingTrip(trip);
         setPrivacyDraft(trip.is_private ?? true); 
         setIsModalOpen(true);
+
+        if (trip.image_id && trip.image_id !== 0) {
+          try {
+            const res = await fetch(
+              `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
+              { credentials: "include" }
+            );
+            const data = await res.json();
+            setSelectedImage(data);
+          } catch (err) {
+            console.error("Error fetching trip image:", err);
+            setSelectedImage(null);
+          }
+        } else {
+          setSelectedImage(null);
+        }
     };
 
   const handleTripRedirect = (tripId) => {
@@ -282,8 +299,8 @@ export default function TripPage() {
                                     <img
                                     src={imageUrls[trip.trips_id]}
                                     alt={trip.trip_name}
-                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                />
+                                    className="trip-card-img"
+                                    />
                                   </div>
 
                                   <button
@@ -392,11 +409,7 @@ export default function TripPage() {
                             type="submit"
                             form="trip-form"
                             disabled={isSaving}
-                            style={{
-                              opacity: isSaving ? 0.5 : 1,       // gray out when saving
-                              pointerEvents: isSaving ? "none" : "auto", // disable clicks
-                              transition: "opacity 0.3s ease",
-                            }}
+                            className={`trip-submit-btn ${isSaving ? "saving" : ""}`}
                           >
                             {isSaving ? "Saving..." : "Save"}
                           </button>
@@ -488,9 +501,7 @@ export default function TripPage() {
                       <img
                         src={selectedImage.imageUrl}
                         alt={selectedImage.image_name}
-                        width="120"
-                        height="120"
-                        style={{ objectFit: "cover", borderRadius: "6px" }}
+                        className="selected-image-thumb"
                       />
                       <p>{selectedImage.image_name}</p>
                     </div>
@@ -536,27 +547,15 @@ export default function TripPage() {
                     </>
                   }
                 >
-                  <div className="image-selector-grid"
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "1rem",
-                      maxHeight: "300px",
-                      overflowY: "auto",
-                    }}
-                  >
+                  <div className="image-selector-grid">
                     {images.map((img) => (
                       <img
                         key={img.image_id}
                         src={img.imageUrl}
                         alt={img.image_name}
-                        width="120"
-                        height="120"
-                        style={{
-                          objectFit: "cover",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                        }}
+                        className={`image-selector-thumb ${
+                          selectedImage?.image_id === img.image_id ? "selected" : ""
+                        }`}
                         onClick={() => setSelectedImage(img)}
                       />
                     ))}

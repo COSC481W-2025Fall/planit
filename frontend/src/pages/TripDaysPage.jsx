@@ -771,8 +771,6 @@ export default function TripDaysPage() {
             src={imageUrl}
             alt={trip.trip_name}
             id={`image${trip.image_id}`}
-            // Not sure if it's possible to style this better given the ratio constraints of the image-banner box.
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
       />
            </div>
           <div className="button-level-bar">
@@ -974,10 +972,7 @@ export default function TripDaysPage() {
                     type="button"
                     onClick={handleAddDay}
                     disabled={isAddCooldown}
-                    style={{
-                      opacity: isAddCooldown ? 0.5 : 1,
-                      pointerEvents: isAddCooldown ? "none" : "auto",
-                    }}
+                    className={`add-day-button ${isAddCooldown ? "cooldown" : ""}`}
                   >
                     Add +
                   </button>
@@ -993,7 +988,6 @@ export default function TripDaysPage() {
               onClose={() => setDeleteDayId(null)}
               buttons={
                 <>
-                  <button type="button" onClick={() => setDeleteDayId(null)}>Cancel</button>
                   <button
                     type="button"
                     onClick={() => setDeleteDayId(null)}
@@ -1013,7 +1007,7 @@ export default function TripDaysPage() {
               }
             >
               <p className="popup-body-text">
-                Are you sure you want to delete this day? You will lose all activities for thisday
+                Are you sure you want to delete this day? You will lose all activities for this day
               </p>
             </Popup>
           )}
