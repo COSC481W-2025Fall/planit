@@ -1124,6 +1124,7 @@ export default function TripDaysPage() {
                                 {day.activities.map((activity) => (
                                   <ActivityCard
                                     key={activity.activity_id}
+                                    role = {userRole}
                                     activity={activity}
                                     onDelete={canEdit ? () => confirmDeleteActivity(activity) : undefined}
                                     onEdit={canEdit ? (activity) => setEditActivity(activity) : undefined}
