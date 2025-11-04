@@ -39,7 +39,7 @@ export const getLongestTrip = async (req, res) => {
         }
         //Gets trip id and name of all trips, orders from longest to shortest, limit returns highest
         const trip = await sql`
-        SELECT t.trip_name, t.trip_id, COUNT(day_id) AS total_days
+        SELECT t.trip_name, t.trips_id, COUNT(day_id) AS total_days
         FROM trips AS t
         JOIN days AS d ON t.trips_id = d.trip_id
         WHERE t.user_id = ${userID}
@@ -66,9 +66,9 @@ export const getTotalLikes = async (req, res) => {
         }
         //selects all likes that belong to the userID taken
         const likes = await sql`
-        SELECT COUNT(l.like_id) AS total_likes
+        SELECT COUNT(l.trip_id) AS total_likes
         FROM likes AS L
-        JOIN trips AS T ON L.trip_id = T.trip_id
+        JOIN trips AS T ON L.trip_id = T.trips_id
         WHERE T.user_id = ${userID};
         `;  
         //returns total likes in json
@@ -89,7 +89,7 @@ export const getCheapestTrip = async (req, res) => {
         }
             //Order trips by price_estimate, ascending so we pull cheapest  
                 const trip = await sql`
-               SELECT trip_name, trip_id
+               SELECT trip_name, trips_id
                FROM trips
                WHERE user_id = ${userID}
                ORDER BY (trip_price_estimate) ASC
@@ -113,7 +113,7 @@ export const getMostExpensiveTrip = async (req, res) => {
         }
             //Order trips by price_estimate, decending so we pull most expensive 
                 const trip = await sql`
-                SELECT trip_name, trip_id 
+                SELECT trip_name, trips_id 
                 FROM trips 
                 WHERE user_id = ${userID}
                 ORDER BY (trip_price_estimate) DESC
