@@ -28,7 +28,8 @@
     "nodemailer": "^7.0.9",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "react-avatar-editor": "^13.0.2"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.0",

@@ -28,11 +28,12 @@ export const readAllSharedTrips = async (req, res) => {
         const userId = req.user.user_id;
 
         const result = await sql`
-        SELECT *
-        FROM shared
-        WHERE user_id = ${userId}
+        SELECT t.*
+        FROM trips t
+        JOIN shared s ON t.trips_id = s.trip_id
+        WHERE s.user_id = ${userId}
+        ORDER BY t.trips_id ASC
     `
-
         res.json({ sharedTrips: result });
     }
     catch (err) {
@@ -78,21 +79,23 @@ export const addParticipant = async (req, res) => {
         if (inserted.length === 0) {
             return res.status(400).json({ error: "User is already a participant in this trip" });
         }
-        
+
         const [tripRow] = await sql`
-        SELECT title, username AS owner_username
+        SELECT trip_name, username AS owner_username
         FROM trips
         JOIN users ON trips.user_id = users.user_id
         WHERE trips.trips_id = ${tripId}
         LIMIT 1
     `;
 
-        await sendParticipantAddedEmail({
+    /* We will try to make emails work in a future PBI
+       await sendParticipantAddedEmail({
             toEmail: user.email,
             toUsername: user.username,
-            tripTitle: tripRow.title,
+            tripTitle: tripRow.trip_name,
             ownerUsername: tripRow.owner_username,
         });
+    */
 
         res.json({ message: "Participant added to shared trip." });
     }
@@ -150,7 +153,7 @@ export const listParticipants = async (req, res) => {
     const tripId = req.trip.trips_id;
     try {
         const result = await sql`
-        SELECT user_id, username
+        SELECT users.user_id, username
         FROM users
         JOIN shared ON users.user_id = shared.user_id
         WHERE shared.trip_id = ${tripId}

@@ -151,12 +151,14 @@ body {
   margin-top: 0.05rem;
 }
 
-.image-banner {
+.image-banner img {
   width: 100%;
-  height: 12.5rem;
+  height: 14rem;
+  object-fit: cover;
   border-radius: 0.94rem;
   object-fit: cover;
   background-color: var(--accent-lite);
+  margin-top: 5px;
   margin-bottom: 1rem;
 }
 
@@ -182,8 +184,20 @@ body {
   gap: 0.5rem;
 }
 
-#new-day-button,
-#add-activity-button {
+ #participants-button {
+   display: flex;
+   flex-direction: row;
+   margin: auto;
+   align-items: center;
+   justify-content: center;
+   gap: 0.25rem;
+ }
+
+ #participants-button #user-plus-icon {
+    margin-bottom: 2px;
+ }
+
+.itinerary-buttons button {
   background-color: var(--bg-surface);
   border: 0.06rem solid var(--accent);
   border-radius: var(--radius);
@@ -194,16 +208,37 @@ body {
   transition: all 0.2s ease-in-out;
   cursor: pointer;
 }
+.add-day-button {
+  background: var(--bg-surface);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+}
 
-#new-day-button:hover,
-#add-activity-button:hover {
+.add-day-button:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--bg-white);
+  transform: scale(1.05);
+}
+
+/* When button is in cooldown mode */
+.add-day-button.cooldown {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.itinerary-buttons button:hover {
   background-color: var(--accent);
   color: var(--bg-white);
   transform: scale(1.03);
 }
 
-#new-day-button:active,
-#add-activity-button:active {
+.itinerary-buttons button:active {
   transform: scale(0.9);
 }
 
@@ -490,6 +525,215 @@ html[data-theme="dark"] .textarea-notes {
   color-scheme: light;
 }
 
+.title-div {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.participant-photos {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: var(--bg-surface);
+  padding: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 20px;
+}
+
+.participant-pfp {
+  height: 1.8rem;
+  width: 1.8rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-1);
+}
+
+.participant-pfp.placeholder {
+  background: var(--accent-lite);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.participants-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 16px;
+}
+
+.participants-list p {
+    font-size: 14px;
+    color: var(--text-medium);
+}
+
+.participants-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem; 
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.participants-header p {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark2);
+    margin: 0;
+}
+
+.add-participant-form {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.add-participant-form input {
+    flex-grow: 1; 
+    padding: 10px 12px;
+}
+
+.add-participant-form button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 12px;
+    background: var(--accent);
+    color: var(--bg-white);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.add-participant-form button:hover {
+    background: var(--accent-dark);
+    transform: translateY(-1px);
+}
+
+.participants-list {
+    overflow-y: auto;
+    border: 1px solid var(--border-input);
+    border-radius: 6px;
+    background: var(--bg-input);
+    padding: 8px;
+    list-style: none;
+    min-height: 150px;
+    max-height: 300px;
+}
+
+.participants-list p {
+    font-size: 14px;
+    color: var(--text-medium);
+    text-align: center;
+    margin: 4px 0;
+    padding-top: 50px;
+}
+
+.participant-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.participant-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.participant-item span {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.remove-participant-btn {
+    background: none;
+    border: none;
+    color: var(--text-medium);
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background-color 0.2s;
+    border-radius: 50%;
+}
+
+.remove-participant-btn:hover {
+    color: var(--error);
+    background: var(--error-soft);
+    transform: scale(1.1);
+}
+
+.search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0px !important;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  width: 20em;
+  border: 1px solid var(--border-input);
+  border-radius: 4px;
+  font-size: 14px;
+  background: var(--bg-input);
+  color: var(--text);
+}
+
+#username-input {
+  border-radius: var(--radius);
+}
+
+.search-wrap input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.autocomplete {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.autocomplete li {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+}
+.autocomplete li + li { border-top: 1px solid var(--border); }
+.autocomplete li:hover { background: var(--bg-offwhite); }
+
 html[data-theme="dark"] .time-picker {
   color-scheme: dark;
 }
@@ -520,9 +764,20 @@ html[data-theme="dark"] .time-picker {
     font-size: 1.3em;
   }
 
-  #new-day-button,
-  #add-activity-button {
+  .itinerary-buttons button {
     font-size: 0.85rem;
+  }
+
+  .participants-list {
+    max-height: 6em;
+  }
+
+  .participants-list p {
+    font-size: 14px !important;
+  } 
+
+  .participant-item span {
+    font-size: 14px;
   }
 }
 
@@ -538,11 +793,6 @@ html[data-theme="dark"] .time-picker {
   .trip-title {
     font-size: 1.25rem;
   }
-
-  .image-banner {
-    height: 10rem;
-  }
-
   .button-level-bar {
     flex-direction: column-reverse;
     align-items: flex-start;
@@ -555,8 +805,7 @@ html[data-theme="dark"] .time-picker {
     gap: 0.5rem;
   }
 
-  #new-day-button,
-  #add-activity-button {
+  .itinerary-buttons button {
     min-width: 7rem;
     font-size: 0.9rem;
     padding: 0 0.75rem;
@@ -585,6 +834,14 @@ html[data-theme="dark"] .time-picker {
 
   .day-divider button {
     opacity: 0.5;
+  }
+
+  .participants-list {
+    min-height: 100px;
+  }
+
+  .participants-list p{
+    padding-top: 25px;
   }
 }
 
@@ -689,9 +946,8 @@ html[data-theme="dark"] .time-picker {
     gap: 0.5rem;
   }
 
-  #new-day-button,
-  #add-activity-button {
-    min-width: 7rem;
+  .itinerary-buttons button {
+    min-width: 6rem;
     font-size: 0.9rem;
     padding: 0 0.75rem;
   }
