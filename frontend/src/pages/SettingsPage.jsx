@@ -12,7 +12,6 @@ export default function SettingsPage() {
     const [lastName, setLastName] = useState("");
     const [username, setUsername] = useState("");
     const [stats, setStats] = useState(null);
-    const [message, setMessage] = useState("");
 
     useEffect(() => {
         fetch(
@@ -47,7 +46,7 @@ export default function SettingsPage() {
     }, [user]);
 
 
-    // fetch all stats endpoints
+    // fetch stats endpoints
     const fetchUserStats = async (userID) => {
         try {
             const backend = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
@@ -68,6 +67,7 @@ export default function SettingsPage() {
                 cheapestTrip,
                 totalMoneySpent,
                 totalLikes,
+
             ] = await Promise.all([
                 postData("tripCount"),
                 postData("longestTrip"),
@@ -85,11 +85,13 @@ export default function SettingsPage() {
                 mostExpensiveTrip,
                 totalMoneySpent
             }
+        
         } catch (err) {
             console.error("Error fetching stats:", err);
         }
     };
 
+    //handle saving new user info
     const handleSave = async () => {
         try {
             const response = await fetch(
@@ -203,23 +205,36 @@ export default function SettingsPage() {
                         <div className="stats-card">
                             <h3>User Stats</h3>
                             <div className="stats">
-                                <p>Number of Trips Made:</p>
-                                <h1>{stats?.tripCount?.tripCount ?? "N/A"}</h1>
+                                
+                                <div className="stat-line">
+                                    <span className="stat-label">Number of Trips Made: </span>
+                                    <span className="stat-value">{stats?.tripCount?.tripCount ?? "N/A"}</span>
+                                </div>
 
-                                <p>Longest Trip:</p>
-                                <h1>{stats?.longestTrip?.trip_name ?? "N/A"}</h1>
+                                <div className="stat-line">
+                                    <span className="stat-label">Longest Trip: </span>
+                                    <span className="stat-value">{stats?.longestTrip?.trip_name ?? "N/A"}</span>
+                                </div>
 
-                                <p>Most Expensive Trip:</p>
-                                <h1>{stats?.mostExpensiveTrip?.trip_name ?? "N/A"}</h1>
+                                <div className="stat-line">
+                                    <span className="stat-label">Most Expensive Trip: </span>
+                                    <span className="stat-value">{stats?.mostExpensiveTrip?.trip_name ?? "N/A"}</span>
+                                </div>
 
-                                <p>Cheapest Trip:</p>
-                                <h1>{stats?.cheapestTrip?.trip_name ?? "N/A"}</h1>
+                                <div className="stat-line">
+                                    <span className="stat-label">Cheapest Trip: </span>
+                                    <span className="stat-value">{stats?.cheapestTrip?.trip_name ?? "N/A"}</span>
+                                </div>
 
-                                <p>Total Money Spent:</p>
-                                <h1>{stats?.totalMoneySpent?.totalMoneySpent ?? "N/A"}</h1>
+                                <div className="stat-line">
+                                    <span className="stat-label">Total Money Spent: </span>
+                                    <span className="stat-value">{stats?.totalMoneySpent?.totalMoneySpent ?? "N/A"}</span>
+                                </div>
 
-                                <p>Total Likes:</p>
-                                <h1>{stats?.totalLikes?.totalLikes ?? "N/A"}</h1>
+                                <div className="stat-line">
+                                    <span className="stat-label">Total Likes: </span>
+                                    <span className="stat-value">{stats?.totalLikes?.totalLikes ?? "N/A"}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
