@@ -985,8 +985,6 @@ export default function TripDaysPage() {
               }
             >
               <p className="popup-body-text">Do you want to add a new day to {trip?.trip_name}?</p>
-            >
-              <p className="popup-body-text">Do you want to add a new day to {trip?.trip_name}?</p>
             </Popup>
           )}
           {deleteDayId && (

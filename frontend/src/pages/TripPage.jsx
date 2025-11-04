@@ -21,7 +21,6 @@ export default function TripPage() {
     const [openDropdownId, setOpenDropdownId] = useState(null);
     const dropdownRef = useRef(null);
     const [isSaving, setIsSaving] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
     const navigate = useNavigate();
     const [startDate, setStartDate] = useState(
       editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
@@ -277,9 +276,14 @@ export default function TripPage() {
                             </div>
                           ) : (
                             trips.map((trip) => (
-                              <div key={trip.trips_id} className="trip-card">
+                              <div key={trip.trips_id} className="trip-card">       
                                   <div className="trip-card-image"
-                                       onClick={() => handleTripRedirect(trip.trips_id)}>
+                                    onClick={() => handleTripRedirect(trip.trips_id)}>
+                                    <img
+                                    src={imageUrls[trip.trips_id]}
+                                    alt={trip.trip_name}
+                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
                                   </div>
 
                                   <button
