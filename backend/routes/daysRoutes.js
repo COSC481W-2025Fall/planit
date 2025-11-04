@@ -1,6 +1,6 @@
 import express from "express";
 // imports
-import { 
+import {
     readDays,
     createDay,
     updateDay,

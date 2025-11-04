@@ -7,7 +7,7 @@ import Popup from "../components/Popup";
 import ActivitySearch from "../components/ActivitySearch.jsx";
 import NavBar from "../components/NavBar";
 import TopBanner from "../components/TopBanner";
-import { getDays, createDay, deleteDay } from "../../api/days";
+import {getDays, createDay, deleteDay, updateDay} from "../../api/days";
 import ActivityCard from "../components/ActivityCard.jsx";
 import { useParams } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import OverlapWarning from "../components/OverlapWarning.jsx";
 import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
+import {updateTrip} from "../../api/trips.js";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -29,6 +30,7 @@ export default function TripDaysPage() {
   //constants for UI components
   const [openMenu, setOpenMenu] = useState(null);
   const [newDay, setOpenNewDay] = useState(null);
+  const [newDayInsertBefore, setNewDayInsertBefore] = useState(false);
   const [openActivitySearch, setOpenActivitySearch] = useState(false);
   const [editActivity, setEditActivity] = useState(null);
   const [editStartTime, setEditStartTime] = useState("");
@@ -68,6 +70,11 @@ export default function TripDaysPage() {
 
   const menuRefs = useRef({});
   const { tripId } = useParams();
+  const [dragFromDay, setDragFromDay] = useState("");
+  const [dragOverInfo, setDragOverInfo] = useState({
+    dayId: null,
+    dayDate: null,
+  });
 
   //responsive
   useEffect(() => {
@@ -155,9 +162,13 @@ export default function TripDaysPage() {
     fetchDays();
   }, [tripId]);
 
-  const openAddDayPopup = (baseDateStr) => {
+  const openAddDayPopup = (baseDateStr, insertBefore = false) => {
     let nextDate;
-    if (baseDateStr) {
+    if (baseDateStr && insertBefore) {
+      const baseDate = new Date(baseDateStr);
+      nextDate = new Date(baseDate);
+      nextDate.setDate(baseDate.getDate()-1);
+    } else if (baseDateStr) {
       const baseDate = new Date(baseDateStr);
       nextDate = new Date(baseDate);
       nextDate.setDate(baseDate.getDate() + 1);
@@ -172,6 +183,7 @@ export default function TripDaysPage() {
 
     const formatted = nextDate.toISOString().split("T")[0];
     setOpenNewDay(formatted);
+    setNewDayInsertBefore(insertBefore);
   };
 
   const fetchDays = async () => {
@@ -377,10 +389,20 @@ export default function TripDaysPage() {
     if (!newDay) return;
 
     try {
-      await createDay(tripId, { day_date: newDay });
+      await createDay(tripId, { day_date: newDay, newDayInsertBefore});
 
-      await fetchDays(); 
+      if (newDayInsertBefore) {
+        await updateTrip({
+          ...trip,
+          trip_start_date: newDay,
+        });
+      }
+
+      await fetchDays();
+
       setOpenNewDay(null);
+      setNewDayInsertBefore(false);
+
       toast.success("New day added successfully!");
     } catch (err) {
       console.error("Error creating day:", err);
@@ -396,8 +418,21 @@ export default function TripDaysPage() {
   const handleDeleteDay = async (dayId) => {
     try {
       if (openMenu === dayId) setOpenMenu(null);
-      await deleteDay(tripId, dayId);
+
+      // detects if first day is being deleted
+      const isFirstDay = days.length > 0 && dayId === days[0].day_id;
+
+      await deleteDay(tripId, dayId, isFirstDay);
       await fetchDays();
+
+      if (isFirstDay) {
+        // if first day is deleted, update trip start date
+        await updateTrip({
+          ...trip,
+          trip_start_date: days[1].day_date.split("T")[0],
+        });
+      }
+
       toast.success("Day has been deleted.");
     } catch (err) {
       console.error("Error deleting day:", err);
@@ -521,6 +556,127 @@ export default function TripDaysPage() {
     setOpenMenu(openMenu === dayId ? null : dayId);
   };
 
+  //Drag and Drop
+  const handleDayDragStart = (e, day) => {
+    setDragFromDay(day);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDayDragOver = (e, day) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+
+    setDragOverInfo({
+      dayId: day.day_id,
+      dayDate: day.day_date,
+    });
+  };
+
+  const handleDayDrop = async (e, day) => {
+    e.preventDefault();
+    await reorderDays(dragFromDay, day);
+  };
+
+  const handleDragEnd = () => {
+    setDragFromDay(null);
+    setDragOverInfo({
+      dayId: null,
+      dayDate: null,
+    });
+  };
+
+  const reorderDays = async (dragFromDay, overDay) => {
+    try {
+      const adjustDate = (dateStr, daysToAdd) => {
+        const date = new Date(dateStr);
+        date.setDate(date.getDate() + daysToAdd);
+        return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+      };
+
+      const dragDate = new Date(dragFromDay.day_date);
+      const overDate = new Date(overDay.day_date);
+
+      let reorderedFirstDay = false;
+
+      const isDropOnFirstDay = overDay.day_id === days[0].day_id;
+      const isDraggedFromAfterFirst = dragDate > overDate;
+      const isHoveringBeforeFirst = dragOverInfo.dayId === "before-first";
+
+      if (isDropOnFirstDay && isDraggedFromAfterFirst && isHoveringBeforeFirst) {
+        const first = days[0];
+
+        // shift existing days forward by 1 that are before the dragged day
+        for (const d of days) {
+          if (d.day_date > dragFromDay.day_date) continue;
+          const newDate = adjustDate(d.day_date, 1);
+          await updateDay(tripId, d.day_id, { day_date: newDate });
+        }
+
+        await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date });
+        await fetchDays();
+
+        toast.info("Day moved");
+
+        setDragFromDay(null);
+        setDragOverInfo({ dayId: null, dayDate: null });
+        reorderedFirstDay = true;
+      }
+
+      // if dropped draggedDay is before the first day, shifting took place and should exit this method.
+      if (reorderedFirstDay) return;
+
+      let movedDayDate;
+
+      if (dragFromDay === days[days.length-1] && overDay === days[days.length-2]
+      || dragFromDay === days[0] && overDay === days[0]
+      || overDay === days[days.indexOf(dragFromDay)-1]
+      || overDay === dragFromDay) {
+        toast.warning("No days were moved");
+        setDragFromDay(null);
+        setDragOverInfo({ dayId: null, index: null });
+        return;
+      }
+      for (const eachDay of days) {
+        const eachDayDate = new Date(eachDay.day_date);
+
+        // don't modify the day we're dragging to move
+        if (eachDay.day_id === dragFromDay.day_id) {
+          continue;
+        }
+
+        // past day dragged
+        if (dragDate < overDate){
+          if (eachDayDate <= overDate && eachDayDate >= dragDate) {
+            // days before the drop target move back 1 day
+            const newDate = adjustDate(eachDay.day_date, -1);
+            await updateDay(tripId, eachDay.day_id, { day_date: newDate });
+            movedDayDate = overDay.day_date;
+          }
+        }
+        // future day dragged
+        else {
+          if (eachDayDate > overDate && eachDayDate <= dragDate) {
+            // days after the drop target move forward 1 day
+            const newDate = adjustDate(eachDay.day_date, 1);
+            await updateDay(tripId, eachDay.day_id, { day_date: newDate });
+            movedDayDate = adjustDate(overDay.day_date, 1);
+          }
+        }
+      }
+
+      // Finally, update the date of the day we're dragging
+      await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate });
+
+      await fetchDays();
+      toast.info("Day moved");
+
+      setDragFromDay(null);
+      setDragOverInfo({ dayId: null, index: null });
+    } catch (error) {
+      toast.error("Error reordering days: " + error.message);
+    }
+  }
+
   //Loading State
   if (!user || !trip) {
     return (
@@ -610,10 +766,27 @@ export default function TripDaysPage() {
                 const isExpanded = expandedDays.includes(day.day_id);
                 return (
                   <React.Fragment key={day.day_id}>
-                  <div
-                    className={`day-card ${isMobile ? (isExpanded ? "expanded" : "collapsed") : ""
-                      }`}
-                  >
+                    {index === 0 && (
+                        <div
+                            className={`day-divider day-divider--first ${dragOverInfo.dayId === 'before-first' ? "day-divider--drag-over" : ""}`}
+                            onDragOver={(e) => handleDayDragOver(e, { day_id: 'before-first', day_date: day.day_date })}
+                            onDrop={(e) => handleDayDrop(e, day)}
+                        >
+                          {!dragFromDay && (
+                          <button onClick={() => openAddDayPopup(day.day_date, true)}>
+                            <Plus size={17} className="plus-icon"/>
+                          </button>
+                              )}
+                        </div>
+                    )}
+                    <div
+                        className={`day-card ${isMobile ? (isExpanded ? "expanded" : "collapsed") : ""
+                        }`}
+                        draggable={true}
+                        key={day.day_id}
+                        onDragStart={(e) => handleDayDragStart(e, day)}
+                        onDragEnd={(e) => handleDragEnd(e)}
+                    >
                     <div
                       className="day-header"
                       onClick={() => {
@@ -697,12 +870,16 @@ export default function TripDaysPage() {
                     )}
                     </div>
                     <div
-                      className="day-divider"
-                      id={index === days.length - 1 ? "last-day-divider" : undefined}
+                      className={`day-divider ${dragOverInfo.dayId === day.day_id ? "day-divider--drag-over" : ""}`}
+                      id={index === days.length - 1 ? "last-day-divider" : ""}
+                      onDragOver={(e) => handleDayDragOver(e, day)}
+                      onDrop={(e) => handleDayDrop(e, day)}
                     >
+                      {!dragFromDay && (
                       <button onClick={() => openAddDayPopup(day.day_date)}>
                         <Plus size={17} className="plus-icon"/>
                       </button>
+                      )}
                     </div>
                   </React.Fragment>
                 );
@@ -766,7 +943,7 @@ export default function TripDaysPage() {
                     }}
                   >
                     Add +
-                  </button>                               
+                  </button>
                 </>
               }
             >
@@ -779,7 +956,7 @@ export default function TripDaysPage() {
               onClose={() => setDeleteDayId(null)}
               buttons={
                 <>
-\                  <button
+                  <button
                     type="button"
                     onClick={() => setDeleteDayId(null)}
                   >
