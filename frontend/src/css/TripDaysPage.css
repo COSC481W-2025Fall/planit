@@ -151,9 +151,10 @@ body {
   margin-top: 0.05rem;
 }
 
-.image-banner {
+.image-banner img {
   width: 100%;
-  height: 12.5rem;
+  height: 14rem;
+  object-fit: cover;
   border-radius: 0.94rem;
   object-fit: cover;
   background-color: var(--accent-lite);
@@ -206,6 +207,29 @@ body {
   font-size: 0.9rem;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
+}
+.add-day-button {
+  background: var(--bg-surface);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.add-day-button:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--bg-white);
+  transform: scale(1.05);
+}
+
+/* When button is in cooldown mode */
+.add-day-button.cooldown {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .itinerary-buttons button:hover {
@@ -769,11 +793,6 @@ html[data-theme="dark"] .time-picker {
   .trip-title {
     font-size: 1.25rem;
   }
-
-  .image-banner {
-    height: 10rem;
-  }
-
   .button-level-bar {
     flex-direction: column-reverse;
     align-items: flex-start;

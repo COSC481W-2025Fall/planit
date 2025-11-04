@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
+import "../css/ImageBanner.css";
 import "../css/Popup.css";
 import Popup from "../components/Popup";
 import ActivitySearch from "../components/ActivitySearch.jsx";
@@ -42,6 +43,8 @@ export default function TripDaysPage() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [editableNote, setEditableNote] = useState("");
   const [isAddCooldown, setIsAddCooldown] = useState(false);
+  //Constants for image url
+  const [imageUrl, setImageUrl] = useState(null);
   const [deleteActivity, setDeleteActivity] = useState(null);
 
   //constants for participants
@@ -149,6 +152,32 @@ export default function TripDaysPage() {
       .then((data) => setTrip(data))
       .catch((err) => console.error("Trip fetch error:", err));
   }, []);
+  //Fetch banner image url
+  useEffect(() => {
+    const fetchImage = async () => {
+    if (!trip?.image_id) return;
+
+    try {
+        const res = await fetch(
+            `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
+            { credentials: "include" }
+        );
+
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.error || "Failed to fetch image.");
+        }
+
+        const data = await res.json();
+        setImageUrl(data.imageUrl);
+    } catch (err) {
+        console.error("Failed to fetch image:", err);
+        setError(err.message);
+    }
+    };
+
+    fetchImage();
+}, [trip?.image_id])
 
   useEffect(() => {
     if (editActivity) {
@@ -887,7 +916,13 @@ export default function TripDaysPage() {
             )}
           </div>
 
-          <div className="image-banner" />
+          <div className="image-banner">
+            <img
+            src={imageUrl}
+            alt={trip.trip_name}
+            id={`image${trip.image_id}`}
+      />
+           </div>
           <div className="button-level-bar">
             <h1 className="itinerary-text">Itinerary</h1>
             <div className="itinerary-buttons">
@@ -1093,10 +1128,7 @@ export default function TripDaysPage() {
                     type="button"
                     onClick={handleAddDay}
                     disabled={isAddCooldown}
-                    style={{
-                      opacity: isAddCooldown ? 0.5 : 1,
-                      pointerEvents: isAddCooldown ? "none" : "auto",
-                    }}
+                    className={`add-day-button ${isAddCooldown ? "cooldown" : ""}`}
                   >
                     Add +
                   </button>
@@ -1131,7 +1163,7 @@ export default function TripDaysPage() {
               }
             >
               <p className="popup-body-text">
-                Are you sure you want to delete this day? You will lose all activities for thisday
+                Are you sure you want to delete this day? You will lose all activities for this day
               </p>
             </Popup>
           )}
