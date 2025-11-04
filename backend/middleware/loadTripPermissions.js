@@ -1,9 +1,7 @@
 import { sql } from "../config/db.js";
 
 // load a trip and check user permissions
-
-export async function loadTripWithPermissions(req, res, next) {
-
+export async function loadTripPermissions(req, res, next) {
     if (!req.user) {
         return res.status(401).json({ error: "Unauthorized" });
     }
