@@ -117,6 +117,10 @@
     margin-top: 10px;
     text-align: center; /* optional – centers image and name */
   }
+  .selected-image-container {
+    text-align: center;
+    margin-top: 10px;
+  }
   .image-selector-thumb {
     width: 120px;
     height: 120px;
@@ -141,7 +145,7 @@
     object-fit: cover;
     border-radius: 6px;
     display: block;
-    margin: 0 auto; /* optional – centers the image horizontally */
+    margin: 0 auto; 
   }
   
 .trip-card-image {
