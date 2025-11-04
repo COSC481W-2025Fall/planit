@@ -34,7 +34,6 @@ export const readAllSharedTrips = async (req, res) => {
         WHERE s.user_id = ${userId}
         ORDER BY t.trips_id ASC
     `
-        console.log("Shared trips: ", result);
         res.json({ sharedTrips: result });
     }
     catch (err) {

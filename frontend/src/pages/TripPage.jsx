@@ -418,7 +418,6 @@ export default function TripPage() {
                                   name="endDate"
                                   value={endDate ? endDate.toISOString().split("T")[0] : ""}
                                 />
-                                {/* toggle for privacy of trip */}
                                 <div className="privacy-row">
                                   <button
                                     type="button"
