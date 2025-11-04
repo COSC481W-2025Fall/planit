@@ -225,8 +225,13 @@ export const checkOverlappingTimes = async (req, res) => {
             SELECT * FROM activities
             WHERE "day_id" = ${dayId}
             AND (
-                (${proposedStartTs} < ("activity_startTime" + "activity_duration"))
-                AND ((${proposedStartTs} + ${proposedDurationInterval}::interval) > "activity_startTime")
+                (${proposedStartTs}::time < ("activity_startTime"::time + "activity_duration"::interval))
+                AND ((${proposedStartTs}::time + ${proposedDurationInterval}::interval) > "activity_startTime"::time)
+            )
+            AND (
+                -- Exclude if either activity crosses midnight (goes to next day)
+                ("activity_startTime"::time + "activity_duration"::interval) >= "activity_startTime"::time
+                AND (${proposedStartTs}::time + ${proposedDurationInterval}::interval) >= ${proposedStartTs}::time
             );
         `;
         return res.status(200).json({ overlappingActivities });
@@ -251,8 +256,13 @@ export const checkOverlappingTimesForEdit = async (req, res) => {
             WHERE "day_id" = ${dayId}
             AND "activity_id" != ${activityId}
             AND (
-                (${proposedStartTs} < ("activity_startTime" + "activity_duration"))
-                AND ((${proposedStartTs} + ${proposedDurationInterval}::interval) > "activity_startTime")
+                (${proposedStartTs}::time < ("activity_startTime"::time + "activity_duration"::interval))
+                AND ((${proposedStartTs}::time + ${proposedDurationInterval}::interval) > "activity_startTime"::time)
+            )
+            AND (
+                -- Exclude if either activity crosses midnight (goes to next day)
+                ("activity_startTime"::time + "activity_duration"::interval) >= "activity_startTime"::time
+                AND (${proposedStartTs}::time + ${proposedDurationInterval}::interval) >= ${proposedStartTs}::time
             );
         `;
         return res.status(200).json({ overlappingActivities });
