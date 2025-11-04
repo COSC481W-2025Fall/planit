@@ -1275,6 +1275,7 @@ export default function TripDaysPage() {
                     formDuration={editDuration}
                     selectedDay={days.findIndex(d => d.day_id === editActivity.day_id) + 1}
                     dayIds={days.map((d) => d.day_id)}
+                    activityId={editActivity.activity_id}
                   />
                 </span>
                 <input className = "time-picker"
