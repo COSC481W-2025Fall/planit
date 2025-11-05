@@ -1,13 +1,15 @@
 import { sql } from "../config/db.js";
 
-// middleware to load a trip owned by the logged-in user
+// Middleware to load a trip owned by the logged-in user
 export async function loadOwnedTrip(req, res, next) {
   if (!req.user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const tripId = parseInt(req.params.tripId, 10);
-  if (isNaN(tripId)) {
+  const userId = req.user.user_id;
+  const tripIdRaw = req.params.tripId ?? req.body.tripId ?? req.query.tripId;
+  const tripId = Number(tripIdRaw);
+  if (tripIdRaw === undefined || isNaN(tripId)) {
     return res.status(400).json({ error: "Invalid trip ID" });
   }
 
@@ -15,7 +17,8 @@ export async function loadOwnedTrip(req, res, next) {
     const trips = await sql`
       SELECT *
       FROM trips
-      WHERE trips_id = ${tripId} AND user_id = ${req.user.user_id}
+      WHERE trips_id = ${tripId} AND user_id = ${userId}
+      LIMIT 1
     `;
 
     if (trips.length === 0) {
@@ -25,6 +28,7 @@ export async function loadOwnedTrip(req, res, next) {
     }
 
     req.trip = trips[0];
+    req.tripPermission = "owner";
     next();
   } catch (err) {
     console.error(err);

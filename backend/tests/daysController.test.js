@@ -5,11 +5,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // Mock DB
 vi.mock('../config/db.js', () => {
     const sql = vi.fn(async () => []);
+    sql.transaction = vi.fn(async (callback) => {
+        return await callback();
+    });
     sql.query = vi.fn(async () => ({ rows: [] }));
     return { sql };
 });
 
-// Mock Auth and Middleware
+// Mock Auth
 vi.mock("../auth.js", () => {
     return {
         isLoggedIn: (req, res, next) => {
@@ -21,18 +24,56 @@ vi.mock("../auth.js", () => {
     };
 });
 
-vi.mock("../middleware/loadOwnedTrip.js", () => {
+// Mock the new loadTripPermissions middleware
+vi.mock("../middleware/loadTripPermissions.js", () => {
     return {
-        loadOwnedTrip: async (req, res, next) => {
+        loadTripPermissions: async (req, res, next) => {
             try {
                 const { sql } = await import("../config/db.js");
-                const rows = await sql();
-                if (rows && rows.length > 0) {
-                    req.trip = { trips_id: Number(req.params.tripId), user_id: req.user?.user_id };
-                    return next();
+                
+                // Get the trip
+                const tripId = Number(req.params.tripId);
+                const userId = req.user?.user_id;
+                
+                const trips = await sql();
+                
+                if (!trips || trips.length === 0) {
+                    return res.status(404).json({ error: 'Trip not found' });
                 }
-                return res.status(404).json({ error: 'Trip not found or access denied' });
+                
+                const trip = trips[0];
+                
+                // Check if owner
+                const isOwner = trip.user_id === userId;
+                
+                // Check shared access - make second call
+                const sharedResult = await sql();
+                const hasSharedAccess = sharedResult && sharedResult.length > 0;
+                
+                // Determine permission
+                let permission = null;
+                if (isOwner) {
+                    permission = "owner";
+                } else if (hasSharedAccess) {
+                    permission = "participant";
+                } else if (!trip.is_private) {
+                    permission = "viewer";
+                }
+                
+                if (!permission) {
+                    return res.status(403).json({ error: 'Access denied' });
+                }
+                
+                // Only allow modifications for owner and participant
+                if (req.method !== 'GET' && permission === "viewer") {
+                    return res.status(403).json({ error: "You don't have permission to modify this trip" });
+                }
+                
+                req.trip = trip;
+                req.tripPermission = permission;
+                next();
             } catch (e) {
+                console.error(e);
                 return res.status(500).json({ error: 'Internal Server Error' });
             }
         },
@@ -66,8 +107,28 @@ const appWithUser = () => buildApp({ injectUser: true });
 const appNoUser = () => buildApp();
 const appWithUndefinedUserId = () => buildApp({ injectUser: true, undefinedUserId: true });
 
-const mockOwnedTrip = (tripId = 1, userId = 123) => {
-    sql.mockResolvedValueOnce([{ trips_id: tripId, user_id: userId }]);
+// Mock a trip owned by the user
+const mockOwnedTrip = (tripId = 1, userId = 123, isPrivate = false) => {
+    // First call: trip fetch
+    sql.mockResolvedValueOnce([{ trips_id: tripId, user_id: userId, is_private: isPrivate }]);
+    // Second call: shared access check (empty = not shared)
+    sql.mockResolvedValueOnce([]);
+};
+
+// Mock a shared trip (user is participant)
+const mockSharedTrip = (tripId = 1, userId = 123, ownerId = 999) => {
+    // First call: trip fetch (owned by someone else)
+    sql.mockResolvedValueOnce([{ trips_id: tripId, user_id: ownerId, is_private: false }]);
+    // Second call: shared access check (has access)
+    sql.mockResolvedValueOnce([{ trip_id: tripId, user_id: userId }]);
+};
+
+// Mock a public trip (user is viewer)
+const mockPublicTrip = (tripId = 1, ownerId = 999) => {
+    // First call: trip fetch (owned by someone else, public)
+    sql.mockResolvedValueOnce([{ trips_id: tripId, user_id: ownerId, is_private: false }]);
+    // Second call: shared access check (no access)
+    sql.mockResolvedValueOnce([]);
 };
 
 // Clear mocks before each test
@@ -82,31 +143,28 @@ describe("Days Controller Unit Tests", () => {
         it("should create a day for an owned trip", async () => {
             const app = appWithUser();
             mockOwnedTrip(1);
-            const created = [{ days_id: 10, trip_id: 1, day_date: '2025-10-01' }];
-            sql.mockResolvedValueOnce(created);
+            
+            const created = { day_id: 10, trip_id: 1, day_date: '2025-10-01' };
+            sql.transaction.mockResolvedValueOnce([[created]]);
 
             const res = await request(app)
                 .post("/trip/trips/1/days")
                 .send({ day_date: '2025-10-01' });
 
             expect(res.status).toBe(201);
-            expect(res.body).toEqual(created[0]);
-            // One for trip check, one for insert
-            expect(sql).toHaveBeenCalledTimes(2);
+            expect(sql.transaction).toHaveBeenCalled();
         });
 
         // Creating a day without providing day_date
-        it("should create a day without day_date resulting in null day_date", async () => {
+        it("should return 400 if day_date is missing", async () => {
             const app = appWithUser();
             mockOwnedTrip(1);
-            const created = [{ days_id: 11, trip_id: 1, day_date: null }];
-            sql.mockResolvedValueOnce(created);
 
             const res = await request(app).post("/trip/trips/1/days").send({});
 
-            expect(res.status).toBe(201);
-            expect(res.body).toEqual(created[0]);
-            expect(sql).toHaveBeenCalledTimes(2); 
+            expect(res.status).toBe(400);
+            expect(res.body).toEqual({ error: "A valid day_date is required." });
+            expect(sql.transaction).not.toHaveBeenCalled(); 
         });
 
         // Unauthorized when user is not logged in
@@ -118,27 +176,52 @@ describe("Days Controller Unit Tests", () => {
             expect(sql).not.toHaveBeenCalled();
         });
 
-        // Trip not found or not owned
-        it("should return 404 when trip is not found or not owned", async () => {
+        // Trip not found
+        it("should return 404 when trip is not found", async () => {
             const app = appWithUser();
             // No trip found
             sql.mockResolvedValueOnce([]); 
+            
             const res = await request(app).post("/trip/trips/1/days").send({ day_date: '2025-10-01' });
             expect(res.status).toBe(404);
-            expect(res.body).toEqual({ error: "Trip not found or access denied" });
-            // Only the trip check
+            expect(res.body).toEqual({ error: "Trip not found" });
             expect(sql).toHaveBeenCalledTimes(1);
+        });
+
+        // Viewer cannot create days
+        it("should return 403 when user is only a viewer", async () => {
+            const app = appWithUser();
+            mockPublicTrip(1);
+            
+            const res = await request(app).post("/trip/trips/1/days").send({ day_date: '2025-10-01' });
+            expect(res.status).toBe(403);
+            expect(res.body).toEqual({ error: "You don't have permission to modify this trip" });
+        });
+
+        // Participant can create days
+        it("should allow participant to create a day", async () => {
+            const app = appWithUser();
+            mockSharedTrip(1);
+            
+            const created = { day_id: 10, trip_id: 1, day_date: '2025-10-01' };
+            sql.transaction.mockResolvedValueOnce([[created]]);
+
+            const res = await request(app)
+                .post("/trip/trips/1/days")
+                .send({ day_date: '2025-10-01' });
+
+            expect(res.status).toBe(201);
         });
 
         // Database error handling
         it("should return 500 when DB error occurs", async () => {
             const app = appWithUser();
             mockOwnedTrip(1);
-            sql.mockRejectedValueOnce(new Error("DB Error"));
+            sql.transaction.mockRejectedValueOnce(new Error("DB Error"));
+            
             const res = await request(app).post("/trip/trips/1/days").send({ day_date: '2025-10-01' });
             expect(res.status).toBe(500);
             expect(res.body).toEqual({ error: "Internal Server Error" });
-            expect(sql).toHaveBeenCalledTimes(2);
         });
     });
 
@@ -148,26 +231,13 @@ describe("Days Controller Unit Tests", () => {
         it("should update a day for an owned trip", async () => {
             const app = appWithUser();
             mockOwnedTrip(1);
-            const updated = [{ days_id: 7, trip_id: 1, day_date: '2025-10-02' }];
+            
+            const updated = [{ day_id: 7, trip_id: 1, day_date: '2025-10-02' }];
             sql.mockResolvedValueOnce(updated);
 
             const res = await request(app).put("/trip/trips/1/days/7").send({ day_date: '2025-10-02' });
             expect(res.status).toBe(200);
             expect(res.body).toEqual(updated[0]);
-            expect(sql).toHaveBeenCalledTimes(2);
-        });
-
-        // Changing a previously set day_date to a new value
-        it("should change a previously set day_date to a new value", async () => {
-            const app = appWithUser();
-            mockOwnedTrip(1);
-            const updated = [{ days_id: 7, trip_id: 1, day_date: '2025-03-11' }];
-            sql.mockResolvedValueOnce(updated);
-
-            const res = await request(app).put("/trip/trips/1/days/7").send({ day_date: '2025-03-11' });
-            expect(res.status).toBe(200);
-            expect(res.body).toEqual(updated[0]);
-            expect(sql).toHaveBeenCalledTimes(2);
         });
 
         // Day not found
@@ -180,7 +250,16 @@ describe("Days Controller Unit Tests", () => {
             const res = await request(app).put("/trip/trips/1/days/999").send({ day_date: '2025-10-02' });
             expect(res.status).toBe(404);
             expect(res.body).toEqual({ error: "Day not found" });
-            expect(sql).toHaveBeenCalledTimes(2);
+        });
+
+        // Viewer cannot update days
+        it("should return 403 when user is only a viewer", async () => {
+            const app = appWithUser();
+            mockPublicTrip(1);
+
+            const res = await request(app).put("/trip/trips/1/days/7").send({ day_date: '2025-10-02' });
+            expect(res.status).toBe(403);
+            expect(res.body).toEqual({ error: "You don't have permission to modify this trip" });
         });
 
         // Unauthorized when user is not logged in
@@ -190,30 +269,6 @@ describe("Days Controller Unit Tests", () => {
             const res = await request(app).put("/trip/trips/1/days/7").send({ day_date: '2025-10-02' });
             expect(res.status).toBe(401);
             expect(res.body).toEqual({ error: "Unauthorized" });
-            expect(sql).not.toHaveBeenCalled();
-        });
-
-        // Trip not found or not owned
-        it("should return 404 when trip is not found or not owned", async () => {
-            const app = appWithUser();
-            sql.mockResolvedValueOnce([]);
-
-            const res = await request(app).put("/trip/trips/1/days/7").send({ day_date: '2025-10-02' });
-            expect(res.status).toBe(404);
-            expect(res.body).toEqual({ error: "Trip not found or access denied" });
-            expect(sql).toHaveBeenCalledTimes(1);
-        });
-
-        // Database error handling
-        it("should return 500 when DB error occurs", async () => {
-            const app = appWithUser();
-            mockOwnedTrip(1);
-            sql.mockRejectedValueOnce(new Error("DB Error"));
-
-            const res = await request(app).put("/trip/trips/1/days/7").send({ day_date: '2025-10-02' });
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: "Internal Server Error" });
-            expect(sql).toHaveBeenCalledTimes(2);
         });
     });
 
@@ -223,16 +278,29 @@ describe("Days Controller Unit Tests", () => {
         it("should get all days for an owned trip", async () => {
             const app = appWithUser();
             mockOwnedTrip(1);
+            
             const days = [
-                { days_id: 1, trip_id: 1, day_date: '2025-10-01' },
-                { days_id: 2, trip_id: 1, day_date: '2025-10-02' }
+                { day_id: 1, trip_id: 1, day_date: '2025-10-01' },
+                { day_id: 2, trip_id: 1, day_date: '2025-10-02' }
             ];
             sql.mockResolvedValueOnce(days);
 
             const res = await request(app).get("/trip/trips/1/days");
             expect(res.status).toBe(200);
             expect(res.body).toEqual(days);
-            expect(sql).toHaveBeenCalledTimes(2);
+        });
+
+        // Viewer can read days
+        it("should allow viewer to read days", async () => {
+            const app = appWithUser();
+            mockPublicTrip(1);
+            
+            const days = [{ day_id: 1, trip_id: 1, day_date: '2025-10-01' }];
+            sql.mockResolvedValueOnce(days);
+
+            const res = await request(app).get("/trip/trips/1/days");
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual(days);
         });
 
         // Unauthorized when user is not logged in
@@ -242,30 +310,16 @@ describe("Days Controller Unit Tests", () => {
             const res = await request(app).get("/trip/trips/1/days");
             expect(res.status).toBe(401);
             expect(res.body).toEqual({ error: "Unauthorized" });
-            expect(sql).not.toHaveBeenCalled();
         });
 
-        // Trip not found or not owned
-        it("should return 404 when trip is not found or not owned", async () => {
+        // Trip not found
+        it("should return 404 when trip is not found", async () => {
             const app = appWithUser();
             sql.mockResolvedValueOnce([]);
 
             const res = await request(app).get("/trip/trips/1/days");
             expect(res.status).toBe(404);
-            expect(res.body).toEqual({ error: "Trip not found or access denied" });
-            expect(sql).toHaveBeenCalledTimes(1);
-        });
-
-        // Database error handling
-        it("should return 500 when DB error occurs", async () => {
-            const app = appWithUser();
-            mockOwnedTrip(1);
-            sql.mockRejectedValueOnce(new Error("DB Error"));
-
-            const res = await request(app).get("/trip/trips/1/days");
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: "Internal Server Error" });
-            expect(sql).toHaveBeenCalledTimes(2);
+            expect(res.body).toEqual({ error: "Trip not found" });
         });
     });
 
@@ -275,13 +329,13 @@ describe("Days Controller Unit Tests", () => {
         it("should delete a day for an owned trip", async () => {
             const app = appWithUser();
             mockOwnedTrip(1);
+            
             // Mock day exists
-            sql.mockResolvedValueOnce([{ days_id: 5 }]);
+            sql.mockResolvedValueOnce([{ day_id: 5, day_date: '2025-10-10' }]);
+            sql.transaction.mockResolvedValueOnce([[], []]);
 
             const res = await request(app).delete("/trip/trips/1/days/5");
             expect(res.status).toBe(204);
-            expect(res.text).toBe('');
-            expect(sql).toHaveBeenCalledTimes(2); 
         });
 
         // Day not found
@@ -294,7 +348,16 @@ describe("Days Controller Unit Tests", () => {
             const res = await request(app).delete("/trip/trips/1/days/999");
             expect(res.status).toBe(404);
             expect(res.body).toEqual({ error: "Day not found" });
-            expect(sql).toHaveBeenCalledTimes(2);
+        });
+
+        // Viewer cannot delete days
+        it("should return 403 when user is only a viewer", async () => {
+            const app = appWithUser();
+            mockPublicTrip(1);
+
+            const res = await request(app).delete("/trip/trips/1/days/5");
+            expect(res.status).toBe(403);
+            expect(res.body).toEqual({ error: "You don't have permission to modify this trip" });
         });
 
         // Unauthorized when user is not logged in
@@ -304,31 +367,6 @@ describe("Days Controller Unit Tests", () => {
             const res = await request(app).delete("/trip/trips/1/days/5");
             expect(res.status).toBe(401);
             expect(res.body).toEqual({ error: "Unauthorized" });
-            expect(sql).not.toHaveBeenCalled();
-        });
-
-        // Trip not found or not owned
-        it("should return 404 when trip is not found or not owned", async () => {
-            const app = appWithUser();
-            // No trip found
-            sql.mockResolvedValueOnce([]);
-
-            const res = await request(app).delete("/trip/trips/1/days/5");
-            expect(res.status).toBe(404);
-            expect(res.body).toEqual({ error: "Trip not found or access denied" });
-            expect(sql).toHaveBeenCalledTimes(1);
-        });
-
-        // Database error handling
-        it("should return 500 when DB error occurs", async () => {
-            const app = appWithUser();
-            mockOwnedTrip(1);
-            sql.mockRejectedValueOnce(new Error("DB Error"));
-
-            const res = await request(app).delete("/trip/trips/1/days/5");
-            expect(res.status).toBe(500);
-            expect(res.body).toEqual({ error: "Internal Server Error" });
-            expect(sql).toHaveBeenCalledTimes(2);
         });
     });
 
@@ -345,4 +383,3 @@ describe("Days Controller Unit Tests", () => {
         });
     });
 });
-

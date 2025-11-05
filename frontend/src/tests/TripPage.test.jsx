@@ -1,15 +1,12 @@
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent, act } from "@testing-library/react";
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import TripPage from "../pages/TripPage";
 import * as tripsApi from "../../api/trips";
 import { MemoryRouter } from "react-router-dom";
 
-
 describe("TripPage", () => {
  beforeEach(() => {
    vi.restoreAllMocks();
-
-
    // Mock fetch for login details
    global.fetch = vi.fn((url) => {
      if (url.includes("/auth/login/details")) {
@@ -29,7 +26,11 @@ describe("TripPage", () => {
  });
 
 
- test("renders loading state before user is loaded", () => {
+    test("renders loading spinner before user is loaded", async () => {
+        // Make fetch simulate user not logged in initially
+        global.fetch.mockResolvedValueOnce({
+            json: async () => ({ loggedIn: false }),
+        });
    render(
      <MemoryRouter>
        <TripPage />
@@ -37,8 +38,9 @@ describe("TripPage", () => {
    );
 
 
-   const loadings = screen.getAllByText(/loading.../i);
-   expect(loadings).toHaveLength(2);  });
+        const loader = await screen.findByTestId("loader");
+        expect(loader).toBeInTheDocument();
+    });
 
 
  test("shows empty state when no trips exist", async () => {
@@ -67,7 +69,6 @@ describe("TripPage", () => {
        trips_id: 101,
        trip_name: "Hawaii",
        trip_location: "Honolulu",
-       days: 5,
      },
    ]);
 
@@ -82,7 +83,6 @@ describe("TripPage", () => {
    await waitFor(() => {
      expect(screen.getByText("Hawaii")).toBeInTheDocument();
      expect(screen.getByText("Honolulu")).toBeInTheDocument();
-     expect(screen.getByText(/5 days/i)).toBeInTheDocument();
    });
  });
 
@@ -112,7 +112,7 @@ describe("TripPage", () => {
 
  test("deletes a trip when Delete is clicked", async () => {
    vi.spyOn(tripsApi, "getTrips").mockResolvedValue([
-     { trips_id: 123, trip_name: "Paris", trip_location: "France", days: 3 },
+     { trips_id: 123, trip_name: "Paris", trip_location: "France" },
    ]);
    vi.spyOn(tripsApi, "deleteTrip").mockResolvedValue();
 
@@ -134,9 +134,86 @@ describe("TripPage", () => {
    fireEvent.click(screen.getByText("⋮")); // open dropdown
    fireEvent.click(screen.getByText(/Delete Trip/i));
 
+   await waitFor(() =>
+     expect(screen.getByText(/Are you sure you want to delete this trip/i)).toBeInTheDocument()
+   );
+
+   fireEvent.click(screen.getByText(/^Delete$/i));
+
 
    await waitFor(() =>
      expect(tripsApi.deleteTrip).toHaveBeenCalledWith(123)
    );
  });
+ test("prevents duplicate trip updates by disabling Save button during submission", async () => {
+  const existingTrip = {
+    trips_id: 123,
+    trip_name: "Original Trip",
+    trip_location: "Original Location",
+    trip_start_date: "2025-01-01",
+    trip_end_date: "2025-01-05"
+  };
+
+  vi.spyOn(tripsApi, "getTrips").mockResolvedValue([existingTrip]);
+  
+  // Mock updateTrip with a delay
+  const updateTripSpy = vi.spyOn(tripsApi, "updateTrip").mockImplementation(() => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({}), 500);
+    });
+  });
+
+  render(
+    <MemoryRouter>
+      <TripPage />
+    </MemoryRouter>
+  );
+
+  // Wait for trip to render
+  await waitFor(() => screen.getByText("Original Trip"));
+
+  // Open dropdown and click Edit
+  fireEvent.click(screen.getByText("⋮"));
+  fireEvent.click(screen.getByText(/Edit Trip/i));
+
+  await waitFor(() => screen.getByText(/Edit Trip/i));
+
+  // Modify the trip name
+  const nameInput = screen.getByDisplayValue("Original Trip");
+  await act(async () => {
+    fireEvent.change(nameInput, { target: { value: "Updated Trip" } });
+  });
+
+  const saveButton = screen.getByRole("button", { name: /^Save$/i });
+  
+  // Click Save
+  await act(async () => {
+    fireEvent.click(saveButton);
+  });
+
+  // Verify button is disabled
+  await waitFor(() => {
+    expect(screen.getByText(/Saving.../i)).toBeInTheDocument();
+  });
+
+  // Try multiple clicks
+  const savingButton = screen.getByRole("button", { name: /Saving.../i });
+  await act(async () => {
+    fireEvent.click(savingButton);
+    fireEvent.click(savingButton);
+  });
+
+  // Verify updateTrip was only called once
+  await waitFor(() => {
+    expect(updateTripSpy).toHaveBeenCalledTimes(1);
+  }, { timeout: 3000 });
+
+  expect(updateTripSpy).toHaveBeenCalledWith(
+    expect.objectContaining({
+      trips_id: 123,
+      trip_name: "Updated Trip"
+    })
+  );
 });
+  });
+  

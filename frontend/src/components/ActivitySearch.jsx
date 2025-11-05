@@ -3,57 +3,76 @@ import axios from "axios";
 import "../css/ActivitySearch.css";
 import "../css/Popup.css";
 import Popup from "../components/Popup";
-import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
-import { Star } from "lucide-react";
+import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
+import {Star, Car, Footprints} from "lucide-react";
+import {MoonLoader} from "react-spinners";
+import {toast} from "react-toastify";
+import OverlapWarning from "./OverlapWarning.jsx";
+import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
+
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
 // Normalize Google price level
 const toPriceSymbol = (level) => {
-  if (level == null) return null;
+    if (level == null) return null;
 
-  switch (level) {
-    case "PRICE_LEVEL_FREE":
-      return "Free";
-    case "PRICE_LEVEL_INEXPENSIVE":
-      return "$";
-    case "PRICE_LEVEL_MODERATE":
-      return "$$";
-    case "PRICE_LEVEL_EXPENSIVE":
-      return "$$$";
-    case "PRICE_LEVEL_VERY_EXPENSIVE":
-      return "$$$$";
-    default: {
-      if (typeof level === "number") return level === 0 ? "Free" : "$".repeat(Math.min(level, 4));
-      const s = String(level);
-      if (/^(\$+|Free)$/i.test(s)) return s.length > 6 ? s.slice(0, 6) : s;
-      return s.slice(0, 6);
+    switch (level) {
+        case "PRICE_LEVEL_FREE":
+            return "Free";
+        case "PRICE_LEVEL_INEXPENSIVE":
+            return "$";
+        case "PRICE_LEVEL_MODERATE":
+            return "$$";
+        case "PRICE_LEVEL_EXPENSIVE":
+            return "$$$";
+        case "PRICE_LEVEL_VERY_EXPENSIVE":
+            return "$$$$";
+        default: {
+            if (typeof level === "number")
+                return level === 0 ? "Free" : "$".repeat(Math.min(level, 4));
+            const s = String(level);
+            if (/^(\$+|Free)$/i.test(s)) return s.length > 6 ? s.slice(0, 6) : s;
+            return s.slice(0, 6);
+        }
     }
-  }
 };
 
 export default function ActivitySearch({
-  onClose,
-  days,
-  dayIds = [],                 // array of DB day_id (index 0 => Day 1)
-  onActivityAdded,             // refresh after save
+    onClose,
+    days,
+    dayIds = [],
+    onActivityAdded,
 }) {
-  const [query, setQuery] = useState("");
-  const [cityQuery, setCityQuery] = useState("");
-  const [results, setResults] = useState([]);
-  const [cityResults, setCityResults] = useState([]);
-  const [selectedDay, setSelectedDay] = useState("");
-  const [creating, setCreating] = useState(false);
+    const [query, setQuery] = useState("");
+    const [cityQuery, setCityQuery] = useState("");
+    const [results, setResults] = useState([]);
+    const [cityResults, setCityResults] = useState([]);
+    const [selectedDay, setSelectedDay] = useState("");
+    const [creating, setCreating] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-  // popup state
-  const [showDetails, setShowDetails] = useState(false);
-  const [newActivityId, setNewActivityId] = useState(null);
-  const [formStartTime, setFormStartTime] = useState("");  // "HH:MM"
-  const [formDuration, setFormDuration] = useState("");    // minutes
-  const [formCost, setFormCost] = useState("");            // number
+    // popup state
+    const [showDetails, setShowDetails] = useState(false);
+    const [formStartTime, setFormStartTime] = useState("");
+    const [formDuration, setFormDuration] = useState("");
+    const [formCost, setFormCost] = useState("");
+    const [notes, setNotes] = useState("");
+    const [distanceInfo, setDistanceInfo] = useState(null);
+    const [dayActivities, setDayActivities] = useState([]);
+    const [selectedPlace, setSelectedPlace] = useState(null);
+    const [transportMode, setTransportMode] = useState("DRIVE");
+    const [distanceLoading, setDistanceLoading] = useState(false);
+    const distanceDebounce = useRef(null);
+    const distanceCache = useRef({});
 
-  const debounceTimeout = useRef(null);
-  const prevCityQuery = useRef("");
+    // pending selection
+    const [pendingPlace, setPendingPlace] = useState(null);
+    const [pendingDayId, setPendingDayId] = useState(null);
+    const [saving, setSaving] = useState(false);
+
+    const debounceTimeout = useRef(null);
+    const prevCityQuery = useRef("");
 
   const priceLevelDisplay = (level) => {
     switch (level) {
@@ -68,72 +87,126 @@ export default function ActivitySearch({
       case "PRICE_LEVEL_VERY_EXPENSIVE":
         return "$$$$";
       default:
-        if (typeof level === "number") return level === 0 ? "Free" : "$".repeat(Math.min(level, 4));
+        if (typeof level === "number")
+          return level === 0 ? "Free" : "$".repeat(Math.min(level, 4));
         if (typeof level === "string" && level.startsWith("$")) return level;
         return "N/A";
     }
   };
 
-  const formatType = (type) => {
-    if (!type) return "N/A";
-    return type
-      .split("_")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ");
+useEffect(() => {
+  if (!selectedDay) return;
+
+  const fetchActivities = async () => {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/read/all`,
+        { dayId: dayIds[selectedDay - 1] },
+        { withCredentials: true }
+      );
+
+      const activities = res.data.activities || [];
+
+      // sort activities by start time
+      const sortedActivities = activities.sort((a, b) => {
+        // convert HH:MM string to minutes
+        const timeToMinutes = (t) => {
+          if (!t) return 0;
+          const [h, m] = t.split(":").map(Number);
+          return h * 60 + m;
+        };
+
+        return timeToMinutes(a.activity_startTime) - timeToMinutes(b.activity_startTime);
+      });
+
+      setDayActivities(sortedActivities);
+    } catch (err) {
+      console.error("Failed to fetch activities:", err);
+    }
   };
 
-const getLocationString = (place) => {
-  const addr = place.addressComponents || [];
-
-  const country =
-    addr.find((c) => c && c.types?.includes("country"))?.shortText || "N/A";
-
-  const region =
-    addr.find((c) => c && c.types?.includes("administrative_area_level_1"))?.shortText ||
-    addr.find((c) => c && c.types?.includes("administrative_area_level_2"))?.shortText ||
-    addr.find((c) => c && c.types?.includes("sublocality"))?.shortText ||
-    "N/A";
-
-  const city =
-    addr.find((c) => c && c.types?.includes("locality"))?.longText ||
-    addr.find((c) => c && c.types?.includes("sublocality"))?.longText ||
-    addr.find((c) => c && c.types?.includes("neighborhood"))?.longText ||
-    region; 
-
-  // only include parts that are not "N/A"
-  return [city, region, country].filter((v) => v && v !== "N/A").join(", ");
-};
+  fetchActivities();
+}, [selectedDay]);
 
 
 
-  // City autocomplete
-  useEffect(() => {
-    if (cityQuery.length < 2 || cityQuery === prevCityQuery.current) {
-      setCityResults([]);
-      return;
-    }
+    const formatType = (type) => {
+        if (!type) return "N/A";
+        return type
+            .split("_")
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(" ");
+    };
 
-    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    const getLocationString = (place) => {
+        const addr = place.addressComponents || [];
 
-    debounceTimeout.current = setTimeout(async () => {
-      try {
-        const res = await axios.post(
-          `${BASE_URL}/placesAPI/cityAutocomplete`,
-          { query: cityQuery },
-          { withCredentials: true }
-        );
-        const suggestions = res.data.result?.suggestions || [];
-        setCityResults(suggestions.slice(0, 5));
-        prevCityQuery.current = cityQuery;
-      } catch (err) {
-        console.error("Autocomplete error:", err?.response?.data || err.message);
-      }
-    }, 800);
+        const country =
+            addr.find((c) => c && c.types?.includes("country"))?.shortText || "N/A";
 
-    return () => clearTimeout(debounceTimeout.current);
-  }, [cityQuery]);
+        const region =
+            addr.find((c) => c && c.types?.includes("administrative_area_level_1"))
+                ?.shortText ||
+            addr.find((c) => c && c.types?.includes("administrative_area_level_2"))
+                ?.shortText ||
+            addr.find((c) => c && c.types?.includes("sublocality"))?.shortText ||
+            "N/A";
 
-  // Search submit
+        const city =
+            addr.find((c) => c && c.types?.includes("locality"))?.longText ||
+            addr.find((c) => c && c.types?.includes("sublocality"))?.longText ||
+            addr.find((c) => c && c.types?.includes("neighborhood"))?.longText ||
+            region;
+
+        return [city, region, country]
+            .filter((v) => v && v !== "N/A")
+            .join(", ");
+    };
+
+  // toggle between transport modes
+  const toggleTransportMode = () => {
+    if (distanceLoading || !distanceInfo) return;
+    const newMode = transportMode === "DRIVE" ? "WALK" : "DRIVE";
+    setTransportMode(newMode);
+  };
+
+  const formatDuration = (minutes) => {
+    if (minutes == null) return "N/A";
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hrs > 0) return `${hrs}h ${mins}mins`;
+    return `${mins}mins`;
+  };
+
+
+    // City autocomplete
+    useEffect(() => {
+        if (cityQuery.length < 2 || cityQuery === prevCityQuery.current) {
+            setCityResults([]);
+            return;
+        }
+
+        if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+
+        debounceTimeout.current = setTimeout(async () => {
+            try {
+                const res = await axios.post(
+                    `${BASE_URL}/placesAPI/cityAutocomplete`,
+                    { query: cityQuery },
+                    { withCredentials: true }
+                );
+                const suggestions = res.data.result?.suggestions || [];
+                setCityResults(suggestions.slice(0, 5));
+                prevCityQuery.current = cityQuery;
+            } catch (err) {
+                console.error("Autocomplete error:", err?.response?.data || err.message);
+            }
+        }, 800);
+
+        return () => clearTimeout(debounceTimeout.current);
+    }, [cityQuery]);
+
+  //  Search submit with loader
   const handleSubmit = async (e) => {
     e.preventDefault();
     const combinedQuery = cityQuery ? `${query} in ${cityQuery}` : query;
@@ -142,272 +215,471 @@ const getLocationString = (place) => {
       return;
     }
     try {
+      setLoading(true);
       const res = await axios.post(
-        `${BASE_URL}/placesAPI/search`,
-        { query: combinedQuery },
-        { withCredentials: true }
+          `${BASE_URL}/placesAPI/search`,
+          { query: combinedQuery },
+          { withCredentials: true }
       );
       setResults(res.data.results || []);
     } catch (err) {
       console.error("Search error:", err?.response?.data || err.message);
-    }
-  };
-
-  // Add to Trip, create then open popup
-  const handleAddToTrip = async (place) => {
-    if (!selectedDay) {
-      alert("Please choose a day first.");
-      return;
-    }
-
-    // map Day 1..N to actual DB day_id
-    const idx = Number(selectedDay) - 1;
-    const dayId = dayIds[idx];
-
-    if (!dayId) {
-      alert("Could not resolve the selected day. Please refresh and try again.");
-      return;
-    }
-
-    const name = place.displayName?.text || "Activity";
-    const address = getLocationString(place);
-    const type = place.primaryType || null;
-    const priceLevel = toPriceSymbol(place.priceLevel);
-    const rating = place.rating ?? null;
-    const lat = place.location?.lat ?? place.location?.latitude ?? null;
-    const lng = place.location?.lng ?? place.location?.longitude ?? null;
-
-    const payload = {
-      day: dayId,
-      activity: {
-        name,
-        address,
-        type,
-        priceLevel,
-        rating,
-        longitude: lng,
-        latitude: lat,
-        // time/duration/cost will be set in popup via /activities/update
-      },
-    };
-
-    try {
-      setCreating(true);
-      const res = await axios.post(
-        `${BASE_URL}/activities/create`,
-        payload,
-        { withCredentials: true }
-      );
-
-      const created = res.data?.activity;
-      // backend returns activity_id 
-      const id = created?.activity_id ?? created?.id;
-      if (!id) {
-        console.warn("Created activity but did not receive an ID:", created);
-        alert("Activity created, but could not open details.");
-        setCreating(false);
-        return;
-      }
-
-      // Save id and open details popup
-      setNewActivityId(id);
-      setFormStartTime("");
-      setFormDuration("");
-      setFormCost("");
-      setShowDetails(true);
-    } catch (err) {
-      console.error("Error adding activity:", err?.response?.data || err.message);
-      alert("Failed to add activity. Check server logs for details.");
     } finally {
-      setCreating(false);
+      setLoading(false);
     }
   };
 
-  // Save details
-  const handleSaveDetails = async () => {
-    try {
-      const updatePayload = {
-        activityId: newActivityId,
-        activity: {
-          startTime: formStartTime || null,
-          duration: formDuration === "" ? null : Number(formDuration),
-          estimatedCost: formCost === "" ? null : Number(formCost),
-        },
+  const handleDistanceCheck = (startTime) => {
+    if (!selectedPlace) return;
+
+    if (distanceDebounce.current) clearTimeout(distanceDebounce.current);
+
+    distanceDebounce.current = setTimeout(() => {
+      try {
+        const timeToMinutes = (t) => {
+          if (!t) return 0;
+          const [h, m] = t.split(":").map(Number);
+          return h * 60 + m;
+        };
+
+        const newTime = timeToMinutes(startTime);
+        let prevActivity = null;
+
+        for (let i = 0; i < dayActivities.length; i++) {
+          const currActivity = dayActivities[i];
+          const activityTime = timeToMinutes(currActivity.activity_startTime);
+
+          if (activityTime >= newTime) break;
+          prevActivity = currActivity;
+        }
+
+        if (!prevActivity) {
+          setDistanceInfo(null);
+          return;
+        }
+
+        const origin = {
+          latitude: prevActivity.latitude,
+          longitude: prevActivity.longitude,
+        };
+        const destination = {
+          latitude: pendingPlace.location?.latitude,
+          longitude: pendingPlace.location?.longitude,
+        };
+
+        findDistance(origin, destination, transportMode, prevActivity);
+      } catch (err) {
+        toast.error("Failed to fetch distance info.");
+        console.error("Distance fetch error:", err?.response?.data || err.message);
+      }
+    }, 2500); 
+  };
+
+  // find distance between activities with caching
+  async function findDistance(origin, destination, transportation, previousActivity){
+    // create cache key
+    const cacheKey = `${origin.latitude},${origin.longitude}-${destination.latitude},${destination.longitude}`;
+    
+    // check if we already have both distances cached
+    if (distanceCache.current[cacheKey]?.DRIVE && distanceCache.current[cacheKey]?.WALK) {
+      const cached = distanceCache.current[cacheKey];
+      setDistanceInfo({
+        driving: cached.DRIVE,
+        walking: cached.WALK,
+        previousActivityName: previousActivity.activity_name,
+        prevActivityLat: previousActivity.latitude,
+        prevActivityLng: previousActivity.longitude
+      });
+      return;
+    }
+
+    try{
+      setDistanceLoading(true);
+      
+      // fetch both modes in parallel
+      const [driveRes, walkRes] = await Promise.all([
+        axios.post(`${BASE_URL}/routesAPI/distance/between/activity`, {
+          origin,
+          destination,
+          wayOfTransportation: "DRIVE"
+        }),
+        axios.post(`${BASE_URL}/routesAPI/distance/between/activity`, {
+          origin,
+          destination,
+          wayOfTransportation: "WALK"
+        })
+      ]);
+
+      const driveData = {
+        distanceMiles: driveRes.data.distanceMiles,
+        durationMinutes: Math.round(driveRes.data.durationSeconds / 60)
+      };
+      
+      const walkData = {
+        distanceMiles: walkRes.data.distanceMiles,
+        durationMinutes: Math.round(walkRes.data.durationSeconds / 60)
       };
 
-      await axios.put(
-        `${BASE_URL}/activities/update`,
-        updatePayload,
-        { withCredentials: true }
-      );
+      // cache both results
+      distanceCache.current[cacheKey] = {
+        DRIVE: driveData,
+        WALK: walkData
+      };
 
-      setShowDetails(false);
-      setNewActivityId(null);
+      setDistanceInfo({
+        driving: driveData,
+        walking: walkData,
+        previousActivityName: previousActivity.activity_name,
+        prevActivityLat: previousActivity.latitude,
+        prevActivityLng: previousActivity.longitude
+      });
 
-      onActivityAdded && onActivityAdded();
-    } catch (err) {
-      console.error("Error updating activity:", err?.response?.data || err.message);
-      alert("Failed to save details. Please try again.");
+    } catch (err){
+      toast.error("There was an issue trying to compute the distance")
+      console.error(err);
+    } finally {
+      setDistanceLoading(false);
     }
-  };
+  }
+  // Open popup only 
+  const handleAddToTrip = (place) => {
+    if (!selectedDay) {
+      toast.error("Please choose a day first.");
+      return;
+    }
 
-  return (
-    <>
-      <div className="drawer">
-        <button className="collapse-btn" onClick={onClose}>
-          ×
-        </button>
+    setSelectedPlace(place);
 
-        <h2 className="search-title">Add Activities</h2>
+        const idx = Number(selectedDay) - 1;
+        const dayId = dayIds[idx];
+        if (!dayId) {
+            alert("Could not resolve selected day. Please refresh and try again.");
+            toast.error("Could not resolve the selected day. Please refresh and try again.");
+            return;
+        }
 
-        <form onSubmit={handleSubmit}>
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search activity type..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+        setPendingPlace(place);
+        setPendingDayId(dayId);
 
-            <div className="city-autocomplete-wrapper">
-              <input
-                type="text"
-                placeholder="Enter location..."
-                value={cityQuery}
-                onChange={(e) => setCityQuery(e.target.value)}
-              />
-              {cityResults.length > 0 && (
-                <ul className="city-results-dropdown">
-                  {cityResults.map((suggestion, idx) => (
-                    <li
-                      key={idx}
-                      onClick={() => {
-                        const selectedCity =
-                          suggestion.placePrediction?.text?.text || "";
-                        setCityQuery(selectedCity);
-                        setCityResults([]);
-                        prevCityQuery.current = selectedCity;
-                      }}
-                    >
-                      {suggestion.placePrediction?.text?.text || ""}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
+        // reset form & open popup
+        setFormStartTime("");
+        setFormDuration("");
+        setFormCost("");
+        setNotes("");
+        setDistanceInfo(null);
+        setTransportMode("DRIVE");
+        setShowDetails(true);
+    };
 
-          <div className="search-actions">
-            <select
-              value={selectedDay}
-              onChange={(e) => setSelectedDay(Number(e.target.value))}
-            >
-              <option value="">Any Day</option>
-              {[...Array(days)].map((_, idx) => (
-                <option key={idx + 1} value={idx + 1}>
-                  {`Day ${idx + 1}`}
-                </option>
-              ))}
-            </select>
-            <button type="submit" className="search-btn">
-              Search
-            </button>
-          </div>
-        </form>
+    // Save details create then update, row is created only after Save
+    const handleSaveDetails = async () => {
+        if (!pendingPlace || !pendingDayId) {
+            toast.error("Something went wrong. Please try again.");
+            return;
+        }
 
-        <div className="search-results">
-          {results.map((place, idx) => (
-            <div key={idx} className="activity-card">
-              <div className="card-content">
-                <h3>{place.displayName?.text}</h3>
-                <p className="detail">{getLocationString(place)}</p>
-                <p className="detail">Type: {formatType(place.primaryType)}</p>
-                <p className="price">{priceLevelDisplay(place.priceLevel)}</p>
-                <p className="detail">
-                  {place.rating !== undefined ? (
-                    <span className="stars">
-                      <Star className="star" size={16} fill="currentColor" />
-                      {` ${place.rating}`}
-                    </span>
-                  ) : (
-                    "No ratings available"
-                  )}
-                </p>
-              </div>
+        // Build payload from the selected place
+        const place = pendingPlace;
+        const name = place.displayName?.text || "Activity";
+        const address = getLocationString(place);
+        const type = place.primaryType || null;
+        const priceLevel = toPriceSymbol(place.priceLevel);
+        const rating = place.rating ?? null;
+        const lat = place.location?.lat ?? place.location?.latitude ?? null;
+        const lng = place.location?.lng ?? place.location?.longitude ?? null;
+        const website = place.websiteUri || null;
 
-              <div className="card-actions">
-                {place.websiteUri ? (
-                  <a
-                    href={place.websiteUri}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="website-link"
-                  >
-                    Website
-                  </a>
-                ) : (
-                  <span className="website-link disabled">No website</span>
-                )}
-                <button
-                  className="add-btn"
-                  onClick={() => handleAddToTrip(place)}
-                  disabled={creating}
-                >
-                  {creating ? "Adding..." : "Add to Trip"}
+        const createPayload = {
+            day: pendingDayId,
+            activity: {
+                name,
+                address,
+                type,
+                priceLevel,
+                rating,
+                longitude: lng,
+                latitude: lat,
+                website,
+                // time/duration/cost will be set in popup via /activities/update
+            },
+        };
+
+        setSaving(true);
+        try {
+            // Create the activity
+            const createRes = await axios.post(
+                `${BASE_URL}/activities/create`,
+                createPayload,
+                { withCredentials: true }
+            );
+            const created = createRes.data?.activity;
+            const activityId = created?.activity_id ?? created?.id;
+            if (!activityId) {
+                toast.error("Activity created but no ID returned.");
+                setSaving(false);
+                return;
+            }
+
+            // Update with details from popup
+            const updatePayload = {
+                activityId,
+                activity: {
+                    startTime: formStartTime || null,
+                    duration: formDuration === "" ? null : Number(formDuration),
+                    estimatedCost: formCost === "" ? null : Number(formCost),
+                    notesForActivity: notes || null, // ok if backend ignores it
+                },
+            };
+
+            await axios.put(`${BASE_URL}/activities/update`, updatePayload, {
+                withCredentials: true,
+            });
+
+            toast.success("Activity added!");
+            setShowDetails(false);
+            setPendingPlace(null);
+            setPendingDayId(null);
+
+            onActivityAdded && onActivityAdded();
+            if (window.innerWidth <= 950) {
+                onClose && onClose();
+            }
+        } catch (err) {
+            console.error("Save failed:", err?.response?.data || err.message);
+            toast.error("Failed to save details. Please try again.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return (
+        <>
+            <div className="drawer">
+                <button className="collapse-btn" onClick={onClose}>
+                    ×
                 </button>
-              </div>
+
+                <h2 className="search-title">Add Activities</h2>
+
+                <form onSubmit={handleSubmit}>
+                    <div className="search-bar">
+                        <input
+                            type="text"
+                            placeholder="Search activity type..."
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
+
+                        <div className="city-autocomplete-wrapper">
+                            <input
+                                type="text"
+                                placeholder="Enter location..."
+                                value={cityQuery}
+                                onChange={(e) => setCityQuery(e.target.value)}
+                            />
+                            {cityResults.length > 0 && (
+                                <ul className="city-results-dropdown">
+                                    {cityResults.map((suggestion, idx) => (
+                                        <li
+                                            key={idx}
+                                            onClick={() => {
+                                                const selectedCity =
+                                                    suggestion.placePrediction?.text?.text || "";
+                                                setCityQuery(selectedCity);
+                                                setCityResults([]);
+                                                prevCityQuery.current = selectedCity;
+                                            }}
+                                        >
+                                            {suggestion.placePrediction?.text?.text || ""}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="search-actions">
+                        <select
+                            value={selectedDay}
+                            onChange={(e) => setSelectedDay(Number(e.target.value))}
+                        >
+                            <option value="">Any Day</option>
+                            {[...Array(days)].map((_, idx) => (
+                                <option key={idx + 1} value={idx + 1}>
+                                    {`Day ${idx + 1}`}
+                                </option>
+                            ))}
+                        </select>
+                        <button type="submit" className="search-btn">
+                            Search
+                        </button>
+                    </div>
+                </form>
+
+                {/*  Loader integrated here */}
+                <div className="search-results">
+                    {loading ? (
+                        <div className="loading-container">
+                            <MoonLoader color="var(--accent)" size={50} speedMultiplier={0.9} />
+                        </div>
+                    ) : results.length > 0 ? (
+                        results.map((place, idx) => (
+                            <div key={idx} className="activity-card">
+                                <div className="card-content">
+                                    <h3>{place.displayName?.text}</h3>
+                                    <p className="detail">{getLocationString(place)}</p>
+                                    <p className="detail">Type: {formatType(place.primaryType)}</p>
+                                    <p className="price">{priceLevelDisplay(place.priceLevel)}</p>
+                                    <p className="detail">
+                                        {place.rating !== undefined ? (
+                                            <span className="stars">
+                                                <Star className="star" size={16} fill="currentColor" />
+                                                {` ${place.rating}`}
+                                            </span>
+                                        ) : (
+                                            "No ratings available"
+                                        )}
+                                    </p>
+                                </div>
+
+                                <div className="card-actions">
+                                    {place.websiteUri ? (
+                                        <a
+                                            href={place.websiteUri}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="website-link"
+                                        >
+                                            Website
+                                        </a>
+                                    ) : (
+                                        <span className="website-link disabled">No website</span>
+                                    )}
+                                    <button
+                                        className="add-btn"
+                                        onClick={() => handleAddToTrip(place)}
+                                        disabled={creating}
+                                    >
+                                        Add to Trip
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="no-results-text">No results yet. Try a search!</p>
+                    )}
+                </div>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {showDetails && (
-        <Popup
-          title="Add Activity Details"
-          buttons={
-            <>
-              <button type="button" onClick={() => setShowDetails(false)}>
-                Cancel
-              </button>
-              <button type="button" onClick={handleSaveDetails}>
-                Save
-              </button>
-            </>
-          }
-        >
-          <label className="popup-input">
-            <span>Start time</span>
-            <input
-              type="time"
-              value={formStartTime}
-              onChange={(e) => setFormStartTime(e.target.value)}
+            {/* Popup for activity details */}
+            {showDetails && (
+                <Popup
+                    title="Add Activity Details"
+                    buttons={
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowDetails(false);
+                                    setPendingPlace(null);
+                                    setPendingDayId(null);
+                                }}
+                                disabled={saving}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                              className={"btn-rightside"}
+                                type="button"
+                                onClick={handleSaveDetails}
+                                disabled={saving}
+                                style={{
+                                    opacity: saving ? 0.5 : 1,
+                                    pointerEvents: saving ? "none" : "auto",
+                                    cursor: saving ? "not-allowed" : "pointer",
+                                    transition: "opacity 0.3s ease"
+                                }}
+                            >
+                                {saving ? "Saving..." : "Save"}
+                            </button>
+                        </>
+                    }
+                >
+            <DistanceAndTimeInfo
+              distanceInfo={distanceInfo}
+              transportMode={transportMode}
+              distanceLoading={distanceLoading}
+              onToggleTransportMode={toggleTransportMode}
+              formatDuration={formatDuration}
             />
-          </label>
 
-          <label className="popup-input">
-            <span>Duration (minutes)</span>
-            <input
-              type="number"
-              min="0"
-              placeholder="e.g. 90"
-              value={formDuration}
-              onChange={(e) => setFormDuration(e.target.value)}
-            />
-          </label>
+                    <label className="popup-input" htmlFor="start-time-input">
+                        <span>Start time</span>
+                        <span>
+                            <OverlapWarning
+                                formStartTime={formStartTime}
+                                formDuration={formDuration}
+                                selectedDay={selectedDay}
+                                dayIds={dayIds}
+                            />
+                        </span>
+                        <input className = "time-picker"
+                            type="time"
+                            value={formStartTime}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setFormStartTime(val);
 
-          <label className="popup-input">
-            <span>Estimated cost ($)</span>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="e.g. 25"
-              value={formCost}
-              onChange={(e) => setFormCost(e.target.value)}
-            />
-          </label>
-        </Popup>
-      )}
-    </>
-  );
+                              setDistanceInfo(null);
+
+                              // check if time is fully entered
+                              if (/^\d{2}:\d{2}$/.test(val)) {
+                                handleDistanceCheck(val);
+                              }
+                            }}
+                            disabled={saving}
+                        />
+                    </label>
+
+                    <label className="popup-input">
+                        <span>Duration (minutes)</span>
+                        <input
+                            type="number"
+                            min="0"
+                            placeholder="e.g. 90"
+                            value={formDuration}
+                            onChange={(e) => setFormDuration(e.target.value)}
+                            disabled={saving}
+                        />
+                    </label>
+
+                    <label className="popup-input">
+                        <span>Notes</span>
+                        <textarea
+                            className="textarea-notes"
+                            maxLength={200}
+                            placeholder="Enter any notes you have about your activity!"
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            disabled={saving}
+                        />
+                        <div className="char-count">{notes.length} / 200</div>
+                    </label>
+
+                    <label className="popup-input">
+                        <span>Estimated cost ($)</span>
+                        <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="e.g. 25"
+                            value={formCost}
+                            onChange={(e) => setFormCost(e.target.value)}
+                            disabled={saving}
+                        />
+                    </label>
+                </Popup>
+            )}
+        </>
+    );
 }

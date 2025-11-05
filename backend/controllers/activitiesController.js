@@ -1,23 +1,6 @@
 import axios from "axios";
 import { sql } from "../config/db.js";
 
-// convert "HH:MM" (24h) to a JS Date anchored to 1970-01-01 (UTC)
-function toTimestampFromHHMM(value, timeZone) {
-  if (!value) return null;
-  const [hh, mm] = value.split(":").map(Number);
-  if (isNaN(hh) || isNaN(mm)) return null;
-
-  // Build a date anchored at 1970-01-01 in the user's timezone
-  const dateStr = `1970-01-01T${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:00`;
-  
-  // This converts the local "user timezone" time to a Date object in UTC
-  const localDate = new Date(dateStr);
-  const utcDateStr = localDate.toLocaleString("en-US", { timeZone });
-  const utcDate = new Date(utcDateStr);
-
-  return utcDate;
-}
-
 // Map undefined → null so inserts/updates send proper NULLs to Postgres
 const v = (x) => (x === undefined ? null : x);
 
@@ -63,7 +46,7 @@ export const addActivity = async (req, res) => {
       rating,
       longitude,
       latitude,
-      userTimeZone
+      website,
     } = activity || {};
 
     // Query for inserting new activity into db (time/cost/duration set via update)
@@ -76,7 +59,8 @@ export const addActivity = async (req, res) => {
          "activity_address",
          "activity_rating",
          "longitude",
-         "latitude")
+         "latitude",
+         "activity_website")
       VALUES
         (${day},
          ${v(name)},
@@ -85,7 +69,8 @@ export const addActivity = async (req, res) => {
          ${v(address)},
          ${v(rating)},
          ${v(longitude)},
-         ${v(latitude)});
+         ${v(latitude)},
+         ${v(website)});
     `;
 
     // Return the most recently inserted row for this day/name
@@ -112,17 +97,14 @@ export const updateActivity = async (req, res) => {
   try {
     // Pull current values of activity we updating
     const { activityId, activity } = req.body;
-    const { startTime, duration, estimatedCost, userTimeZone } = activity || {};
+    const { startTime, duration, estimatedCost, notesForActivity } = activity || {};
 
     if (!activityId || !activity) {
       // Error handling if fields for updating activity are empty
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Convert "HH:MM" → timestamp anchored to 1970-01-01 for TIMESTAMP column
-    //const startTs = toTimestampFromHHMM(startTime);
-
-    const startTs = toTimestampFromHHMM(startTime, userTimeZone);
+    const startTs = startTime ? `${startTime}:00` : null;
 
     // Convert minutes → interval literal (or null)
     const durationInterval =
@@ -135,7 +117,8 @@ export const updateActivity = async (req, res) => {
       UPDATE activities
       SET "activity_startTime"       = ${startTs},
           "activity_duration"        = ${durationInterval}::interval,
-          "activity_price_estimated" = ${estimatedCost ?? null}
+          "activity_price_estimated" = ${estimatedCost ?? null},
+          "notes"                    = ${v(notesForActivity)}
       WHERE "activity_id" = ${activityId};
     `;
 
@@ -206,4 +189,95 @@ export const readAllActivities = async (req, res) => {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
+};
+
+export const updateNotesForActivity = async (req, res) => {
+  try{
+    const { activityId, notes } = req.body;
+    
+    if (!activityId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    await sql`
+      UPDATE activities 
+      SET notes = ${v(notes)}
+      WHERE activity_id = ${activityId};
+    `
+
+    res.status(200).json({ message: "Notes updated successfully" });
+
+  } catch (err){
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const checkOverlappingTimes = async (req, res) => {
+    try {
+        const { dayId, proposedStartTime, proposedDuration} = req.body;
+        if (!dayId || !proposedStartTime || !proposedDuration) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+        const proposedStartTs = `${proposedStartTime}:00`;
+        const proposedDurationInterval = `${Number(proposedDuration)} minutes`;
+        
+        const overlappingActivities = await sql`
+          SELECT * FROM activities
+          WHERE "day_id" = ${dayId}
+          AND NOT (
+      (
+        (extract(epoch FROM ("activity_startTime"::time)) + extract(epoch FROM ("activity_duration"))) <=
+        extract(epoch FROM (${proposedStartTs}::time))
+      )
+        OR
+      (
+        extract(epoch FROM ("activity_startTime"::time)) >=
+        (extract(epoch FROM (${proposedStartTs}::time)) + extract(epoch FROM (${proposedDurationInterval}::interval)))
+    )
+  );
+`;
+
+
+        return res.status(200).json({ overlappingActivities });
+    } catch (err) {
+        console.error("Error checking overlapping times:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+//Endpoint checks overlapping times and also takes in ActivityID in request body
+//So that it will not flag when editing an activity by the activity itself
+export const checkOverlappingTimesForEdit = async (req, res) => {
+    try {
+        const { dayId, proposedStartTime, proposedDuration, activityId } = req.body;
+        if (!dayId || !proposedStartTime || !proposedDuration || !activityId) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+        const proposedStartTs = `${proposedStartTime}:00`;
+        const proposedDurationInterval = `${Number(proposedDuration)} minutes`;
+        
+        const overlappingActivities = await sql`
+      SELECT * FROM activities
+      WHERE "day_id" = ${dayId}
+      AND "activity_id" != ${activityId}
+      AND NOT (
+    (
+      (extract(epoch FROM ("activity_startTime"::time)) + extract(epoch FROM ("activity_duration"))) <=
+      extract(epoch FROM (${proposedStartTs}::time))
+    )
+    OR
+    (
+      extract(epoch FROM ("activity_startTime"::time)) >=
+      (extract(epoch FROM (${proposedStartTs}::time)) + extract(epoch FROM (${proposedDurationInterval}::interval)))
+    )
+  );
+`;
+
+
+        return res.status(200).json({ overlappingActivities });
+    } catch (err) {
+        console.error("Error checking overlapping times for edit:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
 };

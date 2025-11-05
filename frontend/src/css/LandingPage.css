@@ -4,10 +4,6 @@
     font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
-.accent {
-    color: var(--accent);
-}
-
 .top-bar {
     align-items: center;
     background: var(--bg-surface);
@@ -35,18 +31,35 @@
 }
 
 .login-link {
+    position: relative;
     color: var(--text);
     cursor: pointer;
     font-size: clamp(0.9rem, 0.85rem + 0.2vw, 1rem);
     font-weight: 600;
-    padding-bottom: 2px;
     text-decoration: none;
-    transition: color 0.2s ease, border-bottom 0.2s ease;
+    padding-bottom: 2px;
+    transition: color 0.3s ease;
+}
+
+.login-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0;
+    background: var(--accent);
+    transition: width 0.3s ease;
 }
 
 .login-link:hover {
-    border-bottom: 2px solid var(--accent);
+    border-bottom: 1px solid var(--accent);
     color: var(--accent);
+    text-decoration: none;
+}
+
+.login-link:hover::after {
+    width: 100%;
 }
 
 .btn {
@@ -62,26 +75,15 @@
 .btn-primary {
     background: var(--accent);
     box-shadow: var(--shadow-1);
-    color: #ffffff;
+    color: var(--bg-surface);
 }
 
 .btn-primary:hover {
-    background: #16632f;
+    background: var(--accent-dark);
 }
 
 .btn-primary:active {
     transform: scale(0.98);
-}
-
-.hero-cta {
-    font-size: clamp(1.2rem, 1rem + 0.6vw, 1.5rem);
-    margin-top: clamp(1rem, 0.7rem + 1.2vw, 1.75rem);
-    padding: 1.2rem 2.2rem;
-}
-
-.hero-cta:hover {
-    box-shadow: 0 8px 20px #d3d8e0;
-    transform: translateY(-3px) scale(1.05);
 }
 
 .hero {
@@ -96,7 +98,7 @@
 }
 
 .hero-title {
-    color: #0b1120;
+    color: var(--text-strong);
     font-family: Tahoma, Verdana, Segoe, sans-serif;
     font-size: clamp(2.25rem, 1.5rem + 3.8vw, 4rem);
     font-weight: 700;
@@ -112,6 +114,17 @@
     max-width: 44rem;
 }
 
+.hero-cta {
+    font-size: clamp(1.2rem, 1rem + 0.6vw, 1.5rem);
+    margin-top: clamp(1rem, 0.7rem + 1.2vw, 1.75rem);
+    padding: 1.2rem 2.2rem;
+}
+
+.hero-cta:hover {
+    box-shadow: 0 8px 20px var(--border);
+    transform: translateY(-3px) scale(1.05);
+}
+
 .sub {
     background: var(--bg-surface);
     padding: clamp(2.5rem, 4vw + 1rem, 4rem) 1rem;
@@ -125,7 +138,7 @@
 }
 
 .sub-title {
-    color: #0b1120;
+    color: var(--text-strong);
     font-family: Tahoma, Verdana, Segoe, sans-serif;
     font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.25rem);
     font-weight: 700;
@@ -145,12 +158,27 @@
     padding-top: 0.25rem;
 }
 
+/*4 per row, 2 for tablet, 1 for mobile */
 .features-grid {
     display: grid;
-    gap: 2rem;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
     margin: 0 auto;
-    max-width: 64rem;
+    max-width: 1200px;
+}
+
+/* Tablet (2 per row) */
+@media (max-width: 900px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile (1 per row) */
+@media (max-width: 600px) {
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .feature-card {
@@ -161,16 +189,18 @@
     padding: 1.5rem;
     text-align: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-height: 250px;
 }
 
 .feature-card:hover {
-    box-shadow: 0 6px 18px #d3d8e0;
+    box-shadow: 0 6px 18px var(--border);
     transform: translateY(-3px);
 }
 
 .feature-icon {
     color: var(--accent);
     margin-bottom: 1rem;
+    font-size: 1.75rem;
 }
 
 .feature-title {
@@ -183,6 +213,7 @@
 .feature-text {
     color: var(--muted);
     font-size: 0.95rem;
+    line-height: 1.5;
 }
 
 .loved {
@@ -197,6 +228,7 @@
     font-size: clamp(1.5rem, 1rem + 2vw, 2.25rem);
     font-weight: 700;
     margin-bottom: 0.25rem;
+    color: var(--text-strong);
 }
 
 .loved-sub {
@@ -207,7 +239,7 @@
 }
 
 .testimonials {
-    background: color-mix(in oklab, var(--bg-offwhite) 92%, white);
+    background: color-mix(in oklab, var(--bg-offwhite) 92%, var(--bg-surface));
     padding: clamp(2rem, 4vw + 1rem, 4rem) 1rem;
     padding-top: 0.75rem;
 }
@@ -242,7 +274,7 @@
 }
 
 .quote {
-    color: #0f172a;
+    color: var(--text-strong);
     font-style: italic;
     line-height: 1.6;
     margin: 0 0 1rem 0;
@@ -257,7 +289,7 @@
 .avatar {
     background: var(--accent);
     border-radius: 50%;
-    color: #ffffff;
+    color: var(--bg-surface);
     display: grid;
     font-weight: 700;
     height: 36px;
@@ -283,6 +315,83 @@
     color: var(--muted);
 }
 
+.accent {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text);
+    padding: 0.4rem 0.6rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.theme-toggle:hover {
+    box-shadow: var(--shadow-1);
+}
+
+/* Chrome/Edge/Safari:*/
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.landing::-webkit-scrollbar,
+.features::-webkit-scrollbar,
+.testimonials::-webkit-scrollbar,
+.features-grid::-webkit-scrollbar,
+.testimonials-grid::-webkit-scrollbar {
+    width: var(--sb-size);
+    height: var(--sb-size);
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+.landing::-webkit-scrollbar-track,
+.features::-webkit-scrollbar-track,
+.testimonials::-webkit-scrollbar-track,
+.features-grid::-webkit-scrollbar-track,
+.testimonials-grid::-webkit-scrollbar-track {
+    background: var(--sb-track);
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+.landing::-webkit-scrollbar-thumb,
+.features::-webkit-scrollbar-thumb,
+.testimonials::-webkit-scrollbar-thumb,
+.features-grid::-webkit-scrollbar-thumb,
+.testimonials-grid::-webkit-scrollbar-thumb {
+    background-color: var(--sb-thumb);
+    border-radius: 999px;
+    border: 2px solid var(--sb-track);
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+.landing::-webkit-scrollbar-thumb:hover,
+.features::-webkit-scrollbar-thumb:hover,
+.testimonials::-webkit-scrollbar-thumb:hover,
+.features-grid::-webkit-scrollbar-thumb:hover,
+.testimonials-grid::-webkit-scrollbar-thumb:hover {
+    background-color: var(--sb-thumb-hover);
+}
+
+/* Firefox*/
+html, body,
+.landing,
+.features,
+.testimonials,
+.features-grid,
+.testimonials-grid {
+    scrollbar-width: thin;
+    scrollbar-color: var(--sb-thumb) var(--sb-track);
+}
+/*Responsive Top Bar*/
 @media (max-width: 420px) {
     .nav-links {
         gap: 0.5rem;

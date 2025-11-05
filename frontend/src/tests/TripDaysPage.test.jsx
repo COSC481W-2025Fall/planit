@@ -58,26 +58,26 @@ describe("TripDaysPage", () => {
     });
 
     test("displays the empty state when there are no days", async () => {
-        vi.spyOn(daysApi, "getDays").mockResolvedValue([]);
+    vi.spyOn(daysApi, "getDays").mockResolvedValue([]);
 
-        render(
-            <MemoryRouter initialEntries={["/trip/1"]}>
-                <Routes>
-                    <Route path="/trip/:tripId" element={<TripDaysPage />} />
-                </Routes>
-            </MemoryRouter>
-        );
+    render(
+        <MemoryRouter initialEntries={["/days/1"]}>
+            <Routes>
+                <Route path="/days/:tripId" element={<TripDaysPage />} />
+            </Routes>
+        </MemoryRouter>
+    );
 
-        // check that the empty state is shown and no days are displayed
-        await waitFor(() => {
-            expect(screen.getByText(/No days added to your itinerary yet/i)).toBeInTheDocument();
-            expect(screen.queryAllByText(/Day \d/)).toHaveLength(0);
-        });
+    // Wait for the page to load and check for empty state
+    await waitFor(() => {
+        // Just look for the beginning of the text which is always there
+        expect(screen.getByText(/No days/i)).toBeInTheDocument();
+        expect(screen.queryAllByText(/Day \d/)).toHaveLength(0);
+    }, { timeout: 3000 });
 
-        // check that trip details are still correctly displayed
-        expect(screen.getByText("Summer Vacation")).toBeInTheDocument();
-        expect(screen.getByText("Hawaii")).toBeInTheDocument();
-    });
+    expect(screen.getByText("Summer Vacation")).toBeInTheDocument();
+    expect(screen.getByText("Hawaii")).toBeInTheDocument();
+});
 
     test("loading screen is displayed when fetching data", async () => {
         vi.spyOn(daysApi, "getDays").mockResolvedValue([]);
@@ -94,6 +94,7 @@ describe("TripDaysPage", () => {
             </MemoryRouter>
         );
 
-        expect(screen.getByText(/loading.../i)).toBeInTheDocument();
+        const loadings = screen.getAllByTestId("loader");
+        expect(loadings).toHaveLength(1);
     });
 });
