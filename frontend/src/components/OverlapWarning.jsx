@@ -68,7 +68,7 @@ export default function OverlapWarning({formStartTime, formDuration, selectedDay
         };
 
         const res = await fetch(
-            `${import.meta.env.VITE_BACKEND_URL || LOCAL_BACKEND_URL}${endpoint}`, {
+            `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}${endpoint}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify((body))
