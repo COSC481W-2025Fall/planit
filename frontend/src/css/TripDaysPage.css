@@ -527,7 +527,6 @@ html[data-theme="dark"] .textarea-notes {
 
 .title-div {
   display: flex;
-  align-items: center;
   flex-direction: row;
   justify-content: space-between;
 }
@@ -1059,4 +1058,24 @@ html[data-theme="dark"] .time-picker {
 
 .transport-toggle:hover:not(:disabled) .icon.active {
   color: var(--accent);
+}
+
+.permission-badge {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.viewer-badge {
+  color: var(--accent);
+}
+
+.view-icon{
+  height: 0.9rem;
+  width: 0.9rem;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
 }

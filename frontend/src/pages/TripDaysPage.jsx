@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -18,14 +18,16 @@ import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 import {updateTrip} from "../../api/trips.js";
 import {listParticipants, addParticipant, removeParticipant} from "../../api/trips";
+import { useNavigate } from "react-router-dom";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
 export default function TripDaysPage() {
 
-    //constants for data
+  //constants for data
   const [user, setUser] = useState(null);
   const [trip, setTrip] = useState(null);
+  const [userRole, setUserRole] = useState(null); 
   const [days, setDays] = useState([]);
   const [deleteDayId, setDeleteDayId] = useState(null);
 
@@ -69,6 +71,9 @@ export default function TripDaysPage() {
   const distanceDebounce = useRef(null);
   const distanceCache = useRef({});
 
+  const navigate = useNavigate();
+
+
   const [expandedDays, setExpandedDays] = useState(() => {
     try {
       const saved = localStorage.getItem("planit:expandedDays");
@@ -94,6 +99,12 @@ export default function TripDaysPage() {
     dayId: null,
     dayDate: null,
   });
+
+  const isOwner = userRole === "owner";
+  const isShared = userRole === "shared";
+  const isViewer = userRole === "viewer";
+  const canEdit = isOwner || isShared;
+  const canManageParticipants = isOwner; 
 
   //responsive
   useEffect(() => {
@@ -148,10 +159,22 @@ export default function TripDaysPage() {
       `/trip/read/${tripId}`,
       { credentials: "include" }
     )
-      .then((res) => res.json())
-      .then((data) => setTrip(data))
+      .then((res) => {
+        if (res.status === 404 || res.status === 403) {
+          navigate('/trip');
+          return null;
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data) {
+          setTrip(data);
+          setUserRole(data.user_role);
+        }
+      })
       .catch((err) => console.error("Trip fetch error:", err));
-  }, []);
+  }, [tripId, navigate]);
+
   //Fetch banner image url
   useEffect(() => {
     const fetchImage = async () => {
@@ -217,10 +240,18 @@ export default function TripDaysPage() {
 
   //Fetch Days
   useEffect(() => {
-    fetchDays();
-  }, [tripId]);
+    // only fetch the days if the trip exists
+    if(trip){
+      fetchDays();
+    }
+  }, [tripId, trip]);
 
   const openAddDayPopup = (baseDateStr, insertBefore = false) => {
+    if (!canEdit) {
+      toast.error("You don't have permission to add days to this trip");
+      return;
+    }
+
     let nextDate;
     if (baseDateStr && insertBefore) {
       const baseDate = new Date(baseDateStr);
@@ -270,6 +301,7 @@ export default function TripDaysPage() {
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
+              credentials: "include",
               body: JSON.stringify({ dayId: day.day_id }),
             }
           );
@@ -453,8 +485,13 @@ export default function TripDaysPage() {
 
   //add a new day
   const handleAddDay = async () => {
-    if (isAddCooldown) return; // stop if still in cooldown
-    setIsAddCooldown(true);    // start cooldown
+    if (!canEdit) {
+      toast.error("You don't have permission to add days");
+      return;
+    }
+
+    if (isAddCooldown) return;
+    setIsAddCooldown(true);
     if (!newDay) return;
 
     try {
@@ -485,6 +522,11 @@ export default function TripDaysPage() {
 
   //delete a day
   const handleDeleteDay = async (dayId) => {
+    if (!canEdit) {
+      toast.error("You don't have permission to delete days");
+      return;
+    }
+
     try {
       if (openMenu === dayId) setOpenMenu(null);
 
@@ -511,6 +553,11 @@ export default function TripDaysPage() {
 
   // update an activity
   const handleUpdateActivity = async (activityId, activity) => {
+    if (!canEdit) {
+      toast.error("You don't have permission to edit activities");
+      return;
+    }
+
     try {
       const response = await fetch(
         (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
@@ -546,6 +593,11 @@ export default function TripDaysPage() {
   };
 
   const handleDeleteActivity = async (activityId) => {
+    if (!canEdit) {
+      toast.error("You don't have permission to delete activities");
+      return;
+    }
+
     try {
       const response = await fetch(
         (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
@@ -577,18 +629,26 @@ export default function TripDaysPage() {
   };
 
   const confirmDeleteActivity = (activity) => {
+    if (!canEdit) {
+      toast.error("You don't have permission to delete activities");
+      return;
+    }
     setDeleteActivity(activity);
   };
 
   const updateNotesForActivity = async (id, newNote) => {
-    try {
-      console.log("Updating notes for activity ID:", id, "to:", newNote);
+    if (!canEdit) {
+      toast.error("You don't have permission to edit notes");
+      return;
+    }
 
+    try {
       const url = `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/updateNotes`;
 
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           activityId: id,
           notes: newNote
@@ -627,11 +687,16 @@ export default function TripDaysPage() {
 
   //Drag and Drop
   const handleDayDragStart = (e, day) => {
+    if (!canEdit) {
+      e.preventDefault();
+      return;
+    }
     setDragFromDay(day);
     e.dataTransfer.effectAllowed = "move";
   };
 
   const handleDayDragOver = (e, day) => {
+    if (!canEdit) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
 
@@ -642,6 +707,7 @@ export default function TripDaysPage() {
   };
 
   const handleDayDrop = async (e, day) => {
+    if (!canEdit) return;
     e.preventDefault();
     await reorderDays(dragFromDay, day);
   };
@@ -655,6 +721,11 @@ export default function TripDaysPage() {
   };
 
   const reorderDays = async (dragFromDay, overDay) => {
+    if (!canEdit) {
+      toast.error("You don't have permission to reorder days");
+      return;
+    }
+
     try {
       const adjustDate = (dateStr, daysToAdd) => {
         const date = new Date(dateStr);
@@ -748,6 +819,11 @@ export default function TripDaysPage() {
 
   // add particpant to a trip
   const handleAddParticipant = async () => {
+    if (!canManageParticipants) {
+      toast.error("Only the trip owner can add participants");
+      return;
+    }
+
     if (!participantUsername.trim()) return;
 
     try {
@@ -765,6 +841,11 @@ export default function TripDaysPage() {
 
   // remove participant from a trip
   const handleRemoveParticipant = async (username) => {
+    if (!canManageParticipants) {
+      toast.error("Only the trip owner can remove participants");
+      return;
+    }
+
     try {
       await removeParticipant(trip.trips_id, username);
       setParticipants(prev => prev.filter(p => p.username !== username));
@@ -844,6 +925,12 @@ export default function TripDaysPage() {
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
             <h1 className="trip-title">{trip.trip_name}</h1>
+            {isViewer && (
+              <span className="permission-badge viewer-badge">
+                <Eye className = "view-icon"/> Viewing Only
+              </span>
+            )}
+            {canEdit && (
             <div className="participant-photos">
               {user && (
                 user.photo ? (
@@ -886,6 +973,7 @@ export default function TripDaysPage() {
                 </div>
               )}
             </div>
+            )}
           </div>
 
           <div className="trip-info">
@@ -925,189 +1013,207 @@ export default function TripDaysPage() {
            </div>
           <div className="button-level-bar">
             <h1 className="itinerary-text">Itinerary</h1>
-            <div className="itinerary-buttons">
-              <button onClick={() => openAddDayPopup(null)} id="new-day-button">
-                + New Day
-              </button>
-              {!openActivitySearch && (
-                <button
-                  onClick={() => setOpenActivitySearch(true)}
-                  id="add-activity-button"
-                >
-                  + Add Activity
+            {canEdit && (
+              <div className="itinerary-buttons">
+                <button onClick={() => openAddDayPopup(null)} id="new-day-button">
+                  + New Day
                 </button>
-              )}
-              <button
-                onClick={() => handleOpenParticipantsPopup()} 
-                id="participants-button">
-                <UserPlus id= "user-plus-icon" size={14}/>
-                <span>Share</span> 
-              </button>
-            </div>
+                {!openActivitySearch && (
+                  <button
+                    onClick={() => setOpenActivitySearch(true)}
+                    id="add-activity-button"
+                  >
+                    + Add Activity
+                  </button>
+                )}
+                {canManageParticipants && (
+                  <button
+                    onClick={() => handleOpenParticipantsPopup()} 
+                    id="participants-button">
+                    <UserPlus id="user-plus-icon" size={14}/>
+                    <span>Share</span> 
+                  </button>
+                )}
+              </div>
+            )}
           </div>
           <div className="days-scroll-zone">
             <div className="days-container">
-            {days.length === 0 ? (
-              <p className="empty-state-text">
-                No days added to your itinerary yet. Click{" "}
-                <span>+ New Day</span> to get started!
-              </p>
-            ) : (
-              days.map((day, index) => {
-                const isExpanded = expandedDays.includes(day.day_id);
-                return (
-                  <React.Fragment key={day.day_id}>
-                    {index === 0 && (
+              {days.length === 0 ? (
+                <p className="empty-state-text">
+                  {canEdit 
+                    ? "No days added to your itinerary yet. Click + New Day to get started!" 
+                    : "No days have been added to this itinerary yet."}
+                </p>
+              ) : (
+                days.map((day, index) => {
+                  const isExpanded = expandedDays.includes(day.day_id);
+                  return (
+                    <React.Fragment key={day.day_id}>
+                      {index === 0 && canEdit && (
                         <div
-                            className={`day-divider day-divider--first ${dragOverInfo.dayId === 'before-first' ? "day-divider--drag-over" : ""}`}
-                            onDragOver={(e) => handleDayDragOver(e, { day_id: 'before-first', day_date: day.day_date })}
-                            onDrop={(e) => handleDayDrop(e, day)}
+                          className={`day-divider day-divider--first ${dragOverInfo.dayId === 'before-first' ? "day-divider--drag-over" : ""}`}
+                          onDragOver={(e) => handleDayDragOver(e, { day_id: 'before-first', day_date: day.day_date })}
+                          onDrop={(e) => handleDayDrop(e, day)}
                         >
                           {!dragFromDay && (
-                          <button onClick={() => openAddDayPopup(day.day_date, true)}>
-                            <Plus size={17} className="plus-icon"/>
-                          </button>
-                              )}
+                            <button onClick={() => openAddDayPopup(day.day_date, true)}>
+                              <Plus size={17} className="plus-icon"/>
+                            </button>
+                          )}
                         </div>
-                    )}
-                    <div
-                        className={`day-card ${isMobile ? (isExpanded ? "expanded" : "collapsed") : ""
-                        }`}
-                        draggable={true}
+                      )}
+                      <div
+                        className={`day-card ${isMobile ? (isExpanded ? "expanded" : "collapsed") : ""}`}
+                        draggable={canEdit}
                         key={day.day_id}
                         onDragStart={(e) => handleDayDragStart(e, day)}
                         onDragEnd={(e) => handleDragEnd(e)}
-                    >
-                    <div
-                      className="day-header"
-                      onClick={() => {
-                        setExpandedDays((prev) =>
-                          prev.includes(day.day_id)
-                            ? prev.filter((id) => id !== day.day_id)
-                            : [...prev, day.day_id]
-                        );
-                      }}
-
-                    >
-                      <div>
-                        <p className="day-title">Day {index + 1}</p>
-                        <p className="day-date">
-                          {new Date(day.day_date).toLocaleDateString("en-US", {
-                            weekday: "long",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </p>
-                      </div>
-                      <div className="day-header-bottom">
-                        <span className="number-of-activities">
-                          {day.activities?.length ?? 0} Activities
-                        </span>
-                        <button className="chevron-button">
-                          {isExpanded ? <ChevronUp /> : <ChevronDown />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div
-                      className="day-actions"
-                      ref={(el) => (menuRefs.current[day.day_id] = el)}
-                    >
-                      <button
-                        type="button"
-                        className={`day-actions-ellipsis ${openMenu === day.day_id ? "is-open" : ""
-                          }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleMenu(day.day_id);
-                        }}
                       >
-                        <EllipsisVertical />
-                      </button>
-
-                      {openMenu === day.day_id && (
-                        <div className="day-menu" onClick={(e) => e.stopPropagation()}>
-                          <button onClick={() => setDeleteDayId(day.day_id)}>
-                            <Trash2 className="trash-icon" /> Delete
-                          </button>
+                        <div
+                          className="day-header"
+                          onClick={() => {
+                            setExpandedDays((prev) =>
+                              prev.includes(day.day_id)
+                                ? prev.filter((id) => id !== day.day_id)
+                                : [...prev, day.day_id]
+                            );
+                          }}
+                        >
+                          <div>
+                            <p className="day-title">Day {index + 1}</p>
+                            <p className="day-date">
+                              {new Date(day.day_date).toLocaleDateString("en-US", {
+                                weekday: "long",
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </p>
+                          </div>
+                          <div className="day-header-bottom">
+                            <span className="number-of-activities">
+                              {day.activities?.length ?? 0} Activities
+                            </span>
+                            <button className="chevron-button">
+                              {isExpanded ? <ChevronUp /> : <ChevronDown />}
+                            </button>
+                          </div>
                         </div>
-                      )}
-                    </div>
 
-                    {isExpanded && (
-                      <>
-                        {(day.activities?.length ?? 0) === 0 ? (
-                          <p className="add-activity-blurb">
-                            No activities planned. Add an activity from the sidebar.
-                          </p>
-                        ) : (
-                          <div className="activities">
-                            {day.activities.map((activity) => (
-                              <ActivityCard
-                                key={activity.activity_id}
-                                activity={activity}
-                                onDelete={() => confirmDeleteActivity(activity)}
-                                onEdit={(activity) => setEditActivity(activity)}
-                                onViewNotes={(activity) => {
-                                  setSelectedActivity(activity);
-                                  setOpenNotesPopup(true);
-                                  setEditableNote(activity.notes || "");
-                                }}
-                              />
-                            ))}
+                        {canEdit && (
+                          <div
+                            className="day-actions"
+                            ref={(el) => (menuRefs.current[day.day_id] = el)}
+                          >
+                            <button
+                              type="button"
+                              className={`day-actions-ellipsis ${openMenu === day.day_id ? "is-open" : ""}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleMenu(day.day_id);
+                              }}
+                            >
+                              <EllipsisVertical />
+                            </button>
+
+                            {openMenu === day.day_id && (
+                              <div className="day-menu" onClick={(e) => e.stopPropagation()}>
+                                <button onClick={() => setDeleteDayId(day.day_id)}>
+                                  <Trash2 className="trash-icon" /> Delete
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
-                      </>
-                    )}
-                    </div>
-                    <div
-                      className={`day-divider ${dragOverInfo.dayId === day.day_id ? "day-divider--drag-over" : ""}`}
-                      id={index === days.length - 1 ? "last-day-divider" : ""}
-                      onDragOver={(e) => handleDayDragOver(e, day)}
-                      onDrop={(e) => handleDayDrop(e, day)}
-                    >
-                      {!dragFromDay && (
-                      <button onClick={() => openAddDayPopup(day.day_date)}>
-                        <Plus size={17} className="plus-icon"/>
-                      </button>
+
+                        {isExpanded && (
+                          <>
+                            {(day.activities?.length ?? 0) === 0 ? (
+                              <p className="add-activity-blurb">
+                                {canEdit 
+                                  ? "No activities planned. Add an activity from the sidebar." 
+                                  : "No activities have been planned for this day yet."}
+                              </p>
+                            ) : (
+                              <div className="activities">
+                                {day.activities.map((activity) => (
+                                  <ActivityCard
+                                    key={activity.activity_id}
+                                    role = {userRole}
+                                    activity={activity}
+                                    onDelete={canEdit ? () => confirmDeleteActivity(activity) : undefined}
+                                    onEdit={canEdit ? (activity) => setEditActivity(activity) : undefined}
+                                    onViewNotes={(activity) => {
+                                      setSelectedActivity(activity);
+                                      setOpenNotesPopup(true);
+                                      setEditableNote(activity.notes || "");
+                                    }}
+                                    readOnly={!canEdit}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      {canEdit && (
+                        <div
+                          className={`day-divider ${dragOverInfo.dayId === day.day_id ? "day-divider--drag-over" : ""}`}
+                          id={index === days.length - 1 ? "last-day-divider" : ""}
+                          onDragOver={(e) => handleDayDragOver(e, day)}
+                          onDrop={(e) => handleDayDrop(e, day)}
+                        >
+                          {!dragFromDay && (
+                            <button onClick={() => openAddDayPopup(day.day_date)}>
+                              <Plus size={17} className="plus-icon"/>
+                            </button>
+                          )}
+                        </div>
                       )}
-                    </div>
-                  </React.Fragment>
-                );
-              })
-            )}
+                    </React.Fragment>
+                  );
+                })
+              )}
+            </div>
           </div>
-        </div>
+
           {openNotesPopup && selectedActivity && (
             <Popup
               title={"Notes for: " + selectedActivity.activity_name}
               onClose={() => setOpenNotesPopup(false)}
               buttons={
                 <>
-                  <button onClick={() => setOpenNotesPopup(false)}>Cancel</button>
-                  <button
-                    className="btn-rightside"
-                    onClick={() => {
-                      updateNotesForActivity(selectedActivity.activity_id, editableNote);
-                      setOpenNotesPopup(false);
-                    }}
-                  >
-                    Save
+                  <button onClick={() => setOpenNotesPopup(false)}>
+                    {canEdit ? "Cancel" : "Close"}
                   </button>
+                  {canEdit && (
+                    <button
+                      className="btn-rightside"
+                      onClick={() => {
+                        updateNotesForActivity(selectedActivity.activity_id, editableNote);
+                        setOpenNotesPopup(false);
+                      }}
+                    >
+                      Save
+                    </button>
+                  )}
                 </>
               }
             >
               <textarea
                 value={editableNote}
                 onChange={(e) => setEditableNote(e.target.value)}
-                placeholder="Enter your notes here"
+                placeholder={canEdit ? "Enter your notes here" : "No notes available"}
                 maxLength={200}
                 className="textarea-notes"
                 rows={5}
+                readOnly={!canEdit}
               />
-              <div className="char-count">
-                {editableNote.length} / 200
-              </div>
+              {canEdit && (
+                <div className="char-count">
+                  {editableNote.length} / 200
+                </div>
+              )}
             </Popup>
           )}
 
@@ -1166,37 +1272,6 @@ export default function TripDaysPage() {
             >
               <p className="popup-body-text">
                 Are you sure you want to delete this day? You will lose all activities for this day
-              </p>
-            </Popup>
-          )}
-
-          {deleteActivity && (
-            <Popup
-              title={`Are you sure you want to delete ${deleteActivity.activity_name}?`}
-              onClose={() => setDeleteActivity(null)}
-              buttons={
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setDeleteActivity(null)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-rightside"
-                    onClick={() => {
-                      handleDeleteActivity(deleteActivity.activity_id);
-                      setDeleteActivity(null);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </>
-              }
-            >
-              <p className="popup-body-text">
-                This action cannot be undone.
               </p>
             </Popup>
           )}
@@ -1338,41 +1413,43 @@ export default function TripDaysPage() {
               title="Participants"
               onClose={() => setOpenParticipantsPopup(false)}
             >
-              <div className="add-participant-form" ref={participantFormRef}>
-                <div className="search-wrap">
-                  <input
-                    type="text"
-                    placeholder="Enter username to add"
-                    id="username-input"
-                    value={participantUsername}
-                    onChange={(e) => setParticipantUsername(e.target.value)}
-                    onFocus={() => setShowSuggestions(true)}
-                    autocapitalize="off"
-                    autocomplete="off"
-                    autocorrect="off"
-                    spellcheck="false"
-                  />
+              {canManageParticipants && (
+                <div className="add-participant-form" ref={participantFormRef}>
+                  <div className="search-wrap">
+                    <input
+                      type="text"
+                      placeholder="Enter username to add"
+                      id="username-input"
+                      value={participantUsername}
+                      onChange={(e) => setParticipantUsername(e.target.value)}
+                      onFocus={() => setShowSuggestions(true)}
+                      autoCapitalize="off"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
+                    />
 
-                  {showSuggestions && participantSuggestions.length > 0 && (
-                    <ul className="autocomplete">
-                      {participantSuggestions.map((s, i) => (
-                        <li
-                          key={i}
-                          onClick={() => {
-                            setParticipantUsername(s);
-                            setShowSuggestions(false);
-                          }}
-                        >
-                          {s}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                    {showSuggestions && participantSuggestions.length > 0 && (
+                      <ul className="autocomplete">
+                        {participantSuggestions.map((s, i) => (
+                          <li
+                            key={i}
+                            onClick={() => {
+                              setParticipantUsername(s);
+                              setShowSuggestions(false);
+                            }}
+                          >
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <button type="button" className="add-participant-btn" onClick={handleAddParticipant}>
+                    <UserPlus size={16} /> Add
+                  </button>
                 </div>
-                <button type="button" className="add-participant-btn" onClick={handleAddParticipant}>
-                  <UserPlus size={16} /> Add
-                </button>
-              </div>
+              )}
               <div className="participants-list">
                 {participants.length === 0 ? (
                   <p>No other participants on this trip.</p>
@@ -1380,13 +1457,15 @@ export default function TripDaysPage() {
                   participants.map((p) => (
                     <div key={p.user_id} className="participant-item">
                       <span>{p.username}</span>
-                      <button
-                        type="button"
-                        className="remove-participant-btn"
-                        onClick={() => handleRemoveParticipant(p.username)}
-                      >
-                        <X size={16} />
-                      </button>
+                      {canManageParticipants && (
+                        <button
+                          type="button"
+                          className="remove-participant-btn"
+                          onClick={() => handleRemoveParticipant(p.username)}
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
                     </div>
                   ))
                 )}
@@ -1396,9 +1475,8 @@ export default function TripDaysPage() {
           )}
         </main>
 
-        {openActivitySearch && (
+        {openActivitySearch && canEdit && (
           <div className="activity-search-sidebar open">
-
             <ActivitySearch
               onClose={() => setOpenActivitySearch(false)}
               days={Array.isArray(days) ? days.length : days}

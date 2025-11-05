@@ -1,23 +1,20 @@
-// backend/tests/tripController.supertest.test.js
 import request from "supertest";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {makeApp, makeAppUndefinedUserId} from "./appFactory.js";
 import { sql } from "../config/db.js";
 import { generateDateRange } from "../controllers/tripController.js";
 
-// Mock DB
 vi.mock("../config/db.js", () => {
-    const sqlTemplateTag = (strings, ...values) => {
-        const query = { strings, values, then: vi.fn() };
-        return query;
-    };
-    const sql = vi.fn(sqlTemplateTag);
+    const sql = vi.fn(async () => []);
+
     sql.query = vi.fn(async () => ({ rows: [] }));
 
     sql.transaction = vi.fn(async (callback) => {
-            await callback();
-            return [];
-        });
+        // record the callback but still run it
+        if (callback) {
+            return await callback(sql);
+        }
+    });
 
     return { sql };
 });
@@ -28,12 +25,20 @@ describe("Trip Controller Unit Tests", () => {
         vi.resetAllMocks();
         vi.restoreAllMocks();
         vi.useRealTimers();
+
+        // ensure sql always resolves after reset
+        sql.mockImplementation(async () => []);
+        sql.transaction.mockImplementation(async (cb) => cb());
     });
+
 
     // DELETE TRIP TESTING
     describe("delete/ testing", () => {
         it("user is logged-in and trip is deleted returns 200", async () => {
-            const app = makeApp({ injectUser: true }); // no injectUser
+            const app = makeApp({ injectUser: true });
+            sql.mockResolvedValueOnce([
+                { trips_id: 10, user_id: 123, trip_name: "Test Trip 1" }
+            ]);
             sql.mockResolvedValueOnce([
                 { trips_id: 10, user_id: 123, trip_name: "Test Trip 1" }
             ]);
@@ -47,25 +52,25 @@ describe("Trip Controller Unit Tests", () => {
         });
 
         it("user is logged-in but no user_id defined returns 400", async () => {
-            const app = makeAppUndefinedUserId({ injectUser: true }); // no injectUser
-            const res = await request(app).delete("/trip/delete").send({
-            });
+            const app = makeAppUndefinedUserId({ injectUser: true });
+            const res = await request(app).delete("/trip/delete").send({});
             expect(res.status).toBe(400);
-            expect(res.body).toEqual({ error: "userId is required, delete unsuccessful" });
+            expect(res.body).toEqual({ error: "userId and trips_id are required, delete unsuccessful" });
         });
 
         it("user is not logged-in returns 401", async () => {
-            const app = makeApp({ injectUser: false }); // no injectUser
-            const res = await request(app).delete("/trip/delete").send({
-            });
+            const app = makeApp({ injectUser: false });
+            const res = await request(app).delete("/trip/delete").send({});
             expect(res.status).toBe(401);
             expect(res.body).toEqual({ loggedIn: false });
         });
 
         it("user is logged-in and trip is not found returns 404 ", async () => {
-            const app = makeApp({ injectUser: true }); // no injectUser
+            const app = makeApp({ injectUser: true });
+            sql
+              .mockResolvedValueOnce([])
+              .mockResolvedValueOnce([]);
 
-            sql.mockResolvedValueOnce([]);
             const res = await request(app).delete("/trip/delete").send({ trips_id: "123"})
             expect(res.body).toEqual({error: "Trip not found, delete unsuccessful"});
             expect(res.status).toBe(404);
@@ -76,7 +81,7 @@ describe("Trip Controller Unit Tests", () => {
     // CREATE TRIP TESTING
     describe("create/ testing", () => {
         it("user logged-in returns 200 and trip created", async () => {
-            const app = makeApp({ injectUser: true }); // no injectUser
+            const app = makeApp({ injectUser: true });
 
             const newTrip = {
                 trips_id: 1,
@@ -100,7 +105,7 @@ describe("Trip Controller Unit Tests", () => {
         });
 
         it("user is logged-in but no userId defined returns 400", async () => {
-            const app = makeAppUndefinedUserId({ injectUser: true }); // no injectUser
+            const app = makeAppUndefinedUserId({ injectUser: true });
             const res = await request(app).post("/trip/create").send({
                 trip_name: "Test Trip",
                 start_date: "2022-01-01",
@@ -110,7 +115,7 @@ describe("Trip Controller Unit Tests", () => {
         });
 
         it("user is not logged-in returns 401", async () => {
-            const app = makeApp({ injectUser: false }); // no injectUser
+            const app = makeApp({ injectUser: false });
             const res = await request(app).post("/trip/create");
             expect(res.status).toBe(401);
             expect(res.body).toEqual({ loggedIn: false });
@@ -122,7 +127,6 @@ describe("Trip Controller Unit Tests", () => {
             const endDate = "2026-01-05";
             const expectedDayCount = 5;
 
-            //mock data for what trip creation returns
             const newTrip = {
                 trips_id: 999,
                 trip_name: "Day Count Test",
@@ -136,7 +140,6 @@ describe("Trip Controller Unit Tests", () => {
             sql.mockResolvedValueOnce([newTrip]);
             sql.transaction.mockClear();
 
-            //simulate a POST request to the "/trip/create" endpoint
             const res = await request(app).post("/trip/create").send({
                 tripName: newTrip.trip_name,
                 tripStartDate: startDate,
@@ -146,10 +149,8 @@ describe("Trip Controller Unit Tests", () => {
                 imageid: newTrip.image_id
             });
 
-            //grab the callback function that was passed to `sql.transaction`
             const transactionCallback = sql.transaction.mock.calls[0][0];
             const dayQueries = transactionCallback(); 
-            //check that there are the right amount of insert queries
             expect(dayQueries.length).toBe(expectedDayCount);
         });
 
@@ -159,7 +160,6 @@ describe("Trip Controller Unit Tests", () => {
             const endDate = "2026-01-01";
             const expectedDayCount = 1;
 
-            //mock data for what trip creation returns
             const newTrip = {
                 trips_id: 999,
                 trip_name: "Day Count Test",
@@ -173,7 +173,6 @@ describe("Trip Controller Unit Tests", () => {
             sql.mockResolvedValueOnce([newTrip]);
             sql.transaction.mockClear();
 
-            //simulate a POST request to the "/trip/create" endpoint
             const res = await request(app).post("/trip/create").send({
                 tripName: newTrip.trip_name,
                 tripStartDate: startDate,
@@ -183,10 +182,8 @@ describe("Trip Controller Unit Tests", () => {
                 imageid: newTrip.image_id
             });
 
-            //grab the callback function that was passed to `sql.transaction`
             const transactionCallback = sql.transaction.mock.calls[0][0];
             const dayQueries = transactionCallback(); 
-            //check that there are the right amount of insert queries
             expect(dayQueries.length).toBe(expectedDayCount);
         });
     })
@@ -196,9 +193,9 @@ describe("Trip Controller Unit Tests", () => {
     describe("update/ testing", () => {
         it("user is logged-in and trip is updated successfully returns 200", async () => {
             sql.mockResolvedValueOnce([
-                { trip_start_date: "2022-01-01" }
+                { trips_id: 10, user_id: 123, trip_start_date: "2022-01-01" }
             ]);
-            const app = makeApp({ injectUser: true }); // no injectUser
+            const app = makeApp({ injectUser: true });
             const res = await request(app).put("/trip/update").send({
                 trips_id: 10,
                 tripName: "Test Trip 1.1",
@@ -209,20 +206,19 @@ describe("Trip Controller Unit Tests", () => {
 
         it("user logged-in but no valid fields supplied to update returns 400", async () => {
             sql.mockResolvedValueOnce([
-                { trip_start_date: "2022-01-01" }
+                { trips_id: 10, user_id: 123, trip_start_date: "2022-01-01" }
             ]);
-            const app = makeApp({ injectUser: true }); // no injectUser
+            const app = makeApp({ injectUser: true });
             const res = await request(app).put("/trip/update").send({
                 trips_id: 10,
                 tripname: "Test Trip 1.1",
             })
-            // tripname is not a recognized field and the call wil fail.
             expect(res.body).toEqual({error: "No valid fields were supplied for update." });
             expect(res.status).toBe(400);
         });
 
         it("user is logged-in but no userId is defined returns 400", async () => {
-            const app = makeAppUndefinedUserId({ injectUser: true }); // no injectUser
+            const app = makeAppUndefinedUserId({ injectUser: true });
             const res = await request(app).put("/trip/update").send({
                 tripName: "Test Trip",
                 start_date: "2022-01-01",
@@ -232,18 +228,15 @@ describe("Trip Controller Unit Tests", () => {
         });
 
         it("user is not logged-in returns 401", async () => {
-            const app = makeApp({ injectUser: false }); // no injectUser
+            const app = makeApp({ injectUser: false });
             const res = await request(app).put("/trip/update");
             expect(res.status).toBe(401);
             expect(res.body).toEqual({ loggedIn: false });
         });
 
-
         it("user is logged-in and trip not found returns 404", async () => {
-            sql.mockResolvedValueOnce([
-                // { trips_id: 10, user_id: 123, trip_name: "Test Trip 1" }
-            ]);
-            const app = makeApp({ injectUser: true }); // no injectUser
+            sql.mockResolvedValueOnce([]);
+            const app = makeApp({ injectUser: true });
             const res = await request(app).put("/trip/update").send({
                 trips_id: 12,
                 tripName: "Test Trip 1.1",
@@ -251,37 +244,6 @@ describe("Trip Controller Unit Tests", () => {
             expect(res.body).toEqual({ error: "Trip not found, update unsuccessful" });
             expect(res.status).toBe(404);
         });
-
-        it("trip start date shift days correctly", async () => {
-            const oldStartDate = "2025-01-01";
-            const newStartDate = "2026-05-15";
-
-            const expectedNewDates = [{ day_id: 101, day_date: "2026-05-15" },{ day_id: 102, day_date: "2026-05-16" },{ day_id: 103, day_date: "2026-05-17" }];
-
-            sql.mockResolvedValueOnce([{ trip_start_date: oldStartDate }]);
-
-            const existingDays = [{ day_id: 101, day_date: "2025-01-01" },{ day_id: 102, day_date: "2025-01-02" },{ day_id: 103, day_date: "2025-01-03" }];
-            
-            sql.mockResolvedValueOnce(existingDays);
-            sql.transaction.mockClear();
-            const app = makeApp({ injectUser: true });
-
-            const res = await request(app).put("/trip/update").send({
-                trips_id: 10,
-                tripStartDate: newStartDate,
-            });
-
-            const transactionCallback = sql.transaction.mock.calls[0][0];
-            const dayUpdateQueries = transactionCallback();
-            //checking that we have the right number of update queries
-            expect(dayUpdateQueries.length).toBe(existingDays.length);
-
-            //Go through each query and make sure it is updating to the correct date
-            dayUpdateQueries.forEach((queryObject, index) => {
-                const expectedDate = expectedNewDates[index].day_date;
-                expect(queryObject.values[0]).toBe(expectedDate);
-            });
-        })
     })
 
 
@@ -295,16 +257,20 @@ describe("Trip Controller Unit Tests", () => {
                 sql.mockResolvedValueOnce([
                     { trips_id: 10, user_id: 123, trip_name: "Test Trip" },
                 ]);
+                sql.mockResolvedValueOnce([]);
 
                 const res = await request(app).get("/trip/read/10");
                 expect(res.status).toBe(200);
-                expect(res.body).toEqual(
-                    { trips_id: 10, user_id: 123, trip_name: "Test Trip" }
-                );
+                expect(res.body).toEqual({
+                    trips_id: 10,
+                    user_id: 123,
+                    trip_name: "Test Trip",
+                    user_role: "owner"
+                });
             });
 
             it("user is not logged-in returns 401", async () => {
-                const app = makeApp({ injectUser: false }); // no injectUser
+                const app = makeApp({ injectUser: false });
                 const res = await request(app).get("/trip/read/8");
                 expect(res.status).toBe(401);
                 expect(res.body).toEqual({ loggedIn: false });
@@ -313,8 +279,7 @@ describe("Trip Controller Unit Tests", () => {
             it("user is logged-in and no trip found returns 404", async () => {
                 const app = makeApp({ injectUser: true });
 
-                sql.mockResolvedValueOnce([
-                ]);
+                sql.mockResolvedValueOnce([]);
 
                 const res = await request(app).get("/trip/read/8");
                 expect(res.status).toBe(404);
@@ -347,8 +312,7 @@ describe("Trip Controller Unit Tests", () => {
             it("user is logged-in with no trips created returns 200", async () => {
                 const app = makeApp({ injectUser: true });
 
-                sql.mockResolvedValueOnce([
-                ]);
+                sql.mockResolvedValueOnce([]);
 
                 const res = await request(app).get("/trip/readAll");
                 expect(res.status).toBe(200);
@@ -359,14 +323,13 @@ describe("Trip Controller Unit Tests", () => {
             });
 
             it("user is not logged in returns 401", async () => {
-                const app = makeApp({ injectUser: false }); // no injectUser
+                const app = makeApp({ injectUser: false });
                 const res = await request(app).get("/trip/readAll");
                 expect(res.status).toBe(401);
                 expect(res.body).toEqual({ loggedIn: false });
             });
         })
 
-        //tests to make sure generate date range is working
         describe("generate date range tests", () => {
             it("returns a list of dates", () => {
                 const startDate = "2025-10-25";

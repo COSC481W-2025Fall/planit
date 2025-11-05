@@ -3,7 +3,7 @@ import { sql } from "../config/db.js";
 
 // read all days for a specific trip
 export const readDays = async (req, res) => {
-  // trip is loaded by loadOwnedTrip middleware
+  // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
   }
@@ -30,9 +30,14 @@ export const readDays = async (req, res) => {
 
 // create a new day for a specific trip
 export const createDay = async (req, res) => {
-  // trip is loaded by loadOwnedTrip middleware
+  // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
+  }
+
+  // Only owners and shared users can create days
+  if (req.tripPermission === "viewer") {
+    return res.status(403).json({ error: "You don't have permission to modify this trip" });
   }
 
   // get tripId from loaded trip
@@ -91,9 +96,14 @@ export const createDay = async (req, res) => {
 
 // update an existing day for a specific trip
 export const updateDay = async (req, res) => {
-  // trip is loaded by loadOwnedTrip middleware
+  // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
+  }
+
+  // Only owners and shared users can update days
+  if (req.tripPermission === "viewer") {
+    return res.status(403).json({ error: "You don't have permission to modify this trip" });
   }
 
   // get tripId from loaded trip
@@ -128,9 +138,14 @@ export const updateDay = async (req, res) => {
 
 // delete a day for a specific trip
 export const deleteDay = async (req, res) => {
-  // trip is loaded by loadOwnedTrip middleware
+  // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
+  }
+  
+  // Only owners and shared users can delete days
+  if (req.tripPermission === "viewer") {
+    return res.status(403).json({ error: "You don't have permission to modify this trip" });
   }
 
   // get tripId from loaded trip
@@ -139,6 +154,7 @@ export const deleteDay = async (req, res) => {
   // get dayId from URL params
   const dayId = req.params.id;
 
+  // check if this is the first day (to determine if we should shift other days)
   const isFirstDay = req.body?.isFirstDay ?? false;
   console.log("isFirstDay: ", isFirstDay);
 
@@ -158,6 +174,7 @@ export const deleteDay = async (req, res) => {
     const deletedDate = daysToFetch[0].day_date;
 
     if (deletedDate && !isFirstDay) {
+      // Delete and shift subsequent days back by 1
       await sql.transaction(() => [
         sql`
           DELETE FROM days
@@ -171,6 +188,7 @@ export const deleteDay = async (req, res) => {
         `,
       ]);
     } else {
+      // Just delete without shifting
       await sql`
         DELETE FROM days
         WHERE day_id = ${dayId} AND trip_id = ${tripId}
