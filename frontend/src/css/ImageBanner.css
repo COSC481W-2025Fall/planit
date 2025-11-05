@@ -32,7 +32,7 @@
 #image6
 {
     border-radius: 0.94rem;
-    object-position: 0px -390px;
+    /*object-position: 0px -390px;*/
 }
 @media (max-width: 768px) {
     #image6 {
@@ -45,7 +45,7 @@
 #image7
 {
     border-radius: 0.94rem;
-    object-position: 0px -369px;
+    /*object-position: 0px -369px;*/
 
 }
 @media (max-width: 768px) {

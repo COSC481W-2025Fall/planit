@@ -404,17 +404,17 @@ export default function TripPage() {
                       onClose={handleCloseModal}
                       buttons={
                         <>
+                          <button  type="button" onClick={() => !isSaving && setIsModalOpen(false)}>
+                            Cancel
+                          </button>
                           <button
                             type="submit"
                             form="trip-form"
                             disabled={isSaving}
-                            className={`trip-submit-btn ${isSaving ? "saving" : ""}`}
+                            className={`trip-submit-btn btn-rightside ${isSaving ? "saving" : ""}`}
                           >
                             {isSaving ? "Saving..." : "Save"}
                           </button>
-                              <button type="button" onClick={() => !isSaving && setIsModalOpen(false)}>
-                                  Cancel
-                              </button>                           
                           </>
                       }
                     >

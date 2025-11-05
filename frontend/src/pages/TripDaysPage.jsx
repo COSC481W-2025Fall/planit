@@ -1234,7 +1234,8 @@ export default function TripDaysPage() {
                     type="button"
                     onClick={handleAddDay}
                     disabled={isAddCooldown}
-                    className={`add-day-button ${isAddCooldown ? "cooldown" : ""}`}
+                    className={`add-day-button btn-rightside ${isAddCooldown ? "cooldown" : ""}`}
+
                   >
                     Add +
                   </button>
@@ -1257,6 +1258,7 @@ export default function TripDaysPage() {
                     Cancel
                   </button>
                   <button
+                    className={"btn-rightside"}
                     type="button"
                     onClick={() => {
                       handleDeleteDay(deleteDayId);

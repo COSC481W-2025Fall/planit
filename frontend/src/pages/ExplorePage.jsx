@@ -337,7 +337,7 @@ export default function ExplorePage() {
           <NavBar />
           <div className="main-content">
             <div className="page-loading-container">
-              <MoonLoader size={70} speedMultiplier={0.9} data-testid="loader" />
+              <MoonLoader size={70} speedMultiplier={0.9} color="var(--accent)" data-testid="loader" />
             </div>
           </div>
         </div>

@@ -589,6 +589,7 @@ useEffect(() => {
                                 Cancel
                             </button>
                             <button
+                              className={"btn-rightside"}
                                 type="button"
                                 onClick={handleSaveDetails}
                                 disabled={saving}
