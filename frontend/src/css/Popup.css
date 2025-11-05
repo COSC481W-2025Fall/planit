@@ -219,3 +219,23 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
         padding: 12px;
     }
 }
+
+@media (max-width: 768px) {
+    .popup-screen-overlay { align-items: flex-end; padding: 0; }
+    .popup { width: 100%; max-height: 95vh; border-radius: 15px 15px 0 0; animation: slideUp .3s ease; }
+    .popup-screen-overlay:has(#add-activity-popup) {
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+    #add-activity-popup.popup {
+        width: min(92vw, 560px);
+        max-height: 85vh;
+        border-radius: 16px;
+        animation: fadeInScale .22s ease;
+    }
+    @keyframes fadeInScale {
+        from { transform: scale(.96); opacity: 0; }
+        to   { transform: scale(1);   opacity: 1; }
+    }
+}
