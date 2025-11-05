@@ -574,6 +574,7 @@ useEffect(() => {
             {/* Popup for activity details */}
             {showDetails && (
                 <Popup
+                    id="add-activity-popup"
                     title="Add Activity Details"
                     buttons={
                         <>
