@@ -5,6 +5,7 @@ import logo from "../assets/Planit_Full_Green.png";
 import {useNavigate} from "react-router-dom";
 import {toast} from "react-toastify";
 import {MoonLoader} from "react-spinners";
+import { Link } from "react-router-dom";
 
 export default function UserRegistrationPage() {
     const [user, setUser] = useState(null);
@@ -77,7 +78,9 @@ export default function UserRegistrationPage() {
         <div className="parent-container">
             {/* Header section */}
             <div className="header-container">
+                <Link to="/">
                 <img src={logo} alt="PlanIt Logo" className="login-logo"/>
+                </Link>
                 <h1>Welcome to PlanIt</h1>
                 <p>Enter a username to start planning your trips</p>
             </div>
