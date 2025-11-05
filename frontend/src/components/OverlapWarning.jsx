@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 
-export default function OverlapWarning({formStartTime, formDuration, selectedDay, dayIds}) {
+export default function OverlapWarning({formStartTime, formDuration, selectedDay, dayIds, activityId}) {
     const [overlappingActivities, setOverlappingActivities] = useState([]);
     const [showOverlapList, setShowOverlapList] = useState(false);
 
@@ -50,16 +50,28 @@ export default function OverlapWarning({formStartTime, formDuration, selectedDay
         return endTime;
     }
 
-    async function checkOverlap(dayId, startTime, duration) {
+    async function checkOverlap(dayId, startTime, duration, activityId = null) {
+        //Choose endpoint either depending if we editing activity or creating new one
+        const endpoint = activityId ? "/activities/check-overlap-edit" : "/activities/check-overlap";
+
+        const body = activityId ? {
+            dayId, 
+            proposedStartTime: startTime, 
+            proposedDuration: duration, 
+            activityId
+        }
+        :
+        {
+            dayId, 
+            proposedStartTime: startTime, 
+            proposedDuration: duration     
+        };
+
         const res = await fetch(
-            `${import.meta.env.VITE_BACKEND_URL || LOCAL_BACKEND_URL}/activities/check-overlap`, {
+            `${import.meta.env.VITE_BACKEND_URL || LOCAL_BACKEND_URL}${endpoint}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                dayId,
-                proposedStartTime: startTime,
-                proposedDuration: duration,
-            })
+            body: JSON.stringify((body))
         }
         );
         const data = await res.json();
@@ -70,6 +82,7 @@ export default function OverlapWarning({formStartTime, formDuration, selectedDay
             setOverlappingActivities([]);
         }
     }
+    
 
     // Check overlap when start time or duration changes
     useEffect(() => {
@@ -82,10 +95,10 @@ export default function OverlapWarning({formStartTime, formDuration, selectedDay
         const delay = setTimeout(() => {
             const idx = Number(selectedDay) - 1;
             const dayId = dayIds[idx];
-            checkOverlap(dayId, formStartTime, formDuration);
+            checkOverlap(dayId, formStartTime, formDuration, activityId);
         }, 250);
         return () => clearTimeout(delay);
-    }, [formStartTime, formDuration]);
+    }, [formStartTime, formDuration, activityId]);
 
     return (
         <span>
