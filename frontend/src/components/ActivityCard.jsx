@@ -4,7 +4,7 @@ import {Clock, MapPin, EllipsisVertical, Trash2, Pencil, Timer, Globe, NotebookT
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "./Popup.jsx";
 
-export default function ActivityCard({activity, onDelete, onEdit, onViewNotes}) {
+export default function ActivityCard({activity, onDelete, onEdit, onViewNotes, role}) {
     const [openMenu, setOpenMenu] = useState(false);
     // const [isDeleting, setIsDeleting] = useState(false);
     const menuRef = useRef(null);
@@ -48,7 +48,9 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes}) 
     //     });
     // };
 
-
+    const isOwner = role === "owner";
+    const isShared = role === "shared";
+    const canEdit = isOwner || isShared;
     return (
         <div className={`activity-container`}>
             <div className="title-notes-edit-button-container" style={{position: "relative"}}>
@@ -56,6 +58,7 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes}) 
                     <div className="title-of-activity">{activity.activity_name}</div>
                 </div>
 
+            {canEdit && (
                 <button
                     ref={buttonRef}
                     className="ellipsis-btn"
@@ -66,6 +69,7 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes}) 
                 >
                     <EllipsisVertical className="ellipis"/>
                 </button>
+            )}
 
                 {openMenu && (
                     <div ref={menuRef} className="day-menu">

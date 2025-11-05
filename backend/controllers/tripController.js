@@ -1,5 +1,4 @@
-/* This controller class contains four functions that handle creating username, modifying all fields in the user table,
-and deleting a users account.
+/* This controller class contains functions that handle creating, modifying, reading, and deleting trips.
 For users in the database. This code uses sql`` to interact with the database.
 This code uses async/await for asynchronous operations and try/catch for error handling.
 */
@@ -109,15 +108,34 @@ export const updateTrip = async (req, res) => {
     }
 
     try {
-        //get the trip_start_date
-        const oldTripResult = await sql`SELECT trip_start_date FROM trips WHERE trips_id = ${trips_id} AND user_id = ${userId}`;
+        // Get the trip and check permissions
+        const tripResult = await sql`
+            SELECT * FROM trips WHERE trips_id = ${trips_id}
+        `;
 
-        if (oldTripResult.length === 0) {
+        if (tripResult.length === 0) {
             return res.status(404).json({ error: "Trip not found, update unsuccessful" });
         }
-        
-        //convert trip_start_date to a string
-        const oldStartDateStr = new Date(oldTripResult[0].trip_start_date)
+
+        const trip = tripResult[0];
+
+        // Check if user is the owner
+        const isOwner = trip.user_id === userId;
+
+        // Check if user has shared access
+        const sharedResult = await sql`
+            SELECT * FROM shared WHERE trip_id = ${trips_id} AND user_id = ${userId}
+        `;
+
+        const hasSharedAccess = sharedResult.length > 0;
+
+        // Only owner can update trips
+        if (!isOwner) {
+            return res.status(403).json({ error: "Only the trip owner can update this trip" });
+        }
+
+        // Convert trip_start_date to a string
+        const oldStartDateStr = new Date(trip.trip_start_date)
             .toISOString()
             .split("T")[0];
         const newStartDateStr = tripStartDate;
@@ -161,7 +179,6 @@ export const updateTrip = async (req, res) => {
         if (updates.length > 0) {
             values.push(trips_id);
             values.push(userId);
-            //paramCount++;
 
             const query = `
                 UPDATE trips 
@@ -217,18 +234,47 @@ export const readTrip = async (req, res) => {
 
     try {
         const trips_id = req.params.tripId;
+        const userId = req.user.user_id;
 
-        const result = await sql`
+        // Get the trip
+        const tripResult = await sql`
             SELECT *
             FROM trips
-            WHERE trips_id = ${trips_id} AND user_id = ${req.user.user_id}
+            WHERE trips_id = ${trips_id}
         `;
 
-        if (result.length === 0){
+        if (tripResult.length === 0) {
             return res.status(404).json({ error: "Trip not found, read unsuccessful" });
         }
 
-        res.json(result[0]);
+        const trip = tripResult[0];
+
+        // Check if user is the owner
+        const isOwner = trip.user_id === userId;
+
+        // Check if user has shared access
+        const sharedResult = await sql`
+            SELECT *
+            FROM shared
+            WHERE trip_id = ${trips_id} AND user_id = ${userId}
+        `;
+
+        const hasSharedAccess = sharedResult.length > 0;
+
+        // Allow access if:
+        // 1. User is the owner
+        // 2. User has shared access
+        // 3. Trip is public (not private)
+        if (isOwner || hasSharedAccess || !trip.is_private) {
+            // Include the user's access level in the response
+            const userRole = isOwner ? 'owner' : (hasSharedAccess ? 'shared' : 'viewer');
+            res.json({
+                ...trip,
+                user_role: userRole
+            });
+        } else {
+            return res.status(403).json({ error: "Access denied. You don't have permission to view this trip." });
+        }
     }
     catch (err) {
         console.error("Error reading trip:", err);
@@ -240,14 +286,29 @@ export const readTrip = async (req, res) => {
 // Does not allow deletion of trip if user does not own it.
 export const deleteTrip = async (req, res) => {
     if (!req.user) return res.status(401).json({ loggedIn: false });
+    
     const { trips_id } = req.body;
     const userId = req.user.user_id;
 
-    if (userId === undefined) {
-        return res.status(400).json({ error: "userId is required, delete unsuccessful" });
+    if (userId === undefined || trips_id === undefined) {
+        return res.status(400).json({ error: "userId and trips_id are required, delete unsuccessful" });
     }
 
     try {
+        // check if user owns the trip
+        const tripCheck = await sql`
+            SELECT * FROM trips WHERE trips_id = ${trips_id}
+        `;
+
+        if (tripCheck.length === 0) {
+            return res.status(404).json({ error: "Trip not found, delete unsuccessful" });
+        }
+
+        // Only owner can delete
+        if (tripCheck[0].user_id !== userId) {
+            return res.status(403).json({ error: "Only the trip owner can delete this trip" });
+        }
+
         const result = await sql`
             DELETE FROM trips
             WHERE trips_id = ${trips_id} AND user_id = ${userId}
