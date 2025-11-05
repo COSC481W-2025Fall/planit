@@ -221,19 +221,24 @@ export const checkOverlappingTimes = async (req, res) => {
         }
         const proposedStartTs = `${proposedStartTime}:00`;
         const proposedDurationInterval = `${Number(proposedDuration)} minutes`;
+        
         const overlappingActivities = await sql`
-            SELECT * FROM activities
-            WHERE "day_id" = ${dayId}
-            AND (
-                (${proposedStartTs}::time < ("activity_startTime"::time + "activity_duration"::interval))
-                AND ((${proposedStartTs}::time + ${proposedDurationInterval}::interval) > "activity_startTime"::time)
-            )
-            AND (
-                -- Exclude if either activity crosses midnight (goes to next day)
-                ("activity_startTime"::time + "activity_duration"::interval) >= "activity_startTime"::time
-                AND (${proposedStartTs}::time + ${proposedDurationInterval}::interval) >= ${proposedStartTs}::time
-            );
-        `;
+          SELECT * FROM activities
+          WHERE "day_id" = ${dayId}
+          AND NOT (
+      (
+        (extract(epoch FROM ("activity_startTime"::time)) + extract(epoch FROM ("activity_duration"))) <=
+        extract(epoch FROM (${proposedStartTs}::time))
+      )
+        OR
+      (
+        extract(epoch FROM ("activity_startTime"::time)) >=
+        (extract(epoch FROM (${proposedStartTs}::time)) + extract(epoch FROM (${proposedDurationInterval}::interval)))
+    )
+  );
+`;
+
+
         return res.status(200).json({ overlappingActivities });
     } catch (err) {
         console.error("Error checking overlapping times:", err);
@@ -251,20 +256,25 @@ export const checkOverlappingTimesForEdit = async (req, res) => {
         }
         const proposedStartTs = `${proposedStartTime}:00`;
         const proposedDurationInterval = `${Number(proposedDuration)} minutes`;
+        
         const overlappingActivities = await sql`
-            SELECT * FROM activities
-            WHERE "day_id" = ${dayId}
-            AND "activity_id" != ${activityId}
-            AND (
-                (${proposedStartTs}::time < ("activity_startTime"::time + "activity_duration"::interval))
-                AND ((${proposedStartTs}::time + ${proposedDurationInterval}::interval) > "activity_startTime"::time)
-            )
-            AND (
-                -- Exclude if either activity crosses midnight (goes to next day)
-                ("activity_startTime"::time + "activity_duration"::interval) >= "activity_startTime"::time
-                AND (${proposedStartTs}::time + ${proposedDurationInterval}::interval) >= ${proposedStartTs}::time
-            );
-        `;
+      SELECT * FROM activities
+      WHERE "day_id" = ${dayId}
+      AND "activity_id" != ${activityId}
+      AND NOT (
+    (
+      (extract(epoch FROM ("activity_startTime"::time)) + extract(epoch FROM ("activity_duration"))) <=
+      extract(epoch FROM (${proposedStartTs}::time))
+    )
+    OR
+    (
+      extract(epoch FROM ("activity_startTime"::time)) >=
+      (extract(epoch FROM (${proposedStartTs}::time)) + extract(epoch FROM (${proposedDurationInterval}::interval)))
+    )
+  );
+`;
+
+
         return res.status(200).json({ overlappingActivities });
     } catch (err) {
         console.error("Error checking overlapping times for edit:", err);
