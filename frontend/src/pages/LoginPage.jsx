@@ -3,6 +3,7 @@ import "../css/LoginPage.css";
 import logo from "../assets/Planit_Full_Green.png";
 import gLogo from "../assets/google-g-logo.webp";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
+import { Link } from "react-router-dom";
 
 export default function LoginPage() {
   const handleLogin = () => {
@@ -16,7 +17,9 @@ export default function LoginPage() {
     <div className="login-page">
       {/* Header section */}
       <div className="header-container">
+        <Link to="/">
         <img src={logo} alt="PlanIt Logo" className="login-logo"/>
+        </Link>
         <h1>Welcome to PlanIt</h1>
         <p>Sign in to start planning your trips</p>
       </div>
