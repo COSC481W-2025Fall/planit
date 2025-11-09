@@ -12,6 +12,7 @@ import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import ImageSelector from "../components/ImageSelector";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
@@ -25,9 +26,6 @@ export default function TripPage() {
     const [startDate, setStartDate] = useState(
       editingTrip?.trip_start_date ? new Date(editingTrip.trip_start_date) : null
     );
-    //constants for image selection
-    const [images, setImages] = useState([]);
-    const [showImageSelector, setShowImageSelector] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageUrls, setImageUrls] = useState({});
     const [endDate, setEndDate] = useState(null);
@@ -87,25 +85,6 @@ export default function TripPage() {
         }
     }, [editingTrip]);
 
-    // Fetch images when the selector is opened
-    useEffect(() => {
-      if (!showImageSelector) return;
-      const fetchImages = async () => {
-        try {
-          const res = await fetch(
-            (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
-              "/image/readAll",
-            { credentials: "include" }
-          );
-          const data = await res.json();
-          setImages(data);
-        } catch (err) {
-          console.error("Error fetching images:", err);
-        }
-      };
-      fetchImages();
-    }, [showImageSelector]);
-
     // Fetch image URLs for trips when component loads or trips change
     useEffect(() => {
       if (!trips || trips.length === 0) return;
@@ -116,6 +95,15 @@ export default function TripPage() {
         for (const trip of trips) {
           if (!trip.image_id || trip.image_id === 0) continue;
 
+          // Check if the image URL is already in localStorage global cache
+          const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+
+          // If the image is cached, use it
+          if (cachedImageUrl) {
+            newImageUrls[trip.trips_id] = cachedImageUrl;
+            continue;
+          }
+
           try {
             const res = await fetch(
               `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
@@ -123,12 +111,14 @@ export default function TripPage() {
             );
 
             const data = await res.json();
-            newImageUrls[trip.trips_id] = data.imageUrl;
+            localStorage.setItem(`image_${trip.image_id}`, data);
+            newImageUrls[trip.trips_id] = data;
           } catch (err) {
             console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
           }
         }
-        setImageUrls(newImageUrls);
+        // Merge new image URLs with existing ones
+        setImageUrls((prev) => ({...prev, ...newImageUrls}));
       };
 
       fetchImages();
@@ -215,12 +205,20 @@ export default function TripPage() {
         setIsModalOpen(true);
 
         if (trip.image_id && trip.image_id !== 0) {
+          const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+
+          if (cachedImageUrl) {
+            setSelectedImage(cachedImageUrl);
+            return;
+          }
+
           try {
             const res = await fetch(
               `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
               { credentials: "include" }
             );
             const data = await res.json();
+            localStorage.setItem(`image_${trip.image_id}`, data);
             setSelectedImage(data);
           } catch (err) {
             console.error("Error fetching trip image:", err);
@@ -484,27 +482,7 @@ export default function TripPage() {
                                   name="startDate"
                                   value={startDate ? startDate.toISOString().split("T")[0] : ""}          
                                 />
-                                {/* Button to open image selector */}
-                  <button
-                    type="button"
-                    className="new-trip-button"
-                    onClick={() => setShowImageSelector(true)}
-                    style={{ marginTop: "10px" }}
-                  >
-                    View Images
-                  </button>
-
-                  {/* Display selected image preview */}
-                  {selectedImage && (
-                    <div className="selected-image-container">
-                      <img
-                        src={selectedImage.imageUrl}
-                        alt={selectedImage.image_name}
-                        className="selected-image-thumb"
-                      />
-                      <p>{selectedImage.image_name}</p>
-                    </div>
-                  )}
+                                <ImageSelector onSelect={(img) => setSelectedImage(img)} />
                                  <input
                                   type="hidden"
                                   name="endDate"
@@ -532,33 +510,6 @@ export default function TripPage() {
                                 </div>
                             </form>
                         </div>
-              {/* Image selector popup */}
-              {showImageSelector && (
-                <Popup
-                  title="Select an Image"
-                  buttons={
-                    <>
-                      <button type="button" onClick={() => setShowImageSelector(false)}>
-                        Done
-                      </button>
-                    </>
-                  }
-                >
-                  <div className="image-selector-grid">
-                    {images.map((img) => (
-                      <img
-                        key={img.image_id}
-                        src={img.imageUrl}
-                        alt={img.image_name}
-                        className={`image-selector-thumb ${
-                          selectedImage?.image_id === img.image_id ? "selected" : ""
-                        }`}
-                        onClick={() => setSelectedImage(img)}
-                      />
-                    ))}
-                  </div>
-                </Popup>
-              )}
                     </Popup>
                   )}
               </div>

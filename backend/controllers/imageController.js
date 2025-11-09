@@ -3,13 +3,6 @@
     2. readOneImage: Retrieves a specific image by its ID from the images table.
 */
 import {sql} from "../config/db.js";
-import { v2 as cloudinary } from "cloudinary";
-
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 //This function retrieves all images from the images table.
 export const readAllImages = async (req, res) => {
@@ -20,12 +13,9 @@ export const readAllImages = async (req, res) => {
     `;
 
     const images = result.map((row) => ({
-        image_id: row.image_id,
-        image_name: row.image_name,
-        imageUrl: cloudinary.url(row.public_id, {
-            secure: true,
-            transformation: [{ width: 200, height: 200, crop: "fill" }],
-        }),
+      image_id: row.image_id,
+      image_name: row.image_name,
+      imageUrl: row.image_url.replace("/upload/", "/upload/w_150,h_150,c_fill/")
     }));
 
     res.json(images);
@@ -40,7 +30,7 @@ export const readOneImage = async (req, res) => {
   try {
     const { imageId } = req.query;
     const result = await sql`
-      SELECT public_id
+      SELECT image_url
       FROM images
       WHERE image_id = ${imageId}
     `;
@@ -50,7 +40,7 @@ export const readOneImage = async (req, res) => {
     }
 
     const image = result[0];
-    res.json({ imageUrl: cloudinary.url(image.public_id, { secure: true }) });
+    res.json(image.image_url);
 
   } catch (err) {
       console.error("Error retrieving image by ID:", err);
