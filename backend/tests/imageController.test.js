@@ -1,20 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import { readAllImages, readOneImage } from '../controllers/imageController.js';
-//import { v2 as cloudinary } from 'cloudinary';
 import { sql } from "../config/db.js";
 
 // Mock DB
 vi.mock("../config/db.js", () => ({
   sql: vi.fn(),
 }));
-
-// Mock Cloudinary
-/*vi.mock('cloudinary', () => ({
-  v2: {
-    config: vi.fn(),
-    url: vi.fn(),
-  },
-}));*/
 
 describe('Image endpoints', () => {
 
