@@ -4,7 +4,6 @@ import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 
 export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
   const [imageUrl, setImageUrl] = useState(null);
-  const [imageFetched, setImageFetched] = useState(false);
 
   const onLike = (e) => {
     e.stopPropagation();
@@ -13,8 +12,14 @@ export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
 
   useEffect(() => {
     const fetchImage = async () => {
-      // Don't refetch if the image has already been fetched
-      if (imageFetched) return;
+      // Check if the image URL is already in localStorage global cache
+      const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+
+      // If the image is cached, use it
+      if(cachedImageUrl){
+        setImageUrl(cachedImageUrl);
+        return;
+      }
 
       try {
         const res = await fetch(
@@ -24,16 +29,17 @@ export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
         if (!res.ok) throw new Error("Failed to fetch image");
 
         const data = await res.json();
-        setImageUrl(data.imageUrl);
-        setImageFetched(true);
+        setImageUrl(data);
+
+        // Cache the fetched image URL in localStorage for future use
+        localStorage.setItem(`image_${trip.image_id}`, data);
       } catch (err) {
         console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
       }
     };
 
     fetchImage();
-
-  }, [trip, imageFetched]);
+  }, [trip]);
 
   return (
     <div

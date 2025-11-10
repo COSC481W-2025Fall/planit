@@ -1,19 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import { readAllImages, readOneImage } from '../controllers/imageController.js';
-import { v2 as cloudinary } from 'cloudinary';
 import { sql } from "../config/db.js";
 
 // Mock DB
 vi.mock("../config/db.js", () => ({
   sql: vi.fn(),
-}));
-
-// Mock Cloudinary
-vi.mock('cloudinary', () => ({
-  v2: {
-    config: vi.fn(),
-    url: vi.fn(),
-  },
 }));
 
 describe('Image endpoints', () => {
@@ -45,13 +36,9 @@ describe('Image endpoints', () => {
     it('should retrieve all images and return them in the correct format', async () => {
       // Mock data returned by SQL query
       const mockSqlResult = [
-        { image_id: 1, image_name: 'image1', public_id: 'public_id_1' },
-        { image_id: 2, image_name: 'image2', public_id: 'public_id_2' },
+        { image_id: 1, image_name: 'image1', image_url: 'https://res.cloudinary.com/yourcloud/image/upload/image_1.png' },
+        { image_id: 2, image_name: 'image2', image_url: 'https://res.cloudinary.com/yourcloud/image/upload/image_2.png' },
       ];
-
-      // Mock Cloudinary URL function
-      const mockCloudinaryUrl = 'https://res.cloudinary.com/yourcloud/image/upload/w_200,h_200,c_fill/public_id_1';
-      cloudinary.url.mockImplementation((public_id) => mockCloudinaryUrl.replace('public_id_1', public_id));
 
       sql.mockResolvedValue(mockSqlResult);
 
@@ -67,12 +54,12 @@ describe('Image endpoints', () => {
         {
           image_id: 1,
           image_name: 'image1',
-          imageUrl: mockCloudinaryUrl.replace('public_id_1', 'public_id_1'),
+          imageUrl: 'https://res.cloudinary.com/yourcloud/image/upload/w_150,h_150,c_fill/image_1.png'
         },
         {
           image_id: 2,
           image_name: 'image2',
-          imageUrl: mockCloudinaryUrl.replace('public_id_1', 'public_id_2'),
+          imageUrl: 'https://res.cloudinary.com/yourcloud/image/upload/w_150,h_150,c_fill/image_2.png'
         },
       ]);
     });
@@ -96,10 +83,7 @@ describe('Image endpoints', () => {
     it('should retrieve a specific image by ID and return the image URL', async () => {
       // Mock image ID and SQL result
       const imageId = 1;
-      const mockSqlResult = [{ public_id: 'public_id_1' }];
-
-      const mockCloudinaryUrl = 'https://res.cloudinary.com/yourcloud/image/upload/secure/public_id_1';
-      cloudinary.url.mockImplementation((public_id) => mockCloudinaryUrl.replace('public_id_1', public_id));
+      const mockSqlResult = [{image_url: 'https://res.cloudinary.com/yourcloud/image/upload/image_1.png'}];
 
       sql.mockResolvedValue(mockSqlResult);
 
@@ -109,7 +93,7 @@ describe('Image endpoints', () => {
       await readOneImage(req, res);
 
       expect(res.statusCode).toBe(200);
-      expect(res._getData()).toEqual({ imageUrl: mockCloudinaryUrl.replace('public_id_1', 'public_id_1') });
+      expect(res._getData()).toEqual('https://res.cloudinary.com/yourcloud/image/upload/image_1.png');
     });
 
     it('should return 404 if the image is not found', async () => {

@@ -62,6 +62,15 @@ export default function TripPage() {
             for (const trip of trips) {
                 if (!trip.image_id || trip.image_id === 0) continue;
 
+                // Check if the image URL is already in localStorage global cache
+                const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+
+                // If the image is cached, use it
+                if (cachedImageUrl) {
+                    newImageUrls[trip.trips_id] = cachedImageUrl;
+                    continue;
+                }
+
                 try {
                     const res = await fetch(
                         `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
@@ -69,12 +78,14 @@ export default function TripPage() {
                     );
 
                     const data = await res.json();
-                    newImageUrls[trip.trips_id] = data.imageUrl;
+                    localStorage.setItem(`image_${trip.image_id}`, data);
+                    newImageUrls[trip.trips_id] = data;
                 } catch (err) {
                     console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
                 }
             }
-            setImageUrls(newImageUrls);
+            // Merge new image URLs with existing ones
+            setImageUrls((prev) => ({...prev, ...newImageUrls}));
         };
 
         fetchImages();
