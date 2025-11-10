@@ -180,6 +180,14 @@ export default function TripDaysPage() {
     const fetchImage = async () => {
     if (!trip?.image_id) return;
 
+      // Check if the image URL is already in localStorage global cache
+      const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+
+      // If the image is cached, use it
+      if (cachedImageUrl) {
+        setImageUrl(cachedImageUrl);
+      }
+
     try {
         const res = await fetch(
             `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
@@ -192,7 +200,8 @@ export default function TripDaysPage() {
         }
 
         const data = await res.json();
-        setImageUrl(data.imageUrl);
+        localStorage.setItem(`image_${trip.image_id}`, data);
+        setImageUrl(data);
     } catch (err) {
         console.error("Failed to fetch image:", err);
         setError(err.message);

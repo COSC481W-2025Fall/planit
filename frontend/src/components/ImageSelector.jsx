@@ -3,7 +3,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "./Popup";
 import "../css/Popup.css";
 import "../css/TripPage.css";
-export default function TripCardImages({trip}) {
+export default function TripCardImages({trip, onSelect}) {
   //constants for image selection
   const [images, setImages] = useState([]);
   const [showImageSelector, setShowImageSelector] = useState(false);
@@ -27,6 +27,12 @@ export default function TripCardImages({trip}) {
     };
     fetchImages();
   }, [showImageSelector]);
+
+  // Needed to send selected image to parent.
+  const handleSelectImage = (img) => {
+    setSelectedImage(img);
+    if (onSelect) onSelect(img);
+  };
   
   return (
     <>
@@ -70,7 +76,7 @@ export default function TripCardImages({trip}) {
                 alt={img.image_name}
                 className={`image-selector-thumb ${selectedImage?.image_id === img.image_id ? "selected" : ""
                   }`}
-                onClick={() => setSelectedImage(img)}
+                onClick={() => handleSelectImage(img)}
               />
             ))}
           </div>
