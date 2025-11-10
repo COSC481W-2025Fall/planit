@@ -1,6 +1,7 @@
 import axios from "axios";
 import {AI_BACKEND_URL} from "../../Constants.js";
 
+
 export const health = async (req, res) => {
     if (!req.user) return res.status(401).json({ loggedIn: false });
 
