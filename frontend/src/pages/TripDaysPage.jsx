@@ -186,6 +186,7 @@ export default function TripDaysPage() {
       // If the image is cached, use it
       if (cachedImageUrl) {
         setImageUrl(cachedImageUrl);
+        return;
       }
 
     try {
