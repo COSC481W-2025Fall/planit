@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -1015,6 +1015,10 @@ export default function TripDaysPage() {
             <h1 className="itinerary-text">Itinerary</h1>
             {canEdit && (
               <div className="itinerary-buttons">
+                <button className="packing-ai-button">
+                  <Luggage id="ai-icon" size={14} />
+                  <span> Packing AI</span>
+                </button>
                 <button onClick={() => openAddDayPopup(null)} id="new-day-button">
                   + New Day
                 </button>

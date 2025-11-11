@@ -64,6 +64,10 @@
     --error: red;
     --warning: orange;
     --info: lightblue;
+
+    --packing-ai-1: #7c3aed;
+    --packing-ai-2: #3b82f6;
+    --packing-ai-3: #10b981;
 }
 
 :root[data-theme="dark"] {
@@ -116,6 +120,10 @@
 
     --overlay-dark: rgba(0, 0, 0, 0.65);
     --overlay-strong: rgba(0, 0, 0, 0.85);
+
+    --packing-ai-1: #a78bfa;
+    --packing-ai-2: #60a5fa;
+    --packing-ai-3: #34d399;
 }
 
 @media (prefers-reduced-motion: no-preference) {

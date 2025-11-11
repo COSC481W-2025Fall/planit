@@ -577,7 +577,7 @@ html[data-theme="dark"] .textarea-notes {
     justify-content: space-between;
     align-items: center;
     margin-top: 0.5rem;
-    margin-bottom: 0.5rem; 
+    margin-bottom: 0.5rem;
     padding-top: 0.5rem;
     border-top: 1px solid var(--border);
 }
@@ -597,7 +597,7 @@ html[data-theme="dark"] .textarea-notes {
 }
 
 .add-participant-form input {
-    flex-grow: 1; 
+    flex-grow: 1;
     padding: 10px 12px;
 }
 
@@ -673,6 +673,119 @@ html[data-theme="dark"] .textarea-notes {
     transition: color 0.2s, background-color 0.2s;
     border-radius: 50%;
 }
+
+.packing-ai-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  color: var(--text);
+  background: var(--bg-surface);
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.packing-ai-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+          90deg,
+          var(--packing-ai-1),
+          var(--packing-ai-2),
+          var(--packing-ai-3),
+          var(--packing-ai-1)
+  );
+  background-size: 400% 400%;
+  animation: gradient-border 5s linear infinite;
+  -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0) border-box;
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 1;
+}
+
+.packing-ai-button::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: inherit;
+  background: conic-gradient(
+          from 0deg,
+          var(--packing-ai-1),
+          var(--packing-ai-2),
+          var(--packing-ai-3),
+          var(--packing-ai-1)
+  );
+  background-size: 200% 200%;
+  filter: blur(25px);
+  opacity: 0.6;
+  animation: gradient-glow 6s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.packing-ai-button:hover::after {
+  opacity: 0.9;
+  filter: blur(30px);
+}
+
+.packing-ai-button:hover {
+  color: var(--accent);
+}
+
+@keyframes gradient-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes gradient-glow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.packing-ai-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.packing-ai-button svg {
+  margin-right: 0;
+  width: 15px;
+  height: 15px;
+  transform: translateY(-0.5px);
+}
+
+.packing-ai-button span {
+  transform: translateY(0.5px);
+}
+
 
 .remove-participant-btn:hover {
     color: var(--error);
@@ -771,27 +884,36 @@ html[data-theme="dark"] .time-picker {
     max-height: 6em;
   }
 
-  .participants-list p {
-    font-size: 14px !important;
-  } 
-
+  .participants-list p,
   .participant-item span {
     font-size: 14px;
   }
 }
-
 @media (max-width: 600px) {
   body {
     align-items: flex-start;
   }
 
   .TripDaysPage {
-    padding-bottom: 6rem;
+    padding-bottom: 2rem;
   }
 
   .trip-title {
     font-size: 1.25rem;
   }
+
+  .image-banner {
+    height: auto;
+  }
+
+  .image-banner img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    margin-bottom: 1rem;
+  }
+
   .button-level-bar {
     flex-direction: column-reverse;
     align-items: flex-start;
@@ -799,15 +921,21 @@ html[data-theme="dark"] .time-picker {
   }
 
   .itinerary-buttons {
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 0.5rem;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0.25rem;
+    width: 100%;
   }
 
-  .itinerary-buttons button {
-    min-width: 7rem;
-    font-size: 0.9rem;
-    padding: 0 0.75rem;
+  .itinerary-buttons button,
+  .packing-ai-button {
+    flex: 1 1 auto;
+    min-width: 5.2rem;
+    height: 1.9rem;
+    font-size: 0.78rem;
+    padding: 0 0.4rem;
+    border-radius: 0.45rem;
+    white-space: nowrap;
   }
 
   .days-container {
@@ -839,7 +967,7 @@ html[data-theme="dark"] .time-picker {
     min-height: 100px;
   }
 
-  .participants-list p{
+  .participants-list p {
     padding-top: 25px;
   }
 }
@@ -865,17 +993,6 @@ html[data-theme="dark"] .time-picker {
 
 .activity-search-sidebar.open {
   transform: translateX(0);
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @media (max-width: 1100px) and (min-width: 759px) {
@@ -916,59 +1033,6 @@ html[data-theme="dark"] .time-picker {
   }
 }
 
-@media (max-width: 600px) {
-  body {
-    align-items: flex-start;
-  }
-
-  .TripDaysPage {
-    padding-bottom: 2rem;
-  }
-
-  .trip-title {
-    font-size: 1.25rem;
-  }
-
-  .image-banner {
-    height: 10rem;
-  }
-
-  .button-level-bar {
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .itinerary-buttons {
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 0.5rem;
-  }
-
-  .itinerary-buttons button {
-    min-width: 6rem;
-    font-size: 0.9rem;
-    padding: 0 0.75rem;
-  }
-
-  .days-container {
-    flex-direction: column;
-    align-items: center;
-    overflow: visible;
-    padding-bottom: 1rem;
-  }
-
-  .day-card {
-    width: 100%;
-    max-width: 360px;
-    margin: 0.5rem 0;
-  }
-
-  .day-title {
-    font-size: 1rem;
-  }
-}
-
 @media (max-width: 1100px) {
   html,
   body {
@@ -989,16 +1053,18 @@ html[data-theme="dark"] .time-picker {
     display: none;
   }
 }
-@media (max-width: 600px) {
-  .image-banner { height: auto; }
-  .image-banner img {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    margin-bottom: 1rem;
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
+
 .distance-display {
   display: flex;
   align-items: center;
