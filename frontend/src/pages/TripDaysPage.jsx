@@ -16,7 +16,7 @@ import { toast } from "react-toastify";
 import OverlapWarning from "../components/OverlapWarning.jsx";
 import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
-import {updateTrip} from "../../api/trips.js";
+import {retrievePackingItems, updateTrip} from "../../api/trips.js";
 import {listParticipants, addParticipant, removeParticipant} from "../../api/trips";
 import { useNavigate } from "react-router-dom";
 
@@ -903,6 +903,28 @@ export default function TripDaysPage() {
     }
   }, [trip?.trips_id]);
 
+  const handlePackingAI = async () => {
+    const fakeTrip =         {
+      "destination": "Denver, CO",
+      "season": "winter",
+      "weather": "cold",
+      "activities": "Ski",
+      "duration_days": 6,
+      "avg_temp_high": 32,
+      "avg_temp_low": 12,
+      "rain_chance_percent": 90,
+      "humidity_percent": 26
+    }
+
+    try {
+      await retrievePackingItems(fakeTrip);
+      toast.success("Items retrieved!");
+    } catch (e) {
+      console.error("Packing AI call failed", e);
+      toast.error("Packing AI failed");
+    }
+  };
+
   //Loading State
   if (!user || !trip) {
     return (
@@ -1025,7 +1047,8 @@ export default function TripDaysPage() {
             <h1 className="itinerary-text">Itinerary</h1>
             {canEdit && (
               <div className="itinerary-buttons">
-                <button className="packing-ai-button">
+                <button className="packing-ai-button"
+                onClick={handlePackingAI}>
                   <Luggage id="ai-icon" size={14} />
                   <span> Packing AI</span>
                 </button>
