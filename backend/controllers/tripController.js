@@ -327,3 +327,26 @@ export const deleteTrip = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+//Getting the owner of the trip for display purposes
+export const getOwnerForTrip = async (req, res) => {
+  const tripId = req.params.tripId;
+  try {
+    const result = await sql`
+      SELECT users.user_id, username, users.photo
+      FROM users
+      JOIN trips ON users.user_id = trips.user_id
+      WHERE trips.trips_id = ${tripId}
+    `;
+
+    if (result.length > 0) {
+      res.json({ owner: result[0] });
+    } else { //there shouldn't be more than one result but just in case
+      res.json({ owner: null });
+    }
+  } catch (err) {
+    console.log("Error getting owner for trip:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+

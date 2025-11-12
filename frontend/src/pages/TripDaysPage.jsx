@@ -17,7 +17,7 @@ import OverlapWarning from "../components/OverlapWarning.jsx";
 import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 import {updateTrip} from "../../api/trips.js";
-import {listParticipants, addParticipant, removeParticipant} from "../../api/trips";
+import {listParticipants, addParticipant, removeParticipant, getOwnerForTrip} from "../../api/trips";
 import { useNavigate } from "react-router-dom";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
@@ -54,15 +54,30 @@ export default function TripDaysPage() {
   const [participants, setParticipants] = useState([]);
   const [participantUsername, setParticipantUsername] = useState("");
   const [allUsernames, setAllUsernames] = useState([]);
+  const [owner, setOwner] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const participantFormRef = useRef(null);
   const MAX_DISPLAY_PFP = 4;
-  const visibleParticipants = participants.slice(0, MAX_DISPLAY_PFP - 1);
-  const hiddenParticipants = participants.slice(MAX_DISPLAY_PFP - 1);
-  const hiddenCount = participants.length - visibleParticipants.length;
-  const hiddenUsernamesString = hiddenParticipants
-    .map(p => p.username)
-    .join('\n');
+
+  const allPeople = [
+    ...(owner ? [owner] : []),
+    ...(Array.isArray(participants) ? participants : []),
+  ];
+
+  const uniquePeople = allPeople.filter(
+    (person, index, self) =>
+      index === self.findIndex(p => p.username === person.username)
+  );
+
+  const orderedPeople = [
+    ...(user ? uniquePeople.filter(p => p.username === user.username) : []),
+    ...uniquePeople.filter(p => p.username !== user?.username),
+  ];
+
+  const visibleParticipants = orderedPeople.slice(0, MAX_DISPLAY_PFP);
+  const hiddenParticipants = orderedPeople.slice(MAX_DISPLAY_PFP);
+  const hiddenCount = orderedPeople.length - visibleParticipants.length;
+  const hiddenUsernamesString = hiddenParticipants.map(p => p.username).join('\n');
 
   // distance calculation states
   const [distanceInfo, setDistanceInfo] = useState(null);
@@ -170,6 +185,7 @@ export default function TripDaysPage() {
         if (data) {
           setTrip(data);
           setUserRole(data.user_role);
+          console.log(data.user_role);
         }
       })
       .catch((err) => console.error("Trip fetch error:", err));
@@ -900,6 +916,13 @@ export default function TripDaysPage() {
           // Don't toast here, as it's a background load
           console.error("Failed to fetch participants for title display:", err);
         });
+      getOwnerForTrip(trip.trips_id)
+        .then(data => {
+          setOwner(data.owner || []);
+        })
+        .catch(err => {
+          console.error("Failed to fetch owner for title display:", err);
+        });
     }
   }, [trip?.trips_id]);
 
@@ -942,46 +965,34 @@ export default function TripDaysPage() {
             )}
             {canEdit && (
             <div className="participant-photos">
-              {user && (
-                user.photo ? (
-                  <img
-                    className="participant-pfp"
-                    src={user.photo}
-                    alt={user.username}
-                    title={user.username}
-                  />
-                ) : (
-                  <div className="participant-pfp placeholder" title={user.username}>
-                    {user.username?.charAt(0).toUpperCase() || 'U'}
-                  </div>
-                )
-              )}
+               {visibleParticipants.map((p) =>
+                 p.photo ? (
+                   <img
+                     key={`${p.user_id || ''}-${p.username}`}
+                     className="participant-pfp"
+                     src={p.photo}
+                     alt={p.username}
+                     title={p.username}
+                   />
+                 ) : (
+                   <div
+                     key={`${p.user_id || ''}-${p.username}`}
+                     className="participant-pfp placeholder"
+                     title={p.username}
+                   >
+                     {p.username?.charAt(0).toUpperCase() || '?'}
+                   </div>
+                 )
+               )}
 
-              {visibleParticipants.map(p => (
-                p.photo ? (
-                  <img
-                    key={p.user_id}
-                    className="participant-pfp"
-                    src={p.photo}
-                    alt={p.username}
-                    title={p.username}
-                  />
-                ) : (
+                {hiddenCount > 0 && (
                   <div
-                    key={p.user_id}
-                    className="participant-pfp placeholder"
-                    title={p.username}
+                    className="participant-pfp placeholder remainder"
+                    title={hiddenUsernamesString}
                   >
-                    {p.username?.charAt(0).toUpperCase() || '?'}
+                    +{hiddenCount}
                   </div>
-                )
-              ))}
-
-              {hiddenCount > 0 && (
-                <div className="participant-pfp placeholder remainder" title={hiddenUsernamesString}>
-                  +{hiddenCount}
-                </div>
-              )}
+                )}
             </div>
             )}
           </div>

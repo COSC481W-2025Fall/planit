@@ -360,4 +360,53 @@ describe("Trip Controller Unit Tests", () => {
             });
         })
     })
+
+    //Test getting the owner of a trip
+    describe("getOwnerForTrip testing", () => {
+        //check that the correct owner is returned for a trip
+        it("returns the owner if trip exists", async () => {
+            const app = makeApp({ injectUser: true });
+            const tripId = 10;
+
+            const mockOwner = {
+                user_id: 123,
+                username: "olivia",
+                photo: "pretend_photo_url"
+            };
+
+            sql.mockResolvedValueOnce([mockOwner]);
+
+            const res = await request(app).get(`/trip/owner/${tripId}`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ owner: mockOwner });
+        });
+
+        //check if no owner is found for a non-existent trip
+        it("returns owner as null if trip does not exist", async () => {
+            const app = makeApp({ injectUser: true });
+            const tripId = 999;
+
+            sql.mockResolvedValueOnce([]); // No owner found
+
+            const res = await request(app).get(`/trip/owner/${tripId}`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ owner: null });
+        });
+
+        //check that a 500 error is returned if there is a database error
+        it("returns 500 if there is a database error", async () => {
+            const app = makeApp({ injectUser: true });
+            const tripId = 10;
+
+            const mockError = new Error("DB Error");
+            sql.mockRejectedValueOnce(mockError);
+
+            const res = await request(app).get(`/trip/owner/${tripId}`);
+
+            expect(res.status).toBe(500);
+            expect(res.body).toEqual({ error: "Internal Server Error" });
+        });
+    })
 });
