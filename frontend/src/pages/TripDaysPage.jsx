@@ -185,7 +185,6 @@ export default function TripDaysPage() {
         if (data) {
           setTrip(data);
           setUserRole(data.user_role);
-          console.log(data.user_role);
         }
       })
       .catch((err) => console.error("Trip fetch error:", err));
