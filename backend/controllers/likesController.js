@@ -50,6 +50,7 @@ export const getAllTripDetailsOfTripsLikedByUser = async (req, res) => {
             FROM trips AS t
             JOIN likes AS l ON t.trips_id = l.trip_id
             WHERE l.user_id = ${userId}
+            AND t.is_private = false
             ORDER BY l.liked_at DESC
         `;
 
