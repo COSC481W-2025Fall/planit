@@ -904,16 +904,28 @@ export default function TripDaysPage() {
   }, [trip?.trips_id]);
 
   const handlePackingAI = async () => {
+    // const fakeTrip =         {
+    //   "destination": "Denver, CO",
+    //   "season": "winter",
+    //   "weather": "cold",
+    //   "activities": "Ski",
+    //   "duration_days": 6,
+    //   "avg_temp_high": 32,
+    //   "avg_temp_low": 12,
+    //   "rain_chance_percent": 90,
+    //   "humidity_percent": 26
+    // }
+
     const fakeTrip =         {
-      "destination": "Denver, CO",
-      "season": "winter",
-      "weather": "cold",
-      "activities": "Ski",
-      "duration_days": 6,
-      "avg_temp_high": 32,
-      "avg_temp_low": 12,
-      "rain_chance_percent": 90,
-      "humidity_percent": 26
+      "destination": "Los Angelos, CA",
+      "season": "summer",
+      "weather": "hot",
+      "activities": "Adventure, Hiking",
+      "duration_days": 12,
+      "avg_temp_high": 98,
+      "avg_temp_low": 72,
+      "rain_chance_percent": 20,
+      "humidity_percent": 10
     }
 
     try {
