@@ -826,8 +826,6 @@ export default function TripDaysPage() {
       const isDraggedFromAfterFirst = dragDate > overDate;
       const isHoveringBeforeFirst = dragOverInfo.dayId === "before-first";
 
-      const updatedDayIds = new Set();
-
       if (isDropOnFirstDay && isDraggedFromAfterFirst && isHoveringBeforeFirst) {
         const first = days[0];
 
@@ -836,14 +834,9 @@ export default function TripDaysPage() {
           if (d.day_date > dragFromDay.day_date) continue;
           const newDate = adjustDate(d.day_date, 1);
           await updateDay(tripId, d.day_id, { day_date: newDate });
-          updatedDayIds.add(dragFromDay.day_id);
         }
 
         await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date });
-        updatedDayIds.add(dragFromDay.day_id);
-        for (const id of updatedDayIds) {
-          await fetchDay(id);
-        }
 
         //get the updated days and their activities
         const updatedDays = await getDays(tripId);
@@ -884,7 +877,6 @@ export default function TripDaysPage() {
             // days before the drop target move back 1 day
             const newDate = adjustDate(eachDay.day_date, -1);
             await updateDay(tripId, eachDay.day_id, { day_date: newDate });
-            updatedDayIds.add(eachDay.day_id);
             movedDayDate = overDay.day_date;
           }
         }
@@ -894,7 +886,6 @@ export default function TripDaysPage() {
             // days after the drop target move forward 1 day
             const newDate = adjustDate(eachDay.day_date, 1);
             await updateDay(tripId, eachDay.day_id, { day_date: newDate });
-            updatedDayIds.add(eachDay.day_id);
             movedDayDate = adjustDate(overDay.day_date, 1);
           }
         }
@@ -902,10 +893,7 @@ export default function TripDaysPage() {
 
       // Finally, update the date of the day we're dragging
       await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate });
-      updatedDayIds.add(dragFromDay.day_id);
-      for (const id of updatedDayIds) {
-        await fetchDay(id);
-      }
+
       const updatedDays = await getDays(tripId);
       mergeActivitiesIntoDays(updatedDays);
       toast.info("Day moved");
