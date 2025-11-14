@@ -31,6 +31,7 @@ export default function LoginPage() {
           <img src={gLogo} alt="Google G" className="google-g"/>
           <span>Login with Google</span>
         </button>
+        <button className = "sign-in-as-guest">Sign in as Guest</button>
       </div>
     </div>
   );

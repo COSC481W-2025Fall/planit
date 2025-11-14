@@ -125,3 +125,18 @@ body {
     padding: 0.75rem;
   }
 }
+
+.sign-in-as-guest{
+  all: unset;
+  cursor: pointer;
+  text-decoration: underline;
+  color: var(--accent);
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  font-weight: 500;
+  font-family: "Open Sans", sans-serif;
+}
+
+.sign-in-as-guest:hover{
+  color: var(--accent-dark);
+  transform: translateY(-1px);
+}
