@@ -965,7 +965,7 @@ export default function TripDaysPage() {
   }, [openParticipantsPopup]);
 
   useEffect(() => {
-    if (trip?.trips_id) {
+    if (trip?.trips_id && !isViewer) {
       listParticipants(trip.trips_id)
         .then(data => {
           setParticipants(data.participants || []);
@@ -982,7 +982,7 @@ export default function TripDaysPage() {
           console.error("Failed to fetch owner for title display:", err);
         });
     }
-  }, [trip?.trips_id]);
+  }, [trip?.trips_id, isViewer]);
 
   //Loading State
   if (!user || !trip) {
