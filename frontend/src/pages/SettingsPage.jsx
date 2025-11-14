@@ -50,41 +50,13 @@ export default function SettingsPage() {
         try {
             const backend = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
-            const postData = async (endpoint) => {
-                const res = await fetch(`${backend}/settings/${endpoint}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userID }),
-                });
-                return res.json();
-            };
+            const res = await fetch(`${backend}/settings/userStats`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userID }),
+            });
 
-            const [
-                tripCount,
-                longestTrip,
-                mostExpensiveTrip,
-                cheapestTrip,
-                totalMoneySpent,
-                totalLikes,
-
-            ] = await Promise.all([
-                postData("tripCount"),
-                postData("longestTrip"),
-                postData("mostExpensiveTrip"),
-                postData("cheapestTrip"),
-                postData("totalMoneySpent"),
-                postData("totalLikes"),
-            ]);
-
-            return {
-                tripCount,
-                longestTrip,
-                totalLikes,
-                cheapestTrip,
-                mostExpensiveTrip,
-                totalMoneySpent
-            }
-        
+            return await res.json(); 
         } catch (err) {
             console.error("Error fetching stats:", err);
         }
