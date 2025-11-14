@@ -247,10 +247,19 @@ export default function ExplorePage() {
     };
   }, [query, user?.user_id]);
 
+  const isGuestUser = (userId) => {
+    return userId && userId.toString().startsWith('guest_');
+  };
+
   // like toggle
   const handleToggleLike = async (tripId, tripData) => {
     if (!user?.user_id) {
       toast.info("Log in to like trips.");
+      return;
+    }
+
+    if (isGuestUser(user.user_id)) {
+      toast.error("Guests cannot like trips. Please sign in.");
       return;
     }
     if (liking.has(tripId)) return;

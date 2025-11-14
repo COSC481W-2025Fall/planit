@@ -1,11 +1,23 @@
 import { sql } from "../config/db.js";
 
+const isGuestUser = (userId) => {
+    return userId && userId.toString().startsWith('guest_');
+};
+
 export const toggleLike = async (req, res) => {
   try {
     const { userId, tripId } = req.body;
 
     if (!userId || !tripId) {
       return res.status(400).json({ error: "userId and tripId are required" });
+    }
+
+    // prevent guests from liking anything
+    if (isGuestUser(userId)) {
+      return res.status(403).json({
+        error: "Guest users cannot like trips. Please sign up for a full account.",
+        isGuest: true
+      });
     }
 
     //check if the like already exists
@@ -44,6 +56,11 @@ export const getAllTripDetailsOfTripsLikedByUser = async (req, res) => {
         if (!userId) {
             return res.status(400).json({ error: "userId is required" });
         }
+        
+       // guests have no liked trips
+        if (isGuestUser(userId)) {
+          return res.status(200).json([]);
+        }
 
         const userLikes = await sql`
             SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, t.image_id, t.trip_updated_at, l.liked_at
@@ -67,6 +84,11 @@ export const getLikedTripIdsByUser = async (req, res) => {
 
     if (!userId) {
       return res.status(400).json({ error: "userId is required" });
+    }
+
+    // guests have no liked trips
+    if (isGuestUser(userId)) {
+      return res.status(200).json({ likedTripIds: [] });
     }
 
     const likedTrips = await sql`
