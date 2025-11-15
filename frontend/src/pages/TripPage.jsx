@@ -13,6 +13,11 @@ import {toast} from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ImageSelector from "../components/ImageSelector";
+import GuestEmptyState from "../components/GuestEmptyState";
+
+const isGuestUser = (userId) => {
+  return userId && userId.toString().startsWith('guest_');
+};
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
@@ -61,7 +66,7 @@ export default function TripPage() {
 
     // Fetch trips once user is loaded
     useEffect(() => {
-      if (!user?.user_id) return;
+      if (!user?.user_id || isGuestUser(user.user_id)) return;
 
         getTrips(user.user_id)
           .then((data) => {
@@ -151,6 +156,20 @@ export default function TripPage() {
         );
     }
 
+  // guest empty state if user is a guest
+  if (isGuestUser(user.user_id)) {
+    return (
+      <div className="trip-page">
+        <TopBanner user={user} />
+        <div className="content-with-sidebar">
+          <NavBar />
+          <div className="main-content">
+            <GuestEmptyState />
+          </div>
+        </div>
+      </div>
+    );
+  }
     // Delete trip
     const handleDeleteTrip = async (trips_id) => {
         try {
