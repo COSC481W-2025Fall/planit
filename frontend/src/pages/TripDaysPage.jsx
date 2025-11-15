@@ -380,6 +380,64 @@ export default function TripDaysPage() {
     }
   };
 
+  // Fetch a single day and that days activities
+  const fetchDay = async (dayId) => {
+    if (!tripId) return;
+    try {
+      const res = await fetch(`${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/read/all`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({dayId})
+        }
+      );
+      const {activities} = await res.json();
+
+      // sort activities by start time
+      const sortedActivities = (activities || []).sort((a, b) => {
+        const toMinutes = (t) => {
+          if (!t) return 0;
+          const [h, m, s] = t.split(":").map(Number);
+          return (h || 0) * 60 + (m || 0) + (s ? s / 60 : 0);
+        };
+        return toMinutes(a.activity_startTime) - toMinutes(b.activity_startTime);
+      });
+
+      const updatedDays = days.map(d => d.day_id === dayId ? {...d, activities: sortedActivities } : d);
+      
+      setDays(updatedDays);
+
+      const newIds = updatedDays.map(d => d.day_id);
+
+      if (!expandedInitRef.current) {
+        // First load: mobile = collapsed, desktop = expanded
+        setExpandedDays(window.innerWidth <= 600 ? [] : newIds);
+        expandedInitRef.current = true;
+      } else {
+        // Later fetches: keep prior choices, just drop deleted day IDs
+        setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Sets days with activities again using previous state.
+  const mergeActivitiesIntoDays = (days) => {
+    setDays(prev => {
+      const prevMap = new Map(prev.map(d => [d.day_id, d]));
+
+      return days.map(day => {
+        if (prevMap.has(day.day_id)) {
+          return { ...day, activities: prevMap.get(day.day_id).activities };
+        }
+
+        return { ...day, activities: [] };
+      });
+    });
+  }
+
   // format duration helper
   const formatDuration = (minutes) => {
     if (minutes == null) return "N/A";
@@ -548,7 +606,8 @@ export default function TripDaysPage() {
         });
       }
 
-      await fetchDays();
+      const updatedDays = await getDays(tripId);
+      mergeActivitiesIntoDays(updatedDays);
 
       setOpenNewDay(null);
       setNewDayInsertBefore(false);
@@ -578,7 +637,8 @@ export default function TripDaysPage() {
       const isFirstDay = days.length > 0 && dayId === days[0].day_id;
 
       await deleteDay(tripId, dayId, isFirstDay);
-      await fetchDays();
+      const updatedDays = await getDays(tripId);
+      mergeActivitiesIntoDays(updatedDays);
 
       if (isFirstDay) {
         // if first day is deleted, update trip start date
@@ -626,8 +686,7 @@ export default function TripDaysPage() {
         const errData = await response.json().catch(() => ({}));
         throw new Error(errData.error || "Failed to update activity");
       }
-
-      await fetchDays();
+      await fetchDay(activity.dayId);
       setEditActivity(null);
       toast.success("Activity updated successfully!");
     } catch (error) {
@@ -636,7 +695,7 @@ export default function TripDaysPage() {
     }
   };
 
-  const handleDeleteActivity = async (activityId) => {
+  const handleDeleteActivity = async (activityId, dayId) => {
     if (!canEdit) {
       toast.error("You don't have permission to delete activities");
       return;
@@ -665,7 +724,7 @@ export default function TripDaysPage() {
       );
 
       toast.success("Activity deleted successfully!");
-      await fetchDays();
+      await fetchDay(dayId);
     } catch (error) {
       console.error("Error deleting activity:", error);
       toast.error("Failed to delete activity. Please try again.");
@@ -797,7 +856,10 @@ export default function TripDaysPage() {
         }
 
         await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date });
-        await fetchDays();
+
+        //get the updated days and their activities
+        const updatedDays = await getDays(tripId);
+        mergeActivitiesIntoDays(updatedDays);
 
         toast.info("Day moved");
 
@@ -851,7 +913,8 @@ export default function TripDaysPage() {
       // Finally, update the date of the day we're dragging
       await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate });
 
-      await fetchDays();
+      const updatedDays = await getDays(tripId);
+      mergeActivitiesIntoDays(updatedDays);
       toast.info("Day moved");
 
       setDragFromDay(null);
@@ -925,7 +988,7 @@ export default function TripDaysPage() {
   }, [openParticipantsPopup]);
 
   useEffect(() => {
-    if (trip?.trips_id) {
+    if (trip?.trips_id && !isViewer) {
       listParticipants(trip.trips_id)
         .then(data => {
           setParticipants(data.participants || []);
@@ -942,7 +1005,7 @@ export default function TripDaysPage() {
           console.error("Failed to fetch owner for title display:", err);
         });
     }
-  }, [trip?.trips_id]);
+  }, [trip?.trips_id, isViewer]);
 
   //Loading State
   if (!user || !trip) {
@@ -1331,7 +1394,7 @@ export default function TripDaysPage() {
                     type="button"
                     className="btn-rightside"
                     onClick={() => {
-                      handleDeleteActivity(deleteActivity.activity_id);
+                      handleDeleteActivity(deleteActivity.activity_id, deleteActivity.day_id);
                       setDeleteActivity(null);
                     }}
                   >
@@ -1366,7 +1429,8 @@ export default function TripDaysPage() {
                         activity_startTime: editStartTime,
                         activity_duration: editDuration,
                         activity_estimated_cost: editCost,
-                        notesForActivity: notes || ""
+                        notesForActivity: notes || "",
+                        dayId: editActivity.day_id
                       });
                     }}
                   >
@@ -1523,7 +1587,7 @@ export default function TripDaysPage() {
               dayIds={Array.isArray(days)
                 ? days.map((d) => d.day_id)
                 : []}
-              onActivityAdded={fetchDays}
+              onActivityAdded={(dayId) => fetchDay(dayId)}
             />
           </div>
         )}
