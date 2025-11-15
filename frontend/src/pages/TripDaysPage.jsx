@@ -19,6 +19,7 @@ import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 import {updateTrip} from "../../api/trips.js";
 import {listParticipants, addParticipant, removeParticipant, getOwnerForTrip} from "../../api/trips";
 import { useNavigate } from "react-router-dom";
+import io from "socket.io-client";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -119,7 +120,21 @@ export default function TripDaysPage() {
   const isShared = userRole === "shared";
   const isViewer = userRole === "viewer";
   const canEdit = isOwner || isShared;
-  const canManageParticipants = isOwner; 
+  const canManageParticipants = isOwner;
+  
+  // Sets up Socket.IO connection and cleans up on disconnect. Also, performs actions, right now just a console.log though 
+  useEffect(() => {
+    const socket = io("http://localhost:3000", {
+      withCredentials: true
+    });
+
+    console.log("socket connected", socket.id);
+
+    return () => {
+      socket.disconnect();
+      console.log("Socket disconnected");
+    };
+  }, []);
 
   //responsive
   useEffect(() => {
