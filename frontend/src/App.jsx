@@ -10,6 +10,9 @@ import TripDaysPage from "./pages/TripDaysPage"
 import Registration from "./pages/NewUserSignUpPage";
 import ExplorePage from "./pages/ExplorePage"; 
 import SharedTripPage from "./pages/SharedTripPage";
+import io from "socket.io-client"
+
+const socket = io.connect("http://localhost:3000");
 
 function App() {
     return (

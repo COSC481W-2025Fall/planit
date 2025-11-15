@@ -18,7 +18,8 @@ import exploreRoutes from "./routes/exploreRoutes.js";
 import routesAPIRoutes from "./routes/routesAPIRoutes.js";
 import shareRoutes from "./routes/sharedTripsRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
-
+import http from "http";
+import {Server} from "socket.io";
 
 const app = express();
 
@@ -38,6 +39,30 @@ app.use(
     credentials: true,
   })
 );
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: [
+      "http://localhost:5173",
+      "https://app.planit-travel.me",
+      "https://www.planit-travel.me",
+      "https://planit-travel.me",
+    ],
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+
+// Handle connections
+io.on("connection", (socket) => {
+  console.log("Participant connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("Participant disconnected:", socket.id);
+  });
+});
+
 app.use(helmet());
 app.use(morgan("dev"));
 
@@ -70,5 +95,10 @@ app.use("/explore", exploreRoutes);
 app.use("/routesAPI", routesAPIRoutes);
 app.use("/shared" , shareRoutes)
 app.use("/settings", settingsRoutes);
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () =>
+  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`)
+);
 
 export default app; // <- export the app for tests
