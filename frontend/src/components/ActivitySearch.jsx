@@ -440,7 +440,7 @@ useEffect(() => {
             setPendingPlace(null);
             setPendingDayId(null);
 
-            onActivityAdded && onActivityAdded();
+            onActivityAdded && onActivityAdded(pendingDayId);
             if (window.innerWidth <= 950) {
                 onClose && onClose();
             }
