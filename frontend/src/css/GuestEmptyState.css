@@ -152,3 +152,10 @@
     justify-content: center;
   }
 }
+@media (max-width: 420px) {
+  .guest-empty-state {
+    align-items: flex-start;
+    padding-top: 2rem;
+    min-height: auto;
+  }
+}
