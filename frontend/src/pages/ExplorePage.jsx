@@ -341,7 +341,7 @@ export default function ExplorePage() {
   if (loadingUser) {
     return (
       <div className="trip-page">
-        <TopBanner user={user} />
+        <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
         <div className="content-with-sidebar">
           <NavBar />
           <div className="main-content">
@@ -356,7 +356,7 @@ export default function ExplorePage() {
 
   return (
     <div className="trip-page explore-page">
-      <TopBanner user={user} />
+      <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
       <div className="content-with-sidebar">
         <NavBar />
 

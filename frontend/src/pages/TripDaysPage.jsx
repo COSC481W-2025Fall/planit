@@ -925,11 +925,15 @@ export default function TripDaysPage() {
     }
   }, [trip?.trips_id]);
 
+  const isGuestUser = (userId) => {
+    return userId && userId.toString().startsWith('guest_');
+  };
+
   //Loading State
   if (!user || !trip) {
     return (
       <div className="setting-page">
-        <TopBanner user={user} />
+        <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
         <div className="content-with-sidebar">
           <NavBar />
           <div className="main-content">
@@ -950,7 +954,7 @@ export default function TripDaysPage() {
 
   return (
     <div className="page-layout">
-      <TopBanner user={user} />
+      <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
 
       <div className="content-with-sidebar">
         <NavBar />

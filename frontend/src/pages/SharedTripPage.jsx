@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
 import { getSharedTrips } from "../../api/trips";
 import "react-datepicker/dist/react-datepicker.css";
+import GuestEmptyState from "../components/GuestEmptyState";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
@@ -39,7 +40,7 @@ export default function TripPage() {
 
     // Fetch trips once user is loaded
     useEffect(() => {
-        if (!user?.user_id) return;
+        if (!user?.user_id || isGuestUser(user.user_id)) return;
 
         getSharedTrips(user.user_id)
             .then((data) => {
@@ -91,9 +92,28 @@ export default function TripPage() {
         fetchImages();
     }, [trips]);
 
+    const isGuestUser = (userId) => {
+        return userId && userId.toString().startsWith('guest_');
+    };
+
+    // guest empty state if user is a guest
+    if (isGuestUser(user?.user_id)) {
+        return (
+            <div className="trip-page">
+                <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
+                <div className="content-with-sidebar">
+                    <NavBar />
+                    <div className="main-content">
+                        <GuestEmptyState title="Hi, Guest" description="You're currently browsing as a Guest. Sign in to create and share trips with family and friends!" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="trip-page">
-            <TopBanner user={user} />
+            <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
             <div className="content-with-sidebar">
                 <NavBar />
                 <div className="main-content">
