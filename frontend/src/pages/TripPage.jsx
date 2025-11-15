@@ -15,10 +15,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import ImageSelector from "../components/ImageSelector";
 import GuestEmptyState from "../components/GuestEmptyState";
 
-const isGuestUser = (userId) => {
-  return userId && userId.toString().startsWith('guest_');
-};
-
 export default function TripPage() {
     const [user, setUser] = useState(null);
     const [trips, setTrips] = useState([]);
@@ -139,11 +135,16 @@ export default function TripPage() {
         setSelectedImage(null);
     };
 
+  const isGuestUser = (userId) => {
+    return userId && userId.toString().startsWith('guest_');
+  };
+
+
     //Show Loader while fetching user or trips
     if (!user || !trips) {
       return (
         <div className="trip-page">
-            <TopBanner user={user}/>
+            <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
             <div className="content-with-sidebar">
                 <NavBar/>
                 <div className="main-content">
@@ -160,11 +161,11 @@ export default function TripPage() {
   if (isGuestUser(user.user_id)) {
     return (
       <div className="trip-page">
-        <TopBanner user={user} />
+        <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
         <div className="content-with-sidebar">
           <NavBar />
           <div className="main-content">
-            <GuestEmptyState />
+            <GuestEmptyState title = "Welcome, Guest" description = "You're currently browsing as a Guest. Sign in to create and save your own trips." />
           </div>
         </div>
       </div>

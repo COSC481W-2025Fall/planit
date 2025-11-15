@@ -27,6 +27,7 @@
 
 .guest-empty-card h2 {
   font-size: 1.5rem;
+  font-family: Tahoma;
   margin-bottom: 1rem;
   color: var(--text-dark);
   font-weight: 600;

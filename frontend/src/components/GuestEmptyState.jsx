@@ -3,16 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { LogIn, User } from "lucide-react";
 import "../css/GuestEmptyState.css";
 
-export default function GuestEmptyState() {
+export default function GuestEmptyState({title, description}) {
     const navigate = useNavigate();
 
     return (
         <div className="guest-empty-state">
             <div className="guest-empty-card">
                 <User className="guest-icon" size={30} />
-                <h2>Welcome, Guest!</h2>
+                <h2>{title}</h2>
                 <p className="guest-message">
-                    You're currently browsing as a guest. Sign in to create and save your own trips.
+                    {description}
                 </p>
 
                 <div className="guest-features">
