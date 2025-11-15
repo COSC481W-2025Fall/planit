@@ -1,5 +1,6 @@
 // backend/controllers/daysController.js
 import { sql } from "../config/db.js";
+import {getIO} from "../app.js";
 
 // read all days for a specific trip
 export const readDays = async (req, res) => {
@@ -30,6 +31,8 @@ export const readDays = async (req, res) => {
 
 // create a new day for a specific trip
 export const createDay = async (req, res) => {
+  //Call the io instance
+  const io = getIO();
   // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
@@ -85,6 +88,10 @@ export const createDay = async (req, res) => {
       ]);
       newDay = rows[0];
     }
+    //emit createdDay for frontend to listen for.
+    io.emit("createdDay", {tripId});
+    //This is how we will need to do it when rooms are set up
+    //io.to(`trip_${tripId}`).emit("days-updated", {tripId});
 
     res.status(201).json(newDay);
 

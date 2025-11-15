@@ -54,7 +54,10 @@ const io = new Server(server, {
   },
 });
 
-// Handle connections
+// Export io instance to be used by controllers
+export const getIO = () => io;
+
+// Handle connections(room implementation will be done here)
 io.on("connection", (socket) => {
   console.log("Participant connected:", socket.id);
 

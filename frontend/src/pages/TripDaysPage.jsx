@@ -123,7 +123,7 @@ export default function TripDaysPage() {
   const canEdit = isOwner || isShared;
   const canManageParticipants = isOwner;
   
-  // Sets up Socket.IO connection and cleans up on disconnect. Also, performs actions, right now just a console.log though 
+  // Sets up Socket.IO connection and cleans up on disconnect. Also, performs actions, right now just a console.log and adding days. 
   useEffect(() => {
     const socket = io("http://localhost:3000", {
       withCredentials: true
@@ -133,12 +133,21 @@ export default function TripDaysPage() {
       console.log("Participant connected", socket.id)
     });
 
+    //Listener that listens for "createdDay" from backend. Takes tripId from backend as json which is then 
+    //compared to the tripId we are currently on(this will eventually be changed once rooms are implemented)
+    //if tripIds match we retrive days and activities.
+    socket.on("createdDay", (data) => {
+      if (Number(data.tripId) === Number(tripId)) {
+        getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
+      }
+    });
+
     return () => {
       if(socket.connected)
         console.log("Participant disconnected", socket.id);
       socket.disconnect();
     };
-  }, []);
+  }, [tripId]);
 
   //responsive
   useEffect(() => {
