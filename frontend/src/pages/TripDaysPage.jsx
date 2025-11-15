@@ -906,7 +906,7 @@ export default function TripDaysPage() {
   }, [openParticipantsPopup]);
 
   useEffect(() => {
-    if (trip?.trips_id) {
+    if (trip?.trips_id && !isGuestUser(user?.user_id)) {
       listParticipants(trip.trips_id)
         .then(data => {
           setParticipants(data.participants || []);
