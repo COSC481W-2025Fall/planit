@@ -4,6 +4,7 @@ import logo from "../assets/Planit_Full_Green.png";
 import gLogo from "../assets/google-g-logo.webp";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import { Link } from "react-router-dom";
+import {toast} from "react-toastify";
 
 export default function LoginPage() {
   const handleLogin = () => {
@@ -11,6 +12,32 @@ export default function LoginPage() {
       (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
       "/auth/google";
     window.location.href = backendURL;
+  };
+
+  const handleLoginAsGuest = async () => {
+    try {
+      const backendURL =
+        (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
+        "/auth/guest";
+
+      const response = await fetch(backendURL, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        window.location.href = data.redirectUrl;
+      } else {
+        toast.error("Guest login failed");
+      }
+    } catch (err) {
+      console.error("Error during guest login:", err);
+    }
   };
 
   return (
@@ -31,6 +58,7 @@ export default function LoginPage() {
           <img src={gLogo} alt="Google G" className="google-g"/>
           <span>Login with Google</span>
         </button>
+        <button className = "sign-in-as-guest" onClick={handleLoginAsGuest}>Sign in as Guest</button>
       </div>
     </div>
   );

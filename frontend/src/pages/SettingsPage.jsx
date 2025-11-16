@@ -5,6 +5,7 @@ import NavBar from "../components/NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
+import GuestEmptyState from "../components/GuestEmptyState.jsx";
 
 export default function SettingsPage() {
     const [user, setUser] = useState(null);
@@ -31,7 +32,7 @@ export default function SettingsPage() {
     }, []);
 
     useEffect(() => {
-        if (user) {
+        if (user && !isGuestUser(user?.user_id)) {
             const loadStats = async () => {
                 try {
                     const statsData = await fetchUserStats(user.user_id);
@@ -123,6 +124,10 @@ export default function SettingsPage() {
         }
     };
 
+    const isGuestUser = (userId) => {
+        return userId && userId.toString().startsWith('guest_');
+    };
+
     // Loading state
     if (!user) {
         return (
@@ -139,6 +144,21 @@ export default function SettingsPage() {
                                 data-testid="loader"
                             />
                         </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // guest empty state if user is a guest
+    if (isGuestUser(user.user_id)) {
+        return (
+            <div className="trip-page">
+                <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
+                <div className="content-with-sidebar">
+                    <NavBar />
+                    <div className="main-content">
+                        <GuestEmptyState title="Hi, Guest" description="You're currently browsing as a Guest. Sign in to view your profile settings!" />
                     </div>
                 </div>
             </div>

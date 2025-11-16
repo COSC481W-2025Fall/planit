@@ -1,6 +1,6 @@
 import express from "express";
 import passport from "passport";
-import {googleAuth, googleCallback, authFailure , loginDetails} from "../controllers/authController.js";
+import {googleAuth, googleCallback, authFailure , loginDetails,guestLogin} from "../controllers/authController.js";
 import {LOCAL_FRONTEND_URL, VITE_FRONTEND_URL} from "../../Constants.js";
 
 const router = express.Router();
@@ -13,6 +13,8 @@ router.get(
         prompt: 'select_account'
     })
 );
+
+router.post("/guest", guestLogin);
 
 router.get(
   "/login/details",
