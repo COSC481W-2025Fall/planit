@@ -165,7 +165,7 @@ export default function TripPage() {
         <div className="content-with-sidebar">
           <NavBar />
           <div className="main-content">
-            <GuestEmptyState title = "Welcome, Guest" description = "You're currently browsing as a Guest. Sign in to create and save your own trips." />
+            <GuestEmptyState title = "Hi, Guest" description = "You're currently browsing as a Guest. Sign in to create and save your own trips." />
           </div>
         </div>
       </div>

@@ -566,7 +566,12 @@ export default function ExplorePage() {
             <section className="trips-section">
               <div className="section-title">Your Liked Trips</div>
               <div className="liked-grid">
-                {likedTrips.length === 0 ? (
+                  {isGuestUser(user?.user_id) ? (
+                    <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
+                      You're browsing as a Guest. You must sign in to view liked trips.
+                    </div>
+                  ) :
+                likedTrips.length === 0 ? (
                   <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
                     You haven’t liked any trips yet.
                   </div>
