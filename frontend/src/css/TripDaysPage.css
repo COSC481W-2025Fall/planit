@@ -184,18 +184,18 @@ body {
   gap: 0.5rem;
 }
 
- #participants-button {
-   display: flex;
-   flex-direction: row;
-   margin: auto;
-   align-items: center;
-   justify-content: center;
-   gap: 0.25rem;
- }
+#participants-button {
+  display: flex;
+  flex-direction: row;
+  margin: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
 
- #participants-button #user-plus-icon {
-    margin-bottom: 2px;
- }
+#participants-button #user-plus-icon {
+  margin-bottom: 2px;
+}
 
 .itinerary-buttons button {
   background-color: var(--bg-surface);
@@ -561,125 +561,129 @@ html[data-theme="dark"] .textarea-notes {
 }
 
 .participants-header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    font-size: 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: 16px;
 }
 
 .participants-list p {
-    font-size: 14px;
-    color: var(--text-medium);
+  font-size: 14px;
+  color: var(--text-medium);
 }
 
 .participants-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
 }
 
 .participants-header p {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-dark2);
-    margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark2);
+  margin: 0;
 }
 
 .add-participant-form {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
 .add-participant-form input {
-    flex-grow: 1;
-    padding: 10px 12px;
+  flex-grow: 1;
+  padding: 10px 12px;
 }
 
 .add-participant-form button {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 12px;
-    background: var(--accent);
-    color: var(--bg-white);
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 14px;
-    transition: background-color 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 12px;
+  background: var(--accent);
+  color: var(--bg-white);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
 .add-participant-form button:hover {
-    background: var(--accent-dark);
-    transform: translateY(-1px);
+  background: var(--accent-dark);
+  transform: translateY(-1px);
 }
 
 .participants-list {
-    overflow-y: auto;
-    border: 1px solid var(--border-input);
-    border-radius: 6px;
-    background: var(--bg-input);
-    padding: 8px;
-    list-style: none;
-    min-height: 150px;
-    max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--border-input);
+  border-radius: 6px;
+  background: var(--bg-input);
+  padding: 8px;
+  list-style: none;
+  min-height: 150px;
+  max-height: 300px;
 }
 
 .participants-list p {
-    font-size: 14px;
-    color: var(--text-medium);
-    text-align: center;
-    margin: 4px 0;
-    padding-top: 50px;
+  font-size: 14px;
+  color: var(--text-medium);
+  text-align: center;
+  margin: 4px 0;
+  padding-top: 50px;
 }
 
 .participant-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 8px;
-    margin-bottom: 4px;
-    border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .participant-item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
+  border-bottom: none;
+  margin-bottom: 0;
 }
 
 .participant-item span {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-dark);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
 }
 
 .remove-participant-btn {
-    background: none;
-    border: none;
-    color: var(--text-medium);
-    width: 20px;
-    height: 20px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s, background-color 0.2s;
-    border-radius: 50%;
+  background: none;
+  border: none;
+  color: var(--text-medium);
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background-color 0.2s;
+  border-radius: 50%;
 }
 
 .packing-ai-button {
-  position: relative;
+  position: fixed !important;
+  bottom: 1.2rem;
+  right: 4rem;
+  z-index: 2000;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 18px;
+  padding: 12px 20px;
   font-family: "Open Sans", sans-serif;
   font-weight: 600;
   font-size: 0.95rem;
@@ -688,9 +692,6 @@ html[data-theme="dark"] .textarea-notes {
   color: var(--text);
   background: var(--bg-surface);
   cursor: pointer;
-  overflow: hidden;
-  z-index: 1;
-  transition: color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .packing-ai-button::before {
@@ -699,12 +700,11 @@ html[data-theme="dark"] .textarea-notes {
   inset: 0;
   border-radius: inherit;
   padding: 2px;
-  background: linear-gradient(
-          90deg,
-          var(--packing-ai-1),
-          var(--packing-ai-2),
-          var(--packing-ai-3),
-          var(--packing-ai-1)
+  background: linear-gradient(90deg,
+  var(--packing-ai-1),
+  var(--packing-ai-2),
+  var(--packing-ai-3),
+  var(--packing-ai-1)
   );
   background-size: 400% 400%;
   animation: gradient-border 5s linear infinite;
@@ -716,33 +716,30 @@ html[data-theme="dark"] .textarea-notes {
   z-index: 1;
 }
 
-.packing-ai-button::after {
-  content: "";
-  position: absolute;
-  inset: 7px;
-  border-radius: inherit;
-  background: conic-gradient(
-          from 0deg,
-          var(--packing-ai-1),
-          var(--packing-ai-2),
-          var(--packing-ai-3),
-          var(--packing-ai-1)
+ .packing-ai-button:hover {
+  background: linear-gradient(90deg,
+  var(--packing-ai-1),
+  var(--packing-ai-2),
+  var(--packing-ai-3),
+  var(--packing-ai-1)
   );
-  background-size: 200% 200%;
-  filter: blur(25px);
-  opacity: 0.6;
-  animation: gradient-glow 6s linear infinite;
-  z-index: 0;
-  pointer-events: none;
+  background-size: 400% 400%;
+  animation: ai-gradient-move 4s linear infinite; /* animate */
+  box-shadow: 0 0 12px var(--packing-ai-2);
+  color: #fff;
+  transition: all 0.3s ease;
 }
 
-.packing-ai-button:hover::after {
-  opacity: 0.9;
-  filter: blur(30px);
-}
-
-.packing-ai-button:hover {
-  color: var(--accent);
+@keyframes ai-gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes gradient-border {
@@ -757,24 +754,6 @@ html[data-theme="dark"] .textarea-notes {
   }
 }
 
-@keyframes gradient-glow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-.packing-ai-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-}
-
 .packing-ai-button svg {
   margin-right: 0;
   width: 15px;
@@ -786,11 +765,71 @@ html[data-theme="dark"] .textarea-notes {
   transform: translateY(0.5px);
 }
 
+.ai-floating-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  z-index: 3000;
+  transition: transform 0.35s ease;
+}
+
+.ai-floating-container.collapsed .packing-ai-button {
+  transform: translateX(150px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ai-toggle-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3501;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.ai-toggle-btn:hover {
+  background: var(--accent-lite);
+  border-color: var(--accent);
+}
+
+.packing-ai-button {
+  z-index: 3500 !important;
+}
+
+@keyframes aiPulseActive {
+  0% {
+    box-shadow: 0 0 0px rgba(0, 200, 255, 0);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(0, 200, 255, 0.75);
+    transform: scale(1.10);
+  }
+  100% {
+    box-shadow: 0 0 0px rgba(0, 200, 255, 0);
+    transform: scale(1);
+  }
+}
+
+.ai-toggle-btn.glow {
+  animation: aiPulseActive 2.2s ease-in-out infinite;
+  border-color: var(--packing-ai-2);
+}
 
 .remove-participant-btn:hover {
-    color: var(--error);
-    background: var(--error-soft);
-    transform: scale(1.1);
+  color: var(--error);
+  background: var(--error-soft);
+  transform: scale(1.1);
 }
 
 .search-wrap {
@@ -927,15 +966,11 @@ html[data-theme="dark"] .time-picker {
     width: 100%;
   }
 
-  .itinerary-buttons button,
   .packing-ai-button {
-    flex: 1 1 auto;
-    min-width: 5.2rem;
-    height: 1.9rem;
-    font-size: 0.78rem;
-    padding: 0 0.4rem;
-    border-radius: 0.45rem;
-    white-space: nowrap;
+    bottom: 1rem;
+    left: 1rem;
+    padding: 10px 16px;
+    font-size: 0.82rem;
   }
 
   .days-container {

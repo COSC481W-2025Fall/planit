@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronLeft, ChevronRight} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -16,7 +16,7 @@ import { toast } from "react-toastify";
 import OverlapWarning from "../components/OverlapWarning.jsx";
 import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
-import {retrievePackingItems, updateTrip} from "../../api/trips.js";
+import {getOwnerForTrip, retrievePackingItems, updateTrip} from "../../api/trips.js";
 import {listParticipants, addParticipant, removeParticipant} from "../../api/trips";
 import { useNavigate } from "react-router-dom";
 
@@ -119,7 +119,22 @@ export default function TripDaysPage() {
   const isShared = userRole === "shared";
   const isViewer = userRole === "viewer";
   const canEdit = isOwner || isShared;
-  const canManageParticipants = isOwner; 
+  const canManageParticipants = isOwner;
+
+  const [aiHidden, setAiHidden] = useState(false);
+  const [showAIBtn, setShowAIBtn] = useState(true);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("planit:showAIPackingButton");
+    if (saved !== null) setShowAIBtn(saved === "true");
+  }, []);
+
+  const toggleAIBtn = () => {
+    const newVal = !showAIBtn;
+    setShowAIBtn(newVal);
+    localStorage.setItem("planit:showAIPackingButton", newVal.toString());
+  };
+
 
   //responsive
   useEffect(() => {
@@ -1136,11 +1151,6 @@ export default function TripDaysPage() {
             <h1 className="itinerary-text">Itinerary</h1>
             {canEdit && (
               <div className="itinerary-buttons">
-                <button className="packing-ai-button"
-                onClick={handlePackingAI}>
-                  <Luggage id="ai-icon" size={14} />
-                  <span> Packing AI</span>
-                </button>
                 <button onClick={() => openAddDayPopup(null)} id="new-day-button">
                   + New Day
                 </button>
@@ -1163,6 +1173,21 @@ export default function TripDaysPage() {
               </div>
             )}
           </div>
+          {showAIBtn && (
+              <div className={`ai-floating-container ${aiHidden ? "collapsed" : ""}`}>
+                <button
+                    className={`ai-toggle-btn ${aiHidden ? "glow" : ""}`}
+                    onClick={() => setAiHidden(!aiHidden)}
+                >
+                  {aiHidden ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+                </button>
+                <button className="packing-ai-button" onClick={handlePackingAI}>
+                  <Luggage size={14} id="ai-icon" />
+                  <span>Packing AI</span>
+                </button>
+              </div>
+
+          )}
           <div className="days-scroll-zone">
             <div className="days-container">
               {days.length === 0 ? (
