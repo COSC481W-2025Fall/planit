@@ -123,6 +123,8 @@ export default function TripDaysPage() {
 
   const [aiHidden, setAiHidden] = useState(false);
   const [showAIBtn, setShowAIBtn] = useState(true);
+  const [aiItems, setAIItems] = useState([]);
+  const [showAIPopup, setShowAIPopup] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("planit:showAIPackingButton");
@@ -1024,10 +1026,69 @@ export default function TripDaysPage() {
       "rain_chance_percent": 20,
       "humidity_percent": 10
     }
+    const fakeTrip1 =         {
+      "destination": "Aspen, CO",
+      "season": "winter",
+      "weather": "cold",
+      "activities": "Snow & Ski, Cold",
+      "duration_days": 6,
+      "avg_temp_high": 32,
+      "avg_temp_low": 12,
+      "rain_chance_percent": 90,
+      "humidity_percent": 98
+    }
+
+    const fakeTrip2 =         {
+      "destination": "Miami, FL",
+      "season": "spring",
+      "weather": "dry",
+      "activities": "Beach, Cruise",
+      "duration_days": 9,
+      "avg_temp_high": 94,
+      "avg_temp_low": 59,
+      "rain_chance_percent": 89,
+      "humidity_percent": 91
+    }
+
+    const fakeTrip3 =         {
+      "destination": "Yosemite, CA",
+      "season": "summer",
+      "weather": "rainy",
+      "activities": "Camping",
+      "duration_days": 9,
+      "avg_temp_high": 91,
+      "avg_temp_low": 66,
+      "rain_chance_percent": 98,
+      "humidity_percent": 21
+    }
+
+    const fakeTrip4 =         {
+      "destination": "Las Vegas, NV",
+      "season": "winter",
+      "weather": "dry",
+      "activities": "Mountain Biking",
+      "duration_days": 9,
+      "avg_temp_high": 75,
+      "avg_temp_low": 54,
+      "rain_chance_percent": 10,
+      "humidity_percent": 10
+    }
 
     try {
-      await retrievePackingItems(fakeTrip);
-      toast.success("Items retrieved!");
+      const response = await retrievePackingItems(fakeTrip3);
+      console.log("PACKING AI RAW RESPONSE:", response);
+
+      let items = [];
+
+      // Our backend returns: { predicted_items: [...] }
+      if (Array.isArray(response?.predicted_items)) {
+        items = response.predicted_items.map((i) => i.item_name);
+      }
+
+      setAIItems(items);
+      setShowAIPopup(true);
+
+      toast.success("Packing AI items retrieved!");
     } catch (e) {
       console.error("Packing AI call failed", e);
       toast.error("Packing AI failed");
@@ -1320,7 +1381,27 @@ export default function TripDaysPage() {
               )}
             </div>
           </div>
-
+          {showAIPopup && (
+            <Popup
+              title="Packing AI Suggestions"
+              onClose={() => setShowAIPopup(false)}
+              buttons={
+                <>
+                  <button onClick={() => setShowAIPopup(false)}>Close</button>
+                </>
+              }
+            >
+              {aiItems.length === 0 ? (
+                <p className="empty-state-text">No items were returned.</p>
+              ) : (
+                <ul className="ai-items-list">
+                  {aiItems.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </Popup>
+          )}
           {openNotesPopup && selectedActivity && (
             <Popup
               title={"Notes for: " + selectedActivity.activity_name}

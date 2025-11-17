@@ -826,6 +826,32 @@ html[data-theme="dark"] .textarea-notes {
   border-color: var(--packing-ai-2);
 }
 
+/* Packing AI Popup List */
+.ai-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 260px;       /* scroll limit */
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.ai-items-list li {
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+/* Optional: subtle hover effect */
+.ai-items-list li:hover {
+  background: var(--bg-offwhite);
+}
+
+
 .remove-participant-btn:hover {
   color: var(--error);
   background: var(--error-soft);
