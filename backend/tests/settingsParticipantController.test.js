@@ -50,7 +50,7 @@ describe("Settings Participant Controller", () => {
         await participantController.getParticipantTripCount(req, res);
 
         expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({ error: "Database error" });
+        expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
     });
 
     //getParticipantLongestTrip Tests
