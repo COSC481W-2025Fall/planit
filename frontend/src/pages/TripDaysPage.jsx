@@ -1573,6 +1573,7 @@ export default function TripDaysPage() {
                 ? days.map((d) => d.day_id)
                 : []}
               onActivityAdded={(dayId) => fetchDay(dayId)}
+              allDays={days}
             />
           </div>
         )}
