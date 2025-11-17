@@ -129,13 +129,6 @@ export default function TripDaysPage() {
     if (saved !== null) setShowAIBtn(saved === "true");
   }, []);
 
-  const toggleAIBtn = () => {
-    const newVal = !showAIBtn;
-    setShowAIBtn(newVal);
-    localStorage.setItem("planit:showAIPackingButton", newVal.toString());
-  };
-
-
   //responsive
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 600);
