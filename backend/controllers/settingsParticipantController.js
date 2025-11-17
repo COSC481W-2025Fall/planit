@@ -16,7 +16,7 @@ export const getParticipantTripCount = async (req, res) => {
             WHERE s.user_id = ${userID}
         `;
 
-        return res.status(200).json({ tripCount: result[0].tripCount });
+        return res.status(200).json({ tripCount: result[0].tripCount ?? 0 });
     } catch (err) {
         console.error("Error fetching participant trip count:", err);
         return res.status(500).json({ error: "Internal Server Error" });
@@ -43,7 +43,7 @@ export const getParticipantLongestTrip = async (req, res) => {
             LIMIT 1
         `;
 
-        return res.status(200).json(result[0]);
+        return res.status(200).json(result[0] ?? null);
     } catch (err) {
         console.error("Error fetching participant longest trip:", err);
         return res.status(500).json({ error: "Internal Server Error" });
@@ -67,9 +67,35 @@ export const getParticipantTotalLikes = async (req, res) => {
             WHERE s.user_id = ${userID}
         `;
 
-        return res.status(200).json({ totalLikes: result[0].total_likes });
+        return res.status(200).json({ totalLikes: result[0].total_likes ?? 0 });
     } catch (err) {
         console.error("Error fetching participant total likes:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+
+// Cheapest trip a user is a participant in
+export const getParticipantCheapestTrip = async (req, res) => {
+    try {
+        const { userID } = req.body;
+        
+        if (!userID) {
+            return res.status(400).json({ error: "userID is required" });
+        }
+
+        const result = await sql`
+            SELECT t.trip_name, t.trips_id
+            FROM trips t
+            JOIN shared s ON s.trip_id = t.trips_id
+            WHERE s.user_id = ${userID}
+            ORDER BY t.trip_price_estimate ASC
+            LIMIT 1
+        `;
+
+        return res.status(200).json(result[0] ?? null);
+    } catch (err) {
+        console.error("Error fetching participant cheapest trip:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};  
