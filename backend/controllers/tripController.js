@@ -4,6 +4,10 @@ This code uses async/await for asynchronous operations and try/catch for error h
 */
 import { sql } from "../config/db.js";
 
+const isGuestUser = (userId) => {
+    return userId && userId.toString().startsWith('guest_');
+};
+
 //Helper function to generate the dates between a start and end date
 export function generateDateRange(startDate, endDate) {
     const dates = [];
@@ -248,6 +252,24 @@ export const readTrip = async (req, res) => {
         }
 
         const trip = tripResult[0];
+        const isGuest = isGuestUser(userId);
+
+        // Handle guest users
+        if (isGuest) {
+            // Guests can only view public trips
+            if (!trip.is_private) {
+                return res.json({
+                    ...trip,
+                    user_role: 'viewer',
+                    isGuest: true
+                });
+            } else {
+                return res.status(403).json({
+                    error: "Guests can only view public trips. Please sign in for full access.",
+                    isGuest: true
+                });
+            }
+        }
 
         // Check if user is the owner
         const isOwner = trip.user_id === userId;

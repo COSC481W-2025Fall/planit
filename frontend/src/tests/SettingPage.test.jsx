@@ -37,17 +37,18 @@ describe("SettingsPage", () => {
         });
       }
 
-      if (url.includes("/settings/")) {
-        const endpoint = url.split("/").pop();
-        const mockStats = {
-          tripCount: { tripCount: 5 },
-          longestTrip: { trip_name: "Camping" },
-          mostExpensiveTrip: { trip_name: "Beach" },
-          cheapestTrip: { trip_name: "Up North" },
-          totalMoneySpent: { totalMoneySpent: 100 },
-          totalLikes: { totalLikes: 10 },
-        };
-        return Promise.resolve({ json: () => Promise.resolve(mockStats[endpoint]) });
+      if (url.includes("/settings/getAllSettings")) {
+    return Promise.resolve({
+    json: () =>
+      Promise.resolve({
+        tripCount: 5,
+        longestTrip: { trip_name: "Camping" },
+        mostExpensiveTrip: { trip_name: "Beach" },
+        cheapestTrip: { trip_name: "Up North" },
+        totalMoneySpent: 100,
+        totalLikes: 10,
+          }),
+        });
       }
 
       if (url.includes("/user/update")) {

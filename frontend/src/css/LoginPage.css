@@ -125,3 +125,36 @@ body {
     padding: 0.75rem;
   }
 }
+
+.sign-in-as-guest {
+  all: unset;
+  position: relative;
+  cursor: pointer;
+  color: var(--accent);
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  font-weight: 500;
+  font-family: "Open Sans", sans-serif;
+  padding-bottom: 2px;
+  transition: color 0.3s ease;
+}
+
+.sign-in-as-guest::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.sign-in-as-guest:hover {
+  color: var(--accent-dark);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.sign-in-as-guest:hover::after {
+  width: 100%;
+}
