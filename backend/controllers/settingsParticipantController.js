@@ -49,3 +49,27 @@ export const getParticipantLongestTrip = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+// Total likes across all trips a user is a participant in
+export const getParticipantTotalLikes = async (req, res) => {
+    try {
+        const { userID } = req.body;
+
+        if (!userID) {
+            return res.status(400).json({ error: "userID is required" });
+        }
+
+        const result = await sql`
+            SELECT COUNT(l.like_id) AS total_likes
+            FROM likes l
+            JOIN trips t ON l.trip_id = t.trips_id
+            JOIN shared s ON s.trip_id = t.trips_id
+            WHERE s.user_id = ${userID}
+        `;
+
+        return res.status(200).json({ totalLikes: result[0].total_likes });
+    } catch (err) {
+        console.error("Error fetching participant total likes:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
