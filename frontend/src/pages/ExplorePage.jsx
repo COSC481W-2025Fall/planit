@@ -41,8 +41,15 @@ export default function ExplorePage() {
   const prevSearchRef = useRef("");
   const acWrapRef = useRef(null);
   const searchAbortRef = useRef(null);
+  const resRef = useRef(null);
+  const trRef = useRef(null);
+  const topRef = useRef(null);
+
   const SEARCH_DEBOUNCE_MS = 800;
   const MIN_LEN = 2;
+
+  const [carouselCooldown, setCarouselCooldown] = useState(false);
+  const CAROUSEL_COOLDOWN_MS = 350; // adjust between 250–400ms
 
   const navigate = useNavigate();
 
@@ -332,11 +339,6 @@ export default function ExplorePage() {
     vp.scrollBy({ left: delta, behavior: "smooth" });
   }
 
-  // carousel refs
-  const resRef = useRef(null);
-  const trRef = useRef(null);
-  const topRef = useRef(null);
-
   // loading
   if (loadingUser) {
     return (
@@ -479,19 +481,31 @@ export default function ExplorePage() {
                 <div className="section-title">Trending This Week</div>
 
                 <div className="carousel">
+                  {trending.length > 0 && (
                   <button
                     className="carousel-btn prev"
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (carouselCooldown || trending.length === 0) return;
+
+                      setCarouselCooldown(true);
                       scrollByOneCard(trRef, -1);
+
+                      setTimeout(() => setCarouselCooldown(false), CAROUSEL_COOLDOWN_MS);
                     }}
+                    disabled={trending.length === 0}
                   >
                     <ChevronLeft size={18} />
                   </button>
-
+                  )}
                   <div className="carousel-viewport" ref={trRef}>
                     <div className="carousel-track">
-                      {trending.map((t) => (
+                    {trending.length === 0 ? (
+                      <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
+                        No trending trips yet. Check back soon!
+                      </div>
+                    ) : (
+                      trending.map((t) => (
                         <TripCardPublic
                           key={`tr-${t.trips_id}`}
                           trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
@@ -499,19 +513,27 @@ export default function ExplorePage() {
                           onToggleLike={handleToggleLike}
                           onOpen={handleOpenTrip}
                         />
-                      ))}
+                      ))
+                    )}
                     </div>
                   </div>
-
+                {trending.length > 0 && (
                   <button
                     className="carousel-btn next"
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (carouselCooldown || trending.length === 0) return;
+                      
+                      setCarouselCooldown(true);
                       scrollByOneCard(trRef, 1);
+
+                      setTimeout(() => setCarouselCooldown(false), CAROUSEL_COOLDOWN_MS);
                     }}
+                    disabled={trending.length === 0}
                   >
                     <ChevronRight size={18} />
                   </button>
+                )}
                 </div>
               </section>
 
