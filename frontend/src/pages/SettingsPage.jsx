@@ -12,7 +12,6 @@ export default function SettingsPage() {
     const [lastName, setLastName] = useState("");
     const [username, setUsername] = useState("");
     const [stats, setStats] = useState(null);
-    const [pfp, setPfp] = useState(null);
 
     useEffect(() => {
         fetch(
@@ -106,7 +105,6 @@ export default function SettingsPage() {
                         firstname: firstName,
                         lastname: lastName,
                         username: username,
-                        customPhoto: pfp
                     }),
                 }
             );
@@ -123,49 +121,6 @@ export default function SettingsPage() {
             console.error("Update error:", err);
             toast.error("Could not update user info. Please try again.");
         }
-    };
-
-    const resizeImage = (pfp) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 100;
-                    canvas.height = 100;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, 100, 100);
-                    resolve(canvas.toDataURL('image/jpeg'));
-                };
-                img.src = reader.result;
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(pfp);
-        });
-    };
-
-    const handleUpload = async (event) => {
-        event.preventDefault();
-
-        if (!file) {
-            alert("Select a file first");
-            return;
-        }
-
-        // Resize to base64
-        const base64Image = await resizeImage(file);
-
-        // Send to backend
-        const response = await fetch(
-            (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) + "/profile/store",
-            {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ userId: user.user_id, customPhoto: base64Image })
-            }
-        );
     };
 
     // Loading state
@@ -209,17 +164,6 @@ export default function SettingsPage() {
                         <div className="info-card">
                             <h3>Update Information</h3>
                             <div className="settings-form">
-                                <div>
-                                    {user && user.photo && (
-                                        <img src={user.photo} alt="Profile" />
-                                    )}
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => setPfp(e.target.files[0])}
-                                    />
-                                    <button onClick={handleUpload}>Save</button>
-                                </div>
                                 <label>
                                     First Name:
                                     <input
