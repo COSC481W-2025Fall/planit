@@ -99,3 +99,29 @@ export const getParticipantCheapestTrip = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };  
+
+// Most expensive trip a user is a participant in
+export const getParticipantMostExpensiveTrip = async (req, res) => {
+    try {
+        const { userID } = req.body;
+
+        if (!userID) {
+            return res.status(400).json({ error: "userID is required" });
+        }
+
+        const result = await sql`
+            SELECT t.trip_name, t.trips_id
+            FROM trips t
+            JOIN shared s ON s.trip_id = t.trips_id
+            WHERE s.user_id = ${userID}
+            ORDER BY t.trip_price_estimate DESC
+            LIMIT 1
+        `;
+
+        return res.status(200).json(result[0] ?? null);
+    } catch (err) {
+        console.error("Error fetching participant most expensive trip:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
