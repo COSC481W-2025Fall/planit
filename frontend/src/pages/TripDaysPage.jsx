@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, DollarSign} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -992,6 +992,29 @@ export default function TripDaysPage() {
     return userId && userId.toString().startsWith('guest_');
   };
 
+  const totalTripCost = useMemo(() => {
+    if (!Array.isArray(days)) return 0;
+
+    return days.reduce((tripSum, day) => {
+      const activities = day.activities || [];
+
+      const daySum = activities.reduce((acc, activity) => {
+        const rawCost = activity.activity_price_estimated ?? 0;
+        const cost = Number(rawCost);
+        return acc + (Number.isFinite(cost) ? cost : 0);
+      }, 0);
+
+      return tripSum + daySum;
+    }, 0);
+  }, [days]);
+
+  const formatCurrency = (amount) =>
+    amount.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 2,
+    });
+
   //Loading State
   if (!user || !trip) {
     return (
@@ -1087,6 +1110,16 @@ export default function TripDaysPage() {
                     day: "numeric",
                   })}
                 </p>
+              </div>
+            )}
+
+            {days.length > 0 && (
+              <div className="trip-cost">
+                <DollarSign className="trip-info-icon" />
+                <span className="trip-cost-label">Estimated Trip Cost: </span>
+                <span className="trip-cost-value">
+                  {formatCurrency(totalTripCost)}
+                </span>
               </div>
             )}
           </div>

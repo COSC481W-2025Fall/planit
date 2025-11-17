@@ -137,6 +137,19 @@ body {
   margin: 0;
 }
 
+.trip-cost {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+}
+
+.trip-cost-label,
+.trip-cost-value {
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
 .trip-location-text,
 .trip-dates-text {
   font-size: 0.85rem;
