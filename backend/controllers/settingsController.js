@@ -1,4 +1,4 @@
- import { sql } from "../config/db.js";
+import { sql } from "../config/db.js";
 
 //Endpoint to get all user settings stats
 export const getAllSettings = async (req, res) => {
