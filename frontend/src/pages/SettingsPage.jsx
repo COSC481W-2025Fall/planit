@@ -51,41 +51,13 @@ export default function SettingsPage() {
         try {
             const backend = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
-            const postData = async (endpoint) => {
-                const res = await fetch(`${backend}/settings/${endpoint}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userID }),
-                });
-                return res.json();
-            };
+            const res = await fetch(`${backend}/settings/getAllSettings`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userID }),
+            });
 
-            const [
-                tripCount,
-                longestTrip,
-                mostExpensiveTrip,
-                cheapestTrip,
-                totalMoneySpent,
-                totalLikes,
-
-            ] = await Promise.all([
-                postData("tripCount"),
-                postData("longestTrip"),
-                postData("mostExpensiveTrip"),
-                postData("cheapestTrip"),
-                postData("totalMoneySpent"),
-                postData("totalLikes"),
-            ]);
-
-            return {
-                tripCount,
-                longestTrip,
-                totalLikes,
-                cheapestTrip,
-                mostExpensiveTrip,
-                totalMoneySpent
-            }
-        
+            return await res.json(); 
         } catch (err) {
             console.error("Error fetching stats:", err);
         }
@@ -227,7 +199,7 @@ export default function SettingsPage() {
                                 
                                 <div className="stat-line">
                                     <span className="stat-label">Number of Trips Made: </span>
-                                    <span className="stat-value">{stats?.tripCount?.tripCount ?? "N/A"}</span>
+                                    <span className="stat-value">{stats?.tripCount ?? "N/A"}</span>
                                 </div>
 
                                 <div className="stat-line">
@@ -247,12 +219,12 @@ export default function SettingsPage() {
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Money Spent: </span>
-                                    <span className="stat-value">{stats?.totalMoneySpent?.totalMoneySpent ?? "N/A"}</span>
+                                    <span className="stat-value">{stats?.totalMoneySpent ?? "N/A"}</span>
                                 </div>
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Likes: </span>
-                                    <span className="stat-value">{stats?.totalLikes?.totalLikes ?? "N/A"}</span>
+                                    <span className="stat-value">{stats?.totalLikes ?? "N/A"}</span>
                                 </div>
                             </div>
                         </div>
