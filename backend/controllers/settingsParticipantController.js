@@ -10,13 +10,13 @@ export const getParticipantTripCount = async (req, res) => {
         }
 
         const result = await sql`
-            SELECT COUNT(*) AS tripCount
+            SELECT COUNT(*) AS tripcount
             FROM trips t
             JOIN shared s ON s.trip_id = t.trips_id
             WHERE s.user_id = ${userID}
         `;
 
-        return res.status(200).json({ tripCount: result[0].tripCount ?? 0 });
+        return res.status(200).json({ tripCount: result[0].tripcount ?? 0 });
     } catch (err) {
         console.error("Error fetching participant trip count:", err);
         return res.status(500).json({ error: "Internal Server Error" });
@@ -33,7 +33,7 @@ export const getParticipantLongestTrip = async (req, res) => {
         }
 
         const result = await sql`
-            SELECT t.trip_name, t.trips_id, COUNT(d.day_id) AS total_days
+            SELECT t.trip_name, t.trips_id AS trip_id, COUNT(d.day_id) AS total_days
             FROM trips t
             JOIN shared s ON s.trip_id = t.trips_id
             JOIN days d ON d.trip_id = t.trips_id
@@ -85,7 +85,7 @@ export const getParticipantCheapestTrip = async (req, res) => {
         }
 
         const result = await sql`
-            SELECT t.trip_name, t.trips_id
+            SELECT t.trip_name, t.trips_id AS trip_id
             FROM trips t
             JOIN shared s ON s.trip_id = t.trips_id
             WHERE s.user_id = ${userID}
@@ -110,7 +110,7 @@ export const getParticipantMostExpensiveTrip = async (req, res) => {
         }
 
         const result = await sql`
-            SELECT t.trip_name, t.trips_id
+            SELECT t.trip_name, t.trips_id AS trip_id
             FROM trips t
             JOIN shared s ON s.trip_id = t.trips_id
             WHERE s.user_id = ${userID}
