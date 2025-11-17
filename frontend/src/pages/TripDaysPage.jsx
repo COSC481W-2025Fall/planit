@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronLeft, ChevronRight} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronRight} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -1179,7 +1179,7 @@ export default function TripDaysPage() {
                     className={`ai-toggle-btn ${aiHidden ? "glow" : ""}`}
                     onClick={() => setAiHidden(!aiHidden)}
                 >
-                  {aiHidden ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+                  {aiHidden ? <Luggage size={18} /> : <ChevronRight size={18} />}
                 </button>
                 <button className="packing-ai-button" onClick={handlePackingAI}>
                   <Luggage size={14} id="ai-icon" />
