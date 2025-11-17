@@ -188,3 +188,85 @@ describe("Settings Participant Controller", () => {
   });
 
     //getParticipantMostExpensiveTrip Tests
+    it("should return the most expensive participant trip", async () => {
+    const req = { body: { userID: 3 } };
+    const res = mockRes();
+
+    const mockTrip = [{ trip_name: "Dubai", trip_id: 77 }];
+    sql.mockResolvedValueOnce(mockTrip);
+
+    await participantController.getParticipantMostExpensiveTrip(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(mockTrip[0]);
+  });
+
+  it("should return 400 if userID is missing in getParticipantMostExpensiveTrip", async () => {
+    const req = { body: {} };
+    const res = mockRes();
+
+    await participantController.getParticipantMostExpensiveTrip(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: "userID is required" });
+  });
+
+  it("should return null if no trips exist in getParticipantMostExpensiveTrip", async () => {
+    const req = { body: { userID: 3 } };
+    const res = mockRes();
+
+    sql.mockResolvedValueOnce([]);
+
+    await participantController.getParticipantMostExpensiveTrip(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(null);
+  });
+
+  it("should return 500 if SQL fails in getParticipantMostExpensiveTrip", async () => {
+    const req = { body: { userID: 3 } };
+    const res = mockRes();
+
+    sql.mockRejectedValueOnce(new Error("DB failure"));
+
+    await participantController.getParticipantMostExpensiveTrip(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
+  });
+
+  //getParticipantTotalMoneySpent Tests
+    it("should return total money spent for participant trips", async () => {
+    const req = { body: { userID: 3 } };
+    const res = mockRes();
+
+    sql.mockResolvedValueOnce([{ total_money_spent: 880 }]);
+
+    await participantController.getParticipantTotalMoneySpent(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ totalMoneySpent: 880 });
+  });
+
+  it("should return 400 if userID is missing in getParticipantTotalMoneySpent", async () => {
+    const req = { body: {} };
+    const res = mockRes();
+
+    await participantController.getParticipantTotalMoneySpent(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: "userID is required" });
+  });
+
+  it("should return 500 if SQL fails in getParticipantTotalMoneySpent", async () => {
+    const req = { body: { userID: 3 } };
+    const res = mockRes();
+
+    sql.mockRejectedValueOnce(new Error("DB failure"));
+
+    await participantController.getParticipantTotalMoneySpent(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
+  });
+});
