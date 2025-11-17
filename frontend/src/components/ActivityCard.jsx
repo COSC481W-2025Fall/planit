@@ -95,17 +95,21 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes, r
             </div>
 
             <div className="time-and-location-container">
+                {startTime && (
                 <p className="time-of-activity">
                     <Clock className="icon" />
                     {formatTime(startTime)}
                 </p>
+                 )}
 
                 <p className="location-of-activity">
                     <MapPin className="icon"/>
                     {activity.activity_address ?? "No address provided"}
                 </p>
             </div>
+       
 
+        {activity.activity_duration && (
             <p className="duration-of-activity">
                 <Timer className="icon"/>
                 {activity.activity_duration ? (
@@ -128,6 +132,7 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes, r
                     "0h:0m"
                 )}
             </p>
+        )}
 
             {activity.activity_website ? (
                 <div className="website-container">
@@ -145,6 +150,7 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes, r
                 <div className="website-container">&nbsp;</div>
             )}
 
+        {activity.activity_price_estimated && (
             <div className="cost-container">
                 <p className="estimated-cost-of-activity">
                     {activity.activity_price_estimated != null
@@ -152,6 +158,7 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes, r
                         : "N/A"}
                 </p>
             </div>
+        )}
         </div>
     );
 }
