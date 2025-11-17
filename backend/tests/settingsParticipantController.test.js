@@ -104,3 +104,87 @@ describe("Settings Participant Controller", () => {
         expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
     });
 
+    //getParticipantTotalLikes Tests
+    it("should return total likes for participant trips", async () => {
+    const req = { body: { userID: 2 } };
+    const res = mockRes();
+
+    sql.mockResolvedValueOnce([{ total_likes: 12 }]);
+
+    await participantController.getParticipantTotalLikes(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ totalLikes: 12 });
+  });
+
+  it("should return 400 if userID is missing in getParticipantTotalLikes", async () => {
+    const req = { body: {} };
+    const res = mockRes();
+
+    await participantController.getParticipantTotalLikes(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: "userID is required" });
+  });
+
+  it("should return 500 on SQL error in getParticipantTotalLikes", async () => {
+    const req = { body: { userID: 2 } };
+    const res = mockRes();
+
+    sql.mockRejectedValueOnce(new Error("DB failure"));
+
+    await participantController.getParticipantTotalLikes(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
+  });
+
+    //getParticipantCheapestTrip Tests
+    it("should return the cheapest participant trip", async () => {
+    const req = { body: { userID: 1 } };
+    const res = mockRes();
+
+    const mockTrip = [{ trip_name: "Cheap Weekend", trip_id: 4 }];
+    sql.mockResolvedValueOnce(mockTrip);
+
+    await participantController.getParticipantCheapestTrip(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(mockTrip[0]);
+  });
+
+  it("should return 400 if userID is missing in getParticipantCheapestTrip", async () => {
+    const req = { body: {} };
+    const res = mockRes();
+
+    await participantController.getParticipantCheapestTrip(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: "userID is required" });
+  });
+
+  it("should return null if no participant trips exist in getParticipantCheapestTrip", async () => {
+    const req = { body: { userID: 1 } };
+    const res = mockRes();
+
+    sql.mockResolvedValueOnce([]);
+
+    await participantController.getParticipantCheapestTrip(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(null);
+  });
+
+  it("should return 500 if SQL fails in getParticipantCheapestTrip", async () => {
+    const req = { body: { userID: 1 } };
+    const res = mockRes();
+
+    sql.mockRejectedValueOnce(new Error("DB failure"));
+
+    await participantController.getParticipantCheapestTrip(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
+  });
+
+    //getParticipantMostExpensiveTrip Tests
