@@ -234,6 +234,12 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
         border-radius: 16px;
         animation: fadeInScale .22s ease;
     }
+
+    /* Making this popup taller so its easier to view on mobile */
+    #participants-popup {
+        height: 40%;
+    }
+
     @keyframes fadeInScale {
         from { transform: scale(.96); opacity: 0; }
         to   { transform: scale(1);   opacity: 1; }

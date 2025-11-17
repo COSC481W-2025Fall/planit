@@ -1,5 +1,4 @@
 import { sql } from "../config/db.js";
-import { sendParticipantAddedEmail } from "../utils/mailer.js";
 
 export const readAllUsernames = async (req, res) => {
     if (!req.user) {
@@ -88,15 +87,6 @@ export const addParticipant = async (req, res) => {
         LIMIT 1
     `;
 
-    /* We will try to make emails work in a future PBI
-       await sendParticipantAddedEmail({
-            toEmail: user.email,
-            toUsername: user.username,
-            tripTitle: tripRow.trip_name,
-            ownerUsername: tripRow.owner_username,
-        });
-    */
-
         res.json({ message: "Participant added to shared trip." });
     }
     catch (err) {
@@ -153,7 +143,7 @@ export const listParticipants = async (req, res) => {
     const tripId = req.trip.trips_id;
     try {
         const result = await sql`
-        SELECT users.user_id, username
+        SELECT users.user_id, username, users.photo
         FROM users
         JOIN shared ON users.user_id = shared.user_id
         WHERE shared.trip_id = ${tripId}
