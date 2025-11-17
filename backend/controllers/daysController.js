@@ -91,7 +91,7 @@ export const createDay = async (req, res) => {
     //emit createdDay for frontend to listen for.
     io.emit("createdDay", {tripId});
     //This is how we will need to do it when rooms are set up
-    //io.to(`trip_${tripId}`).emit("days-updated", {tripId});
+    //io.to(`trip_${tripId}`).emit("createdDay", {tripId});
 
     res.status(201).json(newDay);
 

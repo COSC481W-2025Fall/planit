@@ -20,7 +20,6 @@ import {updateTrip} from "../../api/trips.js";
 import {listParticipants, addParticipant, removeParticipant, getOwnerForTrip} from "../../api/trips";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
-import { connect } from "mongoose";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
