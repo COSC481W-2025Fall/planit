@@ -12,6 +12,7 @@
 }
 
 .popup {
+    position: relative;
     background-color: var(--bg-white);
     padding: 20px;
     border-radius: 15px;
@@ -176,6 +177,25 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
  #participants-popup {
     max-width: 500px !important;
  }
+
+.popup-close-btn {
+    all: unset;
+    position: absolute;
+    background: transparent;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    transition: color 0.2s ease;
+}
+
+.popup-close-btn:hover {
+    color: var(--accent);
+    transform: scale(1.18);
+}
 
 /*Responsive*/
 @media (max-width: 768px) {
