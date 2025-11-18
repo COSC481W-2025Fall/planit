@@ -21,7 +21,6 @@ import {listParticipants, addParticipant, removeParticipant} from "../../api/tri
 import { useNavigate } from "react-router-dom";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
-
 export default function TripDaysPage() {
 
   //constants for data
@@ -101,7 +100,7 @@ export default function TripDaysPage() {
   useEffect(() => {
     try {
       localStorage.setItem("planit:expandedDays", JSON.stringify(expandedDays));
-    } catch {}
+    } catch { /* empty */ }
   }, [expandedDays]);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
@@ -122,14 +121,9 @@ export default function TripDaysPage() {
   const canManageParticipants = isOwner;
 
   const [aiHidden, setAiHidden] = useState(false);
-  const [showAIBtn, setShowAIBtn] = useState(true);
+  const [showAIBtn] = useState(true);
   const [aiItems, setAIItems] = useState([]);
   const [showAIPopup, setShowAIPopup] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("planit:showAIPackingButton");
-    if (saved !== null) setShowAIBtn(saved === "true");
-  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem("planit:aiCollapsed");
