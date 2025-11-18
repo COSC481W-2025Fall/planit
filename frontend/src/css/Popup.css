@@ -19,7 +19,7 @@
     max-width: 420px;
     width: 100%;
     max-height: 90vh;
-    overflow-y: auto;
+    overflow: hidden;
     box-shadow: var(--shadow-strong);
     animation: fadeIn 0.25s ease;
 }
@@ -58,6 +58,14 @@
     flex-direction: column;
     gap: 15px;
     margin-top: 15px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.popup-scroll {
+    overflow-y: auto;
+    max-height: calc(90vh - 140px);
+    padding-right: 6px;
 }
 
 .popup-input {
@@ -163,16 +171,11 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     cursor: pointer;
 }
 
-.popup::-webkit-scrollbar {
-    width: 6px;
+.popup-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--sb-track) transparent;
 }
-.popup::-webkit-scrollbar-thumb {
-    background-color: var(--accent-transparent);
-    border-radius: 10px;
-}
-.popup::-webkit-scrollbar-thumb:hover {
-    background-color: var(--accent);
-}
+
 
  #participants-popup {
     max-width: 500px !important;

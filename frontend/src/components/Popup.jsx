@@ -16,8 +16,10 @@ export default function Popup({ title, children, buttons, onClose, id }) {
         <button className="popup-close-btn" onClick={onClose}>
           <X size={15} strokeWidth={2.5} />
         </button>
+        <div className="popup-scroll">
         {title && <div className="popup-title">{title}</div>}
         <div className="popup-form">{children}</div>
+        </div>
         {buttons && <div className="popup-buttons">{buttons}</div>}
       </div>
     </div>
