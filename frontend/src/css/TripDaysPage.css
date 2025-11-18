@@ -396,7 +396,7 @@ body {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 6px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card);
   min-width: 120px;
   z-index: 10;
   overflow: hidden;
@@ -808,18 +808,19 @@ html[data-theme="dark"] .textarea-notes {
 
 @keyframes aiPulseActive {
   0% {
-    box-shadow: 0 0 0px rgba(0, 200, 255, 0);
+    box-shadow: 0 0 0px var(--ai-glow-color-soft);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 14px rgba(0, 200, 255, 0.75);
+    box-shadow: 0 0 14px var(--ai-glow-color);
     transform: scale(1.10);
   }
   100% {
-    box-shadow: 0 0 0px rgba(0, 200, 255, 0);
+    box-shadow: 0 0 0px var(--ai-glow-color-soft);
     transform: scale(1);
   }
 }
+
 
 .ai-toggle-btn.glow {
   animation: aiPulseActive 2.2s ease-in-out infinite;
