@@ -826,12 +826,11 @@ html[data-theme="dark"] .textarea-notes {
   border-color: var(--packing-ai-2);
 }
 
-/* Packing AI Popup List */
 .ai-items-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 260px;       /* scroll limit */
+  max-height: 260px;
   overflow-y: auto;
   padding-right: 6px;
 }
@@ -846,7 +845,6 @@ html[data-theme="dark"] .textarea-notes {
   font-size: 0.95rem;
 }
 
-/* Optional: subtle hover effect */
 .ai-items-list li:hover {
   background: var(--bg-offwhite);
 }
@@ -986,17 +984,23 @@ html[data-theme="dark"] .time-picker {
   }
 
   .itinerary-buttons {
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    gap: 0.25rem;
-    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .itinerary-buttons button {
+    min-width: 6rem;
+    font-size: 0.9rem;
+    padding: 0 0.75rem;
   }
 
   .packing-ai-button {
-    bottom: 1rem;
-    left: 1rem;
+    bottom: 1.3rem;
+    right: 4rem !important;
     padding: 10px 16px;
     font-size: 0.82rem;
+    width: auto !important;
   }
 
   .days-container {

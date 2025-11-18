@@ -1090,9 +1090,9 @@ export default function TripDaysPage() {
       setAIItems(items);
       setShowAIPopup(true);
 
-      toast.success("Packing AI items retrieved!");
+      toast.success("items retrieved!");
     } catch (e) {
-      console.error("Packing AI call failed", e);
+      console.error("call failed", e);
       toast.error("Packing AI failed");
     }
   };
