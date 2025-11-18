@@ -21,6 +21,20 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes, r
 
         return `${twelveHour}:${minutes.toString().padStart(2, "0")} ${period}`;
     };
+
+    const formatPrice = (num) => {
+        const format = (value, suffix) => {
+            const formatted = (value).toFixed(1);
+            return formatted.endsWith(".0")
+                ? Math.round(value) + suffix
+                : formatted + suffix;
+    };
+
+        if (num >= 1_000_000) return format(num / 1_000_000, "M");
+        if (num >= 1_000) return format(num / 1_000, "K");
+        return num.toString();
+    };
+
     // Toggle three-dot menu
     const toggleMenu = (e) => {
         e.stopPropagation();
@@ -107,9 +121,11 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes, r
                     {activity.activity_address ?? "No address provided"}
                 </p>
             </div>
-       
 
-        {activity.activity_duration && (
+        {activity.activity_duration && 
+            //to fix showing 0 when edited
+            (activity.activity_duration.hours > 0 ||
+             activity.activity_duration.minutes > 0) && (
             <p className="duration-of-activity">
                 <Timer className="icon"/>
                 {activity.activity_duration ? (
@@ -134,6 +150,7 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes, r
             </p>
         )}
 
+        <div className= "website-cost-line">
             {activity.activity_website ? (
                 <div className="website-container">
                     <Globe className="icon"/>
@@ -150,15 +167,16 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes, r
                 <div className="website-container">&nbsp;</div>
             )}
 
-        {activity.activity_price_estimated && (
+            {activity.activity_price_estimated > 0 && (
             <div className="cost-container">
                 <p className="estimated-cost-of-activity">
                     {activity.activity_price_estimated != null
-                        ? `$${activity.activity_price_estimated}`
+                        ? `$${formatPrice(activity.activity_price_estimated)}`
                         : "N/A"}
                 </p>
             </div>
-        )}
+            )}
+        </div>
         </div>
     );
 }
