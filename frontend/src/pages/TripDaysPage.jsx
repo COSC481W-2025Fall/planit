@@ -131,6 +131,14 @@ export default function TripDaysPage() {
     if (saved !== null) setShowAIBtn(saved === "true");
   }, []);
 
+  useEffect(() => {
+    const saved = localStorage.getItem("planit:aiCollapsed");
+    if (saved !== null) {
+      setAiHidden(saved === "true");
+    }
+  }, []);
+
+
   //responsive
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 600);
@@ -1231,7 +1239,11 @@ export default function TripDaysPage() {
               <div className={`ai-floating-container ${aiHidden ? "collapsed" : ""}`}>
                 <button
                     className={`ai-toggle-btn ${aiHidden ? "glow" : ""}`}
-                    onClick={() => setAiHidden(!aiHidden)}
+                    onClick={() => {
+                      const newVal = !aiHidden;
+                      setAiHidden(newVal);
+                      localStorage.setItem("planit:aiCollapsed", newVal.toString());
+                    }}
                 >
                   {aiHidden ? <Luggage size={18} /> : <ChevronRight size={18} />}
                 </button>
