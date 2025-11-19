@@ -77,6 +77,29 @@ export const updateTransportInfo = async (req, res) => {
     }   
 }
 
+export const deleteTransportInfo = async (req, res) => {
+    try {
+        const {transport_id} = req.body; 
+
+        if (!transport_id) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+
+        const result = await sql`
+            DELETE FROM transport
+            WHERE transport_id = ${transport_id}
+        `;
+
+        res.json({
+            message: "Transport info deleted successfully"
+        });
+    }
+    catch (err) {
+        console.error("error deleting transport info:", err);
+        res.status(500).json({ error: err.message });
+    }
+        }
+    
 export const addAccommodationInfo = async (req, res) => {
     
 }
