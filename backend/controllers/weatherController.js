@@ -3,19 +3,9 @@ import axios from "axios";
 const WEATHER_API = process.env.WEATHER_API;
 
 export const getWeatherForecast = async (req, res) => {
-    function getDaysBetweenDates(startDate, endDate) {
-        const date1 = new Date(startDate);
-        const date2 = new Date(endDate);
-
-        const milliseconds1 = date1.getTime();
-        const milliseconds2 = date2.getTime();
-
-        const differenceInMilliseconds = Math.abs(milliseconds2 - milliseconds1);
-        const millisecondsInADay = 1000 * 60 * 60 * 24;
-
-        const differenceInDays = differenceInMilliseconds / millisecondsInADay;
-        return Math.round(differenceInDays);
-    }
+    const futureAfter14DaysUrl = "https://api.weatherapi.com/v1/future.json";
+    const forecastWithin14DaysUrl = "https://api.weatherapi.com/v1/forecast.json";
+    const historyUrl = "https://api.weatherapi.com/v1/history.json";
 
     try {
         const { tripLocation, tripDays } = req.body;
@@ -26,23 +16,9 @@ export const getWeatherForecast = async (req, res) => {
                 .json({ error: "Missing destination ${tripLocation} or ${tripDays} in params" });
         }
 
-        const currentDate = new Date()
-        console.log("currentDate: ", currentDate);
-        console.log("tripDays[0]: ", new Date(tripDays[0]));
-        console.log("difference: " + (getDaysBetweenDates(new Date(tripDays[tripDays.length-1]), currentDate)));
-
-        if (currentDate > new Date(tripDays[tripDays.length - 1])) {
-            return res.status(400).json({ error: "Trip date is in the past" });
-        }
-
-
-        const url = "https://api.weatherapi.com/v1/future.json";
-        const dailyValues = [];
-        console.log(`Fetching weather for ${tripLocation} between days ${tripDays[0]} and ${tripDays[tripDays.length - 1]}...`);
-
+        // detect season
         const month = new Date(tripDays[0]).getMonth() + 1;
         let season = ""
-
         if (month === 12 || month === 1 || month === 2) {
             season = "winter"
         } else if (month >= 3 && month <= 5) {
@@ -53,15 +29,67 @@ export const getWeatherForecast = async (req, res) => {
             season = "fall";
         }
 
+        console.log(`Starting weather fetch for ${tripLocation} between days ${tripDays[0]} and ${tripDays[tripDays.length - 1]}...`);
+
+        const dailyValues = [];
         for (const dt of tripDays) {
 
-            const { data } = await axios.get(url, {
-                params: {
-                    key: WEATHER_API,
-                    q: tripLocation,
-                    dt,
-                },
-            });
+            let isFuture = false;
+            let isForecast = false;
+            let isHistory = false;
+            let currentDate = new Date().toISOString().split("T")[0];
+            let eachDateString = new Date(dt).toISOString().split("T")[0];
+
+            const numOfDaysDifference = getDaysBetweenDates(currentDate, eachDateString);
+
+            if (currentDate <= eachDateString) {
+                if (numOfDaysDifference <= 14) {
+                    isFuture = true;
+                } else {
+                    isForecast = true;
+                }
+
+            } else if (currentDate > eachDateString) {
+                isHistory = true;
+            }
+
+            console.log(`Fetching weather for ${dt}...`);
+
+            let data;
+
+            if (isFuture) {
+                const response = await axios.get(forecastWithin14DaysUrl, {
+                    params: {
+                        key: WEATHER_API,
+                        q: tripLocation,
+                        dt,
+                    },
+                });
+                data = response.data;
+            }
+            if (isForecast) {
+                const response = await axios.get(futureAfter14DaysUrl, {
+                    params: {
+                        key: WEATHER_API,
+
+                        q: tripLocation,
+                        days: 1,
+                        dt,
+                    },
+                });
+                data = response.data;
+            }
+            if (isHistory) {
+                const response = await axios.get(historyUrl, {
+                    params: {
+                        key: WEATHER_API,
+
+                        q: tripLocation,
+                        dt,
+                    },
+                });
+                data = response.data;
+            }
 
             const forecastDay = data?.forecast?.forecastday?.[0];
             if (!forecastDay || !forecastDay.day) {
@@ -117,4 +145,15 @@ export const getWeatherForecast = async (req, res) => {
         return res.status(500).json({ error: "Failed to fetch weather" });
     }
 };
+
+function getDaysBetweenDates(startDate, endDate) {
+    const [y1, m1, d1] = startDate.split("-").map(Number);
+    const [y2, m2, d2] = endDate.split("-").map(Number);
+
+    const t1 = Date.UTC(y1, m1 - 1, d1);
+    const t2 = Date.UTC(y2, m2 - 1, d2);
+
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+    return Math.round((t2 - t1) / MS_PER_DAY);
+}
 
