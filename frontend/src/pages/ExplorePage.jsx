@@ -69,6 +69,40 @@ export default function ExplorePage() {
       return next;
     });
   };
+  const scrollByOneCardWithWrap = (containerRef, direction) => {
+    const container = containerRef.current;
+    if (!container) return;
+  
+    const card = container.querySelector(".trip-card");
+    if (!card) return;
+  
+    const cardWidth = card.offsetWidth + 16; // margin gap
+  
+    if (direction === 1) {
+      const nextLeft = container.scrollLeft + cardWidth;
+      if (nextLeft + container.offsetWidth >= container.scrollWidth) {
+        // Reached end → wrap to start
+        container.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        container.scrollTo({ left: nextLeft, behavior: "smooth" });
+      }
+    } else if (direction === -1) {
+      const prevLeft = container.scrollLeft - cardWidth;
+      if (prevLeft <= 0) {
+        // Reached start → wrap to end
+        container.scrollTo({
+          left: container.scrollWidth,
+          behavior: "smooth",
+        });
+      } else {
+        container.scrollTo({
+          left: prevLeft,
+          behavior: "smooth",
+        });
+      }
+    }
+  };
+  
 
   // collect counts 
   const ingestCounts = (rows) => {
@@ -120,7 +154,6 @@ export default function ExplorePage() {
 
   // navigate to trip details
   const handleOpenTrip = (tripId) => navigate(`/days/${tripId}`);
-
   // autocomplete suggestions
   const suggestions = useMemo(() => {
     const q = (query || "").trim().toLowerCase();
@@ -327,17 +360,7 @@ export default function ExplorePage() {
     }
   };
 
-  // carousel scroll helper
-  function scrollByOneCard(viewportRef, dir = 1) {
-    const vp = viewportRef.current;
-    if (!vp) return;
-    const track = vp.querySelector(":scope > .carousel-track");
-    const firstCard = track?.firstElementChild;
-    const gap = track ? parseInt(getComputedStyle(track).gap || "15", 10) : 15;
-    const cardW = firstCard ? firstCard.clientWidth : 300;
-    const delta = dir * (cardW + gap);
-    vp.scrollBy({ left: delta, behavior: "smooth" });
-  }
+  
 
   // loading
   if (loadingUser) {
@@ -437,7 +460,7 @@ export default function ExplorePage() {
                       className="carousel-btn prev"
                       onClick={(e) => {
                         e.stopPropagation();
-                        scrollByOneCard(resRef, -1);
+                        scrollByOneCardWithWrap(resRef, -1);
                       }}
                     >
                       <ChevronLeft size={18} />
@@ -467,7 +490,7 @@ export default function ExplorePage() {
                       className="carousel-btn next"
                       onClick={(e) => {
                         e.stopPropagation();
-                        scrollByOneCard(resRef, 1);
+                        scrollByOneCardWithWrap(resRef, 1);
                       }}
                     >
                       <ChevronRight size={18} />
@@ -489,8 +512,7 @@ export default function ExplorePage() {
                       if (carouselCooldown || trending.length === 0) return;
 
                       setCarouselCooldown(true);
-                      scrollByOneCard(trRef, -1);
-
+                      scrollByOneCardWithWrap(trRef, -1);
                       setTimeout(() => setCarouselCooldown(false), CAROUSEL_COOLDOWN_MS);
                     }}
                     disabled={trending.length === 0}
@@ -524,8 +546,8 @@ export default function ExplorePage() {
                       e.stopPropagation();
                       if (carouselCooldown || trending.length === 0) return;
                       
-                      setCarouselCooldown(true);
-                      scrollByOneCard(trRef, 1);
+                      setCarouselCooldown(true); //ignores clicks
+                      scrollByOneCardWithWrap(trRef, 1);
 
                       setTimeout(() => setCarouselCooldown(false), CAROUSEL_COOLDOWN_MS);
                     }}
@@ -545,7 +567,12 @@ export default function ExplorePage() {
                     className="carousel-btn prev"
                     onClick={(e) => {
                       e.stopPropagation();
-                      scrollByOneCard(topRef, -1);
+                      if (carouselCooldown) return;
+                      
+                      setCarouselCooldown(true);
+                      scrollByOneCardWithWrap(topRef, -1)
+
+                      setTimeout(() => setCarouselCooldown(false), CAROUSEL_COOLDOWN_MS);
                     }}
                   >
                     <ChevronLeft size={18} />
@@ -575,7 +602,12 @@ export default function ExplorePage() {
                     className="carousel-btn next"
                     onClick={(e) => {
                       e.stopPropagation();
-                      scrollByOneCard(topRef, 1);
+                      if (carouselCooldown) return;
+
+                      setCarouselCooldown(true);
+                      scrollByOneCardWithWrap(topRef, 1);
+          
+                      setTimeout(() => setCarouselCooldown(false), CAROUSEL_COOLDOWN_MS);
                     }}
                   >
                     <ChevronRight size={18} />
