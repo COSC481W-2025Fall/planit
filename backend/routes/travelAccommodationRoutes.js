@@ -8,5 +8,6 @@ router.get("/readTransportInfo", readTransportInfo);
 router.put("/updateTransportInfo", updateTransportInfo);
 router.delete("/deleteTransportInfo", deleteTransportInfo);
 router.post("/addAccommodationInfo", addAccomodationInfo);
+router.get("/readAccommodationInfo", readAccommodationInfo);
 
 export default router;

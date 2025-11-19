@@ -130,3 +130,27 @@ export const addAccommodationInfo = async (req, res) => {
     }
 }
 
+export const readAccommodationInfo = async (req, res) => {
+    try {
+        const {trip_id} = req.query;
+
+        if (!trip_id) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+
+        const result = await sql`
+            SELECT * FROM accommodation 
+            WHERE trip_id = ${trip_id}
+        `;
+
+        res.json({
+            message: "Accommodation info retrieved successfully", 
+            accommodationInfo : result
+        });
+    }
+    catch (err) {
+        console.error("error retrieving accommodation info:", err);
+        res.status(500).json({ error: err.message });
+    }
+        
+}
