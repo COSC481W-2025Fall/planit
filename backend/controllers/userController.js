@@ -30,17 +30,24 @@ export const createUsername = async (req, res) => {
 //This function handles the modification of the three desired fields in the user table.
 export const updateUser = async (req, res) => {
   try {
-    const { userId, firstname, lastname, username} = req.body;
+    const { userId, firstname, lastname, username, customPhoto} = req.body;
 
-    if (!userId || firstname === undefined || lastname === undefined || username === undefined) {
+    if (!userId || !customPhoto || firstname === undefined || lastname === undefined || username === undefined) {
       return res.status(400).json({ error: "userId, first name, last name, and username are required" });
+    }
+
+    //This is a check using regex to ensure a proper format has been sent
+    const base64Pattern = /^data:image\/(jpeg|png);base64,/;
+    if (!base64Pattern.test(customPhoto)) {
+      return res.status(400).json({ error: "Invalid image format" });
     }
 
     const result = await sql`
     UPDATE users
     SET first_name = ${firstname},
       last_name = ${lastname},
-      username = ${username}
+      username = ${username},
+      photo = ${customPhoto}
       WHERE user_id = ${userId}
       RETURNING *`;
 
