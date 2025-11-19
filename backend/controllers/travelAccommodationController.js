@@ -4,6 +4,6 @@ export const addTransportInfo = async (req, res) => {
     
 }
 
-export const addAccomodationInfo = async (req, res) => {
+export const addAccommodationInfo = async (req, res) => {
     
 }
