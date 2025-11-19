@@ -9,7 +9,7 @@ export const addTransportInfo = async (req, res) => {
         }
 
         const result = await sql`
-            INSERT INTO transport (trip_id, transport_type, transport_price, transport_note)
+            INSERT INTO transport (trip_id, transport_type, transport_price, transport_note, transport_number)
             VALUES (${transport_type}, ${trip_id}, ${transport_price ?? null}, ${transport_note ?? null} ${transport_number ?? null})
             RETURNING *
         `;
@@ -98,7 +98,7 @@ export const deleteTransportInfo = async (req, res) => {
         console.error("error deleting transport info:", err);
         res.status(500).json({ error: err.message });
     }
-        }
+}
     
 export const addAccommodationInfo = async (req, res) => {
     
