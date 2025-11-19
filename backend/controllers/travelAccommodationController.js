@@ -26,6 +26,31 @@ export const addTransportInfo = async (req, res) => {
     } 
 }
 
+export const readTransportInfo = async (req, res) => {
+    try {
+        const {trip_id} = req.body; 
+
+        if (!trip_id) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+
+        const result = await sql`
+            SELECT * FROM transport
+            WHERE trip_id = ${trip_id}
+        `;
+
+        res.json({
+            message: "Transport info retrieved successfully",
+            transportInfo: result
+        });
+    }   
+
+    catch (err) {
+        console.error("error retrieving transport info:", err);
+        res.status(500).json({ error: err.message });
+    }   
+}
+
 export const addAccommodationInfo = async (req, res) => {
     
 }
