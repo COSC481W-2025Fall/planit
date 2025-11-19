@@ -19,6 +19,7 @@ import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 import {getOwnerForTrip, retrievePackingItems, updateTrip} from "../../api/trips.js";
 import {listParticipants, addParticipant, removeParticipant} from "../../api/trips";
 import { useNavigate } from "react-router-dom";
+import {getWeather} from "../../api/weather.js";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -58,6 +59,7 @@ export default function TripDaysPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const participantFormRef = useRef(null);
   const MAX_DISPLAY_PFP = 4;
+  const [weatherSummary, setWeatherSummary] = useState([]);
 
   const allPeople = [
     ...(owner ? [owner] : []),
@@ -1041,6 +1043,40 @@ export default function TripDaysPage() {
     }
   };
 
+  async function fetchAndSetWeather() {
+    const tripLocation = trip?.trip_location;
+    const tripStartDate = trip?.trip_start_date;
+    const tripDays = days.map(day => day.day_date.split("T")[0]).join(", ");
+    const daysArray = tripDays.split(",");
+
+    console.log("days:" + daysArray);
+
+    try {
+      const weather = await getWeather(
+          tripLocation,
+          tripStartDate,
+          daysArray
+      );
+
+      console.log("Weather:", weather);
+      // weather.summary:
+      // {
+      //   avg_high: ...,
+      //   avg_low: ...,
+      //   max_high: ...,
+      //   min_low: ...,
+      //   avg_humidity: ...,
+      //   max_precip_prob: ...
+      // }
+
+      setWeatherSummary(weather.summary);
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load weather data");
+    }
+  }
+
   //Loading State
   if (!user || !trip) {
     return (
@@ -1188,6 +1224,11 @@ export default function TripDaysPage() {
               </div>
 
           )}
+
+          <button className="packing-ai-button" onClick={fetchAndSetWeather}
+          style={{marginRight: "300px"}}>
+            <span>get weather</span>
+          </button>
           <div className="days-scroll-zone">
             <div className="days-container">
               {days.length === 0 ? (
