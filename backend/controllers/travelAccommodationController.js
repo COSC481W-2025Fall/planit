@@ -151,6 +151,35 @@ export const readAccommodationInfo = async (req, res) => {
     catch (err) {
         console.error("error retrieving accommodation info:", err);
         res.status(500).json({ error: err.message });
+    }      
+}
+
+export const updateAccommodationInfo = async (req, res) => {
+    try {
+        const {accommodation_id, price, note} = req.body;
+
+        if(!accommodation_id) {
+            return res.status(400).json({ error: "Missing required fields"});
+        }
+
+        const result = await sql`
+            UPDATE accommodation
+            SET accommodation_price = ${price}, accommodation_note = ${note} 
+            WHERE accommodation_id = ${accommodation_id}
+            RETURNING *
+        `;
+
+        if (result.length === 0) {
+            return res.status(404).json ({ error: "Accommodation not found" });
+        }
+
+        res.json({
+            message: "Accommodation info updated successfully",
+            accommodationInfo: result[0]
+        });
     }
-        
+    catch (err) {
+        console.error("error updating accommodation info:", err);
+        res.status(500).json({ error: err.message });
+    }
 }
