@@ -5,15 +5,15 @@ const OPENWEATHER_KEY = process.env.OPENWEATHER_API_KEY;
 // GET /api/weather?lat=...&lon=...&start=YYYY-MM-DD&end=YYYY-MM-DD
 export const getWeatherForecast = async (req, res) => {
     try {
-        const { tripLocation, startDate, tripDays } = req.query;
+        const { tripLocation, tripDays } = req.body;
 
-        if (!tripLocation || !startDate || !tripDays) {
+        if (!tripLocation || !tripDays) {
             return res
                 .status(400)
-                .json({ error: "Missing destination or startDate in params" });
+                .json({ error: "Missing destination ${tripLocation} or ${tripDays} in params" });
         }
 
-        // console.log("tripDays:" + tripDays.toString())
+        console.log("tripDays:" + tripDays[2])
 
         const url = "https://api.weatherapi.com/v1/future.json";
         const OPENWEATHER_KEY = process.env.OPENWEATHER_KEY;
@@ -27,12 +27,11 @@ export const getWeatherForecast = async (req, res) => {
         //     key: WEATHER_API ? "[LOADED]" : "[MISSING]"
         // });
 
-        console.log("tripDays[3].toString()" + tripDays[3].toString())
 
         const { data } = await axios.get(url, {
             params: {
                 q: tripLocation,
-                dt: tripDays[3].toString(),
+                dt: tripDays[2].toString(),
                 key: WEATHER_API,
             },
         });

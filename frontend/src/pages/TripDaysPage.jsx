@@ -1046,16 +1046,14 @@ export default function TripDaysPage() {
   async function fetchAndSetWeather() {
     const tripLocation = trip?.trip_location;
     const tripStartDate = trip?.trip_start_date;
-    const tripDays = days.map(day => day.day_date.split("T")[0]).join(", ");
-    const daysArray = tripDays.split(",");
+    const tripDays = days.map(day => day.day_date.split("T")[0]);
 
-    console.log("days:" + daysArray);
+    console.log("days:" + tripDays);
 
     try {
       const weather = await getWeather(
           tripLocation,
-          tripStartDate,
-          daysArray
+          tripDays
       );
 
       console.log("Weather:", weather);
