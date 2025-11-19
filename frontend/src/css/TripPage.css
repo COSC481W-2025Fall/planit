@@ -295,6 +295,47 @@ html[data-theme="dark"] .modal-content input:-webkit-autofill {
     -webkit-text-fill-color: var(--text-strong);
 }
 
+.calendar-header {
+    padding: 6px 12px;
+    text-align: center;
+    background: transparent !important;
+    border-radius: 10px 10px 0 0;
+}
+
+.month-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.month-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    color: var(--text);
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.month-btn:hover {
+    transform: scale(1.2);
+    color: var(--accent);
+}
+
+.month-label {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 1rem;
+}
+.react-datepicker__day--disabled,
+.react-datepicker__day--disabled:hover {
+    opacity: 0.28 !important;
+    color: var(--text) !important;
+    cursor: not-allowed !important;
+    background: transparent !important;
+}
 /* Tablets */
 @media (max-width: 900px) {
     .content-with-sidebar {

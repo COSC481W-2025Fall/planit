@@ -6,7 +6,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
 import {createTrip, updateTrip, getTrips, deleteTrip} from "../../api/trips";
-import {MapPin, Pencil, Trash,  Lock, Unlock, UserPlus, X} from "lucide-react";
+import {MapPin, Pencil, Trash,  Lock, Unlock, UserPlus, X, ChevronLeft, ChevronRight} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
@@ -187,6 +187,18 @@ export default function TripPage() {
   const handleSaveTrip = async (tripData) => {
     if (isSaving) return;
     setIsSaving(true);
+
+    const start = new Date(tripData.trip_start_date);
+    const end = new Date(tripData.trip_end_date);
+
+    const diffMs = end - start;
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+    if (diffDays > 90) {
+      toast.error("Trips cannot be longer than 90 days.");
+      setIsSaving(false);
+      return;
+    }
 
     try {
       if (editingTrip) {
@@ -480,8 +492,30 @@ export default function TripPage() {
                                   popperPlacement="bottom"
                                   className="date-input"
                                   dateFormat="MM-dd-yyyy"
+                                  shouldCloseOnSelect={true}
+                                  onClickOutside={() =>
+                                    setTimeout(() => {
+                                      document.activeElement?.blur();
+                                    }, 120)
+                                  }
                                   required
+                                  renderCustomHeader={({ date, decreaseMonth, increaseMonth }) => (
+                                    <div className="calendar-header">
+                                      <div className="month-nav">
+                                        <button type="button" className="month-btn" onClick={decreaseMonth}>
+                                          <ChevronLeft size={20} />
+                                        </button>
+                                        <span className="month-label">
+                                          {date.toLocaleString("default", { month: "long" })} {date.getFullYear()}
+                                        </span>
+                                        <button type="button" className="month-btn" onClick={increaseMonth}>
+                                          <ChevronRight size={20} />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
                                 />
+
                                 {!editingTrip &&
                                  <DatePicker
                                   selected={endDate}
@@ -492,7 +526,33 @@ export default function TripPage() {
                                   className="date-input"
                                   dateFormat="MM-dd-yyyy"
                                   minDate={startDate}
+                                  maxDate={
+                                    startDate
+                                      ? new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000)
+                                      : null
+                                  }
+                                  shouldCloseOnSelect={true}
+                                  onClickOutside={() =>
+                                    setTimeout(() => {
+                                      document.activeElement?.blur();
+                                    }, 120)
+                                  }
                                   required
+                                  renderCustomHeader={({ date, decreaseMonth, increaseMonth }) => (
+                                    <div className="calendar-header">
+                                      <div className="month-nav">
+                                        <button type="button" className="month-btn" onClick={decreaseMonth}>
+                                          <ChevronLeft size={20} />
+                                        </button>
+                                        <span className="month-label">
+                                          {date.toLocaleString("default", { month: "long" })} {date.getFullYear()}
+                                        </span>
+                                        <button type="button" className="month-btn" onClick={increaseMonth}>
+                                          <ChevronRight size={20} />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
                                  />
                                 }
 
