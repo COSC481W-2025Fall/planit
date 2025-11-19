@@ -28,7 +28,7 @@ export const addTransportInfo = async (req, res) => {
 
 export const readTransportInfo = async (req, res) => {
     try {
-        const {trip_id} = req.body; 
+        const {trip_id} = req.query; 
 
         if (!trip_id) {
             return res.status(400).json({ error: "Missing required fields" });
@@ -65,6 +65,11 @@ export const updateTransportInfo = async (req, res) => {
             WHERE transport_id = ${transport_id}
             RETURNING *
         `;  
+
+            if (result.length === 0) {
+                return res.status(404).json({ error: "Transport not found" });
+    }       
+
 
         res.json({
             message: "Transport info updated successfully", 
