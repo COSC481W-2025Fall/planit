@@ -106,5 +106,27 @@ export const deleteTransportInfo = async (req, res) => {
 }
     
 export const addAccommodationInfo = async (req, res) => {
+    try {
+        const {trip_id, price, note} = req.body;
     
+        if (!trip_id) {
+            return res.status(400).json({error: "Missing required fields"});
+        }
+
+        const result = await sql`
+            INSERT INTO accommodation (trip_id, accommodation_price, accommodation_note)
+            VALUES (${trip_id}, ${price ?? null}, ${note ?? null})
+            RETURNING *
+        `;
+
+        res.json({
+      message: "Accommodation added successfully",
+      accommodation: result[0],
+    });
+    }
+    catch (err) {
+        console.error("error adding accommodation info:", err);
+        res.status(500).json({ error: err.message });
+    }
 }
+
