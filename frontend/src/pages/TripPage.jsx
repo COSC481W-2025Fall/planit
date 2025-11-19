@@ -6,7 +6,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
 import {createTrip, updateTrip, getTrips, deleteTrip} from "../../api/trips";
-import {MapPin, Pencil, Trash,  Lock, Unlock, UserPlus, X, ChevronDown} from "lucide-react";
+import {MapPin, Pencil, Trash,  Lock, Unlock, UserPlus, X} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
@@ -14,6 +14,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ImageSelector from "../components/ImageSelector";
 import GuestEmptyState from "../components/GuestEmptyState";
+import TripsFilterButton from "../components/TripsFilterButton";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
@@ -22,7 +23,6 @@ export default function TripPage() {
     const [editingTrip, setEditingTrip] = useState(null);
     const [openDropdownId, setOpenDropdownId] = useState(null);
     const dropdownRef = useRef(null);
-    const filterDropdownRef = useRef(null);
     const [isSaving, setIsSaving] = useState(false);
     const navigate = useNavigate();
     const [startDate, setStartDate] = useState(
@@ -35,16 +35,12 @@ export default function TripPage() {
     const [privacyDraft, setPrivacyDraft] = useState(true);
     const [sortOption, setSortOption] = useState("earliest");
     const [dateFilter, setDateFilter] = useState("all");
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     // Close dropdown if click outside
     useEffect(() => {
       const handleClickOutside = (e) => {
           if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
               setOpenDropdownId(null);
-          }
-          if (filterDropdownRef.current && !filterDropdownRef.current.contains(e.target)) {
-              setIsFilterOpen(false);
           }
       };
       document.addEventListener("mousedown", 
@@ -142,10 +138,6 @@ export default function TripPage() {
         setSelectedImage(null);
     };
 
-  const isGuestUser = (userId) => {
-    return userId && userId.toString().startsWith('guest_');
-  };
-
     const sortedFilteredTrips = useMemo(() => {
         if (!Array.isArray(trips)) return [];
 
@@ -216,6 +208,11 @@ export default function TripPage() {
 
         return result;
     }, [trips, sortOption, dateFilter]);
+
+  const isGuestUser = (userId) => {
+    return userId && userId.toString().startsWith('guest_');
+  };
+
 
     //Show Loader while fetching user or trips
     if (!user || !trips) {
@@ -368,117 +365,12 @@ export default function TripPage() {
                 <button className="new-trip-button" onClick={handleNewTrip}>
                   + New Trip
                 </button>
-                <div className="filter-wrapper" ref={filterDropdownRef}>
-                  <button
-                    className="filter-button"
-                    onClick={() => setIsFilterOpen((prev) => !prev)}
-                  >
-                    <span className="filter-icon"></span> Filter
-                    <ChevronDown
-                      size={16}
-                      className={`filter-chevron ${isFilterOpen ? "open" : ""}`}
-                    />
-                  </button>
-                  {isFilterOpen && (
-                    <div className="trip-dropdown filter-dropdown">
-                      <div className="filter-section-label">Show</div>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${dateFilter === "all" ? "active" : ""}`}
-                        onClick={() => {
-                          setDateFilter("all");
-                          setIsFilterOpen(false);
-                        }}
-                      >
-                        All trips
-                      </button>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${dateFilter === "upcoming" ? "active" : ""}`}
-                        onClick={() => {
-                          setDateFilter("upcoming");
-                          setIsFilterOpen(false);
-                        }}
-                      >
-                        Upcoming trips
-                      </button>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${dateFilter === "past" ? "active" : ""}`}
-                        onClick={() => {
-                          setDateFilter("past");
-                          setIsFilterOpen(false);
-                        }}
-                      >
-                        Past trips
-                      </button>
-
-                      <div className="filter-divider"></div>
-
-                      <div className="filter-section-label">Sort by</div>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${sortOption === "earliest" ? "active" : ""}`}
-                        onClick={() => {
-                          setSortOption("earliest");
-                          setIsFilterOpen(false);
-                        }}
-                      >
-                        Earliest start date
-                      </button>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${sortOption === "oldest" ? "active" : ""}`}
-                        onClick={() => {
-                          setSortOption("oldest");
-                          setIsFilterOpen(false);
-                        }}
-                      >
-                        Oldest start date
-                      </button>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${sortOption === "az" ? "active" : ""}`}
-                        onClick={() => {
-                          setSortOption("az");
-                          setIsFilterOpen(false);
-                        }}
-                      >
-                        Name (A–Z)
-                      </button>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${sortOption === "za" ? "active" : ""}`}
-                        onClick={() => {
-                          setSortOption("za");
-                          setIsFilterOpen(false);
-                        }}
-                      >
-                        Name (Z–A)
-                      </button>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${sortOption === "location" ? "active" : ""}`}
-                        onClick={() => {
-                          setSortOption("location");
-                          setIsFilterOpen(false);
-                        }}
-                      >
-                        Location (A–Z)
-                      </button>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${sortOption === "recent" ? "active" : ""}`}
-                        onClick={() => {
-                          setSortOption("recent");
-                          setIsFilterOpen(false);
-                        }}
-                      >
-                        Most recently edited
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <TripsFilterButton
+                  sortOption={sortOption}
+                  setSortOption={setSortOption}
+                  dateFilter={dateFilter}
+                  setDateFilter={setDateFilter}
+                />
               </div>
             </div>
 
