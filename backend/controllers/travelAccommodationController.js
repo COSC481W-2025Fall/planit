@@ -2,7 +2,7 @@ import { sql } from "../config/db.js";
 
 export const addTransportInfo = async (req, res) => {
     try {
-        const {type, price, note, trip_id, number} = req.body;
+        const {type, trip_id, price, note, number} = req.body;
 
         if (!trip_id || !type) {
             return res.status(400).json({ error: "Missing required fields" });
@@ -10,13 +10,13 @@ export const addTransportInfo = async (req, res) => {
 
         const result = await sql`
             INSERT INTO transport (trip_id, transport_type, transport_price, transport_note, transport_number)
-            VALUES (${transport_type}, ${trip_id}, ${transport_price ?? null}, ${transport_note ?? null} ${transport_number ?? null})
+            VALUES (${trip_id}, ${type}, ${price ?? null}, ${note ?? null}, ${number ?? null})
             RETURNING *
         `;
 
         res.json({
-      message: "Activity added successfully",
-      activity: created[0],
+      message: "Transport added successfully",
+      transport: result[0],
     });
 
     }
