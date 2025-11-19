@@ -150,6 +150,8 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes, r
             </p>
         )}
 
+    {(activity.activity_website || activity.activity_price_estimated > 0) && (
+        //if webiste and price are empty, don't show empty space
         <div className= "website-cost-line">
             {activity.activity_website ? (
                 <div className="website-container">
@@ -166,7 +168,6 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes, r
             ) : (
                 <div className="website-container">&nbsp;</div>
             )}
-
             {activity.activity_price_estimated > 0 && (
             <div className="cost-container">
                 <p className="estimated-cost-of-activity">
@@ -177,6 +178,7 @@ export default function ActivityCard({activity, onDelete, onEdit, onViewNotes, r
             </div>
             )}
         </div>
+    )}
         </div>
     );
 }
