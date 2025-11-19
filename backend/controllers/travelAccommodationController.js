@@ -51,6 +51,32 @@ export const readTransportInfo = async (req, res) => {
     }   
 }
 
+export const updateTransportInfo = async (req, res) => {
+    try {
+        const {transport_id, type, price, note, number} = req.body;
+
+        if (!transport_id) {
+            return res.status(400).json({ error: "Missing required fields"});
+        }
+
+        const result = await sql`
+            UPDATE transport 
+            SET transport_type = ${type}, transport_price = ${price}, transport_note = ${note}, transport_number = ${number}
+            WHERE transport_id = ${transport_id}
+            RETURNING *
+        `;  
+
+        res.json({
+            message: "Transport info updated successfully", 
+            transportInfo: result[0]
+        });
+    }
+    catch (err) {
+        console.error("error updating transport info:", err);
+        res.status(500).json({ error: err.message });
+    }   
+}
+
 export const addAccommodationInfo = async (req, res) => {
     
 }
