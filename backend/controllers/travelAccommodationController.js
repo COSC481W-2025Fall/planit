@@ -107,15 +107,15 @@ export const deleteTransportInfo = async (req, res) => {
     
 export const addAccommodationInfo = async (req, res) => {
     try {
-        const {trip_id, price, note} = req.body;
+        const {trip_id, price, note, type} = req.body;
     
         if (!trip_id) {
             return res.status(400).json({error: "Missing required fields"});
         }
 
         const result = await sql`
-            INSERT INTO accommodation (trip_id, accommodation_price, accommodation_note)
-            VALUES (${trip_id}, ${price ?? null}, ${note ?? null})
+            INSERT INTO accommodation (trip_id, accommodation_price, accommodation_note, accommodation_type)
+            VALUES (${trip_id}, ${price ?? null}, ${note ?? null}, ${type})
             RETURNING *
         `;
 
@@ -156,7 +156,7 @@ export const readAccommodationInfo = async (req, res) => {
 
 export const updateAccommodationInfo = async (req, res) => {
     try {
-        const {accommodation_id, price, note} = req.body;
+        const {accommodation_id, price, note, type} = req.body;
 
         if(!accommodation_id) {
             return res.status(400).json({ error: "Missing required fields"});
@@ -164,7 +164,7 @@ export const updateAccommodationInfo = async (req, res) => {
 
         const result = await sql`
             UPDATE accommodation
-            SET accommodation_price = ${price}, accommodation_note = ${note} 
+            SET accommodation_price = ${price}, accommodation_note = ${note}, accommodation_type = ${type} 
             WHERE accommodation_id = ${accommodation_id}
             RETURNING *
         `;
@@ -180,6 +180,29 @@ export const updateAccommodationInfo = async (req, res) => {
     }
     catch (err) {
         console.error("error updating accommodation info:", err);
+        res.status(500).json({ error: err.message });
+    }
+}
+
+export const deleteAccommodationInfo = async (req, res) => {
+    try {
+        const {accommodation_id} = req.body;
+
+        if (!accommodation_id) {
+            return res.status(400).json({ error: "Missing required fields"})
+        }
+
+        const result = await sql`
+            DELETE FROM accommodation
+            WHERE accommodation_id = ${accommodation_id}
+        `;
+
+        res.json({
+            message: "Accommodation info deleted successfully" 
+        });
+    }
+    catch (err) {
+        console.error("error deleting accommodation info:", err);
         res.status(500).json({ error: err.message });
     }
 }
