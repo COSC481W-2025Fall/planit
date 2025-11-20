@@ -89,9 +89,7 @@ export const createDay = async (req, res) => {
       newDay = rows[0];
     }
     //emit createdDay for frontend to listen for.
-    io.emit("createdDay", {tripId});
-    //This is how we will need to do it when rooms are set up
-    //io.to(`trip_${tripId}`).emit("createdDay", {tripId});
+    io.to(`trip_${tripId}`).emit("createdDay");
 
     res.status(201).json(newDay);
 
@@ -103,6 +101,7 @@ export const createDay = async (req, res) => {
 
 // update an existing day for a specific trip
 export const updateDay = async (req, res) => {
+  const io = getIO();
   // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
@@ -135,6 +134,8 @@ export const updateDay = async (req, res) => {
       return res.status(404).json({ error: "Day not found" });
     }
 
+    io.to(`trip_${tripId}`).emit("updatedDay");
+
     // return the updated day
     res.json(rows[0]);
   } catch (err) {
@@ -145,6 +146,7 @@ export const updateDay = async (req, res) => {
 
 // delete a day for a specific trip
 export const deleteDay = async (req, res) => {
+  const io = getIO();
   // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
@@ -201,6 +203,8 @@ export const deleteDay = async (req, res) => {
         WHERE day_id = ${dayId} AND trip_id = ${tripId}
       `;
     }
+
+    io.to(`trip_${tripId}`).emit("deletedDay");
 
     res.status(204).send();
   } catch (err) {

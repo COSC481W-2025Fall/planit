@@ -128,6 +128,8 @@ export default function TripDaysPage() {
       withCredentials: true
     });
 
+    socket.emit("joinTrip", `trip_${tripId}`);
+
     socket.on("connect", () => {
       console.log("Participant connected", socket.id)
     });
@@ -135,10 +137,16 @@ export default function TripDaysPage() {
     //Listener that listens for "createdDay" from backend. Takes tripId from backend as json which is then 
     //compared to the tripId we are currently on(this will eventually be changed once rooms are implemented)
     //if tripIds match we retrive days and activities.
-    socket.on("createdDay", (data) => {
-      if (Number(data.tripId) === Number(tripId)) {
-        getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      }
+    socket.on("createdDay", () => {
+      getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
+    });
+
+    socket.on("updatedDay", () => {
+      getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
+    });
+
+    socket.on("deletedDay", () => {
+      getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
     });
 
     return () => {

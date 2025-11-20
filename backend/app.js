@@ -59,10 +59,16 @@ export const getIO = () => io;
 
 // Handle connections(room implementation will be done here)
 io.on("connection", (socket) => {
-  console.log("Participant connected:", socket.id);
+  socket.on("joinTrip", function(roomName) {
+    socket.join(roomName);
+    socket.roomName = roomName;
+    console.log("Participant connected to room:", roomName);
+  });
+
 
   socket.on("disconnect", () => {
-    console.log("Participant disconnected:", socket.id);
+    socket.leave(socket.roomName);
+    console.log("Participant disconnected from room:", socket.roomName);
   });
 });
 
