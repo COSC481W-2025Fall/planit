@@ -19,6 +19,7 @@ import routesAPIRoutes from "./routes/routesAPIRoutes.js";
 import shareRoutes from "./routes/sharedTripsRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
 import travelAccommodationRoutes from "./routes/travelAccommodationRoutes.js";
+import settingsParticipantRoutes from "./routes/settingsParticipantRoutes.js";
 
 
 const app = express();
@@ -72,5 +73,6 @@ app.use("/routesAPI", routesAPIRoutes);
 app.use("/shared" , shareRoutes)
 app.use("/settings", settingsRoutes);
 app.use("/transport", travelAccommodationRoutes);
+app.use("/settingsParticipant", settingsParticipantRoutes);
 
 export default app; // <- export the app for tests
