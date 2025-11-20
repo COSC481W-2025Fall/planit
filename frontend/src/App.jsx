@@ -72,16 +72,6 @@ function App() {
                     </ProtectedRoute>
                 }
             />
-
-            {/* ---------------------- */}
-            {/*  ⭐ API TESTING ROUTE  */}
-            {/* ---------------------- */}
-            <Route
-                path="/api-test"
-                element={
-                    <ApiTestPage />
-                }
-            />
         </Routes>
     );
 }
