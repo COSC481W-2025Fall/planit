@@ -10,7 +10,7 @@ import TripDaysPage from "./pages/TripDaysPage";
 import Registration from "./pages/NewUserSignUpPage";
 import ExplorePage from "./pages/ExplorePage";
 import SharedTripPage from "./pages/SharedTripPage";
-import ApiTestPage from "./pages/ApiTestPage"; // ← ADD THIS IMPORT
+
 
 function App() {
     return (
