@@ -1004,7 +1004,7 @@ export default function TripDaysPage() {
   }, [openParticipantsPopup]);
 
   useEffect(() => {
-    if (trip?.trips_id && !isViewer) {
+    if (trip?.trips_id && !isGuestUser(user?.user_id) && !isViewer) {
       listParticipants(trip.trips_id)
         .then(data => {
           setParticipants(data.participants || []);
@@ -1023,11 +1023,15 @@ export default function TripDaysPage() {
     }
   }, [trip?.trips_id, isViewer]);
 
+  const isGuestUser = (userId) => {
+    return userId && userId.toString().startsWith('guest_');
+  };
+
   //Loading State
   if (!user || !trip) {
     return (
       <div className="setting-page">
-        <TopBanner user={user} />
+        <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
         <div className="content-with-sidebar">
           <NavBar />
           <div className="main-content">
@@ -1048,7 +1052,7 @@ export default function TripDaysPage() {
 
   return (
     <div className="page-layout">
-      <TopBanner user={user} />
+      <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
 
       <div className="content-with-sidebar">
         <NavBar />
@@ -1604,6 +1608,7 @@ export default function TripDaysPage() {
                 ? days.map((d) => d.day_id)
                 : []}
               onActivityAdded={(dayId) => fetchDay(dayId)}
+              allDays={days}
             />
           </div>
         )}

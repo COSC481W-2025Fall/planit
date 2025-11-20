@@ -5,6 +5,7 @@ import NavBar from "../components/NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
+import GuestEmptyState from "../components/GuestEmptyState.jsx";
 
 export default function SettingsPage() {
     const [user, setUser] = useState(null);
@@ -31,7 +32,7 @@ export default function SettingsPage() {
     }, []);
 
     useEffect(() => {
-        if (user) {
+        if (user && !isGuestUser(user?.user_id)) {
             const loadStats = async () => {
                 try {
                     const statsData = await fetchUserStats(user.user_id);
@@ -50,41 +51,13 @@ export default function SettingsPage() {
         try {
             const backend = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
-            const postData = async (endpoint) => {
-                const res = await fetch(`${backend}/settings/${endpoint}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userID }),
-                });
-                return res.json();
-            };
+            const res = await fetch(`${backend}/settings/getAllSettings`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userID }),
+            });
 
-            const [
-                tripCount,
-                longestTrip,
-                mostExpensiveTrip,
-                cheapestTrip,
-                totalMoneySpent,
-                totalLikes,
-
-            ] = await Promise.all([
-                postData("tripCount"),
-                postData("longestTrip"),
-                postData("mostExpensiveTrip"),
-                postData("cheapestTrip"),
-                postData("totalMoneySpent"),
-                postData("totalLikes"),
-            ]);
-
-            return {
-                tripCount,
-                longestTrip,
-                totalLikes,
-                cheapestTrip,
-                mostExpensiveTrip,
-                totalMoneySpent
-            }
-        
+            return await res.json(); 
         } catch (err) {
             console.error("Error fetching stats:", err);
         }
@@ -123,6 +96,10 @@ export default function SettingsPage() {
         }
     };
 
+    const isGuestUser = (userId) => {
+        return userId && userId.toString().startsWith('guest_');
+    };
+
     // Loading state
     if (!user) {
         return (
@@ -139,6 +116,21 @@ export default function SettingsPage() {
                                 data-testid="loader"
                             />
                         </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // guest empty state if user is a guest
+    if (isGuestUser(user.user_id)) {
+        return (
+            <div className="trip-page">
+                <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
+                <div className="content-with-sidebar">
+                    <NavBar />
+                    <div className="main-content">
+                        <GuestEmptyState title="Hi, Guest" description="You're currently browsing as a Guest. Sign in to view your profile settings!" />
                     </div>
                 </div>
             </div>
@@ -207,7 +199,7 @@ export default function SettingsPage() {
                                 
                                 <div className="stat-line">
                                     <span className="stat-label">Number of Trips Made: </span>
-                                    <span className="stat-value">{stats?.tripCount?.tripCount ?? "N/A"}</span>
+                                    <span className="stat-value">{stats?.tripCount ?? "N/A"}</span>
                                 </div>
 
                                 <div className="stat-line">
@@ -227,12 +219,12 @@ export default function SettingsPage() {
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Money Spent: </span>
-                                    <span className="stat-value">{stats?.totalMoneySpent?.totalMoneySpent ?? "N/A"}</span>
+                                    <span className="stat-value">{stats?.totalMoneySpent ?? "N/A"}</span>
                                 </div>
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Likes: </span>
-                                    <span className="stat-value">{stats?.totalLikes?.totalLikes ?? "N/A"}</span>
+                                    <span className="stat-value">{stats?.totalLikes ?? "N/A"}</span>
                                 </div>
                             </div>
                         </div>

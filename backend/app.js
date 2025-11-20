@@ -20,6 +20,8 @@ import shareRoutes from "./routes/sharedTripsRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
 import http from "http";
 import {Server} from "socket.io";
+import settingsParticipantRoutes from "./routes/settingsParticipantRoutes.js";
+
 
 const app = express();
 
@@ -104,6 +106,7 @@ app.use("/explore", exploreRoutes);
 app.use("/routesAPI", routesAPIRoutes);
 app.use("/shared" , shareRoutes)
 app.use("/settings", settingsRoutes);
+app.use("/settingsParticipant", settingsParticipantRoutes);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () =>

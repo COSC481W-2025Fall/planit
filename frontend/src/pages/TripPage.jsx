@@ -13,6 +13,7 @@ import {toast} from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ImageSelector from "../components/ImageSelector";
+import GuestEmptyState from "../components/GuestEmptyState";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
@@ -61,7 +62,7 @@ export default function TripPage() {
 
     // Fetch trips once user is loaded
     useEffect(() => {
-      if (!user?.user_id) return;
+      if (!user?.user_id || isGuestUser(user.user_id)) return;
 
         getTrips(user.user_id)
           .then((data) => {
@@ -134,11 +135,16 @@ export default function TripPage() {
         setSelectedImage(null);
     };
 
+  const isGuestUser = (userId) => {
+    return userId && userId.toString().startsWith('guest_');
+  };
+
+
     //Show Loader while fetching user or trips
     if (!user || !trips) {
       return (
         <div className="trip-page">
-            <TopBanner user={user}/>
+            <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
             <div className="content-with-sidebar">
                 <NavBar/>
                 <div className="main-content">
@@ -151,6 +157,20 @@ export default function TripPage() {
         );
     }
 
+  // guest empty state if user is a guest
+  if (isGuestUser(user.user_id)) {
+    return (
+      <div className="trip-page">
+        <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
+        <div className="content-with-sidebar">
+          <NavBar />
+          <div className="main-content">
+            <GuestEmptyState title = "Hi, Guest" description = "You're currently browsing as a Guest. Sign in to create and save your own trips." />
+          </div>
+        </div>
+      </div>
+    );
+  }
     // Delete trip
     const handleDeleteTrip = async (trips_id) => {
         try {
@@ -249,7 +269,7 @@ export default function TripPage() {
 
   return (
     <div className="trip-page">
-      <TopBanner user={user} />
+      <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
       <div className="content-with-sidebar">
         <NavBar />
         <div className="main-content">

@@ -1,5 +1,9 @@
 import { sql } from "../config/db.js";
 
+const isGuestUser = (userId) => {
+    return userId && userId.toString().startsWith('guest_');
+};
+
 // load a trip and check user permissions
 export async function loadTripPermissions(req, res, next) {
     if (!req.user) {
@@ -7,6 +11,7 @@ export async function loadTripPermissions(req, res, next) {
     }
 
     const userId = req.user.user_id;
+    const isGuest = isGuestUser(userId);
     const tripIdRaw = req.params.tripId ?? req.body.tripId ?? req.query.tripId;
     const tripId = Number(tripIdRaw);
     if (tripIdRaw === undefined || isNaN(tripId)) {
@@ -27,6 +32,21 @@ export async function loadTripPermissions(req, res, next) {
         }
 
         const trip = trips[0];
+
+        // Guests can only view public trips
+        if (isGuest) {
+            if (!trip.is_private) {
+                req.trip = trip;
+                req.tripPermission = "viewer";
+                req.isGuest = true;
+                return next();
+            } else {
+                return res.status(403).json({
+                    error: "Guests can only view public trips. Please sign in for full access.",
+                    isGuest: true
+                });
+            }
+        }
 
         // Check if user is the owner
         const isOwner = trip.user_id === userId;
