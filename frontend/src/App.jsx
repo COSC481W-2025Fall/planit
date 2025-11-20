@@ -6,15 +6,15 @@ import LandingPage from "./pages/LandingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import SettingsPage from "./pages/SettingsPage";
-import TripDaysPage from "./pages/TripDaysPage"
+import TripDaysPage from "./pages/TripDaysPage";
 import Registration from "./pages/NewUserSignUpPage";
-import ExplorePage from "./pages/ExplorePage"; 
+import ExplorePage from "./pages/ExplorePage";
 import SharedTripPage from "./pages/SharedTripPage";
+import ApiTestPage from "./pages/ApiTestPage"; // ← ADD THIS IMPORT
 
 function App() {
     return (
         <Routes>
-
             <Route
                 path="/"
                 element={
@@ -34,6 +34,7 @@ function App() {
                     </ProtectedRoute>
                 }
             />
+
             <Route
                 path="/settings"
                 element={
@@ -42,7 +43,8 @@ function App() {
                     </ProtectedRoute>
                 }
             />
-                <Route
+
+            <Route
                 path="/days/:tripId"
                 element={
                     <ProtectedRoute>
@@ -50,6 +52,7 @@ function App() {
                     </ProtectedRoute>
                 }
             />
+
             <Route
                 path="/sharedTrips"
                 element={
@@ -58,12 +61,9 @@ function App() {
                     </ProtectedRoute>
                 }
             />
-            <Route 
-            path="/registration" 
-            element={
-            <Registration />
-            } 
-            />
+
+            <Route path="/registration" element={<Registration />} />
+
             <Route
                 path="/explore"
                 element={
@@ -73,8 +73,16 @@ function App() {
                 }
             />
 
-
-    </Routes>
+            {/* ---------------------- */}
+            {/*  ⭐ API TESTING ROUTE  */}
+            {/* ---------------------- */}
+            <Route
+                path="/api-test"
+                element={
+                    <ApiTestPage />
+                }
+            />
+        </Routes>
     );
 }
 

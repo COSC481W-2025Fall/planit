@@ -2,15 +2,15 @@ import { sql } from "../config/db.js";
 
 export const addTransportInfo = async (req, res) => {
     try {
-        const {type, trip_id, price, note, number} = req.body;
+        const {transport_type, trip_id, transport_price, transport_note, transport_number} = req.body;
 
-        if (!trip_id || !type) {
+        if (!trip_id || !transport_type) {
             return res.status(400).json({ error: "Missing required fields" });
         }
 
         const result = await sql`
             INSERT INTO transport (trip_id, transport_type, transport_price, transport_note, transport_number)
-            VALUES (${trip_id}, ${type}, ${price ?? null}, ${note ?? null}, ${number ?? null})
+            VALUES (${trip_id}, ${transport_type}, ${transport_price ?? null}, ${transport_note ?? null}, ${transport_number ?? null})
             RETURNING *
         `;
 
@@ -53,7 +53,7 @@ export const readTransportInfo = async (req, res) => {
 
 export const updateTransportInfo = async (req, res) => {
     try {
-        const {transport_id, type, price, note, number} = req.body;
+        const {transport_id, transport_type, transport_price, transport_note, transport_number} = req.body;
 
         if (!transport_id) {
             return res.status(400).json({ error: "Missing required fields"});
@@ -61,7 +61,7 @@ export const updateTransportInfo = async (req, res) => {
 
         const result = await sql`
             UPDATE transport 
-            SET transport_type = ${type}, transport_price = ${price}, transport_note = ${note}, transport_number = ${number}
+            SET transport_type = ${transport_type}, transport_price = ${transport_price}, transport_note = ${transport_note}, transport_number = ${transport_number}
             WHERE transport_id = ${transport_id}
             RETURNING *
         `;  
@@ -107,7 +107,7 @@ export const deleteTransportInfo = async (req, res) => {
     
 export const addAccommodationInfo = async (req, res) => {
     try {
-        const {trip_id, price, note, type} = req.body;
+        const {trip_id, accommodation_price, accommodation_note, accommodation_type} = req.body;
     
         if (!trip_id) {
             return res.status(400).json({error: "Missing required fields"});
@@ -115,7 +115,7 @@ export const addAccommodationInfo = async (req, res) => {
 
         const result = await sql`
             INSERT INTO accommodation (trip_id, accommodation_price, accommodation_note, accommodation_type)
-            VALUES (${trip_id}, ${price ?? null}, ${note ?? null}, ${type})
+            VALUES (${trip_id}, ${accommodation_price ?? null}, ${accommodation_note ?? null}, ${accommodation_type})
             RETURNING *
         `;
 
@@ -156,7 +156,7 @@ export const readAccommodationInfo = async (req, res) => {
 
 export const updateAccommodationInfo = async (req, res) => {
     try {
-        const {accommodation_id, price, note, type} = req.body;
+        const {accommodation_id, accommodation_price, accommodation_note, accommodation_type} = req.body;
 
         if(!accommodation_id) {
             return res.status(400).json({ error: "Missing required fields"});
@@ -164,7 +164,7 @@ export const updateAccommodationInfo = async (req, res) => {
 
         const result = await sql`
             UPDATE accommodation
-            SET accommodation_price = ${price}, accommodation_note = ${note}, accommodation_type = ${type} 
+            SET accommodation_price = ${accommodation_price}, accommodation_note = ${accommodation_note}, accommodation_type = ${accommodation_type} 
             WHERE accommodation_id = ${accommodation_id}
             RETURNING *
         `;
