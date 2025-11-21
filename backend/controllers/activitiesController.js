@@ -87,7 +87,7 @@ export const addActivity = async (req, res) => {
       LIMIT 1;
     `;
 
-    io.to(`trip_${tripId}`).emit("createdActivity", day, created[0]);
+    io.to(`trip_${tripId}`).emit("createdActivity");
 
     res.json({
       message: "Activity added successfully",
@@ -103,7 +103,7 @@ export const updateActivity = async (req, res) => {
   const io = getIO();
   try {
     // Pull current values of activity we updating
-    const { tripId, activityId, activity } = req.body;
+    const { tripId, activityId, activity, create } = req.body;
     const { startTime, duration, estimatedCost, notesForActivity, dayId } = activity || {};
 
     if (!activityId || !activity) {
@@ -142,7 +142,7 @@ export const updateActivity = async (req, res) => {
       message: "Activity updated successfully",
       activity: updated[0],
     });
-    io.to(`trip_${tripId}`).emit("updatedActivity", dayId, activityId);
+    io.to(`trip_${tripId}`).emit("updatedActivity", dayId, create);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });

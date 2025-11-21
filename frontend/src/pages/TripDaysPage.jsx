@@ -151,19 +151,13 @@ export default function TripDaysPage() {
       toast.success("Day has been deleted.");
     });
 
-    socket.on("createdActivity", (dayId, activity) => {
-      setDays(prevDays =>
-        prevDays.map(d =>
-          d.day_id === dayId ? { ...d, activities: [...d.activities, activity] } : d)
-      );
-
+    socket.on("createdActivity", () => {
       toast.success("Activity added!");
     });
 
-    socket.on("updatedActivity", (dayId) => {
+    socket.on("updatedActivity", (dayId, create) => {
+      if(!create) toast.success("Activity updated!");
       fetchDay(dayId);
-
-      toast.success("Activity updated!");
     });
 
     socket.on("deletedActivity", (dayId) => {

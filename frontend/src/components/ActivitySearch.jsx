@@ -406,6 +406,7 @@ export default function ActivitySearch({
                     notesForActivity: notes || null, // ok if backend ignores it
                     dayId: pendingDayId
                 },
+                create: true
             };
 
             await axios.put(`${BASE_URL}/activities/update`, updatePayload, {
