@@ -19,6 +19,8 @@ export default function TripPage() {
     const [openDropdownId, setOpenDropdownId] = useState(null);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
+    const [openRemoveYourselfPopup, setOpenRemoveYourselfPopup] = useState(false);
+    const [selectedTripToRemove, setSelectedTripToRemove] = useState(null);
 
     // images for trip cards
     const [imageUrls, setImageUrls] = useState({})
@@ -96,6 +98,10 @@ export default function TripPage() {
         return userId && userId.toString().startsWith('guest_');
     };
 
+    function handleRemovingFromTrip() {
+
+    }
+
     // guest empty state if user is a guest
     if (isGuestUser(user?.user_id)) {
         return (
@@ -160,6 +166,13 @@ export default function TripPage() {
                                                 className="trip-card-img"
                                             />
                                         </div>
+                                        <button className="remove-yourself-from-trip-btn"
+                                            onClick = {() => {
+                                                setSelectedTripToRemove(trip);
+                                                setOpenRemoveYourselfPopup(true);
+                                            }}>
+                                            <Trash size={16} />
+                                        </button>
                                         {openDropdownId === trip.trips_id && (
                                             <div className="trip-dropdown" ref={dropdownRef}>
                                             </div>
@@ -182,6 +195,36 @@ export default function TripPage() {
                     </div>
                 </div>
             </div>
+            {openRemoveYourselfPopup && selectedTripToRemove &&  (
+                <Popup
+                    title={`Remove Yourself from ${selectedTripToRemove.trip_name}`}
+                    onClose={() => setOpenRemoveYourselfPopup(false)}
+                    buttons={
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => setOpenRemoveYourselfPopup(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-rightside"
+                                onClick={() => {
+                                    handleRemovingFromTrip();
+                                    setOpenRemoveYourselfPopup(false);
+                                }}
+                            >
+                                Remove
+                            </button>
+                        </>
+                    }
+                >
+                    <p className="popup-body-text">
+                        Are you sure you want to remove yourself from this trip? You will no longer have access to edit this trip.
+                    </p>
+                </Popup>
+            )}
         </div>
     );
 }
