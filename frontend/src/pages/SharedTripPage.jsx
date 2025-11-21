@@ -99,8 +99,28 @@ export default function TripPage() {
         return userId && userId.toString().startsWith('guest_');
     };
 
-    function handleRemovingFromTrip() {
+    async function handleRemovingFromTrip() {
+        if(!selectedTripToRemove) return;
+        try{
+            const results = await fetch(`${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/shared/removeYourself`,
+                {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ userId : user.user_id, tripId : selectedTripToRemove.trips_id })
+                }
+            );
 
+            setTrips(prev =>
+                prev.filter(t => t.trips_id !== selectedTripToRemove.trips_id)
+            );
+
+            setSelectedTripToRemove(null);
+
+            toast.success("You removed yourself successfully!")
+        } catch (err){
+            toast.err("There was a problem removing yourself from this trip")
+        }
     }
 
     // guest empty state if user is a guest
