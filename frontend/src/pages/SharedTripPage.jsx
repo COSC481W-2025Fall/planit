@@ -22,6 +22,7 @@ export default function TripPage() {
     const navigate = useNavigate();
     const [openRemoveYourselfPopup, setOpenRemoveYourselfPopup] = useState(false);
     const [selectedTripToRemove, setSelectedTripToRemove] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     // images for trip cards
     const [imageUrls, setImageUrls] = useState({})
@@ -102,6 +103,7 @@ export default function TripPage() {
     async function handleRemovingFromTrip() {
         if(!selectedTripToRemove) return;
         try{
+            setIsLoading(true);
             const results = await fetch(`${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/shared/removeYourself`,
                 {
                     method: "DELETE",
@@ -119,8 +121,37 @@ export default function TripPage() {
 
             toast.success("You removed yourself successfully!")
         } catch (err){
-            toast.err("There was a problem removing yourself from this trip")
+            toast.error("There was a problem removing yourself from this trip")
+        } finally {
+            setIsLoading(false);
         }
+    }
+
+    //Show Loader while fetching user or trips
+    if (!user || !trips) {
+        return (
+            <div className="trip-page">
+                <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
+                <div className="content-with-sidebar">
+                    <NavBar />
+                    <div className="main-content">
+                        <div className="page-loading-container">
+                            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if(isLoading){
+        return(
+        <div className="main-content">
+            <div className="page-loading-container">
+                <MoonLoader color="var(--accent)" size={70} />
+            </div>
+        </div>
+        );
     }
 
     // guest empty state if user is a guest
