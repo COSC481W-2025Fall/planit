@@ -94,7 +94,7 @@ describe("Update user", () => {
 
         const res = await request(app)
         .put("/user/update")
-        .send({userId: 1, firstname: "John", lastname: "Test", username: "johnnytest"});
+        .send({userId: 1, firstname: "John", lastname: "Test", username: "johnnytest", customPhoto: "data:image/jpeg;base64,"});
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty("success", true);
@@ -115,7 +115,7 @@ describe("Update user", () => {
 
         const res = await request(app)
         .put("/user/update")
-        .send({userId: 1, firstname: "John", lastname: "Test", username: "johnnytest"});
+        .send({userId: 1, firstname: "John", lastname: "Test", username: "johnnytest", customPhoto: "data:image/jpeg;base64,"});
 
         expect(res.status).toBe(500);
         expect(res.body).toHaveProperty("error", "Internal Server Error");
@@ -130,7 +130,7 @@ describe("Update user", () => {
 
         const res = await request(testApp)
         .put("/user/update")
-        .send({userId: 1, firstname: "John", lastname: "Test", username: "johnnytest"});
+        .send({userId: 1, firstname: "John", lastname: "Test", username: "johnnytest", customPhoto: "data:image/jpeg;base64,"});
 
         expect(res.status).toBe(500);
         expect(res.body).toHaveProperty("error", "Error refreshing session after update:");
@@ -139,7 +139,7 @@ describe("Update user", () => {
 
 describe("Read user", () => {
     it("should return user data if logged in", async () => {
-        const mockUserData = {first_name: "John", last_name: "Test", username: "johnnytest", email: "test@testmail.com"};
+        const mockUserData = {first_name: "John", last_name: "Test", username: "johnnytest", email: "test@testmail.com", customPhoto: "data:image/jpeg;base64,"};
 
         sql.mockResolvedValueOnce([mockUserData]);
 
