@@ -36,26 +36,25 @@ export default function TripCardImages({trip, onSelect}) {
   
   return (
     <>
-      <button
-        type="button"
-        className="new-trip-button"
-        onClick={() => setShowImageSelector(true)}
-        style={{ marginTop: "10px" }}
-      >
-        View Images
-      </button>
+      <div className="image-row">
+        <button
+            type="button"
+            className="new-trip-button"
+            onClick={() => setShowImageSelector(true)}
+        >
+          View Images
+        </button>
 
-      {/* Selected image preview */}
-      {selectedImage && (
-        <div className="selected-image-container">
-          <img
-            src={selectedImage.imageUrl}
-            alt={selectedImage.image_name}
-            className="selected-image-thumb"
-          />
-          <p>{selectedImage.image_name}</p>
-        </div>
-      )}
+        {selectedImage && (
+            <img
+                src={selectedImage.imageUrl}
+                alt={selectedImage.image_name}
+                className="selected-image-mini"
+            />
+        )}
+      </div>
+
+
 
       {showImageSelector && (
         <Popup

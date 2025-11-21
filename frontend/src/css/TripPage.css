@@ -336,6 +336,27 @@ html[data-theme="dark"] .modal-content input:-webkit-autofill {
     cursor: not-allowed !important;
     background: transparent !important;
 }
+
+
+.image-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin: 10px 0;
+}
+
+.selected-image-mini {
+    width: 45px;
+    height: 45px;
+    border-radius: 6px;
+    object-fit: cover;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.react-datepicker {
+    transform: scale(0.95);
+}
+
 /* Tablets */
 @media (max-width: 900px) {
     .content-with-sidebar {

@@ -19,20 +19,13 @@
     max-width: 420px;
     width: 100%;
     max-height: 90vh;
-    overflow: hidden;
     box-shadow: var(--shadow-strong);
     animation: fadeIn 0.25s ease;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.96);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 .popup-title {
@@ -46,11 +39,10 @@
 
 .popup-body-text {
     color: var(--muted);
-    font-weight: normal;
     font-family: "Open Sans", sans-serif;
     font-size: 1rem;
-    text-align: center;
     margin-bottom: 10px;
+    text-align: center;
 }
 
 .popup-form {
@@ -58,14 +50,6 @@
     flex-direction: column;
     gap: 15px;
     margin-top: 15px;
-    overflow-y: auto;
-    padding-right: 6px;
-}
-
-.popup-scroll {
-    overflow-y: auto;
-    max-height: calc(90vh - 140px);
-    padding-right: 6px;
 }
 
 .popup-input {
@@ -75,12 +59,10 @@
     color: var(--text-dark);
 }
 
-
 /* Dark mode */
 html[data-theme="dark"] .popup-input {
     color: var(--text-strong);
 }
-
 
 html[data-theme="dark"] .popup-input :is(input, textarea, select) {
     background: var(--bg-hover2, var(--bg-hover));
@@ -120,7 +102,6 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     border: 1px solid var(--border-light);
     border-radius: 10px;
     font-size: 14px;
-    resize: none;
 }
 
 .popup-input input:focus {
@@ -136,7 +117,6 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     margin-top: 18px;
     flex-wrap: wrap;
 }
-
 
 .popup-buttons button {
     background-color: var(--bg-white);
@@ -155,7 +135,6 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     background: var(--accent);
     color: var(--text-on-accent);
     border-color: var(--accent);
-    font-weight: 700;
 }
 
 .popup-buttons button.btn-rightside:hover {
@@ -163,23 +142,27 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     color: var(--text-on-accent);
 }
 
-
 .popup-buttons button:hover {
     background-color: var(--accent);
     color: var(--text-on-accent);
     transform: scale(1.05);
-    cursor: pointer;
 }
 
-.popup-scroll {
-    scrollbar-width: thin;
-    scrollbar-color: var(--sb-track) transparent;
+.popup::-webkit-scrollbar {
+    width: 6px;
+}
+.popup::-webkit-scrollbar-thumb {
+    background-color: var(--accent-transparent);
+    border-radius: 10px;
+}
+.popup::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent);
 }
 
 
- #participants-popup {
+#participants-popup {
     max-width: 500px !important;
- }
+}
 
 .popup-close-btn {
     all: unset;
@@ -188,10 +171,10 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     top: 10px;
     right: 10px;
     cursor: pointer;
+    color: var(--muted);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--muted);
     transition: color 0.2s ease;
 }
 
@@ -200,12 +183,11 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     transform: scale(1.18);
 }
 
-/*Responsive*/
+
 @media (max-width: 768px) {
     .popup-screen-overlay {
         align-items: flex-end;
         padding: 0;
-        z-index: 9999;
     }
 
     .popup {
@@ -217,14 +199,8 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     }
 
     @keyframes slideUp {
-        from {
-            transform: translateY(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
 
     .popup p {
@@ -241,16 +217,16 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
         font-size: 1rem;
         padding: 12px;
     }
-}
-
-@media (max-width: 768px) {
-    .popup-screen-overlay { align-items: flex-end; padding: 0; }
-    .popup { width: 100%; max-height: 95vh; border-radius: 15px 15px 0 0; animation: slideUp .3s ease; }
+    .popup {
+        touch-action: none;
+        will-change: transform;
+    }
     .popup-screen-overlay:has(#add-activity-popup) {
         align-items: center;
         justify-content: center;
         padding: 16px;
     }
+
     #add-activity-popup.popup {
         width: min(92vw, 560px);
         max-height: 85vh;
@@ -258,13 +234,26 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
         animation: fadeInScale .22s ease;
     }
 
-    /* Making this popup taller so its easier to view on mobile */
     #participants-popup {
         height: 40%;
     }
 
     @keyframes fadeInScale {
         from { transform: scale(.96); opacity: 0; }
-        to   { transform: scale(1);   opacity: 1; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .popup::before {
+        content: "";
+        width: 38px;
+        height: 5px;
+        background: var(--muted);
+        opacity: 0.45;
+        border-radius: 999px;
+        display: block;
+        margin: 0 auto 10px auto;
+    }
+    .popup-close-btn {
+        display: none !important;
     }
 }
