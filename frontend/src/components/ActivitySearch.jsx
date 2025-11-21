@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import "../css/ActivitySearch.css";
 import "../css/Popup.css";
@@ -73,6 +74,8 @@ export default function ActivitySearch({
 
     const debounceTimeout = useRef(null);
     const prevCityQuery = useRef("");
+
+    const {tripId} = useParams();
 
   const priceLevelDisplay = (level) => {
     switch (level) {
@@ -361,6 +364,7 @@ export default function ActivitySearch({
         const website = place.websiteUri || null;
 
         const createPayload = {
+            tripId: tripId,
             day: pendingDayId,
             activity: {
                 name,
@@ -393,12 +397,14 @@ export default function ActivitySearch({
 
             // Update with details from popup
             const updatePayload = {
+                tripId: tripId,
                 activityId,
                 activity: {
                     startTime: formStartTime || null,
                     duration: formDuration === "" ? null : Number(formDuration),
                     estimatedCost: formCost === "" ? null : Number(formCost),
                     notesForActivity: notes || null, // ok if backend ignores it
+                    dayId: pendingDayId
                 },
             };
 
@@ -406,7 +412,6 @@ export default function ActivitySearch({
                 withCredentials: true,
             });
 
-            toast.success("Activity added!");
             setShowDetails(false);
             setPendingPlace(null);
             setPendingDayId(null);

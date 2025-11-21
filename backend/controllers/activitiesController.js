@@ -1,13 +1,15 @@
 import axios from "axios";
 import { sql } from "../config/db.js";
+import {getIO} from "../app.js";
 
 // Map undefined → null so inserts/updates send proper NULLs to Postgres
 const v = (x) => (x === undefined ? null : x);
 
 export const deleteActivity = async (req, res) => {
+  const io = getIO();
   try {
     // Extract activityId from request body
-    const { activityId } = req.body;
+    const { tripId, activityId, dayId } = req.body;
 
     if (!activityId) {
       return res.status(400).json({ error: "Invalid activityId" });
@@ -17,6 +19,7 @@ export const deleteActivity = async (req, res) => {
     await sql`
       DELETE FROM activities WHERE "activity_id" = ${activityId};
     `;
+    io.to(`trip_${tripId}`).emit("deletedActivity", dayId);
 
     res.json({
       message: "Activity deleted successfully",
@@ -28,9 +31,10 @@ export const deleteActivity = async (req, res) => {
 };
 
 export const addActivity = async (req, res) => {
+  const io = getIO();
   try {
     // Get day that we are adding activity to
-    const { day, activity } = req.body;
+    const { tripId, day, activity } = req.body;
 
     // Validate required fields
     if (!day || !activity) {
@@ -83,6 +87,8 @@ export const addActivity = async (req, res) => {
       LIMIT 1;
     `;
 
+    io.to(`trip_${tripId}`).emit("createdActivity", day, created[0]);
+
     res.json({
       message: "Activity added successfully",
       activity: created[0],
@@ -94,10 +100,11 @@ export const addActivity = async (req, res) => {
 };
 
 export const updateActivity = async (req, res) => {
+  const io = getIO();
   try {
     // Pull current values of activity we updating
-    const { activityId, activity } = req.body;
-    const { startTime, duration, estimatedCost, notesForActivity } = activity || {};
+    const { tripId, activityId, activity } = req.body;
+    const { startTime, duration, estimatedCost, notesForActivity, dayId } = activity || {};
 
     if (!activityId || !activity) {
       // Error handling if fields for updating activity are empty
@@ -135,6 +142,7 @@ export const updateActivity = async (req, res) => {
       message: "Activity updated successfully",
       activity: updated[0],
     });
+    io.to(`trip_${tripId}`).emit("updatedActivity", dayId, activityId);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -204,6 +212,8 @@ export const updateNotesForActivity = async (req, res) => {
       SET notes = ${v(notes)}
       WHERE activity_id = ${activityId};
     `
+
+    //io.to(`trip_${tripId}`).emit("noteUpdated");
 
     res.status(200).json({ message: "Notes updated successfully" });
 
