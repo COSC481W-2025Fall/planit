@@ -387,16 +387,14 @@ html[data-theme="dark"] .modal-content input:-webkit-autofill {
         padding: 1rem;
     }
 
-    @media (max-width: 600px) {
-        .trips-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.75rem;
-        }
+    .trips-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
 
-        .banner-controls {
-            justify-content: flex-start;
-        }
+    .banner-controls {
+        justify-content: flex-start;
     }
 
     .trip-cards {
@@ -409,6 +407,15 @@ html[data-theme="dark"] .modal-content input:-webkit-autofill {
 
     .trip-card-title {
         font-size: 0.95rem;
+    }
+    .react-datepicker__portal {
+        position: absolute !important;
+        inset: auto !important;
+        transform: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        width: auto !important;
+        height: auto !important;
     }
 }
 
@@ -549,7 +556,6 @@ select:focus {
     color: var(--accent);
 }
 
-/* --- moved from inline styles in TripPage.jsx --- */
 .privacy-row {
     display: flex;
     align-items: center;
@@ -594,7 +600,7 @@ select:focus {
     height: 100%;
     object-fit: cover;
   }
-  .trip-submit-btn {
+    .trip-submit-btn {
     transition: opacity 0.3s ease;
   }
   

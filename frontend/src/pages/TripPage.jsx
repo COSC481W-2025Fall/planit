@@ -488,7 +488,6 @@ export default function TripPage() {
                                   selected={startDate}
                                   onChange={(date) => setStartDate(date)}
                                   placeholderText="Start Date"
-                                  withPortal={window.innerWidth <= 768}
                                   popperPlacement="bottom"
                                   className="date-input"
                                   dateFormat="MM-dd-yyyy"
@@ -521,7 +520,6 @@ export default function TripPage() {
                                   selected={endDate}
                                   onChange={(date) => setEndDate(date)}
                                   placeholderText="End Date"
-                                  withPortal={window.innerWidth <= 768}
                                   popperPlacement="bottom"
                                   className="date-input"
                                   dateFormat="MM-dd-yyyy"
