@@ -20,6 +20,7 @@ import shareRoutes from "./routes/sharedTripsRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
 import http from "http";
 import {Server} from "socket.io";
+import travelAccommodationRoutes from "./routes/travelAccommodationRoutes.js";
 import settingsParticipantRoutes from "./routes/settingsParticipantRoutes.js";
 
 
@@ -106,6 +107,7 @@ app.use("/explore", exploreRoutes);
 app.use("/routesAPI", routesAPIRoutes);
 app.use("/shared" , shareRoutes)
 app.use("/settings", settingsRoutes);
+app.use("/transport", travelAccommodationRoutes);
 app.use("/settingsParticipant", settingsParticipantRoutes);
 
 const PORT = process.env.PORT || 3000;
