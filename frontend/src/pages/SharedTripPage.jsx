@@ -11,6 +11,7 @@ import { MoonLoader } from "react-spinners";
 import { getSharedTrips } from "../../api/trips";
 import "react-datepicker/dist/react-datepicker.css";
 import GuestEmptyState from "../components/GuestEmptyState";
+import { toast } from "react-toastify";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
