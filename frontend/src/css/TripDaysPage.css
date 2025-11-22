@@ -990,6 +990,13 @@ html[data-theme="dark"] .time-picker {
     font-size: 1rem;
   }
 
+  .day-weather-icon {
+    width: 10px;
+    height: 28px;
+    object-fit: contain;
+    display: block;
+  }
+
   .day-divider {
     height: 1em;
   }

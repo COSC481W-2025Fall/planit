@@ -61,6 +61,7 @@ export default function TripDaysPage() {
   const participantFormRef = useRef(null);
   const MAX_DISPLAY_PFP = 4;
   const [weatherSummary, setWeatherSummary] = useState([]);
+  const [dailyWeather, setDailyWeather] = useState([]);
 
   const allPeople = [
     ...(owner ? [owner] : []),
@@ -1071,7 +1072,9 @@ export default function TripDaysPage() {
       );
 
       console.log("Weather:", weather);
-      setWeatherSummary(weather.summary);
+      setWeatherSummary(weather.summary || []);
+      setDailyWeather(weather.daily_raw || []);
+
       console.log("Weather summary:", weather.summary);
 
     } catch (err) {
@@ -1243,6 +1246,7 @@ export default function TripDaysPage() {
               ) : (
                 days.map((day, index) => {
                   const isExpanded = expandedDays.includes(day.day_id);
+                  const weatherForDay = dailyWeather.find(w => w.date === day.day_date.split("T")[0]);
                   return (
                     <React.Fragment key={day.day_id}>
                       {index === 0 && canEdit && (
@@ -1276,8 +1280,35 @@ export default function TripDaysPage() {
                           }}
                         >
                           <div>
-                            <p className="day-title">Day {index + 1}</p>
-                            <img src="https://cdn.weatherapi.com/weather/64x64/day/356.png"></img>
+                            <table>
+                              <tbody>
+                                <tr>
+                                  <td>
+                                    <p className="day-title">Day {index + 1}</p>
+                                  </td>
+                                  <td>
+                                  </td>
+                                  <td style={{ width: "100px", textAlign: "right" }}>
+                                    {weatherForDay?.condition_icon && (
+                                        <img
+                                            className="day-weather-icon"
+                                            src={`https://${weatherForDay.condition_icon}`}
+                                            alt="Weather icon"
+                                            style={{ width: "40px", height: "40px", objectFit: "contain" }}
+                                        />
+                                    )}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                            {/*<p className="day-title">Day {index + 1}</p>*/}
+                            {/*{weatherForDay?.condition_icon && (*/}
+                            {/*    <img*/}
+                            {/*        className="day-weather-icon"*/}
+                            {/*        src={`https://${weatherForDay.condition_icon}`}  // API gives path without protocol*/}
+                            {/*        alt="Weather icon"*/}
+                            {/*    />*/}
+                            {/*)}*/}
                             <p className="day-date">
                               {new Date(day.day_date).toLocaleDateString("en-US", {
                                 weekday: "long",
