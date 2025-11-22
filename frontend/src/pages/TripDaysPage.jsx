@@ -1044,29 +1044,21 @@ export default function TripDaysPage() {
   };
 
   async function fetchAndSetWeather() {
-    const tripLocation = trip?.trip_location;
-    const tripDays = days.map(day => day.day_date.split("T")[0]);
+    const activities = days.map(day => day.activities[0]?.activity_address)
+    console.log("Activities:", activities.toString());
 
-    console.log("days:" + tripDays);
+    const tripDaysDates = days.map(day => day.day_date.split("T")[0]);
+    console.log("days:" + tripDaysDates);
 
     try {
       const weather = await getWeather(
-          tripLocation,
-          tripDays
+          activities,
+          tripDaysDates
       );
 
       console.log("Weather:", weather);
-      // weather.summary:
-      // {
-      //   avg_high: ...,
-      //   avg_low: ...,
-      //   max_high: ...,
-      //   min_low: ...,
-      //   avg_humidity: ...,
-      //   max_precip_prob: ...
-      // }
-
       setWeatherSummary(weather.summary);
+      console.log("Weather summary:", weather.summary);
 
     } catch (err) {
       console.error(err);

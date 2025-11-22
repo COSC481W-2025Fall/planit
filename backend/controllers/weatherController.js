@@ -8,16 +8,16 @@ export const getWeatherForecast = async (req, res) => {
     const historyUrl = "https://api.weatherapi.com/v1/history.json";
 
     try {
-        const { tripLocation, tripDays } = req.body;
+        const { activities, tripDaysDates } = req.body;
 
-        if (!tripLocation || !tripDays) {
+        if (!tripDaysDates || !activities) {
             return res
                 .status(400)
-                .json({ error: "Missing destination ${tripLocation} or ${tripDays} in params" });
+                .json({ error: "Missing destination ${tripLocation} or ${tripDaysDates} in params" });
         }
 
         // detect season
-        const month = new Date(tripDays[0]).getMonth() + 1;
+        const month = new Date(tripDaysDates[0]).getMonth() + 1;
         let season = ""
         if (month === 12 || month === 1 || month === 2) {
             season = "winter"
@@ -29,10 +29,12 @@ export const getWeatherForecast = async (req, res) => {
             season = "fall";
         }
 
-        console.log(`Starting weather fetch for ${tripLocation} between days ${tripDays[0]} and ${tripDays[tripDays.length - 1]}...`);
+        console.log(`Starting weather fetch between days ${tripDaysDates[0]} and ${tripDaysDates[tripDaysDates.length - 1]}...`);
 
         const dailyValues = [];
-        for (const dt of tripDays) {
+        let index = 0;
+        for (const dt of tripDaysDates) {
+            const tripLocation = activities[index];
 
             let isFuture = false;
             let isForecast = false;
@@ -53,7 +55,13 @@ export const getWeatherForecast = async (req, res) => {
                 isHistory = true;
             }
 
-            console.log(`Fetching weather for ${dt}...`);
+            console.log(`Fetching weather for ${tripLocation} on ${dt}...`);
+
+            if (tripLocation === null){
+                console.log(`No location for ${dt}, therefore no forecast.`);
+                index++;
+                continue;
+            }
 
             let data;
 
@@ -98,6 +106,7 @@ export const getWeatherForecast = async (req, res) => {
             }
 
             const d = forecastDay.day;
+            const c = forecastDay.day.condition;
 
             dailyValues.push({
                 date: forecastDay.date,
@@ -107,7 +116,9 @@ export const getWeatherForecast = async (req, res) => {
                 min_temp_f: d.mintemp_f,
                 avg_humidity: d.avghumidity,
                 rain_chance: Number(d.daily_chance_of_rain || 0), // 0–100
+                condition_icon: c.icon.split("//")[1],
             });
+            index++;
         }
 
         if (dailyValues.length === 0) {
