@@ -151,6 +151,11 @@
     text-decoration: underline;
 }
 
+.website-cost-line {
+    display: flex;
+    justify-content: space-between;
+}
+
 .day-menu {
     position: absolute;
     top: 1.5rem;
