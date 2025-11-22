@@ -1195,3 +1195,9 @@ html[data-theme="dark"] .time-picker {
   min-width: 105px;
   text-align: center;
 }
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}

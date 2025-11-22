@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import "../css/Popup.css";
 import Popup from "../components/Popup";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
+import { MoonLoader } from "react-spinners";
 
 export default function CloneTripButton({ user, tripId, access, fromExplore, onCloned, trip }) {
     const [open, setOpen] = useState(false);
@@ -78,8 +79,8 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
             {open && (
                 <Popup
                     title="Clone Trip"
-                    onClose={() => setOpen(false)}
-                    buttons={[
+                    onClose={loading ? undefined : () => setOpen(false)}
+                    buttons={ loading ? [] :[
                         <button key="cancel" onClick={() => setOpen(false)}>
                             Cancel
                         </button>,
@@ -93,6 +94,12 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
                         </button>
                     ]}
                 >
+                    {loading ? (
+                        <div className = "loading-spinner">
+                            <MoonLoader color="var(--accent)" size={50} />
+                        </div>
+                    ) : (
+                        <>
                     <div className="popup-body-text">
                         This trip is {dayCount} day(s) long.
                     </div>
@@ -119,6 +126,8 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
                             required
                         />
                     </div>
+                    </>
+                    )}
                 </Popup>
             )}
         </>
