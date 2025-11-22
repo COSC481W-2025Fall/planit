@@ -134,7 +134,9 @@ export const updateDay = async (req, res) => {
       return res.status(404).json({ error: "Day not found" });
     }
 
-    io.to(`trip_${tripId}`).emit("updatedDay");
+    if(req.body.finalUpdate === true){
+      io.to(`trip_${tripId}`).emit("updatedDay");
+    }
 
     // return the updated day
     res.json(rows[0]);

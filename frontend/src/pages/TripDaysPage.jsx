@@ -139,11 +139,12 @@ export default function TripDaysPage() {
     //if tripIds match we retrive days and activities.
     socket.on("createdDay", () => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
+      toast.success("New day added successfully!");
     });
 
     socket.on("updatedDay", () => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.success("New day added successfully!");
+      toast.info("Day moved");
     });
 
     socket.on("deletedDay", () => {
@@ -876,16 +877,10 @@ export default function TripDaysPage() {
         for (const d of days) {
           if (d.day_date > dragFromDay.day_date) continue;
           const newDate = adjustDate(d.day_date, 1);
-          await updateDay(tripId, d.day_id, { day_date: newDate });
+          await updateDay(tripId, d.day_id, { day_date: newDate, finalUpdate: false });
         }
 
-        await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date });
-
-        //get the updated days and their activities
-        const updatedDays = await getDays(tripId);
-        mergeActivitiesIntoDays(updatedDays);
-
-        toast.info("Day moved");
+        await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date , finalUpdate: true});
 
         setDragFromDay(null);
         setDragOverInfo({ dayId: null, dayDate: null });
@@ -919,7 +914,7 @@ export default function TripDaysPage() {
           if (eachDayDate <= overDate && eachDayDate >= dragDate) {
             // days before the drop target move back 1 day
             const newDate = adjustDate(eachDay.day_date, -1);
-            await updateDay(tripId, eachDay.day_id, { day_date: newDate });
+            await updateDay(tripId, eachDay.day_id, { day_date: newDate, finalUpdate: false });
             movedDayDate = overDay.day_date;
           }
         }
@@ -928,18 +923,14 @@ export default function TripDaysPage() {
           if (eachDayDate > overDate && eachDayDate <= dragDate) {
             // days after the drop target move forward 1 day
             const newDate = adjustDate(eachDay.day_date, 1);
-            await updateDay(tripId, eachDay.day_id, { day_date: newDate });
+            await updateDay(tripId, eachDay.day_id, { day_date: newDate, finalUpdate: false });
             movedDayDate = adjustDate(overDay.day_date, 1);
           }
         }
       }
 
       // Finally, update the date of the day we're dragging
-      await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate });
-
-      const updatedDays = await getDays(tripId);
-      mergeActivitiesIntoDays(updatedDays);
-      toast.info("Day moved");
+      await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate, finalUpdate: true });
 
       setDragFromDay(null);
       setDragOverInfo({ dayId: null, index: null });
