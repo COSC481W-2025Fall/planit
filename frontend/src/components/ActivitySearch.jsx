@@ -364,7 +364,6 @@ export default function ActivitySearch({
         const website = place.websiteUri || null;
 
         const createPayload = {
-            tripId: tripId,
             day: pendingDayId,
             activity: {
                 name,

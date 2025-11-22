@@ -31,10 +31,9 @@ export const deleteActivity = async (req, res) => {
 };
 
 export const addActivity = async (req, res) => {
-  const io = getIO();
   try {
     // Get day that we are adding activity to
-    const { tripId, day, activity } = req.body;
+    const {day, activity} = req.body;
 
     // Validate required fields
     if (!day || !activity) {
@@ -86,8 +85,6 @@ export const addActivity = async (req, res) => {
       ORDER BY "activity_id" DESC
       LIMIT 1;
     `;
-
-    io.to(`trip_${tripId}`).emit("createdActivity");
 
     res.json({
       message: "Activity added successfully",
