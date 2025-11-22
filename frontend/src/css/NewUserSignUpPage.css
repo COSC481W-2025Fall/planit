@@ -125,6 +125,10 @@ body {
   align-items: center;
   height: 100%;
 }
+
+.username-box input[type="text"] {
+  color: var(--text);
+}
 /*Tablet View*/
 @media (max-width: 900px) {
   .username-box {
