@@ -167,6 +167,7 @@ export default function TripDaysPage() {
 
     socket.on("noteUpdated", (dayId) => {
       fetchDay(dayId);
+      toast.success("Notes updated successfully!");
     });
 
     return () => {
@@ -761,7 +762,7 @@ export default function TripDaysPage() {
     setDeleteActivity(activity);
   };
 
-  const updateNotesForActivity = async (id, newNote) => {
+  const updateNotesForActivity = async (id, newNote, dayId) => {
     if (!canEdit) {
       toast.error("You don't have permission to edit notes");
       return;
@@ -775,8 +776,10 @@ export default function TripDaysPage() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
+          tripId: trip.trips_id,
           activityId: id,
-          notes: newNote
+          notes: newNote,
+          dayId: dayId
         }),
       });
 
@@ -797,7 +800,6 @@ export default function TripDaysPage() {
         }))
       );
 
-      toast.success("Notes updated successfully!");
       return true;
     } catch (err) {
       console.error("Error updating notes:", err);
@@ -1318,7 +1320,7 @@ export default function TripDaysPage() {
                     <button
                       className="btn-rightside"
                       onClick={() => {
-                        updateNotesForActivity(selectedActivity.activity_id, editableNote);
+                        updateNotesForActivity(selectedActivity.activity_id, editableNote, selectedActivity.day_id);
                         setOpenNotesPopup(false);
                       }}
                     >

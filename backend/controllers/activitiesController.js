@@ -200,8 +200,9 @@ export const readAllActivities = async (req, res) => {
 };
 
 export const updateNotesForActivity = async (req, res) => {
+  const io = getIO();
   try{
-    const { activityId, notes } = req.body;
+    const { tripId, activityId, notes, dayId } = req.body;
     
     if (!activityId) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -212,8 +213,8 @@ export const updateNotesForActivity = async (req, res) => {
       SET notes = ${v(notes)}
       WHERE activity_id = ${activityId};
     `
-
-    //io.to(`trip_${tripId}`).emit("noteUpdated");
+    //On backend could possibly send socket.id as well and exclude the user who initiated a change
+    io.to(`trip_${tripId}`).emit("noteUpdated", dayId);
 
     res.status(200).json({ message: "Notes updated successfully" });
 
