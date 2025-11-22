@@ -620,7 +620,11 @@ export default function ActivitySearch({
                             min="0"
                             placeholder="e.g. 90"
                             value={formDuration}
-                            onChange={(e) => setFormDuration(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if(val == '') setFormDuration('');
+                                else setFormDuration(Math.max(0,val));
+                            }}
                             disabled={saving}
                         />
                     </label>
