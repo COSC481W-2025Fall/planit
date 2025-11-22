@@ -620,6 +620,11 @@ export default function ActivitySearch({
                             min="0"
                             placeholder="e.g. 90"
                             value={formDuration}
+                            onKeyDown={(e) => {
+                                if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                                    e.preventDefault();
+                                }
+                            }}
                             onChange={(e) => {
                                 const val = e.target.value;
                                 if(val == '') setFormDuration('');
@@ -650,6 +655,11 @@ export default function ActivitySearch({
                             step="1"
                             placeholder="e.g. 25"
                             value={formCost}
+                            onKeyDown={(e) => {
+                                if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '.') {
+                                    e.preventDefault();
+                                }
+                            }}
                             onChange={(e) => {
                                 const val = e.target.value;
                                 if(val == '') setFormCost('');

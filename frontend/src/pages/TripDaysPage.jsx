@@ -1467,6 +1467,11 @@ export default function TripDaysPage() {
                   type="number"
                   min = "0"
                   value={editDuration}
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                      e.preventDefault();
+                    }
+                  }}
                   onChange={(e) =>{
                     const val = e.target.value;
                     if(val == '') setEditDuration('');
@@ -1497,6 +1502,11 @@ export default function TripDaysPage() {
                   min = "0"
                   step = "1"
                   value={editCost}
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '.') {
+                      e.preventDefault();
+                    }
+                  }}
                   onChange={(e) => {
                     const val = e.target.value;
                     if(val == '') setEditCost('');
