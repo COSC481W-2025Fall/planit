@@ -647,10 +647,14 @@ export default function ActivitySearch({
                         <input
                             type="number"
                             min="0"
-                            step="0.01"
+                            step="1"
                             placeholder="e.g. 25"
                             value={formCost}
-                            onChange={(e) => setFormCost(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if(val == '') setFormCost('');
+                                else setFormCost(Math.max(0,Math.floor(val)));
+                            }}
                             disabled={saving}
                         />
                     </label>
