@@ -1064,11 +1064,13 @@ export default function TripDaysPage() {
   async function fetchAndSetWeather() {
     const activities = days.map(day => day.activities[0]?.activity_address)
     const tripDaysDates = days.map(day => day.day_date.split("T")[0]);
+    const tripDaysKeys = days.map(day => day.day_id);
 
     try {
       const weather = await getWeather(
           activities,
-          tripDaysDates
+          tripDaysDates,
+          tripDaysKeys
       );
 
       console.log("Weather:", weather);
@@ -1246,7 +1248,7 @@ export default function TripDaysPage() {
               ) : (
                 days.map((day, index) => {
                   const isExpanded = expandedDays.includes(day.day_id);
-                  const weatherForDay = dailyWeather.find(w => w.date === day.day_date.split("T")[0]);
+                  const weatherForDay = dailyWeather.find(w => w.day_id === day.day_id);
                   return (
                     <React.Fragment key={day.day_id}>
                       {index === 0 && canEdit && (

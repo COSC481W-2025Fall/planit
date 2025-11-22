@@ -8,9 +8,9 @@ export const getWeatherForecast = async (req, res) => {
     const historyUrl = "https://api.weatherapi.com/v1/history.json";
 
     try {
-        const { activities, tripDaysDates } = req.body;
+        const { activities, tripDaysDates, tripDaysKeys } = req.body;
 
-        if (!tripDaysDates || !activities) {
+        if (!tripDaysDates || !activities || !tripDaysKeys) {
             return res
                 .status(400)
                 .json({ error: "Missing destination ${tripLocation} or ${tripDaysDates} in params" });
@@ -31,10 +31,14 @@ export const getWeatherForecast = async (req, res) => {
 
         console.log(`Starting weather fetch between days ${tripDaysDates[0]} and ${tripDaysDates[tripDaysDates.length - 1]}...`);
 
+        console.log(`Activites: ${activities}`);
+        console.log(`Trip days keys: ${tripDaysKeys}`);
+
         const dailyValues = [];
         let index = 0;
         for (const dt of tripDaysDates) {
             const tripLocation = activities[index];
+            const dayId = tripDaysKeys[index];
 
             let isFuture = false;
             let isForecast = false;
@@ -117,6 +121,7 @@ export const getWeatherForecast = async (req, res) => {
                 avg_humidity: d.avghumidity,
                 rain_chance: Number(d.daily_chance_of_rain || 0), // 0–100
                 condition_icon: c.icon.split("//")[1],
+                day_id: dayId
             });
             index++;
         }

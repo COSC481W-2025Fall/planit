@@ -2,7 +2,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../Constants";
 
 const API_BASE_URL = (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL);
 
-export async function getWeather(activities, tripDaysDates) {
+export async function getWeather(activities, tripDaysDates, tripDaysKeys) {
     const res = await fetch(`${API_BASE_URL}/weather/getWeather`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -10,6 +10,7 @@ export async function getWeather(activities, tripDaysDates) {
         body: JSON.stringify({
             activities,
             tripDaysDates,
+            tripDaysKeys
         }),
     });
 
