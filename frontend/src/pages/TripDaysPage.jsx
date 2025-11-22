@@ -49,6 +49,7 @@ export default function TripDaysPage() {
   //Constants for image url
   const [imageUrl, setImageUrl] = useState(null);
   const [deleteActivity, setDeleteActivity] = useState(null);
+  const weatherFetchedRef = useRef(false);
 
   //constants for participants
   const [openParticipantsPopup, setOpenParticipantsPopup] = useState(false);
@@ -287,6 +288,22 @@ export default function TripDaysPage() {
       fetchDays();
     }
   }, [tripId, trip]);
+
+  //Fetch weather
+  useEffect(() => {
+    // only fetch when we have trip + days + at least one activity address
+    if (!trip || !days.length) return;
+
+    const hasAnyActivityAddress = days.some(
+        day => day.activities && day.activities[0]?.activity_address
+    );
+    if (!hasAnyActivityAddress) return;
+
+    if (weatherFetchedRef.current) return; // prevent repeated calls
+    weatherFetchedRef.current = true;
+
+    fetchAndSetWeather();
+  }, [trip, days]);
 
   const openAddDayPopup = (baseDateStr, insertBefore = false) => {
     if (!canEdit) {
@@ -1045,10 +1062,7 @@ export default function TripDaysPage() {
 
   async function fetchAndSetWeather() {
     const activities = days.map(day => day.activities[0]?.activity_address)
-    console.log("Activities:", activities.toString());
-
     const tripDaysDates = days.map(day => day.day_date.split("T")[0]);
-    console.log("days:" + tripDaysDates);
 
     try {
       const weather = await getWeather(
@@ -1263,6 +1277,7 @@ export default function TripDaysPage() {
                         >
                           <div>
                             <p className="day-title">Day {index + 1}</p>
+                            <img src="https://cdn.weatherapi.com/weather/64x64/day/356.png"></img>
                             <p className="day-date">
                               {new Date(day.day_date).toLocaleDateString("en-US", {
                                 weekday: "long",
