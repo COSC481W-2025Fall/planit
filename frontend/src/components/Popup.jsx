@@ -6,7 +6,7 @@ export default function Popup({ title, children, buttons, onClose, id, }) {
   const [isDragging, setIsDragging] = useState(false);
   const [startY, setStartY] = useState(0);
   const [translateY, setTranslateY] = useState(0);
-  const CLOSE_THRESHOLD = window.innerHeight * 0.65;
+  const CLOSE_THRESHOLD = window.innerHeight * 0.25;
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -15,8 +15,7 @@ export default function Popup({ title, children, buttons, onClose, id, }) {
       }, 120); // small delay
     }
   };
-
-  //Touch drag start
+  // Touch drag start
   const handleTouchStart = (e) => {
     // Only allow drag from top 40px of popup
     const popupTop = e.target.closest(".popup")?.getBoundingClientRect()?.top;
@@ -28,7 +27,7 @@ export default function Popup({ title, children, buttons, onClose, id, }) {
     setStartY(touchY);
   };
 
-  //Touch drag move
+  // Touch drag move
   const handleTouchMove = (e) => {
     if (!isDragging) return;
     const delta = e.touches[0].clientY - startY;
@@ -38,7 +37,7 @@ export default function Popup({ title, children, buttons, onClose, id, }) {
     }
   };
 
-  //Touch drag end
+  // Touch drag end
   const handleTouchEnd = () => {
     if (!isDragging) return;
 

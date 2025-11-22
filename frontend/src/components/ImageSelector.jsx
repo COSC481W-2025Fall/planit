@@ -7,7 +7,9 @@ export default function TripCardImages({trip, onSelect}) {
   //constants for image selection
   const [images, setImages] = useState([]);
   const [showImageSelector, setShowImageSelector] = useState(false);
+
   const [selectedImage, setSelectedImage] = useState(null);
+  const [tempImage, setTempImage] = useState(null);
 
   // Fetch images when the selector is opened
   useEffect(() => {
@@ -28,12 +30,20 @@ export default function TripCardImages({trip, onSelect}) {
     fetchImages();
   }, [showImageSelector]);
 
-  // Needed to send selected image to parent.
-  const handleSelectImage = (img) => {
-    setSelectedImage(img);
-    if (onSelect) onSelect(img);
+  const handleConfirm = () => {
+    if (tempImage) {
+      setSelectedImage(tempImage);
+      if (onSelect) onSelect(tempImage);
+    }
+    setShowImageSelector(false);
   };
-  
+
+  // Clicking X (discard temp selection)
+  const handleCancel = () => {
+    setTempImage(selectedImage); // revert
+    setShowImageSelector(false);
+  };
+
   return (
     <>
       <div className="image-row">
@@ -59,9 +69,10 @@ export default function TripCardImages({trip, onSelect}) {
       {showImageSelector && (
         <Popup
           title="Select an Image"
+          onClose={handleCancel}
           buttons={
             <>
-              <button type="button" onClick={() => setShowImageSelector(false)}>
+              <button type="button" onClick={handleConfirm}>
                 Done
               </button>
             </>
@@ -73,9 +84,9 @@ export default function TripCardImages({trip, onSelect}) {
                 key={img.image_id}
                 src={img.imageUrl}
                 alt={img.image_name}
-                className={`image-selector-thumb ${selectedImage?.image_id === img.image_id ? "selected" : ""
+                className={`image-selector-thumb ${tempImage?.image_id === img.image_id ? "selected" : ""
                   }`}
-                onClick={() => handleSelectImage(img)}
+                onClick={() => setTempImage(img)}
               />
             ))}
           </div>
