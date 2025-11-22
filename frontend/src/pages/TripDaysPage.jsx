@@ -1494,8 +1494,14 @@ export default function TripDaysPage() {
                 <span>Estimated Budget ($):</span>
                 <input
                   type="number"
+                  min = "0"
+                  step = "1"
                   value={editCost}
-                  onChange={(e) => setEditCost(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if(val == '') setEditCost('');
+                    else setEditCost(Math.max(0,Math.floor(val)));
+                  }}
                 />
               </label>
             </Popup>
