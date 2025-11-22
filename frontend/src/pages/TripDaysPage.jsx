@@ -1465,10 +1465,14 @@ export default function TripDaysPage() {
                 <span>Duration (minutes):</span>
                 <input
                   type="number"
+                  min = "0"
                   value={editDuration}
-                  onChange={(e) =>
-                    setEditDuration(e.target.value)
+                  onChange={(e) =>{
+                    const val = e.target.value;
+                    if(val == '') setEditDuration('');
+                    else setEditDuration(Math.max(0,val));
                   }
+                }
                 />
               </label>
 
