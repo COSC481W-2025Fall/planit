@@ -9,12 +9,15 @@ export default function Popup({ title, children, buttons, onClose, id, }) {
   const CLOSE_THRESHOLD = window.innerHeight * 0.25;
 
   const handleOverlayClick = (e) => {
+    const activeTag = document.activeElement?.tagName;
+    //If user is typing does not close typing
+    if (activeTag === "INPUT" || activeTag === "TEXTAREA") return;
+
     if (e.target === e.currentTarget) {
-      setTimeout(() => {
-        onClose();
-      }, 120); // small delay
+      setTimeout(() => onClose(), 120);
     }
   };
+
   // Touch drag start
   const handleTouchStart = (e) => {
     // Only allow drag from top 40px of popup
