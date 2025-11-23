@@ -306,6 +306,10 @@ export default function TripDaysPage() {
     fetchAndSetWeather();
   }, [trip, days]);
 
+  useEffect(() => {
+    console.log("WeatherSummary:", weatherSummary);
+  }, [weatherSummary]);
+
   const openAddDayPopup = (baseDateStr, insertBefore = false) => {
     if (!canEdit) {
       toast.error("You don't have permission to add days to this trip");
@@ -1047,38 +1051,42 @@ export default function TripDaysPage() {
   };
 
   const handlePackingAI = async () => {
-    // const fakeTrip =         {
-    //   "destination": "Denver, CO",
-    //   "season": "winter",
-    //   "weather": "cold",
-    //   "activities": "Ski",
-    //   "duration_days": 6,
-    //   "avg_temp_high": 32,
-    //   "avg_temp_low": 12,
-    //   "rain_chance_percent": 90,
-    //   "humidity_percent": 26
-    // }
 
-    const fakeTrip =         {
-      "destination": "Los Angelos, CA",
-      "season": "summer",
-      "weather": "hot",
+    const startDate = new Date(trip.trip_start_date || days[0].day_date).toISOString().split("T")[0];
+    const endDate   = new Date(days[days.length - 1].day_date).toISOString().split("T")[0];
+
+    const tripDuration = getDifferenceBetweenDays(startDate, endDate);
+
+    const tripPayload =         {
+      destination: trip.trip_location,
+      "season": weatherSummary.season,
       "activities": "Adventure, Hiking",
-      "duration_days": 12,
-      "avg_temp_high": 98,
-      "avg_temp_low": 72,
-      "rain_chance_percent": 20,
-      "humidity_percent": 10
+      "duration_days": tripDuration,
+      "avg_temp_high": weatherSummary.avg_high_f,
+      "avg_temp_low": weatherSummary.avg_high_f,
+      "rain_chance_percent": weatherSummary.avg_rain_chance,
+      "humidity_percent": weatherSummary.avg_humidity
     }
 
     try {
-      await retrievePackingItems(fakeTrip);
+      await retrievePackingItems(tripPayload);
       toast.success("Items retrieved!");
     } catch (e) {
       console.error("Packing AI call failed", e);
       toast.error("Packing AI failed");
     }
   };
+
+  function getDifferenceBetweenDays (startDate, endDate) {
+    const [y1, m1, d1] = startDate.split("-").map(Number);
+    const [y2, m2, d2] = endDate.split("-").map(Number);
+
+    const t1 = Date.UTC(y1, m1 - 1, d1);
+    const t2 = Date.UTC(y2, m2 - 1, d2);
+
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+    return Math.round((t2 - t1) / MS_PER_DAY);
+  }
 
   async function fetchAndSetWeather() {
     const activities = days.map(day => day.activities[0]?.activity_address)
@@ -1095,8 +1103,6 @@ export default function TripDaysPage() {
       console.log("Weather:", weather);
       setWeatherSummary(weather.summary || []);
       setDailyWeather(weather.daily_raw || []);
-
-      console.log("WeatherSummary:", weatherSummary);
 
     } catch (err) {
       console.error(err);
@@ -1269,11 +1275,6 @@ export default function TripDaysPage() {
               </div>
 
           )}
-
-          <button className="packing-ai-button" onClick={fetchAndSetWeather}
-          style={{marginRight: "300px"}}>
-            <span>get weather</span>
-          </button>
           <div className="days-scroll-zone">
             <div className="days-container">
               {days.length === 0 ? (
