@@ -9,7 +9,7 @@ import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
 import OverlapWarning from "./OverlapWarning.jsx";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
-import {getWeatherForSingleDay} from "../../api/weather.js";
+import {getWeather, getWeatherForSingleDay} from "../../api/weather.js";
 
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
@@ -412,7 +412,7 @@ export default function ActivitySearch({
 
             if (dayActivities.length === 0){
                 try {
-                    const weather = await getWeatherForSingleDay(
+                    const weather = await getWeather(
                         address,
                         dayDate,
                         pendingDayId
