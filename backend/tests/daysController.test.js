@@ -1,6 +1,14 @@
 import request from 'supertest';
 import express from 'express';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import * as socket from "../socket.js";
+
+// Mock IO instance
+socket.getIO = () => ({
+  to: () => ({
+    emit: () => {},
+  }),
+});
 
 // Mock DB
 vi.mock('../config/db.js', () => {
