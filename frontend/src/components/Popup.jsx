@@ -18,6 +18,7 @@ export default function Popup({ title, children, buttons, onClose, id, }) {
     }
   };
 
+
   // Touch drag start
   const handleTouchStart = (e) => {
     // Only allow drag from top 40px of popup
