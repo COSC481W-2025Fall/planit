@@ -306,10 +306,6 @@ export default function TripDaysPage() {
     fetchAndSetWeather();
   }, [trip, days]);
 
-  useEffect(() => {
-    console.log("WeatherSummary:", weatherSummary);
-  }, [weatherSummary]);
-
   const openAddDayPopup = (baseDateStr, insertBefore = false) => {
     if (!canEdit) {
       toast.error("You don't have permission to add days to this trip");
@@ -1095,18 +1091,17 @@ export default function TripDaysPage() {
   }
 
   async function fetchAndSetWeather() {
-    const activities = days.map(day => day.activities[0]?.activity_address)
+    const activityLocations = days.map(day => day.activities[0]?.activity_address)
     const tripDaysDates = days.map(day => day.day_date.split("T")[0]);
     const tripDaysKeys = days.map(day => day.day_id);
 
     try {
       const weather = await getWeather(
-          activities,
+          activityLocations,
           tripDaysDates,
           tripDaysKeys
       );
 
-      console.log("Weather:", weather);
       setWeatherSummary(weather.summary || []);
       setDailyWeather(weather.daily_raw || []);
 

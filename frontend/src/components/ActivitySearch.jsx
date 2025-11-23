@@ -352,7 +352,6 @@ export default function ActivitySearch({
         }
 
         const dayDate = allDays.find(d => d.day_id === pendingDayId).day_date.split("T")[0];
-        console.log("Day date: ", dayDate);
 
         // Build payload from the selected place
         const place = pendingPlace;
@@ -411,7 +410,6 @@ export default function ActivitySearch({
                 withCredentials: true,
             });
 
-            console.log("dayActivities: " + dayActivities.length);
             if (dayActivities.length === 0){
                 try {
                     const weather = await getWeatherForSingleDay(
@@ -419,9 +417,6 @@ export default function ActivitySearch({
                         dayDate,
                         pendingDayId
                     );
-
-                    console.log("Weather:", weather);
-                    console.log("Weather summary:", weather.summary);
 
                     if (typeof onSingleDayWeather === "function") {
                         onSingleDayWeather({

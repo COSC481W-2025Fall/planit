@@ -8,9 +8,9 @@ export const getWeatherForecast = async (req, res) => {
     const historyUrl = "https://api.weatherapi.com/v1/history.json";
 
     try {
-        const { activities, tripDaysDates, tripDaysKeys } = req.body;
+        const { activityLocations, tripDaysDates, tripDaysKeys } = req.body;
 
-        if (!tripDaysDates || !activities || !tripDaysKeys) {
+        if (!activityLocations || !tripDaysDates || !tripDaysKeys) {
             return res
                 .status(400)
                 .json({ error: "Missing destination ${tripLocation} or ${tripDaysDates} in params" });
@@ -34,7 +34,7 @@ export const getWeatherForecast = async (req, res) => {
         const dailyValues = [];
         let index = 0;
         for (const dt of tripDaysDates) {
-            const tripLocation = activities[index];
+            const tripLocation = activityLocations[index];
             const dayId = tripDaysKeys[index];
 
             let isFuture = false;
@@ -165,9 +165,9 @@ export const getWeatherForecastForSingleDay = async (req, res) => {
     const historyUrl = "https://api.weatherapi.com/v1/history.json";
 
     try {
-        const { activity, tripDaysDate, tripDaysKey } = req.body;
+        const { activityLocation, tripDaysDate, tripDaysKey } = req.body;
 
-        if (!tripDaysDate || !activity || !tripDaysKey) {
+        if (!tripDaysDate || !activityLocation || !tripDaysKey) {
             return res
                 .status(400)
                 .json({ error: "Missing destination ${tripLocation} or ${tripDaysDates} in params" });
@@ -188,7 +188,7 @@ export const getWeatherForecastForSingleDay = async (req, res) => {
 
         const dailyValues = [];
 
-            const tripLocation = activity;
+            const tripLocation = activityLocation;
             const dayId = tripDaysKey;
 
             let isFuture = false;
