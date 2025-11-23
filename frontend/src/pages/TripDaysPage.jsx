@@ -732,12 +732,31 @@ export default function TripDaysPage() {
       if (!response.ok) throw new Error("Failed to delete activity");
 
       // Update the days state by removing the deleted activity
-      setDays(prevDays =>
-        prevDays.map(day => ({
-          ...day,
-          activities: day.activities?.filter(a => a.activity_id !== activityId) || []
-        }))
-      );
+      setDays(prevDays => {
+        const updatedDays = prevDays.map(day => {
+          if (day.day_id !== dayId) return day;
+
+          const remainingActivities =
+              day.activities?.filter(a => a.activity_id !== activityId) || [];
+
+          return {
+            ...day,
+            activities: remainingActivities,
+          };
+        });
+
+        // Find the day we just updated
+        const targetDay = updatedDays.find(d => d.day_id === dayId);
+
+        // If no activities remain for this day, remove its weather entry
+        if (!targetDay || (targetDay.activities?.length ?? 0) === 0) {
+          setDailyWeather(prevWeather =>
+              prevWeather.filter(w => w.day_id !== dayId)
+          );
+        }
+
+        return updatedDays;
+      });
 
       toast.success("Activity deleted successfully!");
       await fetchDay(dayId);
@@ -1077,7 +1096,7 @@ export default function TripDaysPage() {
       setWeatherSummary(weather.summary || []);
       setDailyWeather(weather.daily_raw || []);
 
-      console.log("Weather summary:", weather.summary);
+      console.log("WeatherSummary:", weatherSummary);
 
     } catch (err) {
       console.error(err);
