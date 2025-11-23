@@ -1099,7 +1099,8 @@ export default function TripDaysPage() {
       console.log("start date: ", tripDaysDates[0])
       console.log("current date: ", new Date().toISOString().split("T")[0])
 
-      if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) >= 300){
+      if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) >= 365){
+        toast.info("No weather forecast available, too far in the advance.")
         return;
       }
 

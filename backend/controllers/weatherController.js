@@ -34,6 +34,7 @@ export const getWeatherForecast = async (req, res) => {
         console.log(`Starting weather fetch between days ${tripDaysDates[0]} and ${tripDaysDates[tripDaysDates.length - 1]}...`);
 
         const dailyValues = [];
+        let isPast365Days = false;
 
         if (tripDaysKeys.length !== undefined) {
             let index = 0;
@@ -60,6 +61,10 @@ export const getWeatherForecast = async (req, res) => {
                     isHistory = true;
                 }
 
+                if (numOfDaysDifference >= 365){
+                    isPast365Days = true;
+                }
+
                 console.log(`Fetching weather for ${tripLocation} on ${dt}...`);
 
                 if (tripLocation === null) {
@@ -70,38 +75,40 @@ export const getWeatherForecast = async (req, res) => {
 
                 let data;
 
-                if (isFuture) {
-                    const response = await axios.get(forecastWithin14DaysUrl, {
-                        params: {
-                            key: WEATHER_API,
-                            q: tripLocation,
-                            dt,
-                        },
-                    });
-                    data = response.data;
-                }
-                if (isForecast) {
-                    const response = await axios.get(futureAfter14DaysUrl, {
-                        params: {
-                            key: WEATHER_API,
+                if (!isPast365Days) {
+                    if (isFuture) {
+                        const response = await axios.get(forecastWithin14DaysUrl, {
+                            params: {
+                                key: WEATHER_API,
+                                q: tripLocation,
+                                dt,
+                            },
+                        });
+                        data = response.data;
+                    }
+                    if (isForecast) {
+                        const response = await axios.get(futureAfter14DaysUrl, {
+                            params: {
+                                key: WEATHER_API,
 
-                            q: tripLocation,
-                            days: 1,
-                            dt,
-                        },
-                    });
-                    data = response.data;
-                }
-                if (isHistory) {
-                    const response = await axios.get(historyUrl, {
-                        params: {
-                            key: WEATHER_API,
+                                q: tripLocation,
+                                days: 1,
+                                dt,
+                            },
+                        });
+                        data = response.data;
+                    }
+                    if (isHistory) {
+                        const response = await axios.get(historyUrl, {
+                            params: {
+                                key: WEATHER_API,
 
-                            q: tripLocation,
-                            dt,
-                        },
-                    });
-                    data = response.data;
+                                q: tripLocation,
+                                dt,
+                            },
+                        });
+                        data = response.data;
+                    }
                 }
 
                 const forecastDay = data?.forecast?.forecastday?.[0];
