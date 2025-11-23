@@ -1,12 +1,12 @@
 import axios from "axios";
 import { sql } from "../config/db.js";
-import {getIO} from "../app.js";
+import {io} from "../socket.js";
 
 // Map undefined → null so inserts/updates send proper NULLs to Postgres
 const v = (x) => (x === undefined ? null : x);
 
 export const deleteActivity = async (req, res) => {
-  const io = getIO();
+  //const io = getIO();
   try {
     // Extract activityId from request body
     const { tripId, activityId, dayId } = req.body;
@@ -97,7 +97,6 @@ export const addActivity = async (req, res) => {
 };
 
 export const updateActivity = async (req, res) => {
-  const io = getIO();
   try {
     // Pull current values of activity we updating
     const { tripId, activityId, activity, create } = req.body;
@@ -197,7 +196,6 @@ export const readAllActivities = async (req, res) => {
 };
 
 export const updateNotesForActivity = async (req, res) => {
-  const io = getIO();
   try{
     const { tripId, activityId, notes, dayId } = req.body;
     

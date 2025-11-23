@@ -1,6 +1,6 @@
 // backend/controllers/daysController.js
 import { sql } from "../config/db.js";
-import {getIO} from "../app.js";
+import {io} from "../socket.js";
 
 // read all days for a specific trip
 export const readDays = async (req, res) => {
@@ -31,8 +31,6 @@ export const readDays = async (req, res) => {
 
 // create a new day for a specific trip
 export const createDay = async (req, res) => {
-  //Call the io instance
-  const io = getIO();
   // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
@@ -101,7 +99,6 @@ export const createDay = async (req, res) => {
 
 // update an existing day for a specific trip
 export const updateDay = async (req, res) => {
-  const io = getIO();
   // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
@@ -148,7 +145,6 @@ export const updateDay = async (req, res) => {
 
 // delete a day for a specific trip
 export const deleteDay = async (req, res) => {
-  const io = getIO();
   // trip is loaded by loadTripWithPermissions middleware
   if (!req.trip) {
     return res.status(400).json({ error: "Trip ID is required" });
