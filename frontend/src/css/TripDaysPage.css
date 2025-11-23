@@ -306,6 +306,7 @@ body {
 .day-date {
   font-size: 0.8em;
   margin: 0.5em 0;
+  padding-top: 5px;
 }
 
 .day-header-bottom {
@@ -988,13 +989,6 @@ html[data-theme="dark"] .time-picker {
 
   .day-title {
     font-size: 1rem;
-  }
-
-  .day-weather-icon {
-    width: 10px;
-    height: 28px;
-    object-fit: contain;
-    display: block;
   }
 
   .day-divider {

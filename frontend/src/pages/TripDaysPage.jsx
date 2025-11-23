@@ -304,7 +304,7 @@ export default function TripDaysPage() {
     weatherFetchedRef.current = true;
 
     fetchAndSetWeather();
-  }, [trip, days]);
+  }, [days, trip, fetchAndSetWeather]);
 
   const openAddDayPopup = (baseDateStr, insertBefore = false) => {
     if (!canEdit) {
@@ -1336,27 +1336,42 @@ export default function TripDaysPage() {
                                   </td>
                                   <td>
                                   </td>
-                                  <td style={{ width: "100px", textAlign: "right" }}>
-                                    {weatherForDay?.condition_icon && (
-                                        <img
-                                            className="day-weather-icon"
-                                            src={`https://${weatherForDay.condition_icon}`}
-                                            alt="Weather icon"
-                                            style={{ width: "40px", height: "40px", objectFit: "contain" }}
-                                        />
-                                    )}
+                                  <td
+                                      style={{
+                                        textAlign: "right",
+                                        paddingLeft: "60px",
+                                      }}
+                                  >
+                                    <div
+                                        style={{
+                                          width: "45px",
+                                          height: "10px",
+                                          display: "flex",
+                                          alignItems: "center",
+
+                                          justifyContent: "flex-end",
+                                        }}
+                                    >
+                                      {weatherForDay?.condition_icon ? (
+                                          <img
+                                              src={`https://${weatherForDay.condition_icon}`}
+                                              alt="Weather icon"
+                                          />
+                                      ) : (
+                                          // Invisible placeholder to reserve space
+                                          <div
+                                              style={{
+                                                width: "32px",
+                                                height: "32px",
+                                                opacity: 0,
+                                              }}
+                                          />
+                                      )}
+                                    </div>
                                   </td>
                                 </tr>
                               </tbody>
                             </table>
-                            {/*<p className="day-title">Day {index + 1}</p>*/}
-                            {/*{weatherForDay?.condition_icon && (*/}
-                            {/*    <img*/}
-                            {/*        className="day-weather-icon"*/}
-                            {/*        src={`https://${weatherForDay.condition_icon}`}  // API gives path without protocol*/}
-                            {/*        alt="Weather icon"*/}
-                            {/*    />*/}
-                            {/*)}*/}
                             <p className="day-date">
                               {new Date(day.day_date).toLocaleDateString("en-US", {
                                 weekday: "long",
