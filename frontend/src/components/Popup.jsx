@@ -18,7 +18,6 @@ export default function Popup({ title, children, buttons, onClose, id, }) {
     }
   };
 
-
   // Touch drag start
   const handleTouchStart = (e) => {
     // Only allow drag from top 40px of popup
@@ -53,7 +52,6 @@ export default function Popup({ title, children, buttons, onClose, id, }) {
     setTranslateY(0);
     setIsDragging(false);
   };
-
 
   return (
     <div className="popup-screen-overlay" onClick={handleOverlayClick}>
