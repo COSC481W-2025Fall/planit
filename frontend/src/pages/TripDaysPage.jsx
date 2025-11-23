@@ -1057,10 +1057,16 @@ export default function TripDaysPage() {
 
     const tripDuration = getDifferenceBetweenDays(startDate, endDate);
 
+    const activities = days.flatMap(day => day.activities || []);
+    const allActivities = [];
+    for (const activity of activities) {
+      allActivities.push(activity.activity_types);
+    }
+
     const tripPayload =         {
-      destination: trip.trip_location,
+      "destination": trip.trip_location,
       "season": weatherSummary.season,
-      "activities": "Adventure, Hiking",
+      "activities": allActivities.toString(),
       "duration_days": tripDuration,
       "avg_temp_high": weatherSummary.avg_high_f,
       "avg_temp_low": weatherSummary.avg_high_f,
