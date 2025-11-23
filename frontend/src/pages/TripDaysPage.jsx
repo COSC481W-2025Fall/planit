@@ -1096,6 +1096,13 @@ export default function TripDaysPage() {
     const tripDaysKeys = days.map(day => day.day_id);
 
     try {
+      console.log("start date: ", tripDaysDates[0])
+      console.log("current date: ", new Date().toISOString().split("T")[0])
+
+      if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) >= 300){
+        return;
+      }
+
       const weather = await getWeather(
           activityLocations,
           tripDaysDates,

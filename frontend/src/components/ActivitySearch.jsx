@@ -9,7 +9,7 @@ import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
 import OverlapWarning from "./OverlapWarning.jsx";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
-import {getWeather, getWeatherForSingleDay} from "../../api/weather.js";
+import {getWeather} from "../../api/weather.js";
 
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;

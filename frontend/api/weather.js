@@ -21,23 +21,3 @@ export async function getWeather(activityLocations, tripDaysDates, tripDaysKeys)
 
     return res.json();
 }
-
-export async function getWeatherForSingleDay(activityLocation, tripDaysDate, tripDaysKey) {
-    const res = await fetch(`${API_BASE_URL}/weather/getWeatherForecastForSingleDay`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // if needed
-        body: JSON.stringify({
-            activityLocation,
-            tripDaysDate,
-            tripDaysKey
-        }),
-    });
-
-    if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || "Weather fetch failed");
-    }
-
-    return res.json();
-}
