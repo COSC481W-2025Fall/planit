@@ -1085,6 +1085,24 @@ export default function TripDaysPage() {
     }
   }
 
+  const handleSingleDayWeather = ({ dayId, date, weather }) => {
+    const dayWeather = weather?.daily_raw?.[0];
+    if (!dayWeather) return;
+
+    const dateKey = date; // already "YYYY-MM-DD"
+
+    setDailyWeather(prev => {
+      // remove existing entry for this date (if any)
+      const filtered = prev.filter(w => w.date !== dateKey);
+
+      // you can optionally attach dayId if you want
+      return [
+        ...filtered,
+        { ...dayWeather, day_id: dayId },
+      ];
+    });
+  };
+
   //Loading State
   if (!user || !trip) {
     return (
@@ -1716,6 +1734,7 @@ export default function TripDaysPage() {
                 : []}
               onActivityAdded={(dayId) => fetchDay(dayId)}
               allDays={days}
+              onSingleDayWeather={handleSingleDayWeather}
             />
           </div>
         )}
