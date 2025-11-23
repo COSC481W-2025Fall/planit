@@ -53,6 +53,7 @@ export default function Popup({ title, children, buttons, onClose, id, }) {
     setIsDragging(false);
   };
 
+
   return (
     <div className="popup-screen-overlay" onClick={handleOverlayClick}>
       <div
