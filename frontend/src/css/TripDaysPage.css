@@ -345,7 +345,7 @@ body {
   align-items: center;
   gap: 0.15rem;
   font-size: 0.8em;
-  color: var(--muted);
+  color: var(--accent);
   margin-top: 2.85em;
   margin-left: auto;
 }
@@ -355,8 +355,6 @@ body {
 }
 
 .day-cost-amount {
-  font-weight: 600;
-  color: var(--text);
   font-size: 1em;
 }
 
