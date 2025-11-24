@@ -33,8 +33,16 @@ export default function TripPage() {
     const [endDate, setEndDate] = useState(null);
     const [deleteTripId, setDeleteTripId] = useState(null);
     const [privacyDraft, setPrivacyDraft] = useState(true);
-    const [sortOption, setSortOption] = useState("earliest");
-    const [dateFilter, setDateFilter] = useState("all");
+
+    // persist sort / filter choices
+    const [sortOption, setSortOption] = useState(() => {
+      if (typeof window === "undefined") return "recent";
+      return localStorage.getItem("tripSortOption") || "recent"; // default: Most recently edited
+    });
+    const [dateFilter, setDateFilter] = useState(() => {
+      if (typeof window === "undefined") return "all";
+      return localStorage.getItem("tripDateFilter") || "all"; // default: All trips
+    });
 
     // Close dropdown if click outside
     useEffect(() => {
@@ -128,6 +136,25 @@ export default function TripPage() {
       fetchImages();
     }, [trips]);
 
+    // persist choices to localStorage whenever they change
+    useEffect(() => {
+      if (typeof window === "undefined") return;
+      if (sortOption) {
+        localStorage.setItem("tripSortOption", sortOption);
+      } else {
+        localStorage.removeItem("tripSortOption");
+      }
+    }, [sortOption]);
+
+    useEffect(() => {
+      if (typeof window === "undefined") return;
+      if (dateFilter) {
+        localStorage.setItem("tripDateFilter", dateFilter);
+      } else {
+        localStorage.removeItem("tripDateFilter");
+      }
+    }, [dateFilter]);
+
     // fully reset and close modal
     const handleCloseModal = () => {
         setIsModalOpen(false);
@@ -146,26 +173,31 @@ export default function TripPage() {
 
         let result = [...trips];
 
+        // filter: All / Upcoming / Past
         result = result.filter((trip) => {
             const start = trip.trip_start_date ? new Date(trip.trip_start_date) : null;
             const end = trip.trip_end_date ? new Date(trip.trip_end_date) : null;
 
+            // "Past" = trip fully finished before today.
+            // Anything else (ongoing today or in the future) counts as "upcoming".
+            const isPast =
+              (end && end < today) ||
+              (!end && start && start < today);
+
             if (dateFilter === "upcoming") {
-                const compareDate = start || end;
-                if (!compareDate) return false;
-                return compareDate >= today;
+                return !isPast;
             }
 
             if (dateFilter === "past") {
-                const compareDate = end || start;
-                if (!compareDate) return false;
-                return compareDate < today;
+                return isPast;
             }
 
-            return true;
+            return true; // "all"
         });
 
+        // sort
         result.sort((a, b) => {
+            // sort by name
             if (sortOption === "az" || sortOption === "za") {
                 const nameA = (a.trip_name || "").toLowerCase();
                 const nameB = (b.trip_name || "").toLowerCase();
@@ -173,18 +205,24 @@ export default function TripPage() {
                 return sortOption === "az" ? cmp : -cmp;
             }
 
+            // sort by location
             if (sortOption === "location") {
                 const locA = (a.trip_location || "").toLowerCase();
                 const locB = (b.trip_location || "").toLowerCase();
                 return locA.localeCompare(locB);
             }
 
+            // date-based sorts
             const getDateForSort = (trip) => {
+                // "recent" prefers updated_at if present
                 if (sortOption === "recent" && (trip.updated_at || trip.updatedAt)) {
                     return new Date(trip.updated_at || trip.updatedAt);
                 }
                 if (trip.trip_start_date) return new Date(trip.trip_start_date);
                 if (trip.trip_end_date) return new Date(trip.trip_end_date);
+                if (trip.updated_at || trip.updatedAt) {
+                    return new Date(trip.updated_at || trip.updatedAt);
+                }
                 return null;
             };
 
@@ -195,14 +233,22 @@ export default function TripPage() {
             if (!dateA) return 1;
             if (!dateB) return -1;
 
-            if (sortOption === "oldest") {
+            if (sortOption === "earliest") {
+                // oldest start/end date first
                 return dateA - dateB;
             }
 
-            if (sortOption === "recent") {
+            if (sortOption === "oldest") {
+                // newest start/end date first
                 return dateB - dateA;
             }
 
+            if (sortOption === "recent") {
+                // most recently edited first
+                return dateB - dateA;
+            }
+
+            // fallback: ascending date
             return dateA - dateB;
         });
 

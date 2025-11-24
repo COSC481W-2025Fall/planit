@@ -65,7 +65,7 @@ export default function TripsFilterButton({
             }`}
             onClick={() => handleDateChange("upcoming")}
           >
-            Upcoming trips
+            Upcoming & current
           </button>
           <button
             type="button"
@@ -83,11 +83,20 @@ export default function TripsFilterButton({
           <button
             type="button"
             className={`dropdown-item ${
+              sortOption === "recent" ? "active" : ""
+            }`}
+            onClick={() => handleSortChange("recent")}
+          >
+            Recently edited
+          </button>
+          <button
+            type="button"
+            className={`dropdown-item ${
               sortOption === "earliest" ? "active" : ""
             }`}
             onClick={() => handleSortChange("earliest")}
           >
-            Earliest start date
+            Start date (soonest)
           </button>
           <button
             type="button"
@@ -96,7 +105,7 @@ export default function TripsFilterButton({
             }`}
             onClick={() => handleSortChange("oldest")}
           >
-            Oldest start date
+            Start date (furthest)
           </button>
           <button
             type="button"
@@ -120,15 +129,6 @@ export default function TripsFilterButton({
             onClick={() => handleSortChange("location")}
           >
             Location (A–Z)
-          </button>
-          <button
-            type="button"
-            className={`dropdown-item ${
-              sortOption === "recent" ? "active" : ""
-            }`}
-            onClick={() => handleSortChange("recent")}
-          >
-            Most recently edited
           </button>
         </div>
       )}

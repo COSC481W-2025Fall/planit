@@ -8,6 +8,7 @@ import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "../css/ExplorePage.css";
+import TripsFilterButton from "../components/TripsFilterButton";
 
 export default function ExplorePage() {
   // auth
@@ -22,6 +23,10 @@ export default function ExplorePage() {
   const [topLiked, setTopLiked] = useState([]); // Top 10 all-time
   const [results, setResults] = useState([]);
   const [likedTrips, setLikedTrips] = useState([]); // Liked tab grid
+
+  // filter/sort for liked trips
+  const [sortOption, setSortOption] = useState("recent");
+  const [dateFilter, setDateFilter] = useState("all");
 
   // likes
   const [likedIds, setLikedIds] = useState(new Set());
@@ -251,6 +256,95 @@ export default function ExplorePage() {
     return userId && userId.toString().startsWith('guest_');
   };
 
+  // sort + date filter for liked trips
+  const sortedFilteredLikedTrips = useMemo(() => {
+    if (!Array.isArray(likedTrips)) return [];
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let result = [...likedTrips];
+
+    // filter: All / Upcoming / Past 
+    result = result.filter((trip) => {
+      const start = trip.trip_start_date ? new Date(trip.trip_start_date) : null;
+      const end = trip.trip_end_date ? new Date(trip.trip_end_date) : null;
+
+      const isPast =
+        (end && end < today) ||
+        (!end && start && start < today);
+
+      if (dateFilter === "upcoming") {
+        return !isPast;       // includes today + future + ongoing
+      }
+
+      if (dateFilter === "past") {
+        return isPast;        // fully finished before today
+      }
+
+      return true;            // "all"
+    });
+
+    // sort 
+    result.sort((a, b) => {
+      // sort by name
+      if (sortOption === "az" || sortOption === "za") {
+        const nameA = (a.trip_name || "").toLowerCase();
+        const nameB = (b.trip_name || "").toLowerCase();
+        const cmp = nameA.localeCompare(nameB);
+        return sortOption === "az" ? cmp : -cmp;
+      }
+
+      // sort by location
+      if (sortOption === "location") {
+        const locA = (a.trip_location || "").toLowerCase();
+        const locB = (b.trip_location || "").toLowerCase();
+        return locA.localeCompare(locB);
+      }
+
+      // date-based sorts
+      const getDateForSort = (trip) => {
+        // "recent" prefers updated_at if present
+        if (sortOption === "recent" && (trip.updated_at || trip.updatedAt)) {
+          return new Date(trip.updated_at || trip.updatedAt);
+        }
+        if (trip.trip_start_date) return new Date(trip.trip_start_date);
+        if (trip.trip_end_date) return new Date(trip.trip_end_date);
+        if (trip.updated_at || trip.updatedAt) {
+          return new Date(trip.updated_at || trip.updatedAt);
+        }
+        return null;
+      };
+
+      const dateA = getDateForSort(a);
+      const dateB = getDateForSort(b);
+
+      if (!dateA && !dateB) return 0;
+      if (!dateA) return 1;
+      if (!dateB) return -1;
+
+      if (sortOption === "earliest") {
+        // oldest start/end date first
+        return dateA - dateB;
+      }
+
+      if (sortOption === "oldest") {
+        // newest start/end date first
+        return dateB - dateA;
+      }
+
+      if (sortOption === "recent") {
+        // most recently edited first
+        return dateB - dateA;
+      }
+
+      // fallback: ascending date
+      return dateA - dateB;
+    });
+
+    return result;
+  }, [likedTrips, sortOption, dateFilter]);
+
   // like toggle
   const handleToggleLike = async (tripId, tripData) => {
     if (!user?.user_id) {
@@ -367,6 +461,18 @@ export default function ExplorePage() {
               <div className="trips-title">Explore trips</div>
               <div className="trips-subtitle">Find inspiration from public itineraries</div>
             </div>
+
+            {/* Filter button – left side, only for Liked tab */}
+            {tab === "liked" && !isGuestUser(user?.user_id) && (
+              <div className="explore-filter-wrapper">
+                <TripsFilterButton
+                  sortOption={sortOption}
+                  setSortOption={setSortOption}
+                  dateFilter={dateFilter}
+                  setDateFilter={setDateFilter}
+                />
+              </div>
+            )}
           </div>
 
           {/* Tabs (pill style) */}
@@ -576,7 +682,7 @@ export default function ExplorePage() {
                     You haven’t liked any trips yet.
                   </div>
                 ) : (
-                  likedTrips.map((t) => (
+                  sortedFilteredLikedTrips.map((t) => (
                     <TripCardPublic
                       key={`lk-${t.trips_id}`}
                       trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
