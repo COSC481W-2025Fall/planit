@@ -156,3 +156,23 @@ export const listParticipants = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+export const removeYourselfFromTrip = async(req,res) => {
+    const {userId , tripId} = req.body;
+
+    try {
+        if (!tripId || !userId) {
+            return res.status(400).json({ error: "Invalid trip id or user id" });
+        }
+
+        await sql`
+        DELETE FROM shared
+        WHERE trip_id = ${tripId} AND user_id = ${userId}
+    `;
+
+        res.json({ message: "Participant removed from shared trip." });
+    } catch (err) {
+        console.log("Error removing yourself:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}

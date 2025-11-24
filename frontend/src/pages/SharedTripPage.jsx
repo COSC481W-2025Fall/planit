@@ -11,6 +11,7 @@ import { MoonLoader } from "react-spinners";
 import { getSharedTrips } from "../../api/trips";
 import "react-datepicker/dist/react-datepicker.css";
 import GuestEmptyState from "../components/GuestEmptyState";
+import { toast } from "react-toastify";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
@@ -19,6 +20,9 @@ export default function TripPage() {
     const [openDropdownId, setOpenDropdownId] = useState(null);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
+    const [openRemoveYourselfPopup, setOpenRemoveYourselfPopup] = useState(false);
+    const [selectedTripToRemove, setSelectedTripToRemove] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     // images for trip cards
     const [imageUrls, setImageUrls] = useState({})
@@ -96,6 +100,60 @@ export default function TripPage() {
         return userId && userId.toString().startsWith('guest_');
     };
 
+    async function handleRemovingFromTrip() {
+        if(!selectedTripToRemove) return;
+        try{
+            setIsLoading(true);
+            const results = await fetch(`${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/shared/removeYourself`,
+                {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ userId : user.user_id, tripId : selectedTripToRemove.trips_id })
+                }
+            );
+
+            setTrips(prev =>
+                prev.filter(t => t.trips_id !== selectedTripToRemove.trips_id)
+            );
+
+            setSelectedTripToRemove(null);
+
+            toast.success("You removed yourself successfully!")
+        } catch (err){
+            toast.error("There was a problem removing yourself from this trip")
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    //Show Loader while fetching user or trips
+    if (!user || !trips) {
+        return (
+            <div className="trip-page">
+                <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
+                <div className="content-with-sidebar">
+                    <NavBar />
+                    <div className="main-content">
+                        <div className="page-loading-container">
+                            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if(isLoading){
+        return(
+        <div className="main-content">
+            <div className="page-loading-container">
+                <MoonLoader color="var(--accent)" size={70} />
+            </div>
+        </div>
+        );
+    }
+
     // guest empty state if user is a guest
     if (isGuestUser(user?.user_id)) {
         return (
@@ -160,6 +218,13 @@ export default function TripPage() {
                                                 className="trip-card-img"
                                             />
                                         </div>
+                                        <button className="remove-yourself-from-trip-btn"
+                                            onClick = {() => {
+                                                setSelectedTripToRemove(trip);
+                                                setOpenRemoveYourselfPopup(true);
+                                            }}>
+                                            <Trash size={16} />
+                                        </button>
                                         {openDropdownId === trip.trips_id && (
                                             <div className="trip-dropdown" ref={dropdownRef}>
                                             </div>
@@ -182,6 +247,36 @@ export default function TripPage() {
                     </div>
                 </div>
             </div>
+            {openRemoveYourselfPopup && selectedTripToRemove &&  (
+                <Popup
+                    title={`Remove Yourself from ${selectedTripToRemove.trip_name}`}
+                    onClose={() => setOpenRemoveYourselfPopup(false)}
+                    buttons={
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => setOpenRemoveYourselfPopup(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-rightside"
+                                onClick={() => {
+                                    handleRemovingFromTrip();
+                                    setOpenRemoveYourselfPopup(false);
+                                }}
+                            >
+                                Remove
+                            </button>
+                        </>
+                    }
+                >
+                    <p className="popup-body-text">
+                        Are you sure you want to remove yourself from this trip? You will no longer have access to edit this trip.
+                    </p>
+                </Popup>
+            )}
         </div>
     );
 }
