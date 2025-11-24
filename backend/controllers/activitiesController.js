@@ -6,7 +6,6 @@ import {io} from "../socket.js";
 const v = (x) => (x === undefined ? null : x);
 
 export const deleteActivity = async (req, res) => {
-  //const io = getIO();
   try {
     // Extract activityId from request body
     const { tripId, activityId, dayId } = req.body;
