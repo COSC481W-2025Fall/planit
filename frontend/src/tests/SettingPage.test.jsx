@@ -93,7 +93,7 @@ describe("SettingsPage", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Trips Made/i)).toBeInTheDocument();
+      expect(screen.getByText(/Number of Trips Made/i)).toBeInTheDocument();
       expect(screen.getByText("5")).toBeInTheDocument();
       expect(screen.getByText(/Longest Trip/i)).toBeInTheDocument();
       expect(screen.getByText("Camping")).toBeInTheDocument();
