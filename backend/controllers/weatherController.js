@@ -31,7 +31,7 @@ export const getWeatherForecast = async (req, res) => {
             season = "fall";
         }
 
-        console.log(`Starting weather fetch between days ${tripDaysDates[0]} and ${tripDaysDates[tripDaysDates.length - 1]}...`);
+        tripDaysKeys.length !== undefined ? console.log(`Starting weather fetch between days ${tripDaysDates[0]} and ${tripDaysDates[tripDaysDates.length - 1]}...`) : console.log(`Starting weather fetch for ${tripDaysDates}...`)
 
         const dailyValues = [];
         let isPast365Days = false;
