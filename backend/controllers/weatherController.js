@@ -65,13 +65,13 @@ export const getWeatherForecast = async (req, res) => {
                     isPast365Days = true;
                 }
 
-                console.log(`Fetching weather for ${tripLocation} on ${dt}...`);
-
                 if (tripLocation === null) {
                     console.log(`No location for ${dt}, therefore no forecast.`);
                     index++;
                     continue;
                 }
+
+                console.log(`Fetching weather for ${tripLocation} on ${dt}...`);
 
                 let data;
 
