@@ -1,4 +1,4 @@
-import React from "react"; // ✅ ensure React is imported
+import React from "react"; 
 import { render, screen } from "@testing-library/react";
 import { describe, test, expect, vi } from "vitest";
 import ExplorePage from "../pages/ExplorePage";
