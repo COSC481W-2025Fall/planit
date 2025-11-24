@@ -59,6 +59,7 @@ export default function TripDaysPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const participantFormRef = useRef(null);
   const MAX_DISPLAY_PFP = 4;
+  const [activeUsers, setActiveUsers] = useState([]);
 
   const allPeople = [
     ...(owner ? [owner] : []),
@@ -124,14 +125,27 @@ export default function TripDaysPage() {
   
   // Sets up Socket.IO connection and cleans up on disconnect. Also, performs actions, right now just a console.log and adding days. 
   useEffect(() => {
+    // don't connect until user is loaded
+    if (!user || !tripId) return;
+
+
     const socket = io("http://localhost:3000", {
       withCredentials: true
     });
 
-    socket.emit("joinTrip", `trip_${tripId}`);
-
     socket.on("connect", () => {
-      console.log("Participant connected", socket.id)
+      console.log("Participant connected", socket.id);
+
+      // emit joinTrip after connection with user data
+      socket.emit("joinTrip", `trip_${tripId}`, {
+        username: user.username,
+        user_id: user.user_id
+      });
+    });
+
+    socket.on("activeUsersUpdated", (users) => {
+      console.log("Active users updated:", users);
+      setActiveUsers(users);
     });
 
     //Listener that listens for "createdDay" from backend. Takes tripId from backend as json which is then 
@@ -168,11 +182,13 @@ export default function TripDaysPage() {
     });
 
     return () => {
-      if(socket.connected)
+      if (socket.connected) {
         console.log("Participant disconnected", socket.id);
-      socket.disconnect();
+        socket.emit("leaveTrip", `trip_${tripId}`);
+        socket.disconnect();
+      }
     };
-  }, [tripId]);
+  }, [tripId, user]);
 
   //responsive
   useEffect(() => {
@@ -1022,6 +1038,10 @@ export default function TripDaysPage() {
     return userId && userId.toString().startsWith('guest_');
   };
 
+  const isUserActive = (username) => {
+    return activeUsers.some(u => u.username === username);
+  };
+
   //Loading State
   if (!user || !trip) {
     return (
@@ -1065,7 +1085,7 @@ export default function TripDaysPage() {
                  p.photo ? (
                    <img
                      key={`${p.user_id || ''}-${p.username}`}
-                     className="participant-pfp"
+                     className={`participant-pfp ${isUserActive(p.username) ? 'active' : ''}`}
                      src={p.photo}
                      alt={p.username}
                      title={p.username}
