@@ -564,45 +564,76 @@ select:focus {
     color: var(--accent);
 }
 
-.privacy-row {
+.privacy-switch-container {
+    margin: 8px 0 4px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 8px 0 4px;
 }
 
-.privacy-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
+.privacy-switch {
+    width: 80px;
+    height: 32px;
+    padding: 0;
     background: var(--bg-surface);
-    color: var(--text-medium);
-    font: size 13px;
-    font-weight: 500;
+    border-radius: 999px;
+    border: 2px solid var(--accent);
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.privacy-chip.active {
-    background: var(--accent);
-    color: var(--bg-white);
-    border-color: var(--accent);
-    font-weight: 500;
-}
-
-.privacy-chip:hover {
-    transform: scale(1.02);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     box-shadow: var(--shadow-1);
+    transition: transform 0.2s ease;
 }
 
-/* scale icons to match smaller text */
-.privacy-chip svg {
-  width: 14px;
-  height: 14px;
+.privacy-icon {
+    flex: 1;
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.25s ease;
 }
+
+.privacy-icon.active {
+    color: var(--accent);
+}
+
+.privacy-switch:hover {
+    transform: scale(1.03);
+    box-shadow: var(--shadow-2);
+}
+
+.privacy-icon:hover::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: var(--text-on-accent);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    animation: fadeInTooltip 0.18s ease forwards;
+}
+
+@keyframes fadeInTooltip {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -4px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+
 .trip-card-img {
     width: 100%;
     height: 100%;

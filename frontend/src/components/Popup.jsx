@@ -14,7 +14,7 @@ export default function Popup({ title, children, buttons, onClose, id, }) {
     if (activeTag === "INPUT" || activeTag === "TEXTAREA") return;
 
     if (e.target === e.currentTarget) {
-      setTimeout(() => onClose(), 120);
+      setTimeout(() => onClose(), 60);
     }
   };
 

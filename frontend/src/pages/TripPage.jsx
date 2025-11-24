@@ -566,26 +566,30 @@ export default function TripPage() {
                                   name="endDate"
                                   value={endDate ? endDate.toISOString().split("T")[0] : ""}
                                 />
-                                <div className="privacy-row">
-                                  <button
-                                    type="button"
-                                    onClick={() => setPrivacyDraft(true)}
-                                    title="Private"
-                                    className={`privacy-chip ${privacyDraft ? "active" : ""}`}
+                              <div className="privacy-switch-container">
+                                <div
+                                  className={`privacy-switch ${privacyDraft ? "private" : "public"}`}
+                                  onClick={() => setPrivacyDraft(!privacyDraft)}
+                                >
+                                  <div
+                                    className={`privacy-icon left ${privacyDraft ? "active" : ""}`}
+                                    data-label="Private"
                                   >
-                                    <Lock size={16}/>
-                                    <span>Private</span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setPrivacyDraft(false)}
-                                    title="Public"
-                                    className={`privacy-chip ${!privacyDraft ? "active" : ""}`}
+                                    <Lock size={14} />
+                                  </div>
+
+                                  <div
+                                    className={`privacy-icon right ${!privacyDraft ? "active" : ""}`}
+                                    data-label="Public"
                                   >
-                                    <Unlock size={16}/>
-                                    <span>Public</span>
-                                  </button>
+                                    <Unlock size={14} />
+                                  </div>
+
+                                  <div className="privacy-switch-knob"></div>
                                 </div>
+                              </div>
+
+
                             </form>
                         </div>
                     </Popup>
