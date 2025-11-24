@@ -1038,6 +1038,15 @@ export default function TripDaysPage() {
   };
 
   const handlePackingAI = async () => {
+    // Regex matches city, st
+    // Ypsilanti, MI, St. Louis, MS, Hawaii, HW
+    const usCityStateRegex = /^[A-Za-z.\-'\s]+,\s?[A-Z]{2}$/;
+    if (!usCityStateRegex.test(trip.trip_location)) {
+      toast.error(
+          "Packing AI requires a U.S. location in the format 'City, ST'"
+      );
+      return;
+    }
 
     const startDate = new Date(trip.trip_start_date || days[0].day_date).toISOString().split("T")[0];
     const endDate   = new Date(days[days.length - 1].day_date).toISOString().split("T")[0];
@@ -1361,24 +1370,12 @@ export default function TripDaysPage() {
                             );
                           }}
                         >
-                          <div>
-                            <table>
-                              <tbody>
-                                <tr>
-                                  <td>
+                          <div className={"day-top-row-header"}>
                                     <p className="day-title">Day {index + 1}</p>
-                                  </td>
-                                  <td>
-                                  </td>
-                                  <td
-                                      style={{
-                                        textAlign: "right",
-                                        paddingLeft: "60px",
-                                      }}
-                                  >
+
                                     <div
                                         style={{
-                                          width: "45px",
+                                          width: "30px",
                                           height: "10px",
                                           display: "flex",
                                           alignItems: "center",
@@ -1402,18 +1399,16 @@ export default function TripDaysPage() {
                                           />
                                       )}
                                     </div>
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </table>
-                            <p className="day-date">
-                              {new Date(day.day_date).toLocaleDateString("en-US", {
-                                weekday: "long",
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </p>
+
+
                           </div>
+                          <p className="day-date">
+                            {new Date(day.day_date).toLocaleDateString("en-US", {
+                              weekday: "long",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </p>
                           <div className="day-header-bottom">
                             <span className="number-of-activities">
                               {day.activities?.length ?? 0} Activities

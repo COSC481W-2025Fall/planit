@@ -296,6 +296,14 @@ body {
   padding: 0.25rem 0.4rem;
 }
 
+.day-top-row-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  justify-content: left;
+}
+
 .day-title {
   color: var(--text);
   font-weight: bold;
