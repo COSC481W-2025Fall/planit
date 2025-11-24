@@ -1662,10 +1662,19 @@ export default function TripDaysPage() {
                 <span>Duration (minutes):</span>
                 <input
                   type="number"
+                  min = "0"
                   value={editDuration}
-                  onChange={(e) =>
-                    setEditDuration(e.target.value)
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) =>{
+                    const val = e.target.value;
+                    if(val == '') setEditDuration('');
+                    else setEditDuration(Math.max(0,val));
                   }
+                }
                 />
               </label>
 
@@ -1687,8 +1696,19 @@ export default function TripDaysPage() {
                 <span>Estimated Budget ($):</span>
                 <input
                   type="number"
+                  min = "0"
+                  step = "1"
                   value={editCost}
-                  onChange={(e) => setEditCost(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '.') {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if(val == '') setEditCost('');
+                    else setEditCost(Math.max(0,Math.floor(val)));
+                  }}
                 />
               </label>
             </Popup>

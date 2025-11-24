@@ -645,7 +645,16 @@ export default function ActivitySearch({
                             min="0"
                             placeholder="e.g. 90"
                             value={formDuration}
-                            onChange={(e) => setFormDuration(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                                    e.preventDefault();
+                                }
+                            }}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if(val == '') setFormDuration('');
+                                else setFormDuration(Math.max(0,val));
+                            }}
                             disabled={saving}
                         />
                     </label>
@@ -668,10 +677,19 @@ export default function ActivitySearch({
                         <input
                             type="number"
                             min="0"
-                            step="0.01"
+                            step="1"
                             placeholder="e.g. 25"
                             value={formCost}
-                            onChange={(e) => setFormCost(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '.') {
+                                    e.preventDefault();
+                                }
+                            }}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if(val == '') setFormCost('');
+                                else setFormCost(Math.max(0,Math.floor(val)));
+                            }}
                             disabled={saving}
                         />
                     </label>
