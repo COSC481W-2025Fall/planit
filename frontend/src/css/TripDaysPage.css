@@ -1079,3 +1079,8 @@ html[data-theme="dark"] .time-picker {
   flex-shrink: 0;
   margin-top: 0.05rem;
 }
+
+.participant-pfp.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
