@@ -1061,6 +1061,31 @@ export default function TripDaysPage() {
       "humidity_percent": weatherSummary.avg_humidity
     }
 
+    const requiredFields = [
+      "destination",
+      "season",
+      "activities",
+      "duration_days",
+      "avg_temp_high",
+      "avg_temp_low",
+      "rain_chance_percent",
+      "humidity_percent"
+    ];
+
+    for (const field of requiredFields) {
+      const value = tripPayload[field];
+
+      // Detect null, undefined, empty string, NaN
+      if (
+          value === null ||
+          value === undefined ||
+          value === ""
+      ) {
+        toast.warning(`Packing AI cannot process, resolve mising weather.`);
+        return; // <---- CANCEL OPERATION
+      }
+    }
+
     try {
       const response = await retrievePackingItems(tripPayload);
       console.log("PACKING AI RAW RESPONSE:", response);
@@ -1075,7 +1100,6 @@ export default function TripDaysPage() {
       setAIItems(items);
       setShowAIPopup(true);
 
-      toast.success("items retrieved!");
     } catch (e) {
       console.error("call failed", e);
       toast.error("Packing AI failed");
