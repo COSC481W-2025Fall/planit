@@ -60,6 +60,7 @@ export default function TripDaysPage() {
   const participantFormRef = useRef(null);
   const MAX_DISPLAY_PFP = 4;
   const [activeUsers, setActiveUsers] = useState([]);
+  const socketRef = useRef(null);
 
   const allPeople = [
     ...(owner ? [owner] : []),
@@ -128,6 +129,12 @@ export default function TripDaysPage() {
     // don't connect until user is loaded
     if (!user || !tripId) return;
 
+    // prevent double connection
+    if (socketRef.current) {
+      console.log("Socket already connected, skipping...");
+      return;
+    }
+
     // if they're a guest or just viewer they no socket.io needs to happen
     if (isGuestUser(user.user_id) || isViewer) {
       return;
@@ -136,6 +143,8 @@ export default function TripDaysPage() {
     const socket = io("http://localhost:3000", {
       withCredentials: true
     });
+
+    socketRef.current = socket;
 
     socket.on("connect", () => {
       console.log("Participant connected", socket.id);
@@ -186,7 +195,7 @@ export default function TripDaysPage() {
     });
 
     return () => {
-      if (socket.connected) {
+      if (socketRef.current?.connected) {
         console.log("Participant disconnected", socket.id);
         socket.emit("leaveTrip", `trip_${tripId}`);
         socket.disconnect();
@@ -466,14 +475,14 @@ export default function TripDaysPage() {
 
       const newIds = days.map(d => d.day_id);
 
-      if (!expandedInitRef.current) {
-        // First load: mobile = collapsed, desktop = expanded
-        setExpandedDays(window.innerWidth <= 600 ? [] : newIds);
-        expandedInitRef.current = true;
-      } else {
-        // Later fetches: keep prior choices, just drop deleted day IDs
-        setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
-      }
+      // if (!expandedInitRef.current) {
+      //   // First load: mobile = collapsed, desktop = expanded
+      //   setExpandedDays(window.innerWidth <= 600 ? [] : newIds);
+      //   expandedInitRef.current = true;
+      // } else {
+      //   // Later fetches: keep prior choices, just drop deleted day IDs
+      //   setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
+      // }
     } catch (err) {
       console.error(err);
     }
