@@ -135,6 +135,9 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+.carousel-viewport .instant {
+  scroll-behavior: auto !important;
+}
 .carousel-viewport::-webkit-scrollbar { display: none; }
 
 .carousel-track {
