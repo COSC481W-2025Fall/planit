@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, DollarSign} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, PiggyBank} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -1008,13 +1008,6 @@ export default function TripDaysPage() {
     }, 0);
   }, [days]);
 
-  const formatCurrency = (amount) =>
-    amount.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 2,
-    });
-
   //Loading State
   if (!user || !trip) {
     return (
@@ -1115,10 +1108,10 @@ export default function TripDaysPage() {
 
             {days.length > 0 && (
               <div className="trip-cost">
-                <DollarSign className="trip-info-icon" />
-                <span className="trip-cost-label">Estimated Trip Cost: </span>
+                <PiggyBank className="trip-info-icon trip-cost-icon"/>
+                <span className="trip-cost-label">Total Cost:</span>
                 <span className="trip-cost-value">
-                  {formatCurrency(totalTripCost)}
+                  ${totalTripCost}
                 </span>
               </div>
             )}
@@ -1168,6 +1161,11 @@ export default function TripDaysPage() {
               ) : (
                 days.map((day, index) => {
                   const isExpanded = expandedDays.includes(day.day_id);
+                  const dayTotal = (day.activities || []).reduce((sum, activity) => {
+                    const rawCost = activity.activity_price_estimated ?? 0;
+                    const cost = Number(rawCost);
+                    return sum + (Number.isFinite(cost) ? cost : 0);
+                  }, 0);
                   return (
                     <React.Fragment key={day.day_id}>
                       {index === 0 && canEdit && (
@@ -1200,15 +1198,21 @@ export default function TripDaysPage() {
                             );
                           }}
                         >
-                          <div>
-                            <p className="day-title">Day {index + 1}</p>
-                            <p className="day-date">
-                              {new Date(day.day_date).toLocaleDateString("en-US", {
-                                weekday: "long",
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </p>
+                          <div className="day-header-top">
+                            <div>
+                              <p className="day-title">Day {index + 1}</p>
+                              <p className="day-date">
+                                {new Date(day.day_date).toLocaleDateString("en-US", {
+                                  weekday: "long",
+                                  month: "short",
+                                  day: "numeric",
+                                })}
+                              </p>
+                            </div>
+                            <div className="day-cost">
+                              <span className="day-cost-currency">$</span>
+                              <span className="day-cost-amount">{dayTotal}</span>
+                            </div>
                           </div>
                           <div className="day-header-bottom">
                             <span className="number-of-activities">

@@ -142,6 +142,7 @@ body {
   align-items: center;
   gap: 0.3rem;
   margin: 0;
+  color: var(--accent);
 }
 
 .trip-cost-label,
@@ -162,6 +163,17 @@ body {
   flex-shrink: 0;
   color: var(--muted);
   margin-top: 0.05rem;
+}
+
+.trip-cost-icon {
+  height: 0.9rem;
+  width: 0.9rem;
+  flex-shrink: 0;
+  color: var(--accent);
+  margin-top: 0.05rem;
+  height: 1.2rem; 
+  width: 1.2rem;
+  margin-top: 0.02rem;
 }
 
 .image-banner img {
@@ -309,6 +321,13 @@ body {
   padding: 0.25rem 0.4rem;
 }
 
+.day-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .day-title {
   color: var(--text);
   font-weight: bold;
@@ -319,6 +338,26 @@ body {
 .day-date {
   font-size: 0.8em;
   margin: 0.5em 0;
+}
+
+.day-cost {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.8em;
+  color: var(--muted);
+  margin-top: 2.85em;
+  margin-left: auto;
+}
+
+.day-cost-currency {
+  font-size: 1em;
+}
+
+.day-cost-amount {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 1em;
 }
 
 .day-header-bottom {
