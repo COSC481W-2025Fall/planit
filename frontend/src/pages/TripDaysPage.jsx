@@ -1092,7 +1092,6 @@ export default function TripDaysPage() {
 
     try {
       const response = await retrievePackingItems(tripPayload);
-      console.log("PACKING AI RAW RESPONSE:", response);
 
       let items = [];
 
@@ -1106,7 +1105,7 @@ export default function TripDaysPage() {
 
     } catch (e) {
       console.error("call failed", e);
-      toast.error("Packing AI failed");
+      toast.error("Packing AI took too long to respond. Please try again later.");
     }
   };
 
