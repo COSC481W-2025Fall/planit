@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Plane,Car,Train,Bus,Ship} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -58,6 +58,7 @@ export default function TripDaysPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const participantFormRef = useRef(null);
   const MAX_DISPLAY_PFP = 4;
+  const [showModal, setShowModal] = useState(false);
 
   const allPeople = [
     ...(owner ? [owner] : []),
@@ -87,6 +88,9 @@ export default function TripDaysPage() {
   const distanceCache = useRef({});
 
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleDropdown = () => setIsOpen(!isOpen);
+  const [transportType, setSelectedTransport] = useState(null);
 
 
   const [expandedDays, setExpandedDays] = useState(() => {
@@ -1100,6 +1104,107 @@ export default function TripDaysPage() {
            </div>
           <div className="button-level-bar">
             <h1 className="itinerary-text">Itinerary</h1>
+            <div className="transportation-dropdown-wrapper">
+              <button className="circle-icon-btn" onClick={toggleDropdown}>
+                <Plane width={16} height={16} />
+              </button>
+              {isOpen && (
+                <div className="transportation-dropdown">
+                  <ul>
+                    <li
+                      onClick={() => {
+                        setIsOpen(false);
+                        setShowModal(true);   // <— opens modal
+                        setSelectedTransport("flight");
+                      }}
+                    >
+                      <Plane size={20} />
+                      <span>Flight</span>
+                    </li>
+
+
+                    <li
+                      onClick={() => {
+                        setIsOpen(false);
+                        setSelectedTransport("car");
+                        setShowModal(true);   // <— opens modal
+                      }}
+                    >
+                      <Car size={20} />
+                      <span>Car</span>
+                    </li>
+
+
+                    <li
+                      onClick={() => {
+                        setIsOpen(false);
+                        setSelectedTransport("train");
+                        setShowModal(true);   // <— opens modal
+                      }}
+                    >
+                      <Train size={20} />
+                      <span>Train</span>
+                    </li>
+
+
+                    <li
+                      onClick={() => {
+                        setIsOpen(false);
+                        setSelectedTransport("bus");
+                        setShowModal(true);   // <— opens modal
+                      }}
+                    >
+                      <Bus size={20} />
+                      <span>Bus</span>
+                    </li>
+
+
+                    <li
+                      onClick={() => {
+                        setIsOpen(false);
+                        setSelectedTransport("boat");
+                        setShowModal(true);   // <— opens modal
+
+
+                      }}
+                    >
+                      <Ship size={20} />
+                      <span>Boat</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+            {showModal && (
+              <div className="modal-overlay">
+                <div className="modal-content">
+                  <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
+
+
+                  <h2 className="modal-title">
+                    {transportType === "flight" && " Flight Details"}
+                    {transportType === "car" && " Car Details"}
+                    {transportType === "train" && " Train Details"}
+                    {transportType === "bus" && " Bus Details"}
+                    {transportType === "boat" && " Boat Details"}
+                  </h2>
+
+
+                  <div className="modal-body">
+                    <label className="modal-label">Ticket Number</label>
+                    <input className="modal-input" placeholder="Enter ticket number" />
+
+
+                    <label className="modal-label">Price</label>
+                    <input className="modal-input" placeholder="Enter price" />
+
+
+                    <button className="modal-add">+ Add Another Entry</button>
+                    <button className="modal-save">Save Details</button>
+                  </div>
+                </div>
+              </div>
+            )}
             {canEdit && (
               <div className="itinerary-buttons">
                 <button onClick={() => openAddDayPopup(null)} id="new-day-button">
