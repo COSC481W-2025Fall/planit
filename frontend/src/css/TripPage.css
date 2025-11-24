@@ -232,8 +232,9 @@
     border-radius: 8px;
     width: 90%;
     max-width: 500px;
-    /* max-height: 80vh; */
     overflow-y: auto;
+    margin: auto;
+
 }
 
 .modal-content h2 {
@@ -333,6 +334,13 @@ html[data-theme="dark"] .modal-content input:-webkit-autofill {
     color: var(--text) !important;
     cursor: not-allowed !important;
     background: transparent !important;
+}
+.react-datepicker-popper {
+    z-index: 999999 !important;
+}
+.popup,
+.modal-overlay {
+    overflow: visible !important; /* allow popovers to escape */
 }
 
 
