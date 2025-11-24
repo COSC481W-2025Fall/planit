@@ -22,7 +22,6 @@ import { useNavigate } from "react-router-dom";
 import {getWeather} from "../../api/weather.js";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
-
 export default function TripDaysPage() {
 
   //constants for data
@@ -105,7 +104,7 @@ export default function TripDaysPage() {
   useEffect(() => {
     try {
       localStorage.setItem("planit:expandedDays", JSON.stringify(expandedDays));
-    } catch {}
+    } catch { /* empty */ }
   }, [expandedDays]);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
@@ -126,18 +125,16 @@ export default function TripDaysPage() {
   const canManageParticipants = isOwner;
 
   const [aiHidden, setAiHidden] = useState(false);
-  const [showAIBtn, setShowAIBtn] = useState(true);
+  const [showAIBtn] = useState(true);
+  const [aiItems, setAIItems] = useState([]);
+  const [showAIPopup, setShowAIPopup] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("planit:showAIPackingButton");
-    if (saved !== null) setShowAIBtn(saved === "true");
+    const saved = localStorage.getItem("planit:aiCollapsed");
+    if (saved !== null) {
+      setAiHidden(saved === "true");
+    }
   }, []);
-
-  const toggleAIBtn = () => {
-    const newVal = !showAIBtn;
-    setShowAIBtn(newVal);
-    localStorage.setItem("planit:showAIPackingButton", newVal.toString());
-  };
 
 
   //responsive
@@ -1065,10 +1062,22 @@ export default function TripDaysPage() {
     }
 
     try {
-      await retrievePackingItems(tripPayload);
-      toast.success("Items retrieved!");
+      const response = await retrievePackingItems(tripPayload);
+      console.log("PACKING AI RAW RESPONSE:", response);
+
+      let items = [];
+
+      // Our backend returns: { predicted_items: [...] }
+      if (Array.isArray(response?.predicted_items)) {
+        items = response.predicted_items.map((i) => i.item_name);
+      }
+
+      setAIItems(items);
+      setShowAIPopup(true);
+
+      toast.success("items retrieved!");
     } catch (e) {
-      console.error("Packing AI call failed", e);
+      console.error("call failed", e);
       toast.error("Packing AI failed");
     }
   };
@@ -1266,7 +1275,11 @@ export default function TripDaysPage() {
               <div className={`ai-floating-container ${aiHidden ? "collapsed" : ""}`}>
                 <button
                     className={`ai-toggle-btn ${aiHidden ? "glow" : ""}`}
-                    onClick={() => setAiHidden(!aiHidden)}
+                    onClick={() => {
+                      const newVal = !aiHidden;
+                      setAiHidden(newVal);
+                      localStorage.setItem("planit:aiCollapsed", newVal.toString());
+                    }}
                 >
                   {aiHidden ? <Luggage size={18} /> : <ChevronRight size={18} />}
                 </button>
@@ -1460,7 +1473,27 @@ export default function TripDaysPage() {
               )}
             </div>
           </div>
-
+          {showAIPopup && (
+            <Popup
+              title="Packing AI Suggestions"
+              onClose={() => setShowAIPopup(false)}
+              buttons={
+                <>
+                  <button onClick={() => setShowAIPopup(false)}>Close</button>
+                </>
+              }
+            >
+              {aiItems.length === 0 ? (
+                <p className="empty-state-text">No items were returned.</p>
+              ) : (
+                <ul className="ai-items-list">
+                  {aiItems.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </Popup>
+          )}
           {openNotesPopup && selectedActivity && (
             <Popup
               title={"Notes for: " + selectedActivity.activity_name}

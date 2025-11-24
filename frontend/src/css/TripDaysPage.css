@@ -397,7 +397,7 @@ body {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 6px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card);
   min-width: 120px;
   z-index: 10;
   overflow: hidden;
@@ -809,23 +809,48 @@ html[data-theme="dark"] .textarea-notes {
 
 @keyframes aiPulseActive {
   0% {
-    box-shadow: 0 0 0px rgba(0, 200, 255, 0);
+    box-shadow: 0 0 0px var(--ai-glow-color-soft);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 14px rgba(0, 200, 255, 0.75);
+    box-shadow: 0 0 14px var(--ai-glow-color);
     transform: scale(1.10);
   }
   100% {
-    box-shadow: 0 0 0px rgba(0, 200, 255, 0);
+    box-shadow: 0 0 0px var(--ai-glow-color-soft);
     transform: scale(1);
   }
 }
+
 
 .ai-toggle-btn.glow {
   animation: aiPulseActive 2.2s ease-in-out infinite;
   border-color: var(--packing-ai-2);
 }
+
+.ai-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.ai-items-list li {
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.ai-items-list li:hover {
+  background: var(--bg-offwhite);
+}
+
 
 .remove-participant-btn:hover {
   color: var(--error);
@@ -961,17 +986,23 @@ html[data-theme="dark"] .time-picker {
   }
 
   .itinerary-buttons {
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    gap: 0.25rem;
-    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .itinerary-buttons button {
+    min-width: 6rem;
+    font-size: 0.9rem;
+    padding: 0 0.75rem;
   }
 
   .packing-ai-button {
-    bottom: 1rem;
-    left: 1rem;
+    bottom: 1.3rem;
+    right: 4rem !important;
     padding: 10px 16px;
     font-size: 0.82rem;
+    width: auto !important;
   }
 
   .days-container {
