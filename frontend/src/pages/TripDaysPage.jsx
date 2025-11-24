@@ -466,14 +466,14 @@ export default function TripDaysPage() {
 
       const newIds = days.map(d => d.day_id);
 
-      /*if (!expandedInitRef.current) {
+      if (!expandedInitRef.current) {
         // First load: mobile = collapsed, desktop = expanded
         setExpandedDays(window.innerWidth <= 600 ? [] : newIds);
         expandedInitRef.current = true;
       } else {
         // Later fetches: keep prior choices, just drop deleted day IDs
         setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
-      }*/
+      }
     } catch (err) {
       console.error(err);
     }
