@@ -246,7 +246,7 @@ export default function SettingsPage() {
                             <div className="stats">
                                 
                                 <div className="stat-line">
-                                    <span className="stat-label">Number of Trips Made: </span>
+                                    <span className="stat-label">Trips Made: </span>
                                     <span className="stat-value">{stats?.tripCount ?? "N/A"}</span>
                                 </div>
 
@@ -282,7 +282,7 @@ export default function SettingsPage() {
                             <div className="stats">
                                 
                                 <div className="stat-line">
-                                    <span className="stat-label">Number of Trips Shared With You: </span>
+                                    <span className="stat-label">Trips Shared With You: </span>
                                     <span className="stat-value">{groupStats?.tripCount ?? "N/A"}</span>
                                 </div>
 
