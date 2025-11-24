@@ -128,6 +128,10 @@ export default function TripDaysPage() {
     // don't connect until user is loaded
     if (!user || !tripId) return;
 
+    // if they're a guest or just viewer they no socket.io needs to happen
+    if (isGuestUser(user.user_id) || isViewer) {
+      return;
+    }
 
     const socket = io("http://localhost:3000", {
       withCredentials: true
