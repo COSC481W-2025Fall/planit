@@ -193,6 +193,52 @@ describe("Weather icon tests", () => {
     });
 
     test("after activity is added then it shows the weather icon", async () => {
+        getWeather.mockResolvedValueOnce({
+            summary: null,
+            daily_raw: [],
+        });
+
+        global.fetch.mockImplementation((url) => {
+            if (url.includes("/auth/login/details")) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({
+                        loggedIn: true,
+                        user_id: 1,
+                        first_name: "Test",
+                        last_name: "User",
+                        username: "testuser",
+                    }),
+                });
+            }
+
+            if (url.includes("/trip/read/123")) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({
+                        trips_id: 123,
+                        trip_name: "Test Trip",
+                        trip_location: "Detroit, MI",
+                        trip_start_date: "2025-11-27",
+                        image_id: null,
+                        user_role: "owner",
+                    }),
+                });
+            }
+
+            if (url.includes("/activities/read/all")) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({ activities: [] }),
+                });
+            }
+
+            return Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve({}),
+            });
+        });
+
         renderWithRouter();
 
         await screen.findByText("Itinerary");
