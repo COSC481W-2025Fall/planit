@@ -69,6 +69,16 @@
     color: var(--muted);
 }
 
+.top-banner-pfp {
+    cursor: pointer;
+}
+
+.pfp-link {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
 /*Hamburger Button*/
 .hamburger {
     display: none;
