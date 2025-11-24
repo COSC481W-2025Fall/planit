@@ -1050,10 +1050,14 @@ export default function TripDaysPage() {
       allActivities.push(activity.activity_types);
     }
 
+    const uniqueActivities = allActivities.filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+
     const tripPayload =         {
       "destination": trip.trip_location,
       "season": weatherSummary.season,
-      "activities": allActivities.toString(),
+      "activities": uniqueActivities.toString(),
       "duration_days": tripDuration,
       "avg_temp_high": weatherSummary.avg_high_f,
       "avg_temp_low": weatherSummary.avg_high_f,
@@ -1081,8 +1085,8 @@ export default function TripDaysPage() {
           value === undefined ||
           value === ""
       ) {
-        toast.warning(`Packing AI cannot process, resolve mising weather.`);
-        return; // <---- CANCEL OPERATION
+        toast.warning(`Packing AI cannot process, resolve missing weather.`);
+        return;
       }
     }
 

@@ -3,7 +3,7 @@ Routes for trip-related operations: create a trip, modify a trip, read a trip, a
 */
 import {createTrip, readTrip, updateTrip, deleteTrip, fetchUserTrips, getOwnerForTrip} from "../controllers/tripController.js";
 import express from "express";
-import {health, predictItems} from "../controllers/packingPredictController.js";
+import {health, predictItems} from "../controllers/packingAIController.js";
 const router = express.Router();
 
 router.post("/create", createTrip);
