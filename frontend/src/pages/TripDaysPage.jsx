@@ -183,10 +183,12 @@ export default function TripDaysPage() {
     });
 
     socket.on("addedParticipant", () => {
+      displayParticipants();
       toast.success("Participant added!");
     });
 
     socket.on("removedParticipant", () => {
+      displayParticipants();
       toast.success("Participant removed!");
     });
 
@@ -1019,23 +1021,28 @@ export default function TripDaysPage() {
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [openParticipantsPopup]);
 
+  // Helper function used to refresh participant profiles
+  const displayParticipants = async () => {
+    listParticipants(tripId)
+      .then(data => {
+        setParticipants(data.participants || []);
+      })
+      .catch(err => {
+        // Don't toast here, as it's a background load
+        console.error("Failed to fetch participants for title display:", err);
+      });
+    getOwnerForTrip(tripId)
+      .then(data => {
+        setOwner(data.owner || []);
+      })
+      .catch(err => {
+        console.error("Failed to fetch owner for title display:", err);
+      });
+  }
+
   useEffect(() => {
     if (trip?.trips_id && !isGuestUser(user?.user_id) && !isViewer) {
-      listParticipants(trip.trips_id)
-        .then(data => {
-          setParticipants(data.participants || []);
-        })
-        .catch(err => {
-          // Don't toast here, as it's a background load
-          console.error("Failed to fetch participants for title display:", err);
-        });
-      getOwnerForTrip(trip.trips_id)
-        .then(data => {
-          setOwner(data.owner || []);
-        })
-        .catch(err => {
-          console.error("Failed to fetch owner for title display:", err);
-        });
+      displayParticipants();
     }
   }, [trip?.trips_id, isViewer]);
 
