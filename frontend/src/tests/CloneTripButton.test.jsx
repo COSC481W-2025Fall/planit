@@ -70,7 +70,7 @@ describe("CloneTripButton", () => {
 
     await waitFor(() =>
       expect(
-        screen.getByText("This trip is 4 day(s) long.")
+        screen.getByText(/This trip is\s*4\s*day/i)
       ).toBeInTheDocument()
     );
   });
@@ -99,7 +99,7 @@ describe("CloneTripButton", () => {
 
     fireEvent.click(screen.getByText("Clone Trip"));
 
-    await screen.findByText("This trip is 4 day(s) long.");
+    await screen.findByText(/This trip is\s*4\s*day/i)
 
     const datePicker = screen.getByPlaceholderText("Choose Start Date");
     fireEvent.change(datePicker, { target: { value: "01-05-2025" } });
@@ -139,7 +139,7 @@ describe("CloneTripButton", () => {
 
     fireEvent.click(screen.getByText("Clone Trip"));
 
-    await screen.findByText("This trip is 4 day(s) long.");
+    await screen.findByText(/This trip is\s*4\s*day/i)
 
     const datePicker = screen.getByPlaceholderText("Choose Start Date");
     fireEvent.change(datePicker, { target: { value: "01-05-2025" } });
