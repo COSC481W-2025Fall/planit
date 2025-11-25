@@ -58,7 +58,7 @@ export default function TopBanner({ user , isGuest}) {
             Sign Out
           </button>
           ) : (
-          <Link className="sign-out" to ="/login">Log-in</Link>
+          <Link className="sign-out" to ="/login">Login</Link>
           )}
 
           {!isGuest && (
