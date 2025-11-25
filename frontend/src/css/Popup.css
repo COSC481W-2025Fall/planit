@@ -18,10 +18,12 @@
     border-radius: 15px;
     max-width: 420px;
     width: 100%;
-    overflow-y: auto;
     max-height: 90vh;
     box-shadow: var(--shadow-strong);
     animation: fadeIn 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 @keyframes fadeIn {
@@ -51,6 +53,9 @@
     flex-direction: column;
     gap: 15px;
     margin-top: 15px;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
 }
 
 .popup-input {
