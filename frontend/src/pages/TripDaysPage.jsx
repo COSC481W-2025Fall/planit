@@ -962,12 +962,20 @@ export default function TripDaysPage() {
 
   // add particpant to a trip
   const handleAddParticipant = async () => {
+    // this number may change once we do some testing when deployed
+    const max_participants = 8;
+
     if (!canManageParticipants) {
       toast.error("Only the trip owner can add participants");
       return;
     }
 
     if (!participantUsername.trim()) return;
+
+    if(participants.length >= max_participants){
+      toast.error("Only 8 participants allowed per trip");
+      return;
+    }
 
     try {
       await addParticipant(trip.trips_id, participantUsername.trim());
