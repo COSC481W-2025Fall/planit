@@ -101,7 +101,7 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
                     ) : (
                         <>
                     <div className="popup-body-text">
-                        This trip is {dayCount} day(s) long.
+                        This trip is {dayCount} {dayCount === 1 ? "day" : "days"} long.
                     </div>
 
                     <div className="popup-input">
