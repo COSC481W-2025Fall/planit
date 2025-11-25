@@ -114,7 +114,9 @@ export default function ExplorePage() {
   };
 
   // navigate to trip details
-  const handleOpenTrip = (tripId) => navigate(`/days/${tripId}`);
+  const handleOpenTrip = (tripId) => 
+  navigate(`/days/${tripId}?fromExplore=true`);
+
   // autocomplete suggestions
   const suggestions = useMemo(() => {
     const q = (query || "").trim().toLowerCase();
