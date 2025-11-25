@@ -405,6 +405,7 @@ export default function ActivitySearch({
                     notesForActivity: notes || null, // ok if backend ignores it
                     dayId: pendingDayId
                 },
+                dayIndex: allDays.findIndex(d => d.day_id === pendingDayId) + 1,
                 create: true
             };
 

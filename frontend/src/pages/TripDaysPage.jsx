@@ -170,14 +170,14 @@ export default function TripDaysPage() {
       toast.success("Day has been deleted.");
     });
 
-    socket.on("updatedActivity", (dayId, create) => {
+    socket.on("updatedActivity", (dayId, activityName, dayIndex, create) => {
       fetchDay(dayId);
-      toast.success(create ? "Activity added!" : "Activity updated!");
+      toast.success(create ? `Day ${dayIndex} activity "${activityName}" added!` : `Day ${dayIndex} activity "${activityName}" updated!`);
     });
 
-    socket.on("deletedActivity", (dayId) => {
+    socket.on("deletedActivity", (dayId, activityName, dayIndex) => {
       fetchDay(dayId);
-      toast.success("Activity deleted!");
+      toast.success(`Day ${dayIndex} activity "${activityName}" deleted!`);
     });
 
     socket.on("noteUpdated", (dayId) => {
@@ -711,7 +711,7 @@ export default function TripDaysPage() {
   };
 
   // update an activity
-  const handleUpdateActivity = async (activityId, activity, dayId) => {
+  const handleUpdateActivity = async (activityId, activity, dayId, dayIndex) => {
     if (!canEdit) {
       toast.error("You don't have permission to edit activities");
       return;
@@ -735,6 +735,7 @@ export default function TripDaysPage() {
               notesForActivity: activity.notesForActivity || "",
               dayId: dayId
             },
+            dayIndex
           }),
         }
       );
@@ -750,7 +751,7 @@ export default function TripDaysPage() {
     }
   };
 
-  const handleDeleteActivity = async (activityId, dayId) => {
+  const handleDeleteActivity = async (activityId, activityName, dayId, dayIndex) => {
     if (!canEdit) {
       toast.error("You don't have permission to delete activities");
       return;
@@ -765,7 +766,7 @@ export default function TripDaysPage() {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ tripId, activityId, dayId }),
+          body: JSON.stringify({ tripId, activityId, activityName, dayId, dayIndex}),
         }
       );
 
@@ -1437,7 +1438,7 @@ export default function TripDaysPage() {
                     type="button"
                     className="btn-rightside"
                     onClick={() => {
-                      handleDeleteActivity(deleteActivity.activity_id, deleteActivity.day_id);
+                      handleDeleteActivity(deleteActivity.activity_id, deleteActivity.activity_name, deleteActivity.day_id, days.findIndex(d => d.day_id === deleteActivity.day_id) + 1);
                       setDeleteActivity(null);
                     }}
                   >
@@ -1474,7 +1475,8 @@ export default function TripDaysPage() {
                         activity_estimated_cost: editCost,
                         notesForActivity: notes || ""
                       }, 
-                      editActivity.day_id
+                      editActivity.day_id,
+                      days.findIndex(d => d.day_id === editActivity.day_id) + 1
                     );
                     }}
                   >
