@@ -247,11 +247,19 @@ export default function ExplorePage() {
       if (searchAbortRef.current) searchAbortRef.current.abort();
     };
   }, [query, user?.user_id]);
+  const isGuestUser = (userId) => {
+    return userId && userId.toString().startsWith('guest_');
+  };
 
   // like toggle
   const handleToggleLike = async (tripId, tripData) => {
     if (!user?.user_id) {
       toast.info("Log in to like trips.");
+      return;
+    }
+
+    if (isGuestUser(user.user_id)) {
+      toast.error("Guests cannot like trips. Please sign in.");
       return;
     }
     if (liking.has(tripId)) return;
@@ -321,7 +329,6 @@ export default function ExplorePage() {
 
     const track = vp.querySelector(".carousel-track.infinite");
     const cards = track.children;
-
     const gap = parseInt(getComputedStyle(track).gap || "15", 10);
     const cardW = cards[0].clientWidth;
     const delta = dir * (cardW + gap);
@@ -372,7 +379,7 @@ export default function ExplorePage() {
   if (loadingUser) {
     return (
       <div className="trip-page">
-        <TopBanner user={user} />
+        <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
         <div className="content-with-sidebar">
           <NavBar />
           <div className="main-content">
@@ -387,7 +394,7 @@ export default function ExplorePage() {
 
   return (
     <div className="trip-page explore-page">
-      <TopBanner user={user} />
+      <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
       <div className="content-with-sidebar">
         <NavBar />
 
@@ -655,7 +662,12 @@ export default function ExplorePage() {
             <section className="trips-section">
               <div className="section-title">Your Liked Trips</div>
               <div className="liked-grid">
-                {likedTrips.length === 0 ? (
+              {isGuestUser(user?.user_id) ? (
+                <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
+                You're browsing as a Guest. You must sign in to view liked trips.
+              </div>
+            ) :
+                likedTrips.length === 0 ? (
                   <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
                     You haven’t liked any trips yet.
                   </div>
