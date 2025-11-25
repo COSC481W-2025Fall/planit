@@ -60,7 +60,6 @@ export default function TripDaysPage() {
   const participantFormRef = useRef(null);
   const MAX_DISPLAY_PFP = 4;
   const [activeUsers, setActiveUsers] = useState([]);
-  const socketRef = useRef(null);
 
   const allPeople = [
     ...(owner ? [owner] : []),
@@ -129,12 +128,6 @@ export default function TripDaysPage() {
     // don't connect until user is loaded
     if (!user || !tripId) return;
 
-    // prevent double connection
-    if (socketRef.current) {
-      console.log("Socket already connected, skipping...");
-      return;
-    }
-
     // if they're a guest or just viewer they no socket.io needs to happen
     if (isGuestUser(user.user_id) || isViewer) {
       return;
@@ -143,8 +136,6 @@ export default function TripDaysPage() {
     const socket = io("http://localhost:3000", {
       withCredentials: true
     });
-
-    socketRef.current = socket;
 
     socket.on("connect", () => {
       console.log("Participant connected", socket.id);
@@ -194,12 +185,18 @@ export default function TripDaysPage() {
       toast.success("Notes updated successfully!");
     });
 
+    socket.on("addedParticipant", () => {
+      toast.success("Participant added!");
+    });
+
+    socket.on("removedParticipant", () => {
+      toast.success("Participant removed!");
+    });
+
     return () => {
-      if (socketRef.current?.connected) {
-        console.log("Participant disconnected", socket.id);
-        socket.emit("leaveTrip", `trip_${tripId}`);
-        socket.disconnect();
-      }
+      console.log("Participant disconnected", socket.id);
+      socket.emit("leaveTrip", `trip_${tripId}`);
+      socket.disconnect();
     };
   }, [tripId, user]);
 
@@ -979,7 +976,6 @@ export default function TripDaysPage() {
       setParticipants(data.participants || []);
       setParticipantUsername("");
       setShowSuggestions(false);
-      toast.success("Participant added!");
     } catch (err) {
       console.error("Failed to add participant:", err);
       toast.error(err.message || "Failed to add participant.");
@@ -996,7 +992,6 @@ export default function TripDaysPage() {
     try {
       await removeParticipant(trip.trips_id, username);
       setParticipants(prev => prev.filter(p => p.username !== username));
-      toast.success("Participant removed!");
     } catch (err) {
       console.error("Failed to remove participant:", err);
       toast.error(err.message || "Failed to remove participant.");
@@ -1636,7 +1631,6 @@ export default function TripDaysPage() {
               dayIds={Array.isArray(days)
                 ? days.map((d) => d.day_id)
                 : []}
-              onActivityAdded={(dayId) => fetchDay(dayId)}
               allDays={days}
             />
           </div>
