@@ -123,7 +123,7 @@ export default function TripDaysPage() {
   const canEdit = isOwner || isShared;
   const canManageParticipants = isOwner;
   
-  // Sets up Socket.IO connection and cleans up on disconnect. Also, performs actions, right now just a console.log and adding days. 
+  // Sets up Socket.IO connection, disconnect, and listeners.
   useEffect(() => {
     // don't connect until user is loaded
     if (!user || !tripId) return;
@@ -138,8 +138,6 @@ export default function TripDaysPage() {
     });
 
     socket.on("connect", () => {
-      console.log("Participant connected", socket.id);
-
       // emit joinTrip after connection with user data
       socket.emit("joinTrip", `trip_${tripId}`, {
         username: user.username,
@@ -148,7 +146,6 @@ export default function TripDaysPage() {
     });
 
     socket.on("activeUsersUpdated", (users) => {
-      console.log("Active users updated:", users);
       setActiveUsers(users);
     });
 
@@ -194,7 +191,6 @@ export default function TripDaysPage() {
     });
 
     return () => {
-      console.log("Participant disconnected", socket.id);
       socket.emit("leaveTrip", `trip_${tripId}`);
       socket.disconnect();
     };
