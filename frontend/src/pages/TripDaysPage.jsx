@@ -1092,7 +1092,7 @@ export default function TripDaysPage() {
       "destination": mostCommonLocation.split(", US")[0],
       "season": weatherSummary.season,
       "activities": uniqueActivities.toString(),
-      "duration_days": tripDuration+1,
+      "duration_days": tripDuration,
       "avg_temp_high": weatherSummary.avg_high_f,
       "avg_temp_low": weatherSummary.avg_high_f,
       "rain_chance_percent": weatherSummary.avg_rain_chance,
