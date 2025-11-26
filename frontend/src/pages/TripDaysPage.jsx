@@ -125,8 +125,8 @@ export default function TripDaysPage() {
   
   // Sets up Socket.IO connection, disconnect, and listeners.
   useEffect(() => {
-    // don't connect until user is loaded
-    if (!user || !tripId) return;
+    // don't connect until user information is loaded
+    if (!user || !tripId || !userRole) return;
 
     // if they're a guest or just viewer they no socket.io needs to happen
     if (isGuestUser(user.user_id) || isViewer) {
@@ -196,7 +196,7 @@ export default function TripDaysPage() {
       socket.emit("leaveTrip", `trip_${tripId}`);
       socket.disconnect();
     };
-  }, [tripId, user]);
+  }, [tripId, user, userRole]);
 
   //responsive
   useEffect(() => {
