@@ -483,9 +483,7 @@ export default function ActivitySearch({
                             />
 
                             {/*NYC Borough select options */}
-                            {(cityQuery.toLowerCase().includes("new york") ||
-                                    cityQuery.toLowerCase().includes("nyc")) &&
-                                cityResults.length === 0 &&
+                            {(cityQuery.toLowerCase().includes("new york") || cityQuery.toLowerCase().includes("nyc")) &&
                                 !NYC_BOROUGHS.some(b => b.toLowerCase() === cityQuery.toLowerCase()) && (
                                     <ul className="city-results-dropdown">
                                         {NYC_BOROUGHS.map((b, idx) => (
