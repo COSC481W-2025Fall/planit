@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getAllSettings } from "../controllers/settingsController.js";
 import { sql } from "../config/db.js";
+import {updateUser} from "../controllers/userController.js";
 
 vi.mock("../config/db.js", () => ({
   sql: vi.fn(),
@@ -52,6 +53,27 @@ describe("getAllSettings Controller", () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({ error: "userID is required" });
+  });
+
+  it("should return 400 if username does not match regex", async () => {
+    const req = {
+      body: {
+        userId: 1,
+        username: "sample$bad@username!",
+        firstname: "John",
+        lastname: "Doe",
+      },
+    };
+    const res = mockRes();
+
+    await updateUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Invalid. Letters, numbers, and '_' only. Min length: 2, max length: 20",
+    });
+    // Should not hit DB when validation fails
+    expect(sql).not.toHaveBeenCalled();
   });
 
   it("should return null for trip-based fields if SQL returns empty arrays", async () => {
