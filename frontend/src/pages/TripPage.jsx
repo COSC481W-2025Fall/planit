@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState, useEffect, useRef, useMemo} from "react";
 import "../css/TripPage.css";
 import TopBanner from "../components/TopBanner";
 import NavBar from "../components/NavBar";
@@ -14,6 +14,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ImageSelector from "../components/ImageSelector";
 import GuestEmptyState from "../components/GuestEmptyState";
+import TripsFilterButton from "../components/TripsFilterButton";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
@@ -32,6 +33,16 @@ export default function TripPage() {
     const [endDate, setEndDate] = useState(null);
     const [deleteTripId, setDeleteTripId] = useState(null);
     const [privacyDraft, setPrivacyDraft] = useState(true);
+
+    // persist sort / filter choices
+    const [sortOption, setSortOption] = useState(() => {
+      if (typeof window === "undefined") return "recent";
+      return localStorage.getItem("tripSortOption") || "recent"; // default: Most recently edited
+    });
+    const [dateFilter, setDateFilter] = useState(() => {
+      if (typeof window === "undefined") return "all";
+      return localStorage.getItem("tripDateFilter") || "all"; // default: All trips
+    });
 
     // Close dropdown if click outside
     useEffect(() => {
@@ -125,6 +136,25 @@ export default function TripPage() {
       fetchImages();
     }, [trips]);
 
+    // persist choices to localStorage whenever they change
+    useEffect(() => {
+      if (typeof window === "undefined") return;
+      if (sortOption) {
+        localStorage.setItem("tripSortOption", sortOption);
+      } else {
+        localStorage.removeItem("tripSortOption");
+      }
+    }, [sortOption]);
+
+    useEffect(() => {
+      if (typeof window === "undefined") return;
+      if (dateFilter) {
+        localStorage.setItem("tripDateFilter", dateFilter);
+      } else {
+        localStorage.removeItem("tripDateFilter");
+      }
+    }, [dateFilter]);
+
     // fully reset and close modal
     const handleCloseModal = () => {
         setIsModalOpen(false);
@@ -134,6 +164,96 @@ export default function TripPage() {
         setPrivacyDraft(true);         // clear any unsaved toggle
         setSelectedImage(null);
     };
+
+    const sortedFilteredTrips = useMemo(() => {
+        if (!Array.isArray(trips)) return [];
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let result = [...trips];
+
+        // filter: All / Upcoming / Past
+        result = result.filter((trip) => {
+            const start = trip.trip_start_date ? new Date(trip.trip_start_date) : null;
+            const end = trip.trip_end_date ? new Date(trip.trip_end_date) : null;
+
+            // "Past" = trip fully finished before today.
+            // Anything else (ongoing today or in the future) counts as "upcoming".
+            const isPast =
+              (end && end < today) ||
+              (!end && start && start < today);
+
+            if (dateFilter === "upcoming") {
+                return !isPast;
+            }
+
+            if (dateFilter === "past") {
+                return isPast;
+            }
+
+            return true; // "all"
+        });
+
+        // sort
+        result.sort((a, b) => {
+            // sort by name
+            if (sortOption === "az" || sortOption === "za") {
+                const nameA = (a.trip_name || "").toLowerCase();
+                const nameB = (b.trip_name || "").toLowerCase();
+                const cmp = nameA.localeCompare(nameB);
+                return sortOption === "az" ? cmp : -cmp;
+            }
+
+            // sort by location
+            if (sortOption === "location") {
+                const locA = (a.trip_location || "").toLowerCase();
+                const locB = (b.trip_location || "").toLowerCase();
+                return locA.localeCompare(locB);
+            }
+
+            // date-based sorts
+            const getDateForSort = (trip) => {
+                // "recent" prefers updated_at if present
+                if (sortOption === "recent" && (trip.trip_updated_at)) {
+                    return new Date(trip.trip_updated_at);
+                }
+                if (trip.trip_start_date) return new Date(trip.trip_start_date);
+                if (trip.trip_end_date) return new Date(trip.trip_end_date);
+                if (trip.trip_updated_at) {
+                    return new Date(trip.trip_updated_at);
+                }
+                return null;
+            };
+
+            const dateA = getDateForSort(a);
+            const dateB = getDateForSort(b);
+
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+
+            if (sortOption === "earliest") {
+                // oldest start/end date first
+                return dateA - dateB;
+            }
+
+            if (sortOption === "oldest") {
+                // newest start/end date first
+                return dateB - dateA;
+            }
+
+            if (sortOption === "recent") {
+                // most recently edited first
+                return dateB - dateA;
+            }
+
+            // fallback: ascending date
+            return dateA - dateB;
+        });
+
+        return result;
+    }, [trips, sortOption, dateFilter]);
 
   const isGuestUser = (userId) => {
     return userId && userId.toString().startsWith('guest_');
@@ -303,15 +423,18 @@ export default function TripPage() {
                 <button className="new-trip-button" onClick={handleNewTrip}>
                   + New Trip
                 </button>
-                <button className="filter-button">
-                  <span className="filter-icon"></span> Filter
-                </button>
+                <TripsFilterButton
+                  sortOption={sortOption}
+                  setSortOption={setSortOption}
+                  dateFilter={dateFilter}
+                  setDateFilter={setDateFilter}
+                />
               </div>
             </div>
 
                       {/* Trip cards */}
                       <div className="trip-cards">
-                          {trips.length === 0 ? (
+                          {sortedFilteredTrips.length === 0 ? (
                             <div className="empty-state">
                                 <h3>No trips yet!</h3>
                                 <div>
@@ -321,7 +444,7 @@ export default function TripPage() {
                                 </div>
                             </div>
                           ) : (
-                            trips.map((trip) => (
+                            sortedFilteredTrips.map((trip) => (
                               <div key={trip.trips_id} className="trip-card">       
                                   <div className="trip-card-image"
                                     onClick={() => handleTripRedirect(trip.trips_id)}>
