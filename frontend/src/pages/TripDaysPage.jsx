@@ -1589,7 +1589,6 @@ export default function TripDaysPage() {
                       autoCorrect="off"
                       spellCheck="false"
                     />
-
                     {showSuggestions && participantSuggestions.length > 0 && (
                       <ul className="autocomplete">
                         {participantSuggestions.map((s, i) => (
@@ -1611,6 +1610,7 @@ export default function TripDaysPage() {
                   </button>
                 </div>
               )}
+              <div className = "count-of-participants">{participants.length} / 8 participants</div>
               <div className="participants-list">
                 {participants.length === 0 ? (
                   <p>No other participants on this trip.</p>

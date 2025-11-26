@@ -593,7 +593,6 @@ html[data-theme="dark"] .textarea-notes {
     display: flex;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 16px;
 }
 
 .add-participant-form input {
@@ -1083,4 +1082,9 @@ html[data-theme="dark"] .time-picker {
 .participant-pfp.active {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent);
+}
+
+.count-of-participants{
+  color: var(--accent);
+  font-size: 14px;
 }
