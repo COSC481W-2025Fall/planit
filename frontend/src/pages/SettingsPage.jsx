@@ -49,14 +49,15 @@ export default function SettingsPage() {
 
     //load group stats when group tab is clicked
     useEffect(() => {
-        if (tab === "groupStats" && user && !isGuestUser(user.user_id)) {
+        // once we set group stats this won't be called again "!groupStats
+        if (tab === "groupStats" && user && !isGuestUser(user.user_id) && !groupStats) {
             const loadGroupStats = async () => {
                 const data = await fetchGroupStats(user.user_id);
                 setGroupStats(data);
             };
             loadGroupStats();
         }
-    }, [tab, user]);
+    }, [tab, user, groupStats]);
 
 
     // fetch user stats endpoints
