@@ -16,8 +16,7 @@ import { toast } from "react-toastify";
 import OverlapWarning from "../components/OverlapWarning.jsx";
 import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
-import {getOwnerForTrip, retrievePackingItems, updateTrip} from "../../api/trips.js";
-import {listParticipants, addParticipant, removeParticipant} from "../../api/trips";
+import {getOwnerForTrip, retrievePackingItems, updateTrip, listParticipants, addParticipant, removeParticipant} from "../../api/trips";
 import { useNavigate } from "react-router-dom";
 import {getWeather} from "../../api/weather.js";
 import CloneTripButton from "../components/CloneTripButton.jsx";
@@ -1041,16 +1040,6 @@ export default function TripDaysPage() {
   };
 
   const handlePackingAI = async () => {
-    // Regex matches city, st
-    // Ypsilanti, MI, St. Louis, MS, Hawaii, HW
-    const usCityStateRegex = /^[A-Za-z.\-'\s]+,\s?[A-Z]{2}$/;
-    if (!usCityStateRegex.test(trip.trip_location)) {
-      toast.error(
-          "Packing AI requires a U.S. location in the format 'City, ST'"
-      );
-      return;
-    }
-
     const startDate = new Date(trip.trip_start_date || days[0].day_date).toISOString().split("T")[0];
     const endDate   = new Date(days[days.length - 1].day_date).toISOString().split("T")[0];
 
@@ -1391,36 +1380,26 @@ export default function TripDaysPage() {
                           }}
                         >
                           <div className={"day-top-row-header"}>
-                                    <p className="day-title">Day {index + 1}</p>
-
-                                    <div
-                                        style={{
-                                          width: "30px",
-                                          height: "10px",
-                                          display: "flex",
-                                          alignItems: "center",
-
-                                          justifyContent: "flex-end",
-                                        }}
-                                    >
-                                      {weatherForDay?.condition_icon ? (
-                                          <img
-                                              src={`https://${weatherForDay.condition_icon}`}
-                                              alt="Weather icon"
-                                          />
-                                      ) : (
-                                          // Invisible placeholder to reserve space
-                                          <div
-                                              style={{
-                                                width: "32px",
-                                                height: "32px",
-                                                opacity: 0,
-                                              }}
-                                          />
-                                      )}
+                            <p className="day-title">Day {index + 1}</p>
+                            <div className="weather-icon">
+                              {weatherForDay && (
+                                  <div className="weather-menu">
+                                    <div>
+                                      <p>High: {Math.round(weatherForDay.max_temp_f)}°F</p>
+                                      <p>Low: {Math.round(weatherForDay.min_temp_f)}°F</p>
+                                      <p>Prec: {Math.round(weatherForDay.rain_chance)}%</p>
                                     </div>
-
-
+                                  </div >
+                              )}
+                              {weatherForDay?.condition_icon ? (
+                                  <img
+                                      src={`https://${weatherForDay.condition_icon}`}
+                                      alt="Weather icon"
+                                  />
+                              ) : (
+                                  <div className="empty-weather-icon"/>
+                              )}
+                            </div>
                           </div>
                           <p className="day-date">
                             {new Date(day.day_date).toLocaleDateString("en-US", {
