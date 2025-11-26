@@ -53,6 +53,8 @@
 
 .new-trip-button,
 .filter-button {
+    display: flex;
+    align-items: center;
     background: var(--bg-surface);
     color: var(--accent);
     border: 1px solid var(--accent);
@@ -648,3 +650,132 @@ select:focus {
     pointer-events: none;
     cursor: not-allowed;
   }
+
+.trips-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.trips-date-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text-medium);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease,
+                border-color 0.15s ease, transform 0.15s ease,
+                box-shadow 0.15s ease;
+}
+
+.chip.active {
+    background: var(--accent);
+    color: var(--bg-white);
+    border-color: var(--accent);
+}
+
+.chip:hover {
+    transform: scale(1.03);
+    box-shadow: var(--shadow-1);
+}
+
+.trips-sort {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sort-label {
+    font-size: 0.85rem;
+    color: var(--text-medium);
+}
+
+.sort-select {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-input);
+    background: var(--bg-surface);
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.sort-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+html[data-theme="dark"] .sort-select {
+    background: var(--bg-hover2);
+    color: var(--static-white);
+}
+
+@media (max-width: 600px) {
+    .trips-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+/* filter dropdown */
+.filter-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.filter-dropdown {
+    top: calc(100% + 0.35rem);
+    right: 0;
+    bottom: auto;
+    min-width: 220px;
+}
+
+/* labels inside the dropdown ("Show", "Sort by") */
+.filter-section-label {
+    padding: 8px 16px 4px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-medium);
+}
+
+.filter-divider {
+    height: 1px;
+    margin: 4px 0;
+    background: var(--border);
+}
+
+/* highlight the active filter/sort option */
+.dropdown-item.active {
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.filter-chevron {
+    margin-left: 0.4rem;
+    transition: transform 0.15s ease;
+}
+
+.filter-chevron.open {
+    transform: rotate(180deg);
+}
+
+@media (max-width: 600px) {
+    .filter-dropdown {
+        min-width: 180px;
+    }
+}

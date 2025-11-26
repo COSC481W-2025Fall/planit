@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import "../css/TripPage.css";
 import TopBanner from "../components/TopBanner";
 import NavBar from "../components/NavBar";
@@ -12,6 +12,7 @@ import { getSharedTrips } from "../../api/trips";
 import "react-datepicker/dist/react-datepicker.css";
 import GuestEmptyState from "../components/GuestEmptyState";
 import { toast } from "react-toastify";
+import TripsFilterButton from "../components/TripsFilterButton";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
@@ -26,6 +27,16 @@ export default function TripPage() {
 
     // images for trip cards
     const [imageUrls, setImageUrls] = useState({})
+
+    // persist sort / filter choices for shared trips
+    const [sortOption, setSortOption] = useState(() => {
+        if (typeof window === "undefined") return "recent";
+        return localStorage.getItem("sharedTripsSortOption") || "recent";
+    });
+    const [dateFilter, setDateFilter] = useState(() => {
+        if (typeof window === "undefined") return "all";
+        return localStorage.getItem("sharedTripsDateFilter") || "all";
+    });
 
     // Get user details
     useEffect(() => {
@@ -95,6 +106,108 @@ export default function TripPage() {
 
         fetchImages();
     }, [trips]);
+
+    // persist filter/sort selections for this page
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        if (sortOption) {
+            localStorage.setItem("sharedTripsSortOption", sortOption);
+        } else {
+            localStorage.removeItem("sharedTripsSortOption");
+        }
+    }, [sortOption]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        if (dateFilter) {
+            localStorage.setItem("sharedTripsDateFilter", dateFilter);
+        } else {
+            localStorage.removeItem("sharedTripsDateFilter");
+        }
+    }, [dateFilter]);
+
+    const sortedFilteredTrips = useMemo(() => {
+        if (!Array.isArray(trips)) return [];
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let result = [...trips];
+
+        // filter: All / Upcoming & in-progress / Past
+        result = result.filter((trip) => {
+            const start = trip.trip_start_date ? new Date(trip.trip_start_date) : null;
+            const end = trip.trip_end_date ? new Date(trip.trip_end_date) : null;
+
+            const isPast =
+              (end && end < today) ||
+              (!end && start && start < today);
+
+            if (dateFilter === "upcoming") {
+                return !isPast;
+            }
+
+            if (dateFilter === "past") {
+                return isPast;
+            }
+
+            return true; // "all"
+        });
+
+        // sort
+        result.sort((a, b) => {
+            // sort by name
+            if (sortOption === "az" || sortOption === "za") {
+                const nameA = (a.trip_name || "").toLowerCase();
+                const nameB = (b.trip_name || "").toLowerCase();
+                const cmp = nameA.localeCompare(nameB);
+                return sortOption === "az" ? cmp : -cmp;
+            }
+
+            // sort by location
+            if (sortOption === "location") {
+                const locA = (a.trip_location || "").toLowerCase();
+                const locB = (b.trip_location || "").toLowerCase();
+                return locA.localeCompare(locB);
+            }
+
+            const getDateForSort = (trip) => {
+                // "recent" prefers updated_at if present
+                if (sortOption === "recent" && (trip.trip_updated_at)) {
+                    return new Date(trip.trip_updated_at);
+                }
+                if (trip.trip_start_date) return new Date(trip.trip_start_date);
+                if (trip.trip_end_date) return new Date(trip.trip_end_date);
+                if (trip.trip_updated_at) {
+                    return new Date(trip.trip_updated_at);
+                }
+                return null;
+            };
+
+            const dateA = getDateForSort(a);
+            const dateB = getDateForSort(b);
+
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+
+            if (sortOption === "earliest") {
+                return dateA - dateB;
+            }
+
+            if (sortOption === "oldest") {
+                return dateB - dateA;
+            }
+
+            if (sortOption === "recent") {
+                return dateB - dateA;
+            }
+
+            return dateA - dateB;
+        });
+
+        return result;
+    }, [trips, sortOption, dateFilter]);
 
     const isGuestUser = (userId) => {
         return userId && userId.toString().startsWith('guest_');
@@ -190,15 +303,18 @@ export default function TripPage() {
                             </div>
 
                             <div className="banner-controls">
-                                <button className="filter-button">
-                                    <span className="filter-icon"></span> Filter
-                                </button>
+                                <TripsFilterButton
+                                  sortOption={sortOption}
+                                  setSortOption={setSortOption}
+                                  dateFilter={dateFilter}
+                                  setDateFilter={setDateFilter}
+                                />
                             </div>
                         </div>
 
                         {/* Trip cards */}
                         <div className="trip-cards">
-                            {trips.length === 0 ? (
+                            {sortedFilteredTrips.length === 0 ? (
                                 <div className="empty-state">
                                     <h3>No trips have been shared with you yet!</h3>
                                     <div>
@@ -208,7 +324,7 @@ export default function TripPage() {
                                     </div>
                                 </div>
                             ) : (
-                                trips.map((trip) => (
+                                sortedFilteredTrips.map((trip) => (
                                     <div key={trip.trips_id} className="trip-card">
                                         <div className="trip-card-image"
                                             onClick={() => handleTripRedirect(trip.trips_id)}>
