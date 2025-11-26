@@ -20,6 +20,7 @@ import {updateTrip} from "../../api/trips.js";
 import {listParticipants, addParticipant, removeParticipant, getOwnerForTrip} from "../../api/trips";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
+import CloneTripButton from "../components/CloneTripButton.jsx";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -119,6 +120,7 @@ export default function TripDaysPage() {
 
   const menuRefs = useRef({});
   const { tripId } = useParams();
+  const fromExplore = new URLSearchParams(window.location.search).get("fromExplore") === "true";
   const [dragFromDay, setDragFromDay] = useState("");
   const [dragOverInfo, setDragOverInfo] = useState({
     dayId: null,
@@ -133,8 +135,8 @@ export default function TripDaysPage() {
   
   // Sets up Socket.IO connection, disconnect, and listeners.
   useEffect(() => {
-    // don't connect until user is loaded
-    if (!user || !tripId) return;
+    // don't connect until user information is loaded
+    if (!user || !tripId || !userRole) return;
 
     // if they're a guest or just viewer they no socket.io needs to happen
     if (isGuestUser(user.user_id) || isViewer) {
@@ -204,7 +206,7 @@ export default function TripDaysPage() {
       socket.emit("leaveTrip", `trip_${tripId}`);
       socket.disconnect();
     };
-  }, [tripId, user]);
+  }, [tripId, user, userRole]);
 
   //responsive
   useEffect(() => {
@@ -1097,12 +1099,16 @@ export default function TripDaysPage() {
         <NavBar />
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
-            <h1 className="trip-title">{trip.trip_name}</h1>
-            {isViewer && (
-              <span className="permission-badge viewer-badge">
-                <Eye className = "view-icon"/> Viewing Only
-              </span>
-            )}
+  <h1 className="trip-title">{trip.trip_name}</h1>
+
+  <div className="title-action-row">
+      {isViewer && (
+        <div className="permission-badge viewer-badge">
+          <Eye className="view-icon" />
+          <span>Viewing Only</span>
+        </div>
+      )}
+
             {canEdit && (
             <div className="participant-photos">
                {visibleParticipants.map((p) =>
@@ -1134,10 +1140,13 @@ export default function TripDaysPage() {
                   </div>
                 )}
             </div>
-            )}
+          )}
+          </div>
           </div>
 
           <div className="trip-info">
+
+            <div className="trip-left-side">
             <div className="trip-location">
               <MapPin className="trip-info-icon" />
               <p className="trip-location-text">{trip.trip_location}</p>
@@ -1153,9 +1162,7 @@ export default function TripDaysPage() {
                     day: "numeric",
                   })}{" "}
                   -{" "}
-                  {new Date(
-                    days[days.length - 1].day_date
-                  ).toLocaleDateString("en-US", {
+                  {new Date(days[days.length - 1].day_date).toLocaleDateString("en-US", {
                     weekday: "long",
                     month: "short",
                     day: "numeric",
@@ -1163,6 +1170,18 @@ export default function TripDaysPage() {
                 </p>
               </div>
             )}
+            </div>
+
+            <div className="clone-trip-wrapper">
+              <CloneTripButton
+                user={user}
+                tripId={tripId}
+                access={userRole}
+                fromExplore={fromExplore}
+                onCloned={(newId) => navigate(`/days/${newId}`)}
+                trip={trip}
+              />
+            </div>
           </div>
 
           <div className="image-banner">
@@ -1541,10 +1560,19 @@ export default function TripDaysPage() {
                 <span>Duration (minutes):</span>
                 <input
                   type="number"
+                  min = "0"
                   value={editDuration}
-                  onChange={(e) =>
-                    setEditDuration(e.target.value)
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) =>{
+                    const val = e.target.value;
+                    if(val == '') setEditDuration('');
+                    else setEditDuration(Math.max(0,val));
                   }
+                }
                 />
               </label>
 
@@ -1566,8 +1594,19 @@ export default function TripDaysPage() {
                 <span>Estimated Budget ($):</span>
                 <input
                   type="number"
+                  min = "0"
+                  step = "1"
                   value={editCost}
-                  onChange={(e) => setEditCost(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '.') {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if(val == '') setEditCost('');
+                    else setEditCost(Math.max(0,Math.floor(val)));
+                  }}
                 />
               </label>
             </Popup>

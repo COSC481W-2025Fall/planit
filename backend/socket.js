@@ -24,6 +24,7 @@ io.on("connection", (socket) => {
   socket.on("joinTrip", (roomName, userData) => {
     socket.join(roomName);
     socket.userData = userData;
+    socket.roomName = roomName;
 
     console.log(`${userData?.username} connected to room: ${roomName}`);
 
@@ -41,7 +42,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnecting", () => {
-    console.log("Disconnecting:", socket.id);
+    console.log(`${socket.userData.username} disconnected from room: ${socket.roomName}`);
 
     for (const roomName of socket.rooms) {
       if (roomName === socket.id) continue;
