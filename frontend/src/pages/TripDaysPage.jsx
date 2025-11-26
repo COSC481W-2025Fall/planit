@@ -77,9 +77,17 @@ export default function TripDaysPage() {
     ...uniquePeople.filter(p => p.username !== user?.username),
   ];
 
-  const visibleParticipants = orderedPeople.slice(0, MAX_DISPLAY_PFP);
-  const hiddenParticipants = orderedPeople.slice(MAX_DISPLAY_PFP);
-  const hiddenCount = orderedPeople.length - visibleParticipants.length;
+  const isUserActive = (username) => {
+    return activeUsers.some(u => u.username === username);
+  };
+
+  // Show ALL active users, hide only inactive users
+  const activePeople = orderedPeople.filter(p => isUserActive(p.username));
+  const inactivePeople = orderedPeople.filter(p => !isUserActive(p.username));
+
+  const visibleParticipants = activePeople; // Show all active users
+  const hiddenParticipants = inactivePeople; // Hide all inactive users
+  const hiddenCount = hiddenParticipants.length;
   const hiddenUsernamesString = hiddenParticipants.map(p => p.username).join('\n');
 
   // distance calculation states
@@ -1058,10 +1066,6 @@ export default function TripDaysPage() {
 
   const isGuestUser = (userId) => {
     return userId && userId.toString().startsWith('guest_');
-  };
-
-  const isUserActive = (username) => {
-    return activeUsers.some(u => u.username === username);
   };
 
   //Loading State
