@@ -4,7 +4,7 @@ and deleting a users account.
 import {sql} from "../config/db.js";
 import session from "express-session";
 
-const REGEX_USERNAME = /^(?!.*__)[A-Za-z0-9_]{1,20}$/;
+const REGEX_USERNAME = /^(?!.*__)[A-Za-z0-9_]{2,20}$/;
 
 //This function handles the creation of a username for a user.
 export const createUsername = async (req, res) => {
@@ -12,7 +12,7 @@ export const createUsername = async (req, res) => {
         const { userId, createUsername } = req.body;
 
         if (!REGEX_USERNAME.test(createUsername)){
-            return res.status(400).json({ error: "Username invalid. Letters, numbers, and '_' only." });
+            return res.status(400).json({ error: "Invalid. Letters, numbers, and '_' only. Min length: 2, max length: 20" });
         }
 
         const result = await sql`
@@ -48,8 +48,12 @@ export const updateUser = async (req, res) => {
   try {
     const { userId, firstname, lastname, username, customPhoto} = req.body;
 
+    if (username === undefined || username === null || username === ""){
+        return res.status(400).json({ error: "Username cannot be null" });
+    }
+
       if (!REGEX_USERNAME.test(username)){
-          return res.status(400).json({ error: "Username invalid. Letters, numbers, and '_' only." });
+          return res.status(400).json({ error: "Invalid. Letters, numbers, and '_' only. Min length: 2, max length: 20" });
       }
 
     if (!userId || !customPhoto || firstname === undefined || lastname === undefined || username === undefined) {

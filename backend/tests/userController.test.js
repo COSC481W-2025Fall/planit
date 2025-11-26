@@ -100,13 +100,13 @@ describe("Update user", () => {
         expect(res.body.user).toEqual(mockUser);
     });
 
-    it("should return 400 if required fields are missing", async () => {
+    it("should return 400 if username is null", async () => {
         const res = await request(app)
         .put("/user/update")
         .send({ userId: 1, firstname: "John" });
 
         expect(res.status).toBe(400);
-        expect(res.body).toHaveProperty("error", "userId, first name, last name, and username are required");
+        expect(res.body).toHaveProperty("error", "Username cannot be null");
     });
 
   it("should return 500 if database throws an error", async () => {

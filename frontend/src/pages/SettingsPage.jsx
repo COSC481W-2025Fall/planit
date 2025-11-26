@@ -96,6 +96,23 @@ export default function SettingsPage() {
 
     //handle saving new user info
     const handleSave = async () => {
+        const trimmedFirst = firstName;
+        const trimmedLast = lastName;
+        const trimmedUser = username;
+
+        const originalFirst = (user.first_name);
+        const originalLast = (user.last_name);
+        const originalUser = (user.username);
+
+        const noChangesToUserData =
+            trimmedFirst === originalFirst &&
+            trimmedLast === originalLast &&
+            trimmedUser === originalUser;
+
+        if (noChangesToUserData) {
+            return;
+        }
+
         try {
             const response = await fetch(
                 (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
@@ -114,12 +131,16 @@ export default function SettingsPage() {
             );
 
             const data = await response.json();
+            let message = data.error;
             if (response.ok && data.success) {
                 setUser(data.user);
                 toast.success("User information updated successfully!")
             }
+            else if (message === "Internal Server Error") {
+                toast.error("Username already taken, try again");
+            }
             else {
-                toast.error("Username already taken. Please try again.");
+                toast.error(message);
             }
         } catch (err) {
             console.error("Update error:", err);
