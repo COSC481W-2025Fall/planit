@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronRight} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -16,9 +16,10 @@ import { toast } from "react-toastify";
 import OverlapWarning from "../components/OverlapWarning.jsx";
 import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
-import {updateTrip} from "../../api/trips.js";
-import {listParticipants, addParticipant, removeParticipant, getOwnerForTrip} from "../../api/trips";
+import {getOwnerForTrip, retrievePackingItems, updateTrip, listParticipants, addParticipant, removeParticipant} from "../../api/trips";
 import { useNavigate } from "react-router-dom";
+import {getWeather} from "../../api/weather.js";
+import CloneTripButton from "../components/CloneTripButton.jsx";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -48,6 +49,7 @@ export default function TripDaysPage() {
   //Constants for image url
   const [imageUrl, setImageUrl] = useState(null);
   const [deleteActivity, setDeleteActivity] = useState(null);
+  const weatherFetchedRef = useRef(false);
 
   //constants for participants
   const [openParticipantsPopup, setOpenParticipantsPopup] = useState(false);
@@ -58,6 +60,9 @@ export default function TripDaysPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const participantFormRef = useRef(null);
   const MAX_DISPLAY_PFP = 4;
+  const [weatherSummary, setWeatherSummary] = useState([]);
+  const [dailyWeather, setDailyWeather] = useState([]);
+  const [isPackingCooldown, setIsPackingCooldown] = useState(false);
 
   const allPeople = [
     ...(owner ? [owner] : []),
@@ -109,6 +114,7 @@ export default function TripDaysPage() {
 
   const menuRefs = useRef({});
   const { tripId } = useParams();
+  const fromExplore = new URLSearchParams(window.location.search).get("fromExplore") === "true";
   const [dragFromDay, setDragFromDay] = useState("");
   const [dragOverInfo, setDragOverInfo] = useState({
     dayId: null,
@@ -120,6 +126,19 @@ export default function TripDaysPage() {
   const isViewer = userRole === "viewer";
   const canEdit = isOwner || isShared;
   const canManageParticipants = isOwner; 
+
+  const [aiHidden, setAiHidden] = useState(false);
+  const [showAIBtn] = useState(true);
+  const [aiItems, setAIItems] = useState([]);
+  const [showAIPopup, setShowAIPopup] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("planit:aiCollapsed");
+    if (saved !== null) {
+      setAiHidden(saved === "true");
+    }
+  }, []);
+
 
   //responsive
   useEffect(() => {
@@ -356,6 +375,16 @@ export default function TripDaysPage() {
         // Later fetches: keep prior choices, just drop deleted day IDs
         setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
       }
+
+      const hasAnyActivityAddress = daysWithActivities.some(
+          day => day.activities && day.activities[0]?.activity_address
+      );
+
+      if (trip && hasAnyActivityAddress && !weatherFetchedRef.current) {
+        weatherFetchedRef.current = true;
+        fetchAndSetWeather(daysWithActivities);
+      }
+
     } catch (err) {
       console.error(err);
     }
@@ -697,12 +726,31 @@ export default function TripDaysPage() {
       if (!response.ok) throw new Error("Failed to delete activity");
 
       // Update the days state by removing the deleted activity
-      setDays(prevDays =>
-        prevDays.map(day => ({
-          ...day,
-          activities: day.activities?.filter(a => a.activity_id !== activityId) || []
-        }))
-      );
+      setDays(prevDays => {
+        const updatedDays = prevDays.map(day => {
+          if (day.day_id !== dayId) return day;
+
+          const remainingActivities =
+              day.activities?.filter(a => a.activity_id !== activityId) || [];
+
+          return {
+            ...day,
+            activities: remainingActivities,
+          };
+        });
+
+        // Find the day we just updated
+        const targetDay = updatedDays.find(d => d.day_id === dayId);
+
+        // If no activities remain for this day, remove its weather entry
+        if (!targetDay || (targetDay.activities?.length ?? 0) === 0) {
+          setDailyWeather(prevWeather =>
+              prevWeather.filter(w => w.day_id !== dayId)
+          );
+        }
+
+        return updatedDays;
+      });
 
       toast.success("Activity deleted successfully!");
       await fetchDay(dayId);
@@ -992,6 +1040,174 @@ export default function TripDaysPage() {
     return userId && userId.toString().startsWith('guest_');
   };
 
+  const handlePackingAI = async () => {
+    if (isPackingCooldown) return;
+
+    if (isGuestUser(user?.user_id)) {
+      toast.info("Please log in to use Packing AI.");
+      return;
+    }
+
+    if (!days || days.length === 0) {
+      toast.error("Packing AI needs days in the trip. Add days first.");
+      return;
+    }
+
+    const startDate = new Date(trip.trip_start_date || days[0].day_date).toISOString().split("T")[0];
+    const endDate   = new Date(days[days.length - 1].day_date).toISOString().split("T")[0];
+
+    const tripDuration = getDifferenceBetweenDays(startDate, endDate);
+    const activities = days.flatMap(day => day.activities || []);
+
+    const allActivities = [];
+    const allLocations = [];
+    for (const activity of activities) {
+      allActivities.push(activity.activity_types);
+      allLocations.push(activity.activity_address);
+    }
+
+    const counts = new Map();
+    for (const word of allLocations) {
+      counts.set(word, (counts.get(word) || 0) + 1);
+    }
+
+    let mostCommonLocation = null;
+    let highestCount = 0;
+    for (const [location, count] of counts.entries()) {
+      if (count > highestCount) {
+        highestCount = count;
+        mostCommonLocation = location;
+      }
+    }
+    if (!mostCommonLocation || !allActivities) {
+      toast.warning("Packing AI needs at least one valid activity. Add an activity.");
+      return;
+    }
+
+    if (!mostCommonLocation.includes(", US")) {
+      toast.error(`Packing AI is offered for US trips only.`);
+      return
+    }
+
+    const uniqueActivities = allActivities.filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+
+    const tripPayload =         {
+      "destination": mostCommonLocation.split(", US")[0],
+      "season": weatherSummary.season,
+      "activities": uniqueActivities.toString(),
+      "duration_days": tripDuration,
+      "avg_temp_high": weatherSummary.avg_high_f,
+      "avg_temp_low": weatherSummary.avg_high_f,
+      "rain_chance_percent": weatherSummary.avg_rain_chance,
+      "humidity_percent": weatherSummary.avg_humidity
+    }
+
+    const requiredFields = [
+      "season",
+      "avg_temp_high",
+      "avg_temp_low",
+      "rain_chance_percent",
+      "humidity_percent"
+    ];
+
+    for (const field of requiredFields) {
+      const value = tripPayload[field];
+
+      // Detect null, undefined, empty string, NaN
+      if (
+          value === null ||
+          value === undefined ||
+          value === ""
+      ) {
+        toast.warning(`Packing AI cannot process, weather not available.`);
+        return;
+      }
+    }
+
+    setIsPackingCooldown(true);
+    try {
+      const response = await retrievePackingItems(tripPayload);
+
+      let items = [];
+
+      // Our backend returns: { predicted_items: [...] }
+      if (Array.isArray(response?.predicted_items)) {
+        items = response.predicted_items.map((i) => i.item_name);
+      }
+
+      setAIItems(items);
+      setShowAIPopup(true);
+
+    } catch (e) {
+      console.error("call failed", e);
+      toast.error("Packing AI took too long to respond. Please try again later.");
+    } finally {
+      setTimeout(() => setIsPackingCooldown(false), 3000); // Cooldown: 3 seconds
+    }
+  };
+
+  function getDifferenceBetweenDays (startDate, endDate) {
+    const [y1, m1, d1] = startDate.split("-").map(Number);
+    const [y2, m2, d2] = endDate.split("-").map(Number);
+
+    const t1 = Date.UTC(y1, m1 - 1, d1);
+    const t2 = Date.UTC(y2, m2 - 1, d2);
+
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+    return Math.round((t2 - t1) / MS_PER_DAY);
+  }
+
+  async function fetchAndSetWeather(sourceDays) {
+    const actualDays = sourceDays && sourceDays.length ? sourceDays : days;
+
+    const activityLocations = actualDays.map(day => day.activities[0]?.activity_address)
+    const tripDaysDates = actualDays.map(day => day.day_date.split("T")[0]);
+    const tripDaysKeys = actualDays.map(day => day.day_id);
+
+    try {
+      if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) >= 365){
+        toast.info("No weather forecast available, too far in the advance.")
+        return;
+      }
+
+      const weather = await getWeather(
+          activityLocations,
+          tripDaysDates,
+          tripDaysKeys
+      );
+
+      setWeatherSummary(weather.summary || []);
+      setDailyWeather(weather.daily_raw || []);
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load weather data");
+    }
+  }
+
+  const handleSingleDayWeather = ({ dayId, date, weather }) => {
+    const dayWeather = weather?.daily_raw?.[0];
+    if (!dayWeather) return;
+
+    const dateKey = date; // already "YYYY-MM-DD"
+
+    setDailyWeather(prev => {
+      // remove existing entry for this date (if any)
+      const filtered = prev.filter(w => w.date !== dateKey);
+
+      return [
+        ...filtered,
+        { ...dayWeather, day_id: dayId },
+      ];
+    });
+
+    if (weather?.summary) {
+      setWeatherSummary(prev => ({ ...prev, ...weather.summary }));
+    }
+  };
+
   //Loading State
   if (!user || !trip) {
     return (
@@ -1023,12 +1239,16 @@ export default function TripDaysPage() {
         <NavBar />
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
-            <h1 className="trip-title">{trip.trip_name}</h1>
-            {isViewer && (
-              <span className="permission-badge viewer-badge">
-                <Eye className = "view-icon"/> Viewing Only
-              </span>
-            )}
+  <h1 className="trip-title">{trip.trip_name}</h1>
+
+  <div className="title-action-row">
+      {isViewer && (
+        <div className="permission-badge viewer-badge">
+          <Eye className="view-icon" />
+          <span>Viewing Only</span>
+        </div>
+      )}
+
             {canEdit && (
             <div className="participant-photos">
                {visibleParticipants.map((p) =>
@@ -1060,10 +1280,13 @@ export default function TripDaysPage() {
                   </div>
                 )}
             </div>
-            )}
+          )}
+          </div>
           </div>
 
           <div className="trip-info">
+
+            <div className="trip-left-side">
             <div className="trip-location">
               <MapPin className="trip-info-icon" />
               <p className="trip-location-text">{trip.trip_location}</p>
@@ -1079,9 +1302,7 @@ export default function TripDaysPage() {
                     day: "numeric",
                   })}{" "}
                   -{" "}
-                  {new Date(
-                    days[days.length - 1].day_date
-                  ).toLocaleDateString("en-US", {
+                  {new Date(days[days.length - 1].day_date).toLocaleDateString("en-US", {
                     weekday: "long",
                     month: "short",
                     day: "numeric",
@@ -1089,6 +1310,18 @@ export default function TripDaysPage() {
                 </p>
               </div>
             )}
+            </div>
+
+            <div className="clone-trip-wrapper">
+              <CloneTripButton
+                user={user}
+                tripId={tripId}
+                access={userRole}
+                fromExplore={fromExplore}
+                onCloned={(newId) => navigate(`/days/${newId}`)}
+                trip={trip}
+              />
+            </div>
           </div>
 
           <div className="image-banner">
@@ -1124,6 +1357,29 @@ export default function TripDaysPage() {
               </div>
             )}
           </div>
+          {showAIBtn && (
+              <div className={`ai-floating-container ${aiHidden ? "collapsed" : ""}`}>
+                <button
+                    className={`ai-toggle-btn ${aiHidden ? "glow" : ""}`}
+                    onClick={() => {
+                      const newVal = !aiHidden;
+                      setAiHidden(newVal);
+                      localStorage.setItem("planit:aiCollapsed", newVal.toString());
+                    }}
+                >
+                  {aiHidden ? <Luggage size={18} /> : <ChevronRight size={18} />}
+                </button>
+                <button
+                    className={`packing-ai-button ${isPackingCooldown ? "cooldown" : ""} ${
+                        isGuestUser(user?.user_id) ? "disabled-guest" : ""}`}
+                        onClick={handlePackingAI}
+                        disabled={isPackingCooldown}>
+                  <Luggage size={14} id="ai-icon" />
+                  <span>Packing AI</span>
+                </button>
+              </div>
+
+          )}
           <div className="days-scroll-zone">
             <div className="days-container">
               {days.length === 0 ? (
@@ -1135,6 +1391,7 @@ export default function TripDaysPage() {
               ) : (
                 days.map((day, index) => {
                   const isExpanded = expandedDays.includes(day.day_id);
+                  const weatherForDay = dailyWeather.find(w => w.day_id === day.day_id);
                   return (
                     <React.Fragment key={day.day_id}>
                       {index === 0 && canEdit && (
@@ -1167,16 +1424,35 @@ export default function TripDaysPage() {
                             );
                           }}
                         >
-                          <div>
+                          <div className={"day-top-row-header"}>
                             <p className="day-title">Day {index + 1}</p>
-                            <p className="day-date">
-                              {new Date(day.day_date).toLocaleDateString("en-US", {
-                                weekday: "long",
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </p>
+                            <div className="weather-icon">
+                              {weatherForDay && (
+                                  <div className="weather-menu">
+                                    <div>
+                                      <p>High: {Math.round(weatherForDay.max_temp_f)}°F</p>
+                                      <p>Low: {Math.round(weatherForDay.min_temp_f)}°F</p>
+                                      <p>Prec: {Math.round(weatherForDay.rain_chance)}%</p>
+                                    </div>
+                                  </div >
+                              )}
+                              {weatherForDay?.condition_icon ? (
+                                  <img
+                                      src={`https://${weatherForDay.condition_icon}`}
+                                      alt="Weather icon"
+                                  />
+                              ) : (
+                                  <div className="empty-weather-icon"/>
+                              )}
+                            </div>
                           </div>
+                          <p className="day-date">
+                            {new Date(day.day_date).toLocaleDateString("en-US", {
+                              weekday: "long",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </p>
                           <div className="day-header-bottom">
                             <span className="number-of-activities">
                               {day.activities?.length ?? 0} Activities
@@ -1263,7 +1539,27 @@ export default function TripDaysPage() {
               )}
             </div>
           </div>
-
+          {showAIPopup && (
+            <Popup
+              title="Packing AI Suggestions"
+              onClose={() => setShowAIPopup(false)}
+              buttons={
+                <>
+                  <button onClick={() => setShowAIPopup(false)}>Close</button>
+                </>
+              }
+            >
+              {aiItems.length === 0 ? (
+                <p className="empty-state-text">No items were returned.</p>
+              ) : (
+                <ul className="ai-items-list">
+                  {aiItems.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </Popup>
+          )}
           {openNotesPopup && selectedActivity && (
             <Popup
               title={"Notes for: " + selectedActivity.activity_name}
@@ -1594,6 +1890,7 @@ export default function TripDaysPage() {
                 : []}
               onActivityAdded={(dayId) => fetchDay(dayId)}
               allDays={days}
+              onSingleDayWeather={handleSingleDayWeather}
             />
           </div>
         )}

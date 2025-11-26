@@ -95,15 +95,13 @@
     box-shadow: var(--shadow-5);
 }
 .image-selector-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
-    max-height: 300px; /* matches your inline style */
+    max-height: 300px;
     overflow-y: auto;
     padding: 10px;
-  }
+}
   .image-selector-grid img {
     object-fit: cover;
     border-radius: 10px;
@@ -236,8 +234,9 @@
     border-radius: 8px;
     width: 90%;
     max-width: 500px;
-    /* max-height: 80vh; */
     overflow-y: auto;
+    margin: auto;
+
 }
 
 .modal-content h2 {
@@ -297,6 +296,75 @@ html[data-theme="dark"] .modal-content input:-webkit-autofill {
     -webkit-text-fill-color: var(--text-strong);
 }
 
+.calendar-header {
+    padding: 6px 12px;
+    text-align: center;
+    background: transparent !important;
+    border-radius: 10px 10px 0 0;
+}
+
+.month-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.month-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    color: var(--text);
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.month-btn:hover {
+    transform: scale(1.2);
+    color: var(--accent);
+}
+
+.month-label {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 1rem;
+}
+.react-datepicker__day--disabled,
+.react-datepicker__day--disabled:hover {
+    opacity: 0.28 !important;
+    color: var(--text) !important;
+    cursor: not-allowed !important;
+    background: transparent !important;
+}
+.react-datepicker-popper {
+    z-index: 999999 !important;
+}
+.popup,
+.modal-overlay {
+    overflow: visible !important; /* allow popovers to escape */
+}
+
+
+.image-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin: 10px 0;
+}
+
+.selected-image-mini {
+    width: 45px;
+    height: 45px;
+    border-radius: 6px;
+    object-fit: cover;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.react-datepicker {
+    transform: scale(0.95);
+}
+
 /* Tablets */
 @media (max-width: 900px) {
     .content-with-sidebar {
@@ -329,16 +397,14 @@ html[data-theme="dark"] .modal-content input:-webkit-autofill {
         padding: 1rem;
     }
 
-    @media (max-width: 600px) {
-        .trips-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.75rem;
-        }
+    .trips-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
 
-        .banner-controls {
-            justify-content: flex-start;
-        }
+    .banner-controls {
+        justify-content: flex-start;
     }
 
     .trip-cards {
@@ -351,6 +417,15 @@ html[data-theme="dark"] .modal-content input:-webkit-autofill {
 
     .trip-card-title {
         font-size: 0.95rem;
+    }
+    .react-datepicker__portal {
+        position: absolute !important;
+        inset: auto !important;
+        transform: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        width: auto !important;
+        height: auto !important;
     }
 }
 
@@ -491,52 +566,82 @@ select:focus {
     color: var(--accent);
 }
 
-/* --- moved from inline styles in TripPage.jsx --- */
-.privacy-row {
+.privacy-switch-container {
+    margin: -5px 0 4px 0;
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 8px 0 4px;
 }
 
-.privacy-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
+.privacy-switch {
+    width: 80px;
+    height: 32px;
+    padding: 0;
     background: var(--bg-surface);
-    color: var(--text-medium);
-    font: size 13px;
-    font-weight: 500;
+    border-radius: 999px;
+    border: 2px solid var(--accent);
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.privacy-chip.active {
-    background: var(--accent);
-    color: var(--bg-white);
-    border-color: var(--accent);
-    font-weight: 500;
-}
-
-.privacy-chip:hover {
-    transform: scale(1.02);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     box-shadow: var(--shadow-1);
+    transition: transform 0.2s ease;
 }
 
-/* scale icons to match smaller text */
-.privacy-chip svg {
-  width: 14px;
-  height: 14px;
+.privacy-icon {
+    flex: 1;
+    text-align: center;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.25s ease;
 }
+
+.privacy-icon.active {
+    color: var(--accent);
+}
+
+.privacy-switch:hover {
+    transform: scale(1.03);
+    box-shadow: var(--shadow-2);
+}
+
+.privacy-icon:hover::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: var(--text-on-accent);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    animation: fadeInTooltip 0.18s ease forwards;
+}
+
+@keyframes fadeInTooltip {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -4px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+
 .trip-card-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .trip-submit-btn {
+    .trip-submit-btn {
     transition: opacity 0.3s ease;
   }
   
