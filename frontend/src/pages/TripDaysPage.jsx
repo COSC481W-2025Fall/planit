@@ -191,9 +191,12 @@ export default function TripDaysPage() {
       toast.success(`Day ${dayIndex} activity "${activityName}" deleted by ${username}!`);
     });
 
-    socket.on("noteUpdated", (dayId) => {
-      fetchDay(dayId);
-      toast.success("Notes updated successfully!");
+    socket.on("noteUpdated", (dayId, activityName, dayIndex, username, notes) => {
+      if(notes != ""){
+        const toastNote = notes.length > 20 ? notes.slice(0, 20) + "..." : notes;
+        fetchDay(dayId);
+        toast.success(`Day ${dayIndex} activity "${activityName}" ${username} notes: "${toastNote}"`);
+      }
     });
 
     socket.on("addedParticipant", () => {
@@ -835,7 +838,7 @@ export default function TripDaysPage() {
     setDeleteActivity(activity);
   };
 
-  const updateNotesForActivity = async (id, newNote, dayId) => {
+  const updateNotesForActivity = async (id, newNote, dayId, activityName, dayIndex, username) => {
     if (!canEdit) {
       toast.error("You don't have permission to edit notes");
       return;
@@ -852,7 +855,10 @@ export default function TripDaysPage() {
           tripId: trip.trips_id,
           activityId: id,
           notes: newNote,
-          dayId: dayId
+          dayId: dayId,
+          activityName: activityName,
+          dayIndex: dayIndex,
+          username: username
         }),
       });
 
@@ -1642,7 +1648,7 @@ export default function TripDaysPage() {
                     <button
                       className="btn-rightside"
                       onClick={() => {
-                        updateNotesForActivity(selectedActivity.activity_id, editableNote, selectedActivity.day_id);
+                        updateNotesForActivity(selectedActivity.activity_id, editableNote, selectedActivity.day_id, selectedActivity.activity_name, days.findIndex(d => d.day_id === selectedActivity.day_id) + 1, user.username);
                         setOpenNotesPopup(false);
                       }}
                     >
