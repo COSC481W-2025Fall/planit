@@ -2,6 +2,7 @@
 and deleting a users account.
 */
 import {sql} from "../config/db.js";
+import session from "express-session";
 
 //This function handles the creation of a username for a user.
 export const createUsername = async (req, res) => {
@@ -18,9 +19,17 @@ export const createUsername = async (req, res) => {
         if (result.length === 0) {
             return res.status(400).json({ error: "User already has a username" });
         }
-        else
-          return res.json("Username created successfully");
-    } 
+
+        const createdUser = result[0];
+
+        req.login(createdUser, (err) => {
+            if (err) {
+                console.error("Error refreshing session after username creation:", err);
+                return res.status(500).json({error: "Error refreshing session after username creation:"});
+            }
+            return res.json({ success: true, user: createdUser });
+        });
+    }
     catch (err) {
         console.log(err);
         return res.status(500).json({ error: "Internal Server Error" });
