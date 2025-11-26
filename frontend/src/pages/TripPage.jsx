@@ -215,13 +215,13 @@ export default function TripPage() {
             // date-based sorts
             const getDateForSort = (trip) => {
                 // "recent" prefers updated_at if present
-                if (sortOption === "recent" && (trip.updated_at || trip.updatedAt)) {
-                    return new Date(trip.updated_at || trip.updatedAt);
+                if (sortOption === "recent" && (trip.trip_updated_at)) {
+                    return new Date(trip.trip_updated_at);
                 }
                 if (trip.trip_start_date) return new Date(trip.trip_start_date);
                 if (trip.trip_end_date) return new Date(trip.trip_end_date);
-                if (trip.updated_at || trip.updatedAt) {
-                    return new Date(trip.updated_at || trip.updatedAt);
+                if (trip.trip_updated_at) {
+                    return new Date(trip.trip_updated_at);
                 }
                 return null;
             };
