@@ -7,7 +7,7 @@ import { Camera } from "lucide-react";
 import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import GuestEmptyState from "../components/GuestEmptyState.jsx";
-import Croppie from "croppie/croppie";
+import Croppie from "croppie";
 import "croppie/croppie.css";
 import Popup from "../components/Popup.jsx";
 
