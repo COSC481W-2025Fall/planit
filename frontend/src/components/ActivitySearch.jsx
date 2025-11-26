@@ -10,6 +10,7 @@ import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
 import OverlapWarning from "./OverlapWarning.jsx";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
+import {getWeather} from "../../api/weather.js";
 
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
@@ -45,7 +46,8 @@ export default function ActivitySearch({
     dayIds = [],
     allDays = [],
     onActivityAdded,
-    username
+    username,
+    onSingleDayWeather
 }) {
     const [query, setQuery] = useState("");
     const [cityQuery, setCityQuery] = useState("");
@@ -353,6 +355,8 @@ export default function ActivitySearch({
             return;
         }
 
+        const dayDate = allDays.find(d => d.day_id === pendingDayId).day_date.split("T")[0];
+
         // Build payload from the selected place
         const place = pendingPlace;
         const name = place.displayName?.text || "Activity";
@@ -415,6 +419,28 @@ export default function ActivitySearch({
                 withCredentials: true,
             });
 
+            if (dayActivities.length === 0){
+                try {
+                    const weather = await getWeather(
+                        address,
+                        dayDate,
+                        pendingDayId
+                    );
+
+                    if (typeof onSingleDayWeather === "function") {
+                        onSingleDayWeather({
+                            dayId: pendingDayId,
+                            date: dayDate,
+                            weather,          // { daily_raw: [...], summary: {...} }
+                        });
+                    }
+                } catch (err) {
+                    console.error(err);
+                    toast.error("Failed to load weather data");
+                }
+            }
+
+            toast.success("Activity added!");
             setShowDetails(false);
             setPendingPlace(null);
             setPendingDayId(null);
