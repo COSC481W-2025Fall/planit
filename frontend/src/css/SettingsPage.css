@@ -326,7 +326,7 @@
 .stats-tabs {
     padding-top: 5px;
     display: flex;
-    justify-content: right;
+    justify-content: center;
     gap: 10px;
 }
 .stats-tab {
@@ -375,7 +375,7 @@ html[data-theme="dark"] .stats-tab.active { background: var(--accent); color: va
         height: calc(100vh - var(--topbar-h));
     }
 
-    input {
+    .setting-page input {
         width: 180px;
     }
 
