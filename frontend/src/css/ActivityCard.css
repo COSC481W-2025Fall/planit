@@ -20,8 +20,7 @@
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.activity-container:hover {
-    transform: translateY(-2px);
+ .activity-container:hover {
     box-shadow: var(--shadow-2);
 }
 
@@ -106,7 +105,9 @@
 }
 
 .ellipis {
-    height: 1.125rem;
+    height: 1rem;
+    width: 1rem;
+    stroke-width: 2.5;
     opacity: 0;
     transition: opacity 0.2s ease, transform 0.2s ease-in-out;
     color: var(--muted);
@@ -151,6 +152,11 @@
     text-decoration: underline;
 }
 
+.website-cost-line {
+    display: flex;
+    justify-content: space-between;
+}
+
 .day-menu {
     position: absolute;
     top: 1.5rem;
@@ -166,6 +172,7 @@
     opacity: 1;
     pointer-events: all;
     transition: opacity 0.15s ease;
+    overflow: visible;
 }
 
 .day-menu.closing {

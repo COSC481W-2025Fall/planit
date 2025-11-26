@@ -13,6 +13,8 @@ export default function SettingsPage() {
     const [lastName, setLastName] = useState("");
     const [username, setUsername] = useState("");
     const [stats, setStats] = useState(null);
+    const [groupStats, setGroupStats] = useState(null);
+    const [tab, setTab] = useState("userStats"); //"user stats" || "group stats"
 
     useEffect(() => {
         fetch(
@@ -45,49 +47,50 @@ export default function SettingsPage() {
         }
     }, [user]);
 
+    //load group stats when group tab is clicked
+    useEffect(() => {
+        // once we set group stats this won't be called again "!groupStats
+        if (tab === "groupStats" && user && !isGuestUser(user.user_id) && !groupStats) {
+            const loadGroupStats = async () => {
+                const data = await fetchGroupStats(user.user_id);
+                setGroupStats(data);
+            };
+            loadGroupStats();
+        }
+    }, [tab, user, groupStats]);
 
-    // fetch stats endpoints
+
+    // fetch user stats endpoints
     const fetchUserStats = async (userID) => {
         try {
             const backend = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
-            const postData = async (endpoint) => {
-                const res = await fetch(`${backend}/settings/${endpoint}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userID }),
-                });
-                return res.json();
-            };
+            const res = await fetch(`${backend}/settings/getAllSettings`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userID }),
+            });
 
-            const [
-                tripCount,
-                longestTrip,
-                mostExpensiveTrip,
-                cheapestTrip,
-                totalMoneySpent,
-                totalLikes,
-
-            ] = await Promise.all([
-                postData("tripCount"),
-                postData("longestTrip"),
-                postData("mostExpensiveTrip"),
-                postData("cheapestTrip"),
-                postData("totalMoneySpent"),
-                postData("totalLikes"),
-            ]);
-
-            return {
-                tripCount,
-                longestTrip,
-                totalLikes,
-                cheapestTrip,
-                mostExpensiveTrip,
-                totalMoneySpent
-            }
-        
+            return await res.json(); 
         } catch (err) {
             console.error("Error fetching stats:", err);
+        }
+    };
+
+    //fetch group stats endpoints
+    const fetchGroupStats = async (userID) => {
+        try {
+            const backend = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+
+            const res = await fetch(`${backend}/settingsParticipant/getAllParticipantSettings`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userID }),
+            });
+
+            return await res.json();
+        } catch (err) {
+            console.error("Error fetching group stats:", err);
         }
     };
 
@@ -219,15 +222,33 @@ export default function SettingsPage() {
                                 </button>
                             </div>
                         </div>
+ 
 
                         {/* Viewing stats section */}
                         <div className="stats-card">
-                            <h3>User Stats</h3>
+
+                            {/* Tab Buttons for User and Group Stats */}
+                            <div className="stats-tabs">
+                                <button
+                                    className={`stats-tab ${tab === "userStats" ? "active" : ""}`}
+                                    onClick={() => setTab("userStats")}
+                                >User Stats
+                                </button>  
+
+                                 <button
+                                    className={`stats-tab ${tab === "groupStats" ? "active" : ""}`}
+                                    onClick={() => setTab("groupStats")}
+                                >Group Stats
+                                </button> 
+                            </div>
+
+                            {/* Display user stats */}
+                            {tab === "userStats" && (
                             <div className="stats">
                                 
                                 <div className="stat-line">
-                                    <span className="stat-label">Number of Trips Made: </span>
-                                    <span className="stat-value">{stats?.tripCount?.tripCount ?? "N/A"}</span>
+                                    <span className="stat-label">Trips Made: </span>
+                                    <span className="stat-value">{stats?.tripCount ?? "N/A"}</span>
                                 </div>
 
                                 <div className="stat-line">
@@ -247,14 +268,51 @@ export default function SettingsPage() {
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Money Spent: </span>
-                                    <span className="stat-value">{stats?.totalMoneySpent?.totalMoneySpent ?? "N/A"}</span>
+                                    <span className="stat-value">{stats?.totalMoneySpent ?? "N/A"}</span>
                                 </div>
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Likes: </span>
-                                    <span className="stat-value">{stats?.totalLikes?.totalLikes ?? "N/A"}</span>
+                                    <span className="stat-value">{stats?.totalLikes ?? "N/A"}</span>
                                 </div>
                             </div>
+                            )}
+
+                            {/*Display group stats */}
+                            {tab === "groupStats" && (
+                            <div className="stats">
+                                
+                                <div className="stat-line">
+                                    <span className="stat-label">Trips Shared With You: </span>
+                                    <span className="stat-value">{groupStats?.tripCount ?? "N/A"}</span>
+                                </div>
+
+                                <div className="stat-line">
+                                    <span className="stat-label">Longest Trip: </span>
+                                    <span className="stat-value">{groupStats?.longestTrip?.trip_name ?? "N/A"}</span>
+                                </div>
+
+                                <div className="stat-line">
+                                    <span className="stat-label">Most Expensive Trip: </span>
+                                    <span className="stat-value">{groupStats?.mostExpensiveTrip?.trip_name ?? "N/A"}</span>
+                                </div>
+
+                                <div className="stat-line">
+                                    <span className="stat-label">Cheapest Trip: </span>
+                                    <span className="stat-value">{groupStats?.cheapestTrip?.trip_name ?? "N/A"}</span>
+                                </div>
+
+                                <div className="stat-line">
+                                    <span className="stat-label">Total Money Spent: </span>
+                                    <span className="stat-value">{groupStats?.totalMoneySpent ?? "N/A"}</span>
+                                </div>
+
+                                <div className="stat-line">
+                                    <span className="stat-label">Total Likes: </span>
+                                    <span className="stat-value">{groupStats?.totalLikes ?? "N/A"}</span>
+                                </div>
+                            </div>
+                            )}                            
                         </div>
                     </div>
                 </div>

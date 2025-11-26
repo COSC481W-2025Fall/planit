@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
 import "../css/ActivitySearch.css";
 import "../css/Popup.css";
@@ -42,6 +42,7 @@ export default function ActivitySearch({
     onClose,
     days,
     dayIds = [],
+    allDays = [],
     onActivityAdded,
 }) {
     const [query, setQuery] = useState("");
@@ -59,7 +60,6 @@ export default function ActivitySearch({
     const [formCost, setFormCost] = useState("");
     const [notes, setNotes] = useState("");
     const [distanceInfo, setDistanceInfo] = useState(null);
-    const [dayActivities, setDayActivities] = useState([]);
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [transportMode, setTransportMode] = useState("DRIVE");
     const [distanceLoading, setDistanceLoading] = useState(false);
@@ -94,41 +94,12 @@ export default function ActivitySearch({
     }
   };
 
-useEffect(() => {
-  if (!selectedDay) return;
-
-  const fetchActivities = async () => {
-    try {
-      const res = await axios.post(
-        `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/read/all`,
-        { dayId: dayIds[selectedDay - 1] },
-        { withCredentials: true }
-      );
-
-      const activities = res.data.activities || [];
-
-      // sort activities by start time
-      const sortedActivities = activities.sort((a, b) => {
-        // convert HH:MM string to minutes
-        const timeToMinutes = (t) => {
-          if (!t) return 0;
-          const [h, m] = t.split(":").map(Number);
-          return h * 60 + m;
-        };
-
-        return timeToMinutes(a.activity_startTime) - timeToMinutes(b.activity_startTime);
-      });
-
-      setDayActivities(sortedActivities);
-    } catch (err) {
-      console.error("Failed to fetch activities:", err);
-    }
-  };
-
-  fetchActivities();
-}, [selectedDay]);
-
-
+  const dayActivities = useMemo(() => {
+    if (!selectedDay || !dayIds.length) return [];
+    const dayId = dayIds[selectedDay - 1];
+    const day = allDays.find(d => d.day_id === dayId);
+    return day?.activities || [];
+  }, [selectedDay, dayIds, allDays]);
 
     const formatType = (type) => {
         if (!type) return "N/A";
@@ -649,7 +620,16 @@ useEffect(() => {
                             min="0"
                             placeholder="e.g. 90"
                             value={formDuration}
-                            onChange={(e) => setFormDuration(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                                    e.preventDefault();
+                                }
+                            }}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if(val == '') setFormDuration('');
+                                else setFormDuration(Math.max(0,val));
+                            }}
                             disabled={saving}
                         />
                     </label>
@@ -672,10 +652,19 @@ useEffect(() => {
                         <input
                             type="number"
                             min="0"
-                            step="0.01"
+                            step="1"
                             placeholder="e.g. 25"
                             value={formCost}
-                            onChange={(e) => setFormCost(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '.') {
+                                    e.preventDefault();
+                                }
+                            }}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if(val == '') setFormCost('');
+                                else setFormCost(Math.max(0,Math.floor(val)));
+                            }}
                             disabled={saving}
                         />
                     </label>

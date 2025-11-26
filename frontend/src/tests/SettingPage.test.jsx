@@ -37,17 +37,18 @@ describe("SettingsPage", () => {
         });
       }
 
-      if (url.includes("/settings/")) {
-        const endpoint = url.split("/").pop();
-        const mockStats = {
-          tripCount: { tripCount: 5 },
-          longestTrip: { trip_name: "Camping" },
-          mostExpensiveTrip: { trip_name: "Beach" },
-          cheapestTrip: { trip_name: "Up North" },
-          totalMoneySpent: { totalMoneySpent: 100 },
-          totalLikes: { totalLikes: 10 },
-        };
-        return Promise.resolve({ json: () => Promise.resolve(mockStats[endpoint]) });
+      if (url.includes("/settings/getAllSettings")) {
+    return Promise.resolve({
+    json: () =>
+      Promise.resolve({
+        tripCount: 5,
+        longestTrip: { trip_name: "Camping" },
+        mostExpensiveTrip: { trip_name: "Beach" },
+        cheapestTrip: { trip_name: "Up North" },
+        totalMoneySpent: 100,
+        totalLikes: 10,
+          }),
+        });
       }
 
       if (url.includes("/user/update")) {
@@ -92,7 +93,7 @@ describe("SettingsPage", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Number of Trips Made/i)).toBeInTheDocument();
+      expect(screen.getByText(/Trips Made/i)).toBeInTheDocument();
       expect(screen.getByText("5")).toBeInTheDocument();
       expect(screen.getByText(/Longest Trip/i)).toBeInTheDocument();
       expect(screen.getByText("Camping")).toBeInTheDocument();
@@ -138,6 +139,75 @@ describe("SettingsPage", () => {
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("Username already taken. Please try again.");
+    });
+  });
+
+  test("loads and displays group stats", async () => {
+    global.fetch = vi.fn((url, options) => {
+      if (url.includes("/auth/login/details")) {
+        return Promise.resolve({
+          json: () => Promise.resolve({
+            loggedIn: true,
+            user_id: 1,
+            first_name: "Test",
+            last_name: "User",
+            username: "testuser",
+          }),
+        });
+      }
+
+      if (url.includes("/settings/getAllSettings")) {
+        return Promise.resolve({
+          json: () => Promise.resolve({
+            tripCount: 5,
+            longestTrip: { trip_name: "Long" },
+            mostExpensiveTrip: { trip_name: "Expensive" },
+            cheapestTrip: { trip_name: "Cheap" },
+            totalMoneySpent: 100,
+            totalLikes: 10,
+          }),
+        });
+      }
+
+      if (url.includes("/settingsParticipant/getAllParticipantSettings")) {
+        return Promise.resolve({
+          json: () => Promise.resolve({
+            tripCount: 3,
+            longestTrip: { trip_name: "Long" },
+            mostExpensiveTrip: { trip_name: "Expensive" },
+            cheapestTrip: { trip_name: "Cheap" },
+            totalMoneySpent: 250,
+            totalLikes: 42,
+          }),
+        });
+      }
+
+      throw new Error("Unhandled fetch: " + url);
+    });
+
+    render(
+      <MemoryRouter>
+        <SettingsPage />
+      </MemoryRouter>
+    );
+
+    // Wait for initial user stats to load
+    await waitFor(() => {
+      expect(screen.getByText("Long")).toBeInTheDocument();
+    });
+
+    // Click Group Stats tab
+    fireEvent.click(screen.getByText(/Group Stats/i));
+
+    // Wait for group stats to appear
+    await waitFor(() => {
+      expect(screen.getByText("Trips Shared With You:")).toBeInTheDocument();
+      expect(screen.getByText("3")).toBeInTheDocument();
+      expect(screen.getByText("Long")).toBeInTheDocument();
+      expect(screen.getByText("Expensive")).toBeInTheDocument();
+      expect(screen.getByText("Cheap")).toBeInTheDocument();
+      expect(screen.getByText("250")).toBeInTheDocument();
+      expect(screen.getByText("42")).toBeInTheDocument();
     });
   });
 });
