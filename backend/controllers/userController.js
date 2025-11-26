@@ -4,10 +4,17 @@ and deleting a users account.
 import {sql} from "../config/db.js";
 import session from "express-session";
 
+const REGEX_USERNAME = /^(?!.*__)[A-Za-z0-9_]{1,20}$/;
+
 //This function handles the creation of a username for a user.
 export const createUsername = async (req, res) => {
     try {
         const { userId, createUsername } = req.body;
+
+        if (!REGEX_USERNAME.test(createUsername)){
+            return res.status(400).json({ error: "Username invalid. Letters, numbers, and '_' only." });
+        }
+
         const result = await sql`
             UPDATE users
             SET username = ${createUsername}
@@ -41,6 +48,10 @@ export const updateUser = async (req, res) => {
   try {
     const { userId, firstname, lastname, username, customPhoto} = req.body;
 
+      if (!REGEX_USERNAME.test(username)){
+          return res.status(400).json({ error: "Username invalid. Letters, numbers, and '_' only." });
+      }
+
     if (!userId || !customPhoto || firstname === undefined || lastname === undefined || username === undefined) {
       return res.status(400).json({ error: "userId, first name, last name, and username are required" });
     }
@@ -59,6 +70,10 @@ export const updateUser = async (req, res) => {
       photo = ${customPhoto}
       WHERE user_id = ${userId}
       RETURNING *`;
+
+      if (result.length === 0) {
+          return res.status(400).json({ error: "User already has a username" });
+      }
 
     const updatedUser = result[0];
 

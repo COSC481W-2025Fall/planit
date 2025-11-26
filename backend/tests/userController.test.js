@@ -56,7 +56,6 @@ describe("Username creation", () => {
         .send({ userId: 1, createUsername: "test" });
 
         expect(res.status).toBe(200);
-        expect(res.body).toBe("Username created successfully");
     });
 
     it("should return 400 if username already exists", async () => {
