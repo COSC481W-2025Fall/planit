@@ -177,14 +177,14 @@ export default function TripDaysPage() {
       toast.success("Day has been deleted.");
     });
 
-    socket.on("updatedActivity", (dayId, activityName, dayIndex, create) => {
+    socket.on("updatedActivity", (dayId, activityName, dayIndex, username, create) => {
       fetchDay(dayId);
-      toast.success(create ? `Day ${dayIndex} activity "${activityName}" added!` : `Day ${dayIndex} activity "${activityName}" updated!`);
+      toast.success(create ? `Day ${dayIndex} activity "${activityName}" added by ${username}!` : `Day ${dayIndex} activity "${activityName}" updated by ${username}!`);
     });
 
-    socket.on("deletedActivity", (dayId, activityName, dayIndex) => {
+    socket.on("deletedActivity", (dayId, activityName, dayIndex, username) => {
       fetchDay(dayId);
-      toast.success(`Day ${dayIndex} activity "${activityName}" deleted!`);
+      toast.success(`Day ${dayIndex} activity "${activityName}" deleted by ${username}!`);
     });
 
     socket.on("noteUpdated", (dayId) => {
@@ -726,6 +726,7 @@ export default function TripDaysPage() {
     }
 
     try {
+      const username = user.username;
       const response = await fetch(
         (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
         `/activities/update`,
@@ -743,7 +744,8 @@ export default function TripDaysPage() {
               notesForActivity: activity.notesForActivity || "",
               dayId: dayId
             },
-            dayIndex
+            dayIndex,
+            username
           }),
         }
       );
@@ -759,7 +761,7 @@ export default function TripDaysPage() {
     }
   };
 
-  const handleDeleteActivity = async (activityId, activityName, dayId, dayIndex) => {
+  const handleDeleteActivity = async (activityId, activityName, dayId, dayIndex, username) => {
     if (!canEdit) {
       toast.error("You don't have permission to delete activities");
       return;
@@ -774,7 +776,7 @@ export default function TripDaysPage() {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ tripId, activityId, activityName, dayId, dayIndex}),
+          body: JSON.stringify({ tripId, activityId, activityName, dayId, dayIndex, username}),
         }
       );
 
@@ -1472,7 +1474,7 @@ export default function TripDaysPage() {
                     type="button"
                     className="btn-rightside"
                     onClick={() => {
-                      handleDeleteActivity(deleteActivity.activity_id, deleteActivity.activity_name, deleteActivity.day_id, days.findIndex(d => d.day_id === deleteActivity.day_id) + 1);
+                      handleDeleteActivity(deleteActivity.activity_id, deleteActivity.activity_name, deleteActivity.day_id, days.findIndex(d => d.day_id === deleteActivity.day_id) + 1, user.username);
                       setDeleteActivity(null);
                     }}
                   >
@@ -1688,6 +1690,7 @@ export default function TripDaysPage() {
                 ? days.map((d) => d.day_id)
                 : []}
               allDays={days}
+              username = {user.username}
             />
           </div>
         )}

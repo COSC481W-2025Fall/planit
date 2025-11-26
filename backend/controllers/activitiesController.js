@@ -8,7 +8,7 @@ const v = (x) => (x === undefined ? null : x);
 export const deleteActivity = async (req, res) => {
   try {
     // Extract activityId from request body
-    const { tripId, activityId, activityName, dayId, dayIndex } = req.body;
+    const { tripId, activityId, activityName, dayId, dayIndex, username } = req.body;
 
     if (!activityId) {
       return res.status(400).json({ error: "Invalid activityId" });
@@ -18,7 +18,7 @@ export const deleteActivity = async (req, res) => {
     await sql`
       DELETE FROM activities WHERE "activity_id" = ${activityId};
     `;
-    io.to(`trip_${tripId}`).emit("deletedActivity", dayId, activityName, dayIndex);
+    io.to(`trip_${tripId}`).emit("deletedActivity", dayId, activityName, dayIndex, username);
 
     res.json({
       message: "Activity deleted successfully",
@@ -98,7 +98,7 @@ export const addActivity = async (req, res) => {
 export const updateActivity = async (req, res) => {
   try {
     // Pull current values of activity we updating
-    const { tripId, activityId, activity, dayIndex, create } = req.body;
+    const { tripId, activityId, activity, dayIndex, username, create } = req.body;
     const { startTime, duration, estimatedCost, notesForActivity, dayId } = activity || {};
 
     if (!activityId || !activity) {
@@ -137,7 +137,7 @@ export const updateActivity = async (req, res) => {
       message: "Activity updated successfully",
       activity: updated[0],
     });
-    io.to(`trip_${tripId}`).emit("updatedActivity", dayId, updated[0].activity_name, dayIndex, create);
+    io.to(`trip_${tripId}`).emit("updatedActivity", dayId, updated[0].activity_name, dayIndex, username, create);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });

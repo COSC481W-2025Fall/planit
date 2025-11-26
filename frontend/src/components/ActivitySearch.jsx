@@ -45,6 +45,7 @@ export default function ActivitySearch({
     dayIds = [],
     allDays = [],
     onActivityAdded,
+    username
 }) {
     const [query, setQuery] = useState("");
     const [cityQuery, setCityQuery] = useState("");
@@ -406,7 +407,8 @@ export default function ActivitySearch({
                     dayId: pendingDayId
                 },
                 dayIndex: allDays.findIndex(d => d.day_id === pendingDayId) + 1,
-                create: true
+                create: true,
+                username: username
             };
 
             await axios.put(`${BASE_URL}/activities/update`, updatePayload, {
