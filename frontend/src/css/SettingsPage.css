@@ -262,6 +262,13 @@
     align-items: center;
 }
 
+.stats-tabs {
+    padding-top: 5px;
+    display: flex;
+    justify-content: right;
+    gap: 10px;
+}
+
 /*Tablet*/
 @media (max-width: 1090px) and (min-width: 901px) {
     .setting-with-sidebar {
@@ -320,14 +327,11 @@
         left: 0;
         width: 100vw;
     }
-    
-}
 
-.stats-tabs {
-    padding-top: 5px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
+    .stats-tabs {
+       justify-content: center;
+    }
+    
 }
 .stats-tab {
   --pill-bg: var(--bg-surface);
