@@ -56,6 +56,8 @@ export default function ActivitySearch({
     const [selectedDay, setSelectedDay] = useState("");
     const [creating, setCreating] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [nextPageToken, setNextPageToken] = useState(null);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     // popup state
     const [showDetails, setShowDetails] = useState(false);
@@ -189,6 +191,7 @@ export default function ActivitySearch({
     const combinedQuery = cityQuery ? `${query} in ${cityQuery}` : query;
     if (combinedQuery.length < 2) {
       setResults([]);
+      setNextPageToken(null);
       return;
     }
     try {
@@ -199,6 +202,7 @@ export default function ActivitySearch({
           { withCredentials: true }
       );
       setResults(res.data.results || []);
+      setNextPageToken(res.data.nextPageToken || null);
     } catch (err) {
       console.error("Search error:", err?.response?.data || err.message);
     } finally {
@@ -456,6 +460,35 @@ export default function ActivitySearch({
         }
     };
 
+    const handleLoadMore = async () => {
+        if (!nextPageToken || loadingMore) return;
+
+        const combinedQuery = cityQuery ? `${query} in ${cityQuery}` : query;
+
+        try {
+            setLoadingMore(true);
+            const res = await axios.post(
+                `${BASE_URL}/placesAPI/search`,
+                {
+                    query: combinedQuery,
+
+                    // send the token to get next page
+                    pageToken: nextPageToken
+                },
+                { withCredentials: true }
+            );
+
+            // append new results to existing ones
+            setResults(prev => [...prev, ...(res.data.results || [])]);
+            setNextPageToken(res.data.nextPageToken || null);
+        } catch (err) {
+            console.error("Load more error:", err?.response?.data || err.message);
+            toast.error("Failed to load more results");
+        } finally {
+            setLoadingMore(false);
+        }
+    };
+
     return (
         <>
             <div className="drawer">
@@ -527,7 +560,8 @@ export default function ActivitySearch({
                             <MoonLoader color="var(--accent)" size={50} speedMultiplier={0.9} />
                         </div>
                     ) : results.length > 0 ? (
-                        results.map((place, idx) => (
+                        <>
+                        {results.map((place, idx) => (
                             <div key={idx} className="activity-card">
                                 <div className="card-content">
                                     <h3>{place.displayName?.text}</h3>
@@ -568,7 +602,26 @@ export default function ActivitySearch({
                                     </button>
                                 </div>
                             </div>
-                        ))
+                        ))}
+
+                                {nextPageToken && (
+                                    <div className="load-more-container">
+                                        <button
+                                            className="load-more-btn"
+                                            onClick={handleLoadMore}
+                                            disabled={loadingMore}
+                                        >
+                                            {loadingMore ? (
+                                                <>
+                                                    <MoonLoader color="var(--accent)" size={16} />
+                                                </>
+                                            ) : (
+                                                "Load More Results"
+                                            )}
+                                        </button>
+                                    </div>
+                                )}
+                            </>
                     ) : (
                         <p className="no-results-text">No results yet. Try a search!</p>
                     )}
