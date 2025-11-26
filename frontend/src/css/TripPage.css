@@ -53,6 +53,8 @@
 
 .new-trip-button,
 .filter-button {
+    display: flex;
+    align-items: center;
     background: var(--bg-surface);
     color: var(--accent);
     border: 1px solid var(--accent);
