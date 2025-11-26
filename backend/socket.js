@@ -4,6 +4,7 @@ import app from "./app.js";
 
 const server = http.createServer(app);
 
+// Initialize Socket.IO server
 const io = new Server(server, {
   cors: {
     origin: [
@@ -22,7 +23,10 @@ const activeUsers = new Map();
 
 io.on("connection", (socket) => {
   socket.on("joinTrip", (roomName, userData) => {
+    // Add user to room
     socket.join(roomName);
+
+    // Store some user information in socket instance
     socket.userData = userData;
     socket.roomName = roomName;
 
@@ -44,16 +48,19 @@ io.on("connection", (socket) => {
   socket.on("disconnecting", () => {
     console.log(`${socket.userData.username} disconnected from room: ${socket.roomName}`);
 
+    // Loop through all rooms this socket is part of
     for (const roomName of socket.rooms) {
       if (roomName === socket.id) continue;
 
       const roomUsers = activeUsers.get(roomName);
       if (!roomUsers) continue;
 
+      // Remove user from active user list
       roomUsers.delete(socket.userData.user_id);
 
       io.to(roomName).emit("activeUsersUpdated", [...roomUsers.values()]);
 
+      // Clean up empty rooms from the map
       if (roomUsers.size === 0) {
         activeUsers.delete(roomName);
       }

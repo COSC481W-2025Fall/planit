@@ -440,7 +440,6 @@ export default function ActivitySearch({
                 }
             }
 
-            toast.success("Activity added!");
             setShowDetails(false);
             setPendingPlace(null);
             setPendingDayId(null);

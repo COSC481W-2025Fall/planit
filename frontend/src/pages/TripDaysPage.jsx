@@ -502,10 +502,22 @@ export default function TripDaysPage() {
       setDays(prevDays => {
         const updatedDays = prevDays.map(d => 
           d.day_id === dayId ? { ...d, activities: sortedActivities } : d);
+
+        // Find the day we just updated
+        const targetDay = updatedDays.find(d => d.day_id === dayId);
+
+        // If no activities remain for this day, remove its weather entry
+        if (!targetDay || (targetDay.activities?.length ?? 0) === 0) {
+          setDailyWeather(prevWeather =>
+            prevWeather.filter(w => w.day_id !== dayId)
+          );
+        }
+
+        fetchAndSetWeather(updatedDays);
         return updatedDays;
       });
 
-      const newIds = days.map(d => d.day_id);
+      //const newIds = days.map(d => d.day_id);
 
       // if (!expandedInitRef.current) {
       //   // First load: mobile = collapsed, desktop = expanded
@@ -809,35 +821,6 @@ export default function TripDaysPage() {
 
       if (!response.ok) throw new Error("Failed to delete activity");
 
-      // Update the days state by removing the deleted activity
-      setDays(prevDays => {
-        const updatedDays = prevDays.map(day => {
-          if (day.day_id !== dayId) return day;
-
-          const remainingActivities =
-              day.activities?.filter(a => a.activity_id !== activityId) || [];
-
-          return {
-            ...day,
-            activities: remainingActivities,
-          };
-        });
-
-        // Find the day we just updated
-        const targetDay = updatedDays.find(d => d.day_id === dayId);
-
-        // If no activities remain for this day, remove its weather entry
-        if (!targetDay || (targetDay.activities?.length ?? 0) === 0) {
-          setDailyWeather(prevWeather =>
-              prevWeather.filter(w => w.day_id !== dayId)
-          );
-        }
-
-        return updatedDays;
-      });
-
-      toast.success("Activity deleted successfully!");
-      await fetchDay(dayId);
     } catch (error) {
       console.error("Error deleting activity:", error);
       toast.error("Failed to delete activity. Please try again.");
