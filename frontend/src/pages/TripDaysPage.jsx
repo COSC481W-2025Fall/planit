@@ -62,6 +62,7 @@ export default function TripDaysPage() {
   const MAX_DISPLAY_PFP = 4;
   const [weatherSummary, setWeatherSummary] = useState([]);
   const [dailyWeather, setDailyWeather] = useState([]);
+  const [isPackingCooldown, setIsPackingCooldown] = useState(false);
 
   const allPeople = [
     ...(owner ? [owner] : []),
@@ -1040,6 +1041,9 @@ export default function TripDaysPage() {
   };
 
   const handlePackingAI = async () => {
+    if (isPackingCooldown) return;
+    setIsPackingCooldown(true);
+
     const startDate = new Date(trip.trip_start_date || days[0].day_date).toISOString().split("T")[0];
     const endDate   = new Date(days[days.length - 1].day_date).toISOString().split("T")[0];
 
@@ -1107,6 +1111,8 @@ export default function TripDaysPage() {
     } catch (e) {
       console.error("call failed", e);
       toast.error("Packing AI took too long to respond. Please try again later.");
+    } finally {
+      setTimeout(() => setIsPackingCooldown(false), 3000); // Cooldown: 3 seconds
     }
   };
 
@@ -1328,7 +1334,10 @@ export default function TripDaysPage() {
                 >
                   {aiHidden ? <Luggage size={18} /> : <ChevronRight size={18} />}
                 </button>
-                <button className="packing-ai-button" onClick={handlePackingAI}>
+                <button
+                    className={`packing-ai-button ${isPackingCooldown ? "cooldown" : ""}`}
+                        onClick={handlePackingAI}
+                        disabled={isPackingCooldown}>
                   <Luggage size={14} id="ai-icon" />
                   <span>Packing AI</span>
                 </button>

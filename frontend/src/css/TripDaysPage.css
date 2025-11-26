@@ -842,6 +842,12 @@ html[data-theme="dark"] .textarea-notes {
   transition: all 0.3s ease;
 }
 
+.packing-ai-button.cooldown {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 @keyframes ai-gradient-move {
   0% {
     background-position: 0% 50%;
