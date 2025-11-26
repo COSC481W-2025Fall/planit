@@ -40,27 +40,30 @@ export const findPlaces = async (req, res) =>
   {
     try 
     {
-        const { query } = req.body;
+        const { query, pageToken } = req.body;
 
         const url = "https://places.googleapis.com/v1/places:searchText";
 
-        const {data} = await axios.post(url, 
-            {
-                textQuery: query,
+        const requestBody = {
+          textQuery: query,
+          pageSize: 20,
+        };
 
-                // I set the results to 20, can change if needed
-                pageSize: 20,
-            },
+        if (pageToken) {
+          requestBody.pageToken = pageToken;
+        }
+
+        const {data} = await axios.post(url, requestBody,
             {
                 headers: {
                     "Content-Type": "application/json",
                     "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
-                    "X-Goog-FieldMask": "places.id,places.displayName,places.primaryType,places.priceLevel,places.addressComponents,places.rating,places.location,places.websiteUri",
+                    "X-Goog-FieldMask": "places.id,places.displayName,places.primaryType,places.priceLevel,places.addressComponents,places.rating,places.location,places.websiteUri,nextPageToken",
                 },
             }
         );
 
-        res.json({ results: data.places || [] });
+        res.json({ results: data.places || [], nextPageToken: data.nextPageToken || null  });
     }
     catch(err) 
     {
