@@ -229,6 +229,7 @@ export default function SettingsPage() {
                         firstname: firstName,
                         lastname: lastName,
                         username: username,
+                        customPhoto: user.photo,
                     }),
                 }
             );
