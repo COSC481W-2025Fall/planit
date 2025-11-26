@@ -1043,6 +1043,11 @@ export default function TripDaysPage() {
   const handlePackingAI = async () => {
     if (isPackingCooldown) return;
 
+    if (isGuestUser(user?.user_id)) {
+      toast.info("Please log in to use Packing AI.");
+      return;
+    }
+
     if (!days || days.length === 0) {
       toast.error("Packing AI needs days in the trip. Add days first.");
       return;
@@ -1365,7 +1370,8 @@ export default function TripDaysPage() {
                   {aiHidden ? <Luggage size={18} /> : <ChevronRight size={18} />}
                 </button>
                 <button
-                    className={`packing-ai-button ${isPackingCooldown ? "cooldown" : ""}`}
+                    className={`packing-ai-button ${isPackingCooldown ? "cooldown" : ""} ${
+                        isGuestUser(user?.user_id) ? "disabled-guest" : ""}`}
                         onClick={handlePackingAI}
                         disabled={isPackingCooldown}>
                   <Luggage size={14} id="ai-icon" />

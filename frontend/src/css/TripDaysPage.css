@@ -448,17 +448,17 @@ body {
 }
 
 .weather-icon {
-  position: relative;      /* new: anchor children absolutely to the icon */
+  position: relative;
   width: 30px;
   height: 30px;
   display: flex;
-  align-items: center;     /* optional, centers the icon */
-  justify-content: center; /* optional, centers the icon */
+  align-items: center;
+  justify-content: center;
 }
 
 .weather-menu {
   position: absolute;
-  bottom: -280%;            /* fixed offset above the icon */
+  bottom: -280%;
   transform: translateX(10%);
   background: var(--bg-surface);
   border: 1px solid var(--border);
@@ -836,7 +836,7 @@ html[data-theme="dark"] .textarea-notes {
   var(--packing-ai-1)
   );
   background-size: 400% 400%;
-  animation: ai-gradient-move 4s linear infinite; /* animate */
+  animation: ai-gradient-move 4s linear infinite;
   box-shadow: 0 0 12px var(--packing-ai-2);
   color: #fff;
   transition: all 0.3s ease;
@@ -881,6 +881,11 @@ html[data-theme="dark"] .textarea-notes {
 
 .packing-ai-button span {
   transform: translateY(0.5px);
+}
+
+.packing-ai-button.disabled-guest {
+  background: rgba(0, 0, 0, 0.35);
+  filter: grayscale(0.9);
 }
 
 .ai-floating-container {
