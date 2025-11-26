@@ -156,7 +156,6 @@ export const deleteDay = async (req, res) => {
 
   // check if this is the first day (to determine if we should shift other days)
   const isFirstDay = req.body?.isFirstDay ?? false;
-  console.log("isFirstDay: ", isFirstDay);
 
   try {
     // get the date from the day we are deleting
