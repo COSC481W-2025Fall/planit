@@ -1417,6 +1417,7 @@ export default function TripDaysPage() {
             <Popup
               title="Edit Activity"
               onClose={() => setEditActivity(null)}
+              id="editActivityPopup"
               buttons={
                 <>
                   <button

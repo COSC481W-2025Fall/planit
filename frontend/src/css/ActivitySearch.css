@@ -334,16 +334,10 @@ html[data-theme="dark"] .time-picker {
   margin: 0;
   border-radius: 0;   
   z-index: 1;
-  padding: 12px;
 }
 
 .map-border {
   overflow: hidden;
-}
-
-.map-header {
-  position: relative;
-  height: 350px;
 }
 
 .search-form-overlay {
@@ -356,9 +350,9 @@ html[data-theme="dark"] .time-picker {
 
 .map-header {
   position: relative;
-  top: 0px;
-  width: 100%;
-  height: 350px;
+  height: 50vh; 
+  min-height: 350px; /* Ensure it doesn't get too small */
+  max-height: 600px; /* Optional cap */
   flex-shrink: 0;
 }
 
@@ -369,6 +363,20 @@ html[data-theme="dark"] .time-picker {
   backdrop-filter: blur(10px);
   padding: 16px;
   padding-bottom: 1px;
+}
+
+@media (min-width: 1800px) {
+    .drawer {
+        width: 550px; 
+    }
+    
+    .search-results {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .map-header {
+        max-height: 800px;
+    }
 }
 
 /*Responsive Layout*/
@@ -501,7 +509,7 @@ html[data-theme="dark"] .time-picker {
   background-color: var(--bg-offwhite);
   border: 1px solid var(--border);
   border-radius: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 0px;
   color: var(--text);
 }
 

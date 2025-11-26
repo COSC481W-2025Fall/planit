@@ -591,6 +591,14 @@ html[data-theme="dark"] .textarea-notes {
   color: var(--accent);
 }
 
+#editActivityPopup .popup-title {
+  margin-bottom: 0px;
+}
+
+#editActivityPopup .popup-form {
+  margin-top: 0px;
+}
+
 .title-div {
   display: flex;
   flex-direction: row;
@@ -1066,6 +1074,12 @@ html[data-theme="dark"] .time-picker {
     margin-bottom: 1rem;
   }
 }
+
+@media (min-width: 1800px) {
+  .TripDaysPage.drawer-open {
+    margin-right: 550px;
+  }
+}
 .distance-display {
   display: flex;
   align-items: center;
@@ -1074,7 +1088,7 @@ html[data-theme="dark"] .time-picker {
   background-color: var(--bg-offwhite);
   border: 1px solid var(--border);
   border-radius: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 0px;
   color: var(--text);
 }
 
