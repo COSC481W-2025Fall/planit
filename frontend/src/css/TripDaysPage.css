@@ -121,21 +121,70 @@ body {
 
 .trip-info {
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  width: 100%;
+  gap: 18px;
   font-size: 0.85rem;
   margin-top: 0.25rem;
-  margin-left: 0;
   color: var(--muted);
+}
+
+.trip-left-side {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.clone-trip-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.title-action-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .trip-location,
 .trip-dates {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
-  margin: 0;
+  gap: 6px;
 }
+
+.react-datepicker__current-month {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.react-datepicker__day-name {
+  color: var(--text-strong) !important;
+}
+
+.trip-info .trip-dates-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.trip-info .trip-dates-row button {
+  width: auto !important;
+  max-width: fit-content !important;
+  flex-shrink: 0;
+  display: inline-flex;
+}
+
+.trip-dates-row .clone-btn {
+  width: auto !important;
+}
+
 
 .trip-location-text,
 .trip-dates-text {
@@ -184,18 +233,18 @@ body {
   gap: 0.5rem;
 }
 
-#participants-button {
-  display: flex;
-  flex-direction: row;
-  margin: auto;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-}
+ #participants-button {
+   display: flex;
+   flex-direction: row;
+   margin: auto;
+   align-items: center;
+   justify-content: center;
+   gap: 0.25rem;
+ }
 
-#participants-button #user-plus-icon {
-  margin-bottom: 2px;
-}
+ #participants-button #user-plus-icon {
+    margin-bottom: 2px;
+ }
 
 .itinerary-buttons button {
   background-color: var(--bg-surface);
@@ -405,7 +454,7 @@ body {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 6px;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   min-width: 120px;
   z-index: 10;
   overflow: hidden;
@@ -534,6 +583,17 @@ html[data-theme="dark"] .textarea-notes {
   color-scheme: light;
 }
 
+.popup-datepicker {
+    width: 100%;
+    height: 40px;
+    background-color: #2b2b2b;
+    border-radius: 8px;
+    border: 1px solid #3a3a3a;
+    padding: 0 12px;
+    font-size: 14px;
+    color: white;
+}
+
 .title-div {
   display: flex;
   flex-direction: row;
@@ -549,6 +609,7 @@ html[data-theme="dark"] .textarea-notes {
   padding-left: 10px;
   padding-right: 10px;
   border-radius: 20px;
+  width: max-content;
 }
 
 .participant-pfp {
@@ -570,117 +631,117 @@ html[data-theme="dark"] .textarea-notes {
 }
 
 .participants-header {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  font-size: 16px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 16px;
 }
 
 .participants-list p {
-  font-size: 14px;
-  color: var(--text-medium);
+    font-size: 14px;
+    color: var(--text-medium);
 }
 
 .participants-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem; 
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
 }
 
 .participants-header p {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-dark2);
-  margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark2);
+    margin: 0;
 }
 
 .add-participant-form {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 16px;
 }
 
 .add-participant-form input {
-  flex-grow: 1;
-  padding: 10px 12px;
+    flex-grow: 1; 
+    padding: 10px 12px;
 }
 
 .add-participant-form button {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 10px 12px;
-  background: var(--accent);
-  color: var(--bg-white);
-  border: none;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 14px;
-  transition: background-color 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 12px;
+    background: var(--accent);
+    color: var(--bg-white);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 .add-participant-form button:hover {
-  background: var(--accent-dark);
-  transform: translateY(-1px);
+    background: var(--accent-dark);
+    transform: translateY(-1px);
 }
 
 .participants-list {
-  overflow-y: auto;
-  border: 1px solid var(--border-input);
-  border-radius: 6px;
-  background: var(--bg-input);
-  padding: 8px;
-  list-style: none;
-  min-height: 150px;
-  max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-input);
+    border-radius: 6px;
+    background: var(--bg-input);
+    padding: 8px;
+    list-style: none;
+    min-height: 150px;
+    max-height: 300px;
 }
 
 .participants-list p {
-  font-size: 14px;
-  color: var(--text-medium);
-  text-align: center;
-  margin: 4px 0;
-  padding-top: 50px;
+    font-size: 14px;
+    color: var(--text-medium);
+    text-align: center;
+    margin: 4px 0;
+    padding-top: 50px;
 }
 
 .participant-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 8px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border-light);
 }
 
 .participant-item:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
+    border-bottom: none;
+    margin-bottom: 0;
 }
 
 .participant-item span {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-dark);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
 }
 
 .remove-participant-btn {
-  background: none;
-  border: none;
-  color: var(--text-medium);
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s, background-color 0.2s;
-  border-radius: 50%;
+    background: none;
+    border: none;
+    color: var(--text-medium);
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background-color 0.2s;
+    border-radius: 50%;
 }
 
 .packing-ai-button {
@@ -861,9 +922,9 @@ html[data-theme="dark"] .textarea-notes {
 
 
 .remove-participant-btn:hover {
-  color: var(--error);
-  background: var(--error-soft);
-  transform: scale(1.1);
+    color: var(--error);
+    background: var(--error-soft);
+    transform: scale(1.1);
 }
 
 .search-wrap {
@@ -957,36 +1018,27 @@ html[data-theme="dark"] .time-picker {
     max-height: 6em;
   }
 
-  .participants-list p,
+  .participants-list p {
+    font-size: 14px !important;
+  } 
+
   .participant-item span {
     font-size: 14px;
   }
 }
+
 @media (max-width: 600px) {
   body {
     align-items: flex-start;
   }
 
   .TripDaysPage {
-    padding-bottom: 2rem;
+    padding-bottom: 6rem;
   }
 
   .trip-title {
     font-size: 1.25rem;
   }
-
-  .image-banner {
-    height: auto;
-  }
-
-  .image-banner img {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    margin-bottom: 1rem;
-  }
-
   .button-level-bar {
     flex-direction: column-reverse;
     align-items: flex-start;
@@ -1000,7 +1052,7 @@ html[data-theme="dark"] .time-picker {
   }
 
   .itinerary-buttons button {
-    min-width: 6rem;
+    min-width: 7rem;
     font-size: 0.9rem;
     padding: 0 0.75rem;
   }
@@ -1042,7 +1094,7 @@ html[data-theme="dark"] .time-picker {
     min-height: 100px;
   }
 
-  .participants-list p {
+  .participants-list p{
     padding-top: 25px;
   }
 }
@@ -1068,6 +1120,17 @@ html[data-theme="dark"] .time-picker {
 
 .activity-search-sidebar.open {
   transform: translateX(0);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 1100px) and (min-width: 759px) {
@@ -1108,6 +1171,59 @@ html[data-theme="dark"] .time-picker {
   }
 }
 
+@media (max-width: 600px) {
+  body {
+    align-items: flex-start;
+  }
+
+  .TripDaysPage {
+    padding-bottom: 2rem;
+  }
+
+  .trip-title {
+    font-size: 1.25rem;
+  }
+
+  .image-banner {
+    height: 10rem;
+  }
+
+  .button-level-bar {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .itinerary-buttons {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .itinerary-buttons button {
+    min-width: 6rem;
+    font-size: 0.9rem;
+    padding: 0 0.75rem;
+  }
+
+  .days-container {
+    flex-direction: column;
+    align-items: center;
+    overflow: visible;
+    padding-bottom: 1rem;
+  }
+
+  .day-card {
+    width: 100%;
+    max-width: 360px;
+    margin: 0.5rem 0;
+  }
+
+  .day-title {
+    font-size: 1rem;
+  }
+}
+
 @media (max-width: 1100px) {
   html,
   body {
@@ -1128,18 +1244,16 @@ html[data-theme="dark"] .time-picker {
     display: none;
   }
 }
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+@media (max-width: 600px) {
+  .image-banner { height: auto; }
+  .image-banner img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    margin-bottom: 1rem;
   }
 }
-
 .distance-display {
   display: flex;
   align-items: center;
@@ -1219,4 +1333,76 @@ html[data-theme="dark"] .time-picker {
   width: 0.9rem;
   flex-shrink: 0;
   margin-top: 0.05rem;
+}
+
+.clone-btn {
+  width: 100%;
+  max-width: var(--viewer-width, auto);
+  background: var(--bg-surface);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 12px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  white-space: nowrap;
+  min-width: 105px;
+}
+
+.clone-btn:hover {
+  background: var(--accent);
+  color: var(--bg-surface);
+  transform: scale(1.05);
+  box-shadow: var(--shadow-2);
+}
+
+.clone-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.title-div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.view-clone-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.title-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.title-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.viewer-wrapper {
+  width: max-content;
+}
+
+.clone-trip-wrapper .clone-btn {
+  min-width: 105px;
+  text-align: center;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
 }

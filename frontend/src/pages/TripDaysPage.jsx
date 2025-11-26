@@ -20,8 +20,10 @@ import {getOwnerForTrip, retrievePackingItems, updateTrip} from "../../api/trips
 import {listParticipants, addParticipant, removeParticipant} from "../../api/trips";
 import { useNavigate } from "react-router-dom";
 import {getWeather} from "../../api/weather.js";
+import CloneTripButton from "../components/CloneTripButton.jsx";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+
 export default function TripDaysPage() {
 
   //constants for data
@@ -104,7 +106,7 @@ export default function TripDaysPage() {
   useEffect(() => {
     try {
       localStorage.setItem("planit:expandedDays", JSON.stringify(expandedDays));
-    } catch { /* empty */ }
+    } catch {}
   }, [expandedDays]);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
@@ -112,6 +114,7 @@ export default function TripDaysPage() {
 
   const menuRefs = useRef({});
   const { tripId } = useParams();
+  const fromExplore = new URLSearchParams(window.location.search).get("fromExplore") === "true";
   const [dragFromDay, setDragFromDay] = useState("");
   const [dragOverInfo, setDragOverInfo] = useState({
     dayId: null,
@@ -122,7 +125,7 @@ export default function TripDaysPage() {
   const isShared = userRole === "shared";
   const isViewer = userRole === "viewer";
   const canEdit = isOwner || isShared;
-  const canManageParticipants = isOwner;
+  const canManageParticipants = isOwner; 
 
   const [aiHidden, setAiHidden] = useState(false);
   const [showAIBtn] = useState(true);
@@ -412,7 +415,7 @@ export default function TripDaysPage() {
       });
 
       const updatedDays = days.map(d => d.day_id === dayId ? {...d, activities: sortedActivities } : d);
-
+      
       setDays(updatedDays);
 
       const newIds = updatedDays.map(d => d.day_id);
@@ -1206,12 +1209,16 @@ export default function TripDaysPage() {
         <NavBar />
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
-            <h1 className="trip-title">{trip.trip_name}</h1>
-            {isViewer && (
-              <span className="permission-badge viewer-badge">
-                <Eye className = "view-icon"/> Viewing Only
-              </span>
-            )}
+  <h1 className="trip-title">{trip.trip_name}</h1>
+
+  <div className="title-action-row">
+      {isViewer && (
+        <div className="permission-badge viewer-badge">
+          <Eye className="view-icon" />
+          <span>Viewing Only</span>
+        </div>
+      )}
+
             {canEdit && (
             <div className="participant-photos">
                {visibleParticipants.map((p) =>
@@ -1243,10 +1250,13 @@ export default function TripDaysPage() {
                   </div>
                 )}
             </div>
-            )}
+          )}
+          </div>
           </div>
 
           <div className="trip-info">
+
+            <div className="trip-left-side">
             <div className="trip-location">
               <MapPin className="trip-info-icon" />
               <p className="trip-location-text">{trip.trip_location}</p>
@@ -1262,9 +1272,7 @@ export default function TripDaysPage() {
                     day: "numeric",
                   })}{" "}
                   -{" "}
-                  {new Date(
-                    days[days.length - 1].day_date
-                  ).toLocaleDateString("en-US", {
+                  {new Date(days[days.length - 1].day_date).toLocaleDateString("en-US", {
                     weekday: "long",
                     month: "short",
                     day: "numeric",
@@ -1272,6 +1280,18 @@ export default function TripDaysPage() {
                 </p>
               </div>
             )}
+            </div>
+
+            <div className="clone-trip-wrapper">
+              <CloneTripButton
+                user={user}
+                tripId={tripId}
+                access={userRole}
+                fromExplore={fromExplore}
+                onCloned={(newId) => navigate(`/days/${newId}`)}
+                trip={trip}
+              />
+            </div>
           </div>
 
           <div className="image-banner">
