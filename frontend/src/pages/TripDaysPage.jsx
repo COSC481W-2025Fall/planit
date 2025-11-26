@@ -1042,17 +1042,46 @@ export default function TripDaysPage() {
 
   const handlePackingAI = async () => {
     if (isPackingCooldown) return;
-    setIsPackingCooldown(true);
 
     const startDate = new Date(trip.trip_start_date || days[0].day_date).toISOString().split("T")[0];
     const endDate   = new Date(days[days.length - 1].day_date).toISOString().split("T")[0];
 
     const tripDuration = getDifferenceBetweenDays(startDate, endDate);
-
     const activities = days.flatMap(day => day.activities || []);
+
     const allActivities = [];
+    const allLocations = [];
     for (const activity of activities) {
       allActivities.push(activity.activity_types);
+      allLocations.push(activity.activity_address);
+    }
+
+    const counts = new Map();
+    for (const word of allLocations) {
+      counts.set(word, (counts.get(word) || 0) + 1);
+    }
+
+    let mostCommonLocation = null;
+    let highestCount = 0;
+    for (const [location, count] of counts.entries()) {
+      if (count > highestCount) {
+        highestCount = count;
+        mostCommonLocation = location;
+      }
+    }
+    if (!mostCommonLocation) {
+      toast.warning("Packing AI needs at least one valid activity location.");
+      return;
+    }
+
+    if (!mostCommonLocation.includes(", US")) {
+      toast.error(`Packing AI is offered for US trips only.`);
+      return
+    }
+
+    if (!allActivities) {
+      toast.error(`Packing AI needs at least one valid activity.`);
+      return
     }
 
     const uniqueActivities = allActivities.filter((value, index, self) => {
@@ -1060,7 +1089,7 @@ export default function TripDaysPage() {
     });
 
     const tripPayload =         {
-      "destination": trip.trip_location,
+      "destination": mostCommonLocation.split(", US")[0],
       "season": weatherSummary.season,
       "activities": uniqueActivities.toString(),
       "duration_days": tripDuration,
@@ -1071,10 +1100,7 @@ export default function TripDaysPage() {
     }
 
     const requiredFields = [
-      "destination",
       "season",
-      "activities",
-      "duration_days",
       "avg_temp_high",
       "avg_temp_low",
       "rain_chance_percent",
@@ -1090,11 +1116,12 @@ export default function TripDaysPage() {
           value === undefined ||
           value === ""
       ) {
-        toast.warning(`Packing AI cannot process, resolve missing weather.`);
+        toast.warning(`Packing AI cannot process, weather not available.`);
         return;
       }
     }
 
+    setIsPackingCooldown(true);
     try {
       const response = await retrievePackingItems(tripPayload);
 

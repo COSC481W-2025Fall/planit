@@ -169,7 +169,7 @@ export const getWeatherForecast = async (req, res) => {
                     params: {
                         key: WEATHER_API,
                         q: tripLocation,
-                        tripDaysDates,
+                        dt: tripDaysDates,
                     },
                 });
                 data = response.data;
@@ -181,7 +181,7 @@ export const getWeatherForecast = async (req, res) => {
 
                         q: tripLocation,
                         days: 1,
-                        tripDaysDates,
+                        dt: tripDaysDates,
                     },
                 });
                 data = response.data;
@@ -192,7 +192,7 @@ export const getWeatherForecast = async (req, res) => {
                         key: WEATHER_API,
 
                         q: tripLocation,
-                        tripDaysDates,
+                        dt: tripDaysDates,
                     },
                 });
                 data = response.data;
