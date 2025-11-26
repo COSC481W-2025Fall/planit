@@ -1043,6 +1043,11 @@ export default function TripDaysPage() {
   const handlePackingAI = async () => {
     if (isPackingCooldown) return;
 
+    if (!days || days.length === 0) {
+      toast.error("Packing AI needs days in the trip. Add days first.");
+      return;
+    }
+
     const startDate = new Date(trip.trip_start_date || days[0].day_date).toISOString().split("T")[0];
     const endDate   = new Date(days[days.length - 1].day_date).toISOString().split("T")[0];
 
@@ -1069,18 +1074,13 @@ export default function TripDaysPage() {
         mostCommonLocation = location;
       }
     }
-    if (!mostCommonLocation) {
-      toast.warning("Packing AI needs at least one valid activity location.");
+    if (!mostCommonLocation || !allActivities) {
+      toast.warning("Packing AI needs at least one valid activity. Add an activity.");
       return;
     }
 
     if (!mostCommonLocation.includes(", US")) {
       toast.error(`Packing AI is offered for US trips only.`);
-      return
-    }
-
-    if (!allActivities) {
-      toast.error(`Packing AI needs at least one valid activity.`);
       return
     }
 
@@ -1092,7 +1092,7 @@ export default function TripDaysPage() {
       "destination": mostCommonLocation.split(", US")[0],
       "season": weatherSummary.season,
       "activities": uniqueActivities.toString(),
-      "duration_days": tripDuration,
+      "duration_days": tripDuration+1,
       "avg_temp_high": weatherSummary.avg_high_f,
       "avg_temp_low": weatherSummary.avg_high_f,
       "rain_chance_percent": weatherSummary.avg_rain_chance,
@@ -1192,12 +1192,15 @@ export default function TripDaysPage() {
       // remove existing entry for this date (if any)
       const filtered = prev.filter(w => w.date !== dateKey);
 
-      // you can optionally attach dayId if you want
       return [
         ...filtered,
         { ...dayWeather, day_id: dayId },
       ];
     });
+
+    if (weather?.summary) {
+      setWeatherSummary(prev => ({ ...prev, ...weather.summary }));
+    }
   };
 
   //Loading State
