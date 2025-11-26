@@ -291,7 +291,7 @@ export default function TripPage() {
               <div className="trips-title-section">
                 <div className="trips-title">
                   {user
-                    ? `${user.first_name} ${user.last_name}'s Trips`
+                    ? `${user.username}'s Trips`
                     : <MoonLoader color="var(--accent)" size={30} />}
                 </div>
                 <div className="trips-subtitle">
