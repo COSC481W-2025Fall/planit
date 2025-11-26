@@ -9,6 +9,7 @@ import { MemoryRouter } from "react-router-dom";
 import { toast } from "react-toastify";
 import "@testing-library/jest-dom";
 
+const mockCroppieResult = vi.fn(); 
 
 // Mock toast
 vi.mock("react-toastify", () => ({
@@ -18,9 +19,22 @@ vi.mock("react-toastify", () => ({
   },
 }));
 
+vi.mock('croppie', () => {
+  return {
+    default: class MockCroppie {
+      constructor() {}
+      bind() { return Promise.resolve(); }
+      // The mock factory now calls the globally scoped spy
+      result() { return mockCroppieResult(); } 
+      destroy() {}
+    }
+  };
+});
+
 describe("SettingsPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    mockCroppieResult.mockClear();
 
     // Mock fetch globally
     global.fetch = vi.fn((url, options) => {
@@ -140,5 +154,63 @@ describe("SettingsPage", () => {
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("Username already taken. Please try again.");
     });
+  });
+
+  test("opens the cropper modal when an image file is selected", async () => {
+    render(
+      <MemoryRouter>
+        <SettingsPage />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => screen.getByTestId("settings-title"));
+
+    const fileInput = screen.getByLabelText(
+      (content, element) => element.type === 'file'
+    );
+
+    const mockFile = new File([':)'], 'profile.png', { type: 'image/png' });
+    fireEvent.change(fileInput, { target: { files: [mockFile] } });
+
+    await waitFor(() => {
+      expect(screen.getByText("Adjust Profile Picture")).toBeInTheDocument();
+      expect(screen.getByText("Cancel")).toBeInTheDocument();
+      expect(screen.getByText("Save")).toBeInTheDocument();
+    });
+  });
+
+  test("crops and saves the profile picture successfully", async () => {
+    mockCroppieResult.mockResolvedValue('base64-string-from-cropper');
+    
+    render(
+      <MemoryRouter>
+        <SettingsPage />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => screen.getByTestId("settings-title"));
+    const fileInput = screen.getByLabelText(
+        (content, element) => element.type === 'file'
+    );
+    const mockFile = new File([':)'], 'profile.png', { type: 'image/png' });
+    fireEvent.change(fileInput, { target: { files: [mockFile] } });
+    await waitFor(() => expect(screen.getByText("Save")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText("Save"));
+
+    await waitFor(() => {
+      expect(mockCroppieResult).toHaveBeenCalled();
+      
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/user/update"), 
+        expect.objectContaining({
+          body: expect.stringContaining('"customPhoto":"base64-string-from-cropper"')
+        })
+      );
+      
+      expect(toast.success).toHaveBeenCalledWith("Profile picture updated successfully!");
+    });
+    
+     expect(screen.queryByText("Adjust Profile Picture")).not.toBeInTheDocument();
   });
 });
