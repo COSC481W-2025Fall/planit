@@ -585,6 +585,12 @@ html[data-theme="dark"] .textarea-notes {
     color: white;
 }
 
+.activity-name {
+  text-align: center;
+  font-weight: bold;
+  color: var(--accent);
+}
+
 .title-div {
   display: flex;
   flex-direction: row;

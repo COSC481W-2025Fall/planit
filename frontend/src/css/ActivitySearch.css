@@ -334,6 +334,7 @@ html[data-theme="dark"] .time-picker {
   margin: 0;
   border-radius: 0;   
   z-index: 1;
+  padding: 12px;
 }
 
 .map-border {

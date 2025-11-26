@@ -1443,6 +1443,7 @@ export default function TripDaysPage() {
                 </>
               }
             >
+              <span className="activity-name">{editActivity.activity_name}</span>
               <DistanceAndTimeInfo
                 distanceInfo={distanceInfo}
                 transportMode={transportMode}

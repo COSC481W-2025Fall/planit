@@ -108,11 +108,11 @@ export default function ActivitySearch({
 
     const itemRefs = useRef([]);    
     const containerStyle = {
-        width: '100%',
+        width: '95%',
         height: '100%',
         position: "absolute",
         top: "0px",
-        left: "0px",
+        left: "10px",
     };
 
     //defaults to new york
