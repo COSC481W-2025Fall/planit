@@ -1613,6 +1613,10 @@ export default function TripDaysPage() {
                 : []}
               onActivityAdded={(dayId) => fetchDay(dayId)}
               allDays={days}
+              onEditActivity={(activity) => {
+                setEditActivity(activity);
+                // setOpenActivitySearch(false); 
+              }}
             />
           </div>
         )}
