@@ -1,4 +1,4 @@
-export default function Label({ category }) {
+export default function Label({ category, className = "" }) {
     if (!category) {
         return null;
     }
@@ -32,6 +32,7 @@ export default function Label({ category }) {
 
     return (
         <span
+            className={`trip-label-base ${className}`}
             style={{
                 backgroundColor: `${color}20`,  // translucent fill
                 color,
@@ -46,8 +47,8 @@ export default function Label({ category }) {
             }} 
         >
 
-            <span>{emoji}</span>
-            <span>{category}</span>
+            <span className="trip-label-emoji">{emoji}</span>
+            <span className="trip-label-text"> {category}</span>
         </span>
     );
 }

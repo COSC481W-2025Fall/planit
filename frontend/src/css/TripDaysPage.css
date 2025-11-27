@@ -1423,6 +1423,38 @@ html[data-theme="dark"] .time-picker {
   justify-content: space-between;
 }
 
+.title-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.title-left > *:nth-child(2) {
+  margin-top: 4px;
+  margin-left: -4px;
+}
+
+.trip-label-base {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.trip-label-text {
+  transform: translateY(-0.5px);
+  margin-left: -4px;
+}
+
+.trip-label-emoji {
+  display: inline-block;
+  transform: translateY(-0.5px);
+}
+
 .view-clone-column {
   display: flex;
   flex-direction: column;

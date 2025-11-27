@@ -20,6 +20,7 @@ import {getOwnerForTrip, retrievePackingItems, updateTrip, listParticipants, add
 import { useNavigate } from "react-router-dom";
 import {getWeather} from "../../api/weather.js";
 import CloneTripButton from "../components/CloneTripButton.jsx";
+import Label from "../components/Label.jsx";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -1239,7 +1240,10 @@ export default function TripDaysPage() {
         <NavBar />
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
+          <div className = "title-left">
   <h1 className="trip-title">{trip.trip_name}</h1>
+  <Label category={trip.trip_category} />
+  </div>
 
   <div className="title-action-row">
       {isViewer && (
