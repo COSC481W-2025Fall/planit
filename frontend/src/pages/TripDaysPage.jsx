@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react"; 
 import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, PiggyBank} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
@@ -1105,16 +1105,6 @@ export default function TripDaysPage() {
                 </p>
               </div>
             )}
-
-            {days.length > 0 && (
-              <div className="trip-cost">
-                <PiggyBank className="trip-info-icon trip-cost-icon"/>
-                <span className="trip-cost-label">Total Cost:</span>
-                <span className="trip-cost-value">
-                  ${totalTripCost}
-                </span>
-              </div>
-            )}
           </div>
 
           <div className="image-banner">
@@ -1126,6 +1116,15 @@ export default function TripDaysPage() {
            </div>
           <div className="button-level-bar">
             <h1 className="itinerary-text">Itinerary</h1>
+            {days.length > 0 && (
+              <div className="trip-cost trip-cost-itinerary">
+                <PiggyBank className="trip-info-icon trip-cost-icon"/>
+                <span className="trip-cost-label">Total Cost:</span>
+                <span className="trip-cost-value">
+                  ${totalTripCost}
+                </span>
+              </div>
+            )}
             {canEdit && (
               <div className="itinerary-buttons">
                 <button onClick={() => openAddDayPopup(null)} id="new-day-button">

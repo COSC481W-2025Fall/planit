@@ -1,4 +1,4 @@
-body {
+body { 
   background: var(--bg-offwhite);
   margin: 0;
   height: 100vh;
@@ -1128,4 +1128,30 @@ html[data-theme="dark"] .time-picker {
   width: 0.9rem;
   flex-shrink: 0;
   margin-top: 0.05rem;
+}
+
+.trip-cost-itinerary {
+  margin-right: auto;
+}
+
+/* NEW: mobile override so Total Cost sits on the same line as Itinerary */
+@media (max-width: 600px) {
+  .button-level-bar {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .trip-cost-itinerary {
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  .itinerary-buttons {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+  }
 }
