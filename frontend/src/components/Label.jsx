@@ -1,18 +1,31 @@
+import {
+    Mountain,
+    Smile,
+    Briefcase,
+    Theater,
+    Leaf,
+    Utensils,
+    Moon,
+    Users,
+    Heart,
+    Tag
+} from "lucide-react";
+
 export default function Label({ category, className = "" }) {
     if (!category) {
         return null;
     }
 
     const EMOJIS = {
-        Adventure: "🏔️",
-        Relaxation: "😌",
-        Business: "🧳",
-        Cultural: "🎭",
-        Nature: "🌿",
-        Food: "🍽️",
-        Nightlife: "🌃",
-        Family: "👨‍👩‍👧‍👦",
-        Romantic: "❤️"
+        Adventure: Mountain,
+        Relaxation: Smile,
+        Business: Briefcase,
+        Cultural: Theater,
+        Nature: Leaf,
+        Food: Utensils,
+        Nightlife: Moon,
+        Family: Users,
+        Romantic: Heart
     };
 
     const COLORS = {
@@ -27,7 +40,7 @@ export default function Label({ category, className = "" }) {
         Romantic: "#ef4444"     // red
     };
 
-    const emoji = EMOJIS[category] || "🏷️";
+    const Icon = EMOJIS[category] || Tag;
     const color = COLORS[category] || "#6b7280"; // default gray
 
     return (
@@ -47,7 +60,7 @@ export default function Label({ category, className = "" }) {
             }} 
         >
 
-            <span className="trip-label-emoji">{emoji}</span>
+            <Icon size={16} />
             <span className="trip-label-text"> {category}</span>
         </span>
     );

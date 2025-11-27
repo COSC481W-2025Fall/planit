@@ -140,6 +140,10 @@ export default function TripDaysPage() {
     }
   }, []);
 
+  const [hiddenLabels, setHiddenLabels] = useState(() => {
+    const stored = localStorage.getItem("hiddenTripLabels");
+    return stored ? JSON.parse(stored) : [];
+  });
 
   //responsive
   useEffect(() => {
@@ -1242,7 +1246,9 @@ export default function TripDaysPage() {
           <div className="title-div">
           <div className = "title-left">
   <h1 className="trip-title">{trip.trip_name}</h1>
+  {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
   <Label category={trip.trip_category} />
+)}
   </div>
 
   <div className="title-action-row">
