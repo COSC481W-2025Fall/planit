@@ -47,6 +47,7 @@ export default function TripDaysPage() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [editableNote, setEditableNote] = useState("");
   const [isAddCooldown, setIsAddCooldown] = useState(false);
+  const [showAllParticipantsPopup, setShowAllParticipantsPopup] = useState(false);
   //Constants for image url
   const [imageUrl, setImageUrl] = useState(null);
   const [deleteActivity, setDeleteActivity] = useState(null);
@@ -1350,6 +1351,7 @@ export default function TripDaysPage() {
                   <div
                     className="participant-pfp placeholder remainder"
                     title={hiddenUsernamesString}
+                    onClick={() => setShowAllParticipantsPopup(true)}
                   >
                     +{hiddenCount}
                   </div>
@@ -1633,6 +1635,18 @@ export default function TripDaysPage() {
                   ))}
                 </ul>
               )}
+            </Popup>
+          )}
+          {showAllParticipantsPopup && (
+            <Popup 
+              title = "All Trip Participants"
+              onClose={() => setShowAllParticipantsPopup(false)}
+              buttons={
+                <button onClick={() => setShowAllParticipantsPopup(false)}>
+                  Close
+                </button>
+              }
+              >
             </Popup>
           )}
           {openNotesPopup && selectedActivity && (
