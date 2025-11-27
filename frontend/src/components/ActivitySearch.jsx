@@ -515,21 +515,24 @@ export default function ActivitySearch({
                                 onChange={(e) => setCityQuery(e.target.value)}
                             />
 
-                            {/*NYC Borough select options */}
-                            {(cityQuery.toLowerCase().includes("new york") || cityQuery.toLowerCase().includes("nyc")) &&
-                                !NYC_BOROUGHS.some(b => b.toLowerCase() === cityQuery.toLowerCase()) && (
-                                    <ul className="city-results-dropdown">
-                                        {NYC_BOROUGHS.map((b, idx) => (
-                                            <li key={idx} onClick={() => {
-                                                setCityQuery(b);
-                                                setCityResults([]);
-                                                prevCityQuery.current = b;
-                                            }}>
-                                                {b}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
+                          {/*NYC Borough select options */}
+                          {cityQuery.length >= 2 &&
+                            (cityQuery.toLowerCase().includes("new york") || cityQuery.toLowerCase().includes("nyc")) &&
+                            !NYC_BOROUGHS.some(b => b.toLowerCase() === cityQuery.toLowerCase()) &&
+                            cityResults.length === 0 &&
+                            cityQuery === prevCityQuery.current && (
+                              <ul className="city-results-dropdown">
+                                {NYC_BOROUGHS.map((b, idx) => (
+                                  <li key={idx} onClick={() => {
+                                    setCityQuery(b);
+                                    setCityResults([]);
+                                    prevCityQuery.current = b;
+                                  }}>
+                                    {b}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
 
                             {cityResults.length > 0 && (
                                 <ul className="city-results-dropdown">
