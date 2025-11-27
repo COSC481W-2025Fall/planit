@@ -1,0 +1,53 @@
+export default function Label({ category }) {
+    if (!category) {
+        return null;
+    }
+
+    const EMOJIS = {
+        Adventure: "🏔️",
+        Relaxation: "😌",
+        Business: "🧳",
+        Cultural: "🎭",
+        Nature: "🌿",
+        Food: "🍽️",
+        Nightlife: "🌃",
+        Family: "👨‍👩‍👧‍👦",
+        Romantic: "❤️"
+    };
+
+    const COLORS = {
+        Adventure: "#f97316",   // orange
+        Relaxation: "#60a5fa",  // soft blue
+        Business: "#3b82f6",    // bright blue
+        Cultural: "#d97706",    // golden
+        Nature: "#22c55e",      // green
+        Food: "#ea580c",        // red/orange
+        Nightlife: "#8b5cf6",   // purple
+        Family: "#14b8a6",      // teal
+        Romantic: "#ef4444"     // red
+    };
+
+    const emoji = EMOJIS[category] || "🏷️";
+    const color = COLORS[category] || "#6b7280"; // default gray
+
+    return (
+        <span
+            style={{
+                backgroundColor: `${color}20`,  // translucent fill
+                color,
+                padding: "4px 10px",
+                borderRadius: "20px",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                marginLeft: "10px"
+            }} 
+        >
+
+            <span>{emoji}</span>
+            <span>{category}</span>
+        </span>
+    );
+}
