@@ -1020,8 +1020,8 @@ export default function TripDaysPage() {
 
   // add particpant to a trip
   const handleAddParticipant = async () => {
-    // this number may change once we do some testing when deployed
-    const max_participants = 8;
+    // this number may change once we do some testing when deployed. i picked 7 because the owner is considered 1.
+    const max_participants = 7;
 
     if (!canManageParticipants) {
       toast.error("Only the trip owner can add participants");
@@ -1647,6 +1647,23 @@ export default function TripDaysPage() {
                 </button>
               }
               >
+              <div className="all-participants-container">
+                {orderedPeople.map((person) => (
+                  <div key={person.user_id} className="individual-participant">
+                    <img
+                      className={`participant-pfp ${isUserActive(person.username) ? 'active' : ''}`}
+                      src={person.photo}
+                      alt={person.username}
+                    />
+                    <span className = "participant-username">{person.username}</span>
+                    {isUserActive(person.username) && (
+                      <span className="is-active">
+                        Active
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
             </Popup>
           )}
           {openNotesPopup && selectedActivity && (
@@ -1945,7 +1962,7 @@ export default function TripDaysPage() {
                   </button>
                 </div>
               )}
-              <div className = "count-of-participants">{participants.length} / 8 participants</div>
+              <div className = "count-of-participants">{participants.length + 1} / 8 participants</div>
               <div className="participants-list">
                 {participants.length === 0 ? (
                   <p>No other participants on this trip.</p>

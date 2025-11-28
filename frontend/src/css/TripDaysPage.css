@@ -1469,3 +1469,23 @@ html[data-theme="dark"] .time-picker {
   justify-content: center;
   padding: 40px;
 }
+
+.all-participants-container{
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 5px;
+}
+
+.individual-participant {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.is-active{
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  transform: translateY(1px);
+}
