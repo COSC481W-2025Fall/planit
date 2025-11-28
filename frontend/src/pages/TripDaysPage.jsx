@@ -149,7 +149,7 @@ export default function TripDaysPage() {
       return;
     }
 
-    const socket = io("http://localhost:3000", {
+    const socket = io(BASE_URL, {
       withCredentials: true
     });
 
