@@ -156,3 +156,17 @@ export async function getOwnerForTrip(tripId) {
   }
   return await res.json();
 }
+
+export async function retrievePackingItems(trip) {
+  const res = await fetch(`${API_BASE_URL}/trip/packing/predict`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(trip),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Request failed with ${res.status}`);
+  }
+  return await res.json();
+}

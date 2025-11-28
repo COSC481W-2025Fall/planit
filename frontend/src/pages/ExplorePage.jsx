@@ -8,6 +8,7 @@ import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "../css/ExplorePage.css";
+import TripsFilterButton from "../components/TripsFilterButton";
 
 export default function ExplorePage() {
   // auth
@@ -23,6 +24,10 @@ export default function ExplorePage() {
   const [results, setResults] = useState([]);
   const [likedTrips, setLikedTrips] = useState([]); // Liked tab grid
 
+  // filter/sort for liked trips
+  const [sortOption, setSortOption] = useState("recent");
+  const [dateFilter, setDateFilter] = useState("all");
+
   // likes
   const [likedIds, setLikedIds] = useState(new Set());
   const [liking, setLiking] = useState(new Set());
@@ -30,6 +35,8 @@ export default function ExplorePage() {
 
   // central like-count store
   const [likeCounts, setLikeCounts] = useState(new Map());
+
+  const [isAddCooldown, setIsAddCooldown] = useState(false);
 
   // search
   const [locations, setLocations] = useState([]);
@@ -112,7 +119,8 @@ export default function ExplorePage() {
   };
 
   // navigate to trip details
-  const handleOpenTrip = (tripId) => navigate(`/days/${tripId}`);
+  const handleOpenTrip = (tripId) => 
+  navigate(`/days/${tripId}?fromExplore=true`);
 
   // autocomplete suggestions
   const suggestions = useMemo(() => {
@@ -246,10 +254,98 @@ export default function ExplorePage() {
       if (searchAbortRef.current) searchAbortRef.current.abort();
     };
   }, [query, user?.user_id]);
-
   const isGuestUser = (userId) => {
     return userId && userId.toString().startsWith('guest_');
   };
+
+  // sort + date filter for liked trips
+  const sortedFilteredLikedTrips = useMemo(() => {
+    if (!Array.isArray(likedTrips)) return [];
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let result = [...likedTrips];
+
+    // filter: All / Upcoming / Past 
+    result = result.filter((trip) => {
+      const start = trip.trip_start_date ? new Date(trip.trip_start_date) : null;
+      const end = trip.trip_end_date ? new Date(trip.trip_end_date) : null;
+
+      const isPast =
+        (end && end < today) ||
+        (!end && start && start < today);
+
+      if (dateFilter === "upcoming") {
+        return !isPast;       // includes today + future + ongoing
+      }
+
+      if (dateFilter === "past") {
+        return isPast;        // fully finished before today
+      }
+
+      return true;            // "all"
+    });
+
+    // sort 
+    result.sort((a, b) => {
+      // sort by name
+      if (sortOption === "az" || sortOption === "za") {
+        const nameA = (a.trip_name || "").toLowerCase();
+        const nameB = (b.trip_name || "").toLowerCase();
+        const cmp = nameA.localeCompare(nameB);
+        return sortOption === "az" ? cmp : -cmp;
+      }
+
+      // sort by location
+      if (sortOption === "location") {
+        const locA = (a.trip_location || "").toLowerCase();
+        const locB = (b.trip_location || "").toLowerCase();
+        return locA.localeCompare(locB);
+      }
+
+      // date-based sorts
+      const getDateForSort = (trip) => {
+        // "recent" prefers updated_at if present
+        if (sortOption === "recent" && (trip.trip_updated_at)) {
+          return new Date(trip.trip_updated_at);
+        }
+        if (trip.trip_start_date) return new Date(trip.trip_start_date);
+        if (trip.trip_end_date) return new Date(trip.trip_end_date);
+        if (trip.trip_updated_at) {
+          return new Date(trip.trip_updated_at);
+        }
+        return null;
+      };
+
+      const dateA = getDateForSort(a);
+      const dateB = getDateForSort(b);
+
+      if (!dateA && !dateB) return 0;
+      if (!dateA) return 1;
+      if (!dateB) return -1;
+
+      if (sortOption === "earliest") {
+        // oldest start/end date first
+        return dateA - dateB;
+      }
+
+      if (sortOption === "oldest") {
+        // newest start/end date first
+        return dateB - dateA;
+      }
+
+      if (sortOption === "recent") {
+        // most recently edited first
+        return dateB - dateA;
+      }
+
+      // fallback: ascending date
+      return dateA - dateB;
+    });
+
+    return result;
+  }, [likedTrips, sortOption, dateFilter]);
 
   // like toggle
   const handleToggleLike = async (tripId, tripData) => {
@@ -320,28 +416,66 @@ export default function ExplorePage() {
     }
   };
 
-  // carousel scroll helper
-  function scrollByOneCard(viewportRef, dir = 1) {
-    const vp = viewportRef.current;
+  function scrollByOneCard(ref, dir = 1) {
+    if (isAddCooldown) return; // BLOCK SPAM CLICKS
+    startCooldown();
+
+    const vp = ref.current;
     if (!vp) return;
-    const track = vp.querySelector(":scope > .carousel-track");
-    const firstCard = track?.firstElementChild;
-    const gap = track ? parseInt(getComputedStyle(track).gap || "15", 10) : 15;
-    const cardW = firstCard ? firstCard.clientWidth : 300;
+
+    const track = vp.querySelector(".carousel-track.infinite");
+    const cards = track.children;
+    const gap = parseInt(getComputedStyle(track).gap || "15", 10);
+    const cardW = cards[0].clientWidth;
     const delta = dir * (cardW + gap);
-    vp.scrollBy({ left: delta, behavior: "smooth" });
+
+    const realCount = cards.length - 4; // we added 2 clones on each side
+
+    // scroll to target
+    const next = vp.scrollLeft + delta;
+    vp.scrollTo({ left: next, behavior: "smooth" });
+
+    // after animation completes, check if we hit clones
+    setTimeout(() => {
+      const cardWidthTotal = cardW + gap;
+
+      // If we went past the right clones → teleport back to real content
+      if (next >= cardWidthTotal * (realCount + 2)) {
+        vp.scrollTo({
+          left: cardWidthTotal * 2, // start of real first card
+          behavior: "instant"
+        });
+      }
+
+      // If we went past the left clones → teleport to end of real content
+      if (next <= 0) {
+        vp.scrollTo({
+          left: cardWidthTotal * realCount,
+          behavior: "instant"
+        });
+      }
+    }, 350); // slightly longer than smooth scroll duration
   }
+
 
   // carousel refs
   const resRef = useRef(null);
   const trRef = useRef(null);
   const topRef = useRef(null);
 
+  function startCooldown() {
+    setIsAddCooldown(true);
+    setTimeout(() => {
+      setIsAddCooldown(false);
+    }, 400);
+  }
+  
+
   // loading
   if (loadingUser) {
     return (
       <div className="trip-page">
-        <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
+        <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
         <div className="content-with-sidebar">
           <NavBar />
           <div className="main-content">
@@ -367,6 +501,18 @@ export default function ExplorePage() {
               <div className="trips-title">Explore trips</div>
               <div className="trips-subtitle">Find inspiration from public itineraries</div>
             </div>
+
+            {/* Filter button – left side, only for Liked tab */}
+            {tab === "liked" && !isGuestUser(user?.user_id) && (
+              <div className="explore-filter-wrapper">
+                <TripsFilterButton
+                  sortOption={sortOption}
+                  setSortOption={setSortOption}
+                  dateFilter={dateFilter}
+                  setDateFilter={setDateFilter}
+                />
+              </div>
+            )}
           </div>
 
           {/* Tabs (pill style) */}
@@ -479,21 +625,46 @@ export default function ExplorePage() {
                 <div className="section-title">Trending This Week</div>
 
                 <div className="carousel">
-                  <button
-                    className="carousel-btn prev"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      scrollByOneCard(trRef, -1);
-                    }}
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-
+                  {trending.length > 0 && (
+                    <button
+                      className="carousel-btn prev"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        scrollByOneCard(trRef, -1);
+                      }}
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                  )}
                   <div className="carousel-viewport" ref={trRef}>
-                    <div className="carousel-track">
+                    <div className="carousel-track infinite">
+
+                      {/* CLONE LAST 2 CARDS  */}
+                      {trending.slice(-2).map((t, i) => (
+                        <TripCardPublic
+                          key={`tr-clone-left-${i}`}
+                          trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
+                          liked={isLiked(t.trips_id)}
+                          onToggleLike={handleToggleLike}
+                          onOpen={handleOpenTrip}
+                        />
+                      ))}
+
+                      {/*REAL CARDS */}
                       {trending.map((t) => (
                         <TripCardPublic
                           key={`tr-${t.trips_id}`}
+                          trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
+                          liked={isLiked(t.trips_id)}
+                          onToggleLike={handleToggleLike}
+                          onOpen={handleOpenTrip}
+                        />
+                      ))}
+
+                      {/* CLONE FIRST 2 CARDS */}
+                      {trending.slice(0, 2).map((t, i) => (
+                        <TripCardPublic
+                          key={`tr-clone-right-${i}`}
                           trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
                           liked={isLiked(t.trips_id)}
                           onToggleLike={handleToggleLike}
@@ -515,9 +686,11 @@ export default function ExplorePage() {
                 </div>
               </section>
 
+
               {/* Top 10 all-time carousel */}
               <section className="trips-section">
                 <div className="section-title">Top Trips of All-Time</div>
+
                 <div className="carousel">
                   <button
                     className="carousel-btn prev"
@@ -530,21 +703,51 @@ export default function ExplorePage() {
                   </button>
 
                   <div className="carousel-viewport" ref={topRef}>
-                    <div className="carousel-track">
+                    <div className="carousel-track infinite">
+
+                      {/* Handle empty state */}
                       {topLiked.length === 0 ? (
-                        <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
+                        <div
+                          className="empty-state"
+                          style={{ padding: "8px 12px", color: "#666" }}
+                        >
                           No top trips yet.
                         </div>
                       ) : (
-                        topLiked.map((t) => (
-                          <TripCardPublic
-                            key={`tl-${t.trips_id}`}
-                            trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
-                            liked={isLiked(t.trips_id)}
-                            onToggleLike={handleToggleLike}
-                            onOpen={handleOpenTrip}
-                          />
-                        ))
+                        <>
+                          {/* CLONE LAST 2 CARDS*/}
+                          {topLiked.slice(-2).map((t, i) => (
+                            <TripCardPublic
+                              key={`tl-clone-left-${i}`}
+                              trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
+                              liked={isLiked(t.trips_id)}
+                              onToggleLike={handleToggleLike}
+                              onOpen={handleOpenTrip}
+                            />
+                          ))}
+
+                          {/* REAL CARDS  */}
+                          {topLiked.map((t) => (
+                            <TripCardPublic
+                              key={`tl-${t.trips_id}`}
+                              trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
+                              liked={isLiked(t.trips_id)}
+                              onToggleLike={handleToggleLike}
+                              onOpen={handleOpenTrip}
+                            />
+                          ))}
+
+                          {/*  CLONE FIRST 2 CARDS (append) */}
+                          {topLiked.slice(0, 2).map((t, i) => (
+                            <TripCardPublic
+                              key={`tl-clone-right-${i}`}
+                              trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
+                              liked={isLiked(t.trips_id)}
+                              onToggleLike={handleToggleLike}
+                              onOpen={handleOpenTrip}
+                            />
+                          ))}
+                        </>
                       )}
                     </div>
                   </div>
@@ -560,23 +763,24 @@ export default function ExplorePage() {
                   </button>
                 </div>
               </section>
+
             </>
           ) : (
             // Liked tab: grid layout
             <section className="trips-section">
               <div className="section-title">Your Liked Trips</div>
               <div className="liked-grid">
-                  {isGuestUser(user?.user_id) ? (
-                    <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
-                      You're browsing as a Guest. You must sign in to view liked trips.
-                    </div>
-                  ) :
+              {isGuestUser(user?.user_id) ? (
+                <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
+                You're browsing as a Guest. You must sign in to view liked trips.
+              </div>
+            ) :
                 likedTrips.length === 0 ? (
                   <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
                     You haven’t liked any trips yet.
                   </div>
                 ) : (
-                  likedTrips.map((t) => (
+                  sortedFilteredLikedTrips.map((t) => (
                     <TripCardPublic
                       key={`lk-${t.trips_id}`}
                       trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}

@@ -58,14 +58,18 @@ export default function TopBanner({ user , isGuest}) {
             Sign Out
           </button>
           ) : (
-          <Link className="sign-out" to ="/login">Log-in</Link>
+          <Link className="sign-out" to ="/login">Login</Link>
           )}
 
           {!isGuest && (
             user?.photo ? (
-              <img className="pfp" src={user.photo} alt="Profile" />
+              <Link className="pfp-link" to="/settings">
+                <img className="pfp top-banner-pfp" src={user.photo} alt="Profile"/>
+              </Link>
             ) : (
-              <div className="pfp placeholder">H</div>
+              <Link className="pfp-link" to="/settings">
+                <div className="pfp placeholder top-banner-pfp">H</div>
+              </Link>
             )
           )}
         </div>
