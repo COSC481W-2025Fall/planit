@@ -1,4 +1,5 @@
 import { sql } from "../config/db.js";
+import {io} from "../socket.js";
 
 export const readAllUsernames = async (req, res) => {
     if (!req.user) {
@@ -88,6 +89,7 @@ export const addParticipant = async (req, res) => {
     `;
 
         res.json({ message: "Participant added to shared trip." });
+        io.to(`trip_${tripId}`).emit("addedParticipant");
     }
     catch (err) {
         console.log("Error adding participant:", err);
@@ -127,6 +129,7 @@ export const removeParticipant = async (req, res) => {
         }
 
         res.json({ message: "Participant removed from shared trip." });
+        io.to(`trip_${tripId}`).emit("removedParticipant");
     }
     catch (err) {
         console.log("Error removing participant:", err);
