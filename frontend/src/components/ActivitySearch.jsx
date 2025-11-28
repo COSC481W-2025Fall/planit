@@ -81,6 +81,15 @@ export default function ActivitySearch({
 
     const debounceTimeout = useRef(null);
     const prevCityQuery = useRef("");
+
+    const NYC_BOROUGHS = [
+        "Manhattan, New York, NY",
+        "Brooklyn, New York, NY",
+        "Queens, New York, NY",
+        "The Bronx, New York, NY",
+        "Staten Island, New York, NY"
+    ];
+
     const {tripId} = useParams();
 
     const mapPinSvg = "M18.364 17.364L12 23.728l-6.364-6.364a9 9 0 1 1 12.728 0M12 13a2 2 0 1 0 0-4a2 2 0 0 0 0 4";
@@ -658,7 +667,7 @@ export default function ActivitySearch({
                                     }
 
                                     return (
-                                        <Marker
+                                        <Marker          
                                             key={idx}
                                             position={{ lat, lng }}
                                             onClick={() => handleMarkerClick(place, idx)}
@@ -712,6 +721,28 @@ export default function ActivitySearch({
                                         value={cityQuery}
                                         onChange={(e) => setCityQuery(e.target.value)}
                                     />
+                                    {cityQuery.length >= 2 &&
+                                        (cityQuery.toLowerCase().includes("new york") ||
+                                        cityQuery.toLowerCase().includes("nyc")) &&
+                                        !NYC_BOROUGHS.some(b => b.toLowerCase() === cityQuery.toLowerCase()) &&
+                                        cityResults.length === 0 &&
+                                        cityQuery === prevCityQuery.current && (
+                                        <ul className="city-results-dropdown">
+                                            {NYC_BOROUGHS.map((b, idx) => (
+                                            <li
+                                                key={idx}
+                                                onClick={() => {
+                                                setCityQuery(b);
+                                                setCityResults([]);
+                                                prevCityQuery.current = b;
+                                                }}
+                                            >
+                                                {b}
+                                            </li>
+                                            ))}
+                                        </ul>
+                                        )
+                                    }
                                     {cityResults.length > 0 && (
                                         <ul className="city-results-dropdown">
                                             {cityResults.map((suggestion, idx) => (
