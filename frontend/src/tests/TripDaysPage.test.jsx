@@ -3,6 +3,13 @@ import { describe, expect, test, vi } from "vitest";
 import TripDaysPage from "../pages/TripDaysPage";
 import * as daysApi from "../../api/days";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
+import * as tripsApi from "../../api/trips";
+
+// Mock fetch for user authentication and trip details
+vi.spyOn(tripsApi, "listParticipants").mockResolvedValue([]);
+vi.spyOn(tripsApi, "addParticipant").mockResolvedValue({});
+vi.spyOn(tripsApi, "removeParticipant").mockResolvedValue({});
+vi.spyOn(tripsApi, "getOwnerForTrip").mockResolvedValue({ owner_id: "1" });
 
 global.fetch = vi.fn((url) => {
     if (url.includes("/auth/login/details")) {
@@ -96,5 +103,49 @@ describe("TripDaysPage", () => {
 
         const loadings = screen.getAllByTestId("loader");
         expect(loadings).toHaveLength(1);
+    });
+
+     test("shows CloneTripButton when fromExplore=true", async () => {
+        // mock results for getDays
+        vi.spyOn(daysApi, "getDays").mockResolvedValue([
+            { day_id: "1", day_date: "2025-07-01T00:00:00", activities: [] }
+        ]);
+
+        // force fromExplore=true since MemoryRouter does NOT set window.location
+        delete window.location;
+        window.location = { search: "?fromExplore=true" };
+
+        render(
+            <MemoryRouter initialEntries={["/trip/1?fromExplore=true"]}>
+                <Routes>
+                    <Route path="/trip/:tripId" element={<TripDaysPage />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        // check that the clone button appears
+        await waitFor(() => {
+            expect(screen.getByText("Clone Trip")).toBeInTheDocument();
+        });
+    });
+
+    test("does not show CloneTripButton when fromExplore=false", async () => {
+        // mock results for getDays
+        vi.spyOn(daysApi, "getDays").mockResolvedValue([
+            { day_id: "1", day_date: "2025-07-01T00:00:00", activities: [] }
+        ]);
+
+        render(
+            <MemoryRouter initialEntries={["/trip/1"]}>
+                <Routes>
+                    <Route path="/trip/:tripId" element={<TripDaysPage />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        // ensure no clone button is shown
+        await waitFor(() => {
+            expect(screen.queryByText("Clone Trip")).toBeNull();
+        });
     });
 });

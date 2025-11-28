@@ -28,12 +28,12 @@ export async function createDay(tripId, { day_date, newDayInsertBefore}) {
   return handleResponse(res);
 }
 
-export async function updateDay(tripId, dayId, { day_date }) {
+export async function updateDay(tripId, dayId, { day_date, finalUpdate }) {
   const res = await fetch(`${API_BASE_URL}/trips/${tripId}/days/${dayId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ day_date }),
+    body: JSON.stringify({ day_date, finalUpdate }),
   });
   return handleResponse(res);
 }

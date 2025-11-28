@@ -2,11 +2,19 @@
 and deleting a users account.
 */
 import {sql} from "../config/db.js";
+import session from "express-session";
+
+const REGEX_USERNAME = /^(?!.*__)[A-Za-z0-9_]{2,20}$/;
 
 //This function handles the creation of a username for a user.
 export const createUsername = async (req, res) => {
     try {
         const { userId, createUsername } = req.body;
+
+        if (!REGEX_USERNAME.test(createUsername)){
+            return res.status(400).json({ error: "Invalid. Letters, numbers, and '_' only. Min length: 2, max length: 20" });
+        }
+
         const result = await sql`
             UPDATE users
             SET username = ${createUsername}
@@ -18,9 +26,17 @@ export const createUsername = async (req, res) => {
         if (result.length === 0) {
             return res.status(400).json({ error: "User already has a username" });
         }
-        else
-          return res.json("Username created successfully");
-    } 
+
+        const createdUser = result[0];
+
+        req.login(createdUser, (err) => {
+            if (err) {
+                console.error("Error refreshing session after username creation:", err);
+                return res.status(500).json({error: "Error refreshing session after username creation:"});
+            }
+            return res.json({ success: true, user: createdUser });
+        });
+    }
     catch (err) {
         console.log(err);
         return res.status(500).json({ error: "Internal Server Error" });
@@ -30,19 +46,38 @@ export const createUsername = async (req, res) => {
 //This function handles the modification of the three desired fields in the user table.
 export const updateUser = async (req, res) => {
   try {
-    const { userId, firstname, lastname, username} = req.body;
+    const { userId, firstname, lastname, username, customPhoto} = req.body;
 
-    if (!userId || firstname === undefined || lastname === undefined || username === undefined) {
+    if (username === undefined || username === null || username === ""){
+        return res.status(400).json({ error: "Username cannot be null" });
+    }
+
+      if (!REGEX_USERNAME.test(username)){
+          return res.status(400).json({ error: "Invalid. Letters, numbers, and '_' only. Min length: 2, max length: 20" });
+      }
+
+    if (!userId || !customPhoto || firstname === undefined || lastname === undefined || username === undefined) {
       return res.status(400).json({ error: "userId, first name, last name, and username are required" });
+    }
+
+    //This is a check using regex to ensure a proper format has been sent
+    const base64Pattern = /^data:image\/(jpeg|png);base64,/;
+    if (!base64Pattern.test(customPhoto)) {
+      return res.status(400).json({ error: "Invalid image format" });
     }
 
     const result = await sql`
     UPDATE users
     SET first_name = ${firstname},
       last_name = ${lastname},
-      username = ${username}
+      username = ${username},
+      photo = ${customPhoto}
       WHERE user_id = ${userId}
       RETURNING *`;
+
+      if (result.length === 0) {
+          return res.status(400).json({ error: "User already has a username" });
+      }
 
     const updatedUser = result[0];
 

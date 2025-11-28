@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronRight} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -16,9 +16,11 @@ import { toast } from "react-toastify";
 import OverlapWarning from "../components/OverlapWarning.jsx";
 import axios from "axios";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
-import {updateTrip} from "../../api/trips.js";
-import {listParticipants, addParticipant, removeParticipant} from "../../api/trips";
+import {getOwnerForTrip, retrievePackingItems, updateTrip, listParticipants, addParticipant, removeParticipant} from "../../api/trips";
 import { useNavigate } from "react-router-dom";
+import io from "socket.io-client";
+import {getWeather} from "../../api/weather.js";
+import CloneTripButton from "../components/CloneTripButton.jsx";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -45,24 +47,54 @@ export default function TripDaysPage() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [editableNote, setEditableNote] = useState("");
   const [isAddCooldown, setIsAddCooldown] = useState(false);
+  const [showAllParticipantsPopup, setShowAllParticipantsPopup] = useState(false);
   //Constants for image url
   const [imageUrl, setImageUrl] = useState(null);
   const [deleteActivity, setDeleteActivity] = useState(null);
+  const weatherFetchedRef = useRef(false);
 
   //constants for participants
   const [openParticipantsPopup, setOpenParticipantsPopup] = useState(false);
   const [participants, setParticipants] = useState([]);
   const [participantUsername, setParticipantUsername] = useState("");
   const [allUsernames, setAllUsernames] = useState([]);
+  const [owner, setOwner] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const participantFormRef = useRef(null);
   const MAX_DISPLAY_PFP = 4;
-  const visibleParticipants = participants.slice(0, MAX_DISPLAY_PFP - 1);
-  const hiddenParticipants = participants.slice(MAX_DISPLAY_PFP - 1);
-  const hiddenCount = participants.length - visibleParticipants.length;
-  const hiddenUsernamesString = hiddenParticipants
-    .map(p => p.username)
-    .join('\n');
+  const [activeUsers, setActiveUsers] = useState([]);
+  const [weatherSummary, setWeatherSummary] = useState([]);
+  const [dailyWeather, setDailyWeather] = useState([]);
+  const [isPackingCooldown, setIsPackingCooldown] = useState(false);
+  const socketDisconnectedRef = useRef(false);
+
+  const allPeople = [
+    ...(owner ? [owner] : []),
+    ...(Array.isArray(participants) ? participants : []),
+  ];
+
+  const uniquePeople = allPeople.filter(
+    (person, index, self) =>
+      index === self.findIndex(p => p.username === person.username)
+  );
+
+  const orderedPeople = [
+    ...(user ? uniquePeople.filter(p => p.username === user.username) : []),
+    ...uniquePeople.filter(p => p.username !== user?.username),
+  ];
+
+  const isUserActive = (username) => {
+    return activeUsers.some(u => u.username === username);
+  };
+
+  // Show ALL active users, hide only inactive users
+  const activePeople = orderedPeople.filter(p => isUserActive(p.username));
+  const inactivePeople = orderedPeople.filter(p => !isUserActive(p.username));
+
+  const visibleParticipants = activePeople; // Show all active users
+  const hiddenParticipants = inactivePeople; // Hide all inactive users
+  const hiddenCount = hiddenParticipants.length;
+  const hiddenUsernamesString = hiddenParticipants.map(p => p.username).join('\n');
 
   // distance calculation states
   const [distanceInfo, setDistanceInfo] = useState(null);
@@ -94,6 +126,7 @@ export default function TripDaysPage() {
 
   const menuRefs = useRef({});
   const { tripId } = useParams();
+  const fromExplore = new URLSearchParams(window.location.search).get("fromExplore") === "true";
   const [dragFromDay, setDragFromDay] = useState("");
   const [dragOverInfo, setDragOverInfo] = useState({
     dayId: null,
@@ -104,7 +137,124 @@ export default function TripDaysPage() {
   const isShared = userRole === "shared";
   const isViewer = userRole === "viewer";
   const canEdit = isOwner || isShared;
-  const canManageParticipants = isOwner; 
+  const canManageParticipants = isOwner;
+  
+  // Sets up Socket.IO connection, disconnect, and listeners.
+  useEffect(() => {
+    // don't connect until user information is loaded
+    if (!user || !tripId || !userRole) return;
+
+    // if they're a guest or just viewer they no socket.io needs to happen
+    if (isGuestUser(user.user_id) || isViewer) {
+      return;
+    }
+
+    const socket = io("http://localhost:3000", {
+      withCredentials: true
+    });
+
+    socket.on("connect", () => {
+      // clear disconnect flag on successful reconnection
+      socketDisconnectedRef.current = false;
+
+      // emit joinTrip after connection with user data
+      socket.emit("joinTrip", `trip_${tripId}`, {
+        username: user.username,
+        user_id: user.user_id
+      });
+    });
+
+    socket.on("activeUsersUpdated", (users) => {
+      setActiveUsers(users);
+    });
+
+    //Listener that listens for "createdDay" from backend. Takes tripId from backend as json which is then 
+    //compared to the tripId we are currently on(this will eventually be changed once rooms are implemented)
+    //if tripIds match we retrive days and activities.
+    socket.on("createdDay", () => {
+      getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
+      toast.success("New day added successfully!");
+    });
+
+    socket.on("updatedDay", () => {
+      getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
+      toast.info("Day moved");
+    });
+
+    socket.on("deletedDay", () => {
+      getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
+      toast.success("Day has been deleted.");
+    });
+
+    socket.on("updatedActivity", (dayId, activityName, dayIndex, username, create) => {
+      fetchDay(dayId);
+      toast.success(create ? `Day ${dayIndex} activity "${activityName}" added by ${username}!` : `Day ${dayIndex} activity "${activityName}" updated by ${username}!`);
+    });
+
+    socket.on("deletedActivity", (dayId, activityName, dayIndex, username) => {
+      fetchDay(dayId);
+      toast.success(`Day ${dayIndex} activity "${activityName}" deleted by ${username}!`);
+    });
+
+    socket.on("noteUpdated", (dayId, activityName, dayIndex, username, notes) => {
+      if(notes != ""){
+        const toastNote = notes.length > 20 ? notes.slice(0, 20) + "..." : notes;
+        fetchDay(dayId);
+        toast.success(`Day ${dayIndex} activity "${activityName}" ${username} notes: "${toastNote}"`);
+      }
+    });
+
+    socket.on("addedParticipant", () => {
+      displayParticipants();
+      toast.success("Participant added!");
+    });
+
+    socket.on("removedParticipant", () => {
+      displayParticipants();
+      toast.success("Participant removed!");
+    });
+
+    socket.on("disconnect", () => {
+      // mark that socket disconnected
+      socketDisconnectedRef.current = true;
+    });
+
+    return () => {
+      socket.emit("leaveTrip", `trip_${tripId}`);
+      socket.disconnect();
+    };
+  }, [tripId, user, userRole]);
+
+  // refesh when user returns if socket was disconnected
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && socketDisconnectedRef.current) {
+        // User came back AND socket was disconnected, show loader and reload
+        setTimeout(() => {
+          window.location.reload();
+        }, 500); // small delay to show the loader so the user knows that we reconnected
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  const [aiHidden, setAiHidden] = useState(false);
+  const [showAIBtn] = useState(true);
+  const [aiItems, setAIItems] = useState([]);
+  const [showAIPopup, setShowAIPopup] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("planit:aiCollapsed");
+    if (saved !== null) {
+      setAiHidden(saved === "true");
+    }
+  }, []);
+
 
   //responsive
   useEffect(() => {
@@ -341,10 +491,92 @@ export default function TripDaysPage() {
         // Later fetches: keep prior choices, just drop deleted day IDs
         setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
       }
+
+      const hasAnyActivityAddress = daysWithActivities.some(
+          day => day.activities && day.activities[0]?.activity_address
+      );
+
+      if (trip && hasAnyActivityAddress && !weatherFetchedRef.current) {
+        weatherFetchedRef.current = true;
+        fetchAndSetWeather(daysWithActivities);
+      }
+
     } catch (err) {
       console.error(err);
     }
   };
+
+  // Fetch a single day and that days activities
+  const fetchDay = async (dayId) => {
+    if (!tripId) return;
+    try {
+      const res = await fetch(`${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/activities/read/all`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({dayId})
+        }
+      );
+      const {activities} = await res.json();
+
+      // sort activities by start time
+      const sortedActivities = (activities || []).sort((a, b) => {
+        const toMinutes = (t) => {
+          if (!t) return 0;
+          const [h, m, s] = t.split(":").map(Number);
+          return (h || 0) * 60 + (m || 0) + (s ? s / 60 : 0);
+        };
+        return toMinutes(a.activity_startTime) - toMinutes(b.activity_startTime);
+      });
+
+      setDays(prevDays => {
+        const updatedDays = prevDays.map(d => 
+          d.day_id === dayId ? { ...d, activities: sortedActivities } : d);
+
+        // Find the day we just updated
+        const targetDay = updatedDays.find(d => d.day_id === dayId);
+
+        // If no activities remain for this day, remove its weather entry
+        if (!targetDay || (targetDay.activities?.length ?? 0) === 0) {
+          setDailyWeather(prevWeather =>
+            prevWeather.filter(w => w.day_id !== dayId)
+          );
+        }
+
+        fetchAndSetWeather(updatedDays);
+        return updatedDays;
+      });
+
+      //const newIds = days.map(d => d.day_id);
+
+      // if (!expandedInitRef.current) {
+      //   // First load: mobile = collapsed, desktop = expanded
+      //   setExpandedDays(window.innerWidth <= 600 ? [] : newIds);
+      //   expandedInitRef.current = true;
+      // } else {
+      //   // Later fetches: keep prior choices, just drop deleted day IDs
+      //   setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
+      // }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Sets days with activities again using previous state.
+  const mergeActivitiesIntoDays = (days) => {
+    setDays(prev => {
+      const prevMap = new Map(prev.map(d => [d.day_id, d]));
+
+      return days.map(day => {
+        if (prevMap.has(day.day_id)) {
+          return { ...day, activities: prevMap.get(day.day_id).activities };
+        }
+
+        return { ...day, activities: [] };
+      });
+    });
+  }
 
   // format duration helper
   const formatDuration = (minutes) => {
@@ -514,12 +746,9 @@ export default function TripDaysPage() {
         });
       }
 
-      await fetchDays();
-
       setOpenNewDay(null);
       setNewDayInsertBefore(false);
 
-      toast.success("New day added successfully!");
     } catch (err) {
       console.error("Error creating day:", err);
       toast.error("Failed to add day. Please try again.");
@@ -544,7 +773,6 @@ export default function TripDaysPage() {
       const isFirstDay = days.length > 0 && dayId === days[0].day_id;
 
       await deleteDay(tripId, dayId, isFirstDay);
-      await fetchDays();
 
       if (isFirstDay) {
         // if first day is deleted, update trip start date
@@ -554,7 +782,6 @@ export default function TripDaysPage() {
         });
       }
 
-      toast.success("Day has been deleted.");
     } catch (err) {
       console.error("Error deleting day:", err);
       toast.error("Failed to delete day. Please try again.");
@@ -562,13 +789,14 @@ export default function TripDaysPage() {
   };
 
   // update an activity
-  const handleUpdateActivity = async (activityId, activity) => {
+  const handleUpdateActivity = async (activityId, activity, dayId, dayIndex) => {
     if (!canEdit) {
       toast.error("You don't have permission to edit activities");
       return;
     }
 
     try {
+      const username = user.username;
       const response = await fetch(
         (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
         `/activities/update`,
@@ -577,13 +805,17 @@ export default function TripDaysPage() {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
+            tripId: trip.trips_id,
             activityId,
             activity: {
               startTime: activity.activity_startTime,
               duration: Number(activity.activity_duration),
               estimatedCost: Number(activity.activity_estimated_cost),
-              notesForActivity: activity.notesForActivity || ""
+              notesForActivity: activity.notesForActivity || "",
+              dayId: dayId
             },
+            dayIndex,
+            username
           }),
         }
       );
@@ -592,23 +824,21 @@ export default function TripDaysPage() {
         const errData = await response.json().catch(() => ({}));
         throw new Error(errData.error || "Failed to update activity");
       }
-
-      await fetchDays();
       setEditActivity(null);
-      toast.success("Activity updated successfully!");
     } catch (error) {
       console.error("Error updating activity:", error);
       toast.error("Failed to update activity. Please try again.");
     }
   };
 
-  const handleDeleteActivity = async (activityId) => {
+  const handleDeleteActivity = async (activityId, activityName, dayId, dayIndex, username) => {
     if (!canEdit) {
       toast.error("You don't have permission to delete activities");
       return;
     }
 
     try {
+      const tripId = trip.trips_id;
       const response = await fetch(
         (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
         `/activities/delete`,
@@ -616,22 +846,12 @@ export default function TripDaysPage() {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ activityId }),
+          body: JSON.stringify({ tripId, activityId, activityName, dayId, dayIndex, username}),
         }
       );
 
       if (!response.ok) throw new Error("Failed to delete activity");
 
-      // Update the days state by removing the deleted activity
-      setDays(prevDays =>
-        prevDays.map(day => ({
-          ...day,
-          activities: day.activities?.filter(a => a.activity_id !== activityId) || []
-        }))
-      );
-
-      toast.success("Activity deleted successfully!");
-      await fetchDays();
     } catch (error) {
       console.error("Error deleting activity:", error);
       toast.error("Failed to delete activity. Please try again.");
@@ -646,7 +866,7 @@ export default function TripDaysPage() {
     setDeleteActivity(activity);
   };
 
-  const updateNotesForActivity = async (id, newNote) => {
+  const updateNotesForActivity = async (id, newNote, dayId, activityName, dayIndex, username) => {
     if (!canEdit) {
       toast.error("You don't have permission to edit notes");
       return;
@@ -660,8 +880,13 @@ export default function TripDaysPage() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
+          tripId: trip.trips_id,
           activityId: id,
-          notes: newNote
+          notes: newNote,
+          dayId: dayId,
+          activityName: activityName,
+          dayIndex: dayIndex,
+          username: username
         }),
       });
 
@@ -682,7 +907,6 @@ export default function TripDaysPage() {
         }))
       );
 
-      toast.success("Notes updated successfully!");
       return true;
     } catch (err) {
       console.error("Error updating notes:", err);
@@ -759,13 +983,10 @@ export default function TripDaysPage() {
         for (const d of days) {
           if (d.day_date > dragFromDay.day_date) continue;
           const newDate = adjustDate(d.day_date, 1);
-          await updateDay(tripId, d.day_id, { day_date: newDate });
+          await updateDay(tripId, d.day_id, { day_date: newDate, finalUpdate: false });
         }
 
-        await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date });
-        await fetchDays();
-
-        toast.info("Day moved");
+        await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date , finalUpdate: true});
 
         setDragFromDay(null);
         setDragOverInfo({ dayId: null, dayDate: null });
@@ -799,7 +1020,7 @@ export default function TripDaysPage() {
           if (eachDayDate <= overDate && eachDayDate >= dragDate) {
             // days before the drop target move back 1 day
             const newDate = adjustDate(eachDay.day_date, -1);
-            await updateDay(tripId, eachDay.day_id, { day_date: newDate });
+            await updateDay(tripId, eachDay.day_id, { day_date: newDate, finalUpdate: false });
             movedDayDate = overDay.day_date;
           }
         }
@@ -808,17 +1029,14 @@ export default function TripDaysPage() {
           if (eachDayDate > overDate && eachDayDate <= dragDate) {
             // days after the drop target move forward 1 day
             const newDate = adjustDate(eachDay.day_date, 1);
-            await updateDay(tripId, eachDay.day_id, { day_date: newDate });
+            await updateDay(tripId, eachDay.day_id, { day_date: newDate, finalUpdate: false });
             movedDayDate = adjustDate(overDay.day_date, 1);
           }
         }
       }
 
       // Finally, update the date of the day we're dragging
-      await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate });
-
-      await fetchDays();
-      toast.info("Day moved");
+      await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate, finalUpdate: true });
 
       setDragFromDay(null);
       setDragOverInfo({ dayId: null, index: null });
@@ -829,6 +1047,9 @@ export default function TripDaysPage() {
 
   // add particpant to a trip
   const handleAddParticipant = async () => {
+    // this number may change once we do some testing when deployed. i picked 7 because the owner is considered 1.
+    const max_participants = 7;
+
     if (!canManageParticipants) {
       toast.error("Only the trip owner can add participants");
       return;
@@ -836,13 +1057,17 @@ export default function TripDaysPage() {
 
     if (!participantUsername.trim()) return;
 
+    if(participants.length >= max_participants){
+      toast.error("Only 8 participants allowed per trip");
+      return;
+    }
+
     try {
       await addParticipant(trip.trips_id, participantUsername.trim());
       const data = await listParticipants(trip.trips_id);
       setParticipants(data.participants || []);
       setParticipantUsername("");
       setShowSuggestions(false);
-      toast.success("Participant added!");
     } catch (err) {
       console.error("Failed to add participant:", err);
       toast.error(err.message || "Failed to add participant.");
@@ -859,7 +1084,6 @@ export default function TripDaysPage() {
     try {
       await removeParticipant(trip.trips_id, username);
       setParticipants(prev => prev.filter(p => p.username !== username));
-      toast.success("Participant removed!");
     } catch (err) {
       console.error("Failed to remove participant:", err);
       toast.error(err.message || "Failed to remove participant.");
@@ -890,24 +1114,208 @@ export default function TripDaysPage() {
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [openParticipantsPopup]);
 
+  // Helper function used to refresh participant profiles
+  const displayParticipants = async () => {
+    listParticipants(tripId)
+      .then(data => {
+        setParticipants(data.participants || []);
+      })
+      .catch(err => {
+        // Don't toast here, as it's a background load
+        console.error("Failed to fetch participants for title display:", err);
+      });
+    getOwnerForTrip(tripId)
+      .then(data => {
+        setOwner(data.owner || []);
+      })
+      .catch(err => {
+        console.error("Failed to fetch owner for title display:", err);
+      });
+  }
+
   useEffect(() => {
-    if (trip?.trips_id) {
-      listParticipants(trip.trips_id)
-        .then(data => {
-          setParticipants(data.participants || []);
-        })
-        .catch(err => {
-          // Don't toast here, as it's a background load
-          console.error("Failed to fetch participants for title display:", err);
-        });
+    if (trip?.trips_id && !isGuestUser(user?.user_id) && !isViewer) {
+      displayParticipants();
     }
-  }, [trip?.trips_id]);
+  }, [trip?.trips_id, isViewer]);
+
+  const isGuestUser = (userId) => {
+    return userId && userId.toString().startsWith('guest_');
+  };
+
+  const handlePackingAI = async () => {
+    if (isPackingCooldown) return;
+
+    if (isGuestUser(user?.user_id)) {
+      toast.info("Please log in to use Packing AI.");
+      return;
+    }
+
+    if (!days || days.length === 0) {
+      toast.error("Packing AI needs days in the trip. Add days first.");
+      return;
+    }
+
+    const startDate = new Date(trip.trip_start_date || days[0].day_date).toISOString().split("T")[0];
+    const endDate   = new Date(days[days.length - 1].day_date).toISOString().split("T")[0];
+
+    const tripDuration = getDifferenceBetweenDays(startDate, endDate);
+    const activities = days.flatMap(day => day.activities || []);
+
+    const allActivities = [];
+    const allLocations = [];
+    for (const activity of activities) {
+      allActivities.push(activity.activity_types);
+      allLocations.push(activity.activity_address);
+    }
+
+    const counts = new Map();
+    for (const word of allLocations) {
+      counts.set(word, (counts.get(word) || 0) + 1);
+    }
+
+    let mostCommonLocation = null;
+    let highestCount = 0;
+    for (const [location, count] of counts.entries()) {
+      if (count > highestCount) {
+        highestCount = count;
+        mostCommonLocation = location;
+      }
+    }
+    if (!mostCommonLocation || !allActivities) {
+      toast.warning("Packing AI needs at least one valid activity. Add an activity.");
+      return;
+    }
+
+    if (!mostCommonLocation.includes(", US")) {
+      toast.error(`Packing AI is offered for US trips only.`);
+      return
+    }
+
+    const uniqueActivities = allActivities.filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+
+    const tripPayload =         {
+      "destination": mostCommonLocation.split(", US")[0],
+      "season": weatherSummary.season,
+      "activities": uniqueActivities.toString(),
+      "duration_days": tripDuration,
+      "avg_temp_high": weatherSummary.avg_high_f,
+      "avg_temp_low": weatherSummary.avg_high_f,
+      "rain_chance_percent": weatherSummary.avg_rain_chance,
+      "humidity_percent": weatherSummary.avg_humidity
+    }
+
+    const requiredFields = [
+      "season",
+      "avg_temp_high",
+      "avg_temp_low",
+      "rain_chance_percent",
+      "humidity_percent"
+    ];
+
+    for (const field of requiredFields) {
+      const value = tripPayload[field];
+
+      // Detect null, undefined, empty string, NaN
+      if (
+          value === null ||
+          value === undefined ||
+          value === ""
+      ) {
+        toast.warning(`Packing AI cannot process, weather not available.`);
+        return;
+      }
+    }
+
+    setIsPackingCooldown(true);
+    try {
+      const response = await retrievePackingItems(tripPayload);
+
+      let items = [];
+
+      // Our backend returns: { predicted_items: [...] }
+      if (Array.isArray(response?.predicted_items)) {
+        items = response.predicted_items.map((i) => i.item_name);
+      }
+
+      setAIItems(items);
+      setShowAIPopup(true);
+
+    } catch (e) {
+      console.error("call failed", e);
+      toast.error("Packing AI took too long to respond. Please try again later.");
+    } finally {
+      setTimeout(() => setIsPackingCooldown(false), 3000); // Cooldown: 3 seconds
+    }
+  };
+
+  function getDifferenceBetweenDays (startDate, endDate) {
+    const [y1, m1, d1] = startDate.split("-").map(Number);
+    const [y2, m2, d2] = endDate.split("-").map(Number);
+
+    const t1 = Date.UTC(y1, m1 - 1, d1);
+    const t2 = Date.UTC(y2, m2 - 1, d2);
+
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+    return Math.round((t2 - t1) / MS_PER_DAY);
+  }
+
+  async function fetchAndSetWeather(sourceDays) {
+    const actualDays = sourceDays && sourceDays.length ? sourceDays : days;
+
+    const activityLocations = actualDays.map(day => day.activities[0]?.activity_address)
+    const tripDaysDates = actualDays.map(day => day.day_date.split("T")[0]);
+    const tripDaysKeys = actualDays.map(day => day.day_id);
+
+    try {
+      if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) >= 365){
+        toast.info("No weather forecast available, too far in the advance.")
+        return;
+      }
+
+      const weather = await getWeather(
+          activityLocations,
+          tripDaysDates,
+          tripDaysKeys
+      );
+
+      setWeatherSummary(weather.summary || []);
+      setDailyWeather(weather.daily_raw || []);
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load weather data");
+    }
+  }
+
+  const handleSingleDayWeather = ({ dayId, date, weather }) => {
+    const dayWeather = weather?.daily_raw?.[0];
+    if (!dayWeather) return;
+
+    const dateKey = date; // already "YYYY-MM-DD"
+
+    setDailyWeather(prev => {
+      // remove existing entry for this date (if any)
+      const filtered = prev.filter(w => w.date !== dateKey);
+
+      return [
+        ...filtered,
+        { ...dayWeather, day_id: dayId },
+      ];
+    });
+
+    if (weather?.summary) {
+      setWeatherSummary(prev => ({ ...prev, ...weather.summary }));
+    }
+  };
 
   //Loading State
   if (!user || !trip) {
     return (
       <div className="setting-page">
-        <TopBanner user={user} />
+        <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
         <div className="content-with-sidebar">
           <NavBar />
           <div className="main-content">
@@ -928,65 +1336,63 @@ export default function TripDaysPage() {
 
   return (
     <div className="page-layout">
-      <TopBanner user={user} />
+      <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
 
       <div className="content-with-sidebar">
         <NavBar />
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
-            <h1 className="trip-title">{trip.trip_name}</h1>
-            {isViewer && (
-              <span className="permission-badge viewer-badge">
-                <Eye className = "view-icon"/> Viewing Only
-              </span>
-            )}
+  <h1 className="trip-title">{trip.trip_name}</h1>
+
+  <div className="title-action-row">
+      {isViewer && (
+        <div className="permission-badge viewer-badge">
+          <Eye className="view-icon" />
+          <span>Viewing Only</span>
+        </div>
+      )}
+
             {canEdit && (
             <div className="participant-photos">
-              {user && (
-                user.photo ? (
-                  <img
-                    className="participant-pfp"
-                    src={user.photo}
-                    alt={user.username}
-                    title={user.username}
-                  />
-                ) : (
-                  <div className="participant-pfp placeholder" title={user.username}>
-                    {user.username?.charAt(0).toUpperCase() || 'U'}
-                  </div>
-                )
-              )}
+               {visibleParticipants.map((p) =>
+                 p.photo ? (
+                   <img
+                     key={`${p.user_id || ''}-${p.username}`}
+                     className={`participant-pfp ${isUserActive(p.username) ? 'active' : ''}`}
+                     src={p.photo}
+                     alt={p.username}
+                     title={p.username}
+                     onClick={() => setShowAllParticipantsPopup(true)}
+                   />
+                 ) : (
+                   <div
+                     key={`${p.user_id || ''}-${p.username}`}
+                     className="participant-pfp placeholder"
+                     title={p.username}
+                     onClick={() => setShowAllParticipantsPopup(true)}
+                   >
+                     {p.username?.charAt(0).toUpperCase() || '?'}
+                   </div>
+                 )
+               )}
 
-              {visibleParticipants.map(p => (
-                p.photo ? (
-                  <img
-                    key={p.user_id}
-                    className="participant-pfp"
-                    src={p.photo}
-                    alt={p.username}
-                    title={p.username}
-                  />
-                ) : (
+                {hiddenCount > 0 && (
                   <div
-                    key={p.user_id}
-                    className="participant-pfp placeholder"
-                    title={p.username}
+                    className="participant-pfp placeholder remainder"
+                    title={hiddenUsernamesString}
+                    onClick={() => setShowAllParticipantsPopup(true)}
                   >
-                    {p.username?.charAt(0).toUpperCase() || '?'}
+                    +{hiddenCount}
                   </div>
-                )
-              ))}
-
-              {hiddenCount > 0 && (
-                <div className="participant-pfp placeholder remainder" title={hiddenUsernamesString}>
-                  +{hiddenCount}
-                </div>
-              )}
+                )}
             </div>
-            )}
+          )}
+          </div>
           </div>
 
           <div className="trip-info">
+
+            <div className="trip-left-side">
             <div className="trip-location">
               <MapPin className="trip-info-icon" />
               <p className="trip-location-text">{trip.trip_location}</p>
@@ -1002,9 +1408,7 @@ export default function TripDaysPage() {
                     day: "numeric",
                   })}{" "}
                   -{" "}
-                  {new Date(
-                    days[days.length - 1].day_date
-                  ).toLocaleDateString("en-US", {
+                  {new Date(days[days.length - 1].day_date).toLocaleDateString("en-US", {
                     weekday: "long",
                     month: "short",
                     day: "numeric",
@@ -1012,6 +1416,18 @@ export default function TripDaysPage() {
                 </p>
               </div>
             )}
+            </div>
+
+            <div className="clone-trip-wrapper">
+              <CloneTripButton
+                user={user}
+                tripId={tripId}
+                access={userRole}
+                fromExplore={fromExplore}
+                onCloned={(newId) => navigate(`/days/${newId}`)}
+                trip={trip}
+              />
+            </div>
           </div>
 
           <div className="image-banner">
@@ -1047,6 +1463,29 @@ export default function TripDaysPage() {
               </div>
             )}
           </div>
+          {showAIBtn && (
+              <div className={`ai-floating-container ${aiHidden ? "collapsed" : ""}`}>
+                <button
+                    className={`ai-toggle-btn ${aiHidden ? "glow" : ""}`}
+                    onClick={() => {
+                      const newVal = !aiHidden;
+                      setAiHidden(newVal);
+                      localStorage.setItem("planit:aiCollapsed", newVal.toString());
+                    }}
+                >
+                  {aiHidden ? <Luggage size={18} /> : <ChevronRight size={18} />}
+                </button>
+                <button
+                    className={`packing-ai-button ${isPackingCooldown ? "cooldown" : ""} ${
+                        isGuestUser(user?.user_id) ? "disabled-guest" : ""}`}
+                        onClick={handlePackingAI}
+                        disabled={isPackingCooldown}>
+                  <Luggage size={14} id="ai-icon" />
+                  <span>Packing AI</span>
+                </button>
+              </div>
+
+          )}
           <div className="days-scroll-zone">
             <div className="days-container">
               {days.length === 0 ? (
@@ -1058,6 +1497,7 @@ export default function TripDaysPage() {
               ) : (
                 days.map((day, index) => {
                   const isExpanded = expandedDays.includes(day.day_id);
+                  const weatherForDay = dailyWeather.find(w => w.day_id === day.day_id);
                   return (
                     <React.Fragment key={day.day_id}>
                       {index === 0 && canEdit && (
@@ -1090,16 +1530,35 @@ export default function TripDaysPage() {
                             );
                           }}
                         >
-                          <div>
+                          <div className={"day-top-row-header"}>
                             <p className="day-title">Day {index + 1}</p>
-                            <p className="day-date">
-                              {new Date(day.day_date).toLocaleDateString("en-US", {
-                                weekday: "long",
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </p>
+                            <div className="weather-icon">
+                              {weatherForDay && (
+                                  <div className="weather-menu">
+                                    <div>
+                                      <p>High: {Math.round(weatherForDay.max_temp_f)}°F</p>
+                                      <p>Low: {Math.round(weatherForDay.min_temp_f)}°F</p>
+                                      <p>Prec: {Math.round(weatherForDay.rain_chance)}%</p>
+                                    </div>
+                                  </div >
+                              )}
+                              {weatherForDay?.condition_icon ? (
+                                  <img
+                                      src={`https://${weatherForDay.condition_icon}`}
+                                      alt="Weather icon"
+                                  />
+                              ) : (
+                                  <div className="empty-weather-icon"/>
+                              )}
+                            </div>
                           </div>
+                          <p className="day-date">
+                            {new Date(day.day_date).toLocaleDateString("en-US", {
+                              weekday: "long",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </p>
                           <div className="day-header-bottom">
                             <span className="number-of-activities">
                               {day.activities?.length ?? 0} Activities
@@ -1152,7 +1611,7 @@ export default function TripDaysPage() {
                                     role = {userRole}
                                     activity={activity}
                                     onDelete={canEdit ? () => confirmDeleteActivity(activity) : undefined}
-                                    onEdit={canEdit ? (activity) => setEditActivity(activity) : undefined}
+                                    onEdit={canEdit ? (activity) => setEditActivity(activity, day.day_id) : undefined}
                                     onViewNotes={(activity) => {
                                       setSelectedActivity(activity);
                                       setOpenNotesPopup(true);
@@ -1186,7 +1645,56 @@ export default function TripDaysPage() {
               )}
             </div>
           </div>
-
+          {showAIPopup && (
+            <Popup
+              title="Packing AI Suggestions"
+              onClose={() => setShowAIPopup(false)}
+              buttons={
+                <>
+                  <button onClick={() => setShowAIPopup(false)}>Close</button>
+                </>
+              }
+            >
+              {aiItems.length === 0 ? (
+                <p className="empty-state-text">No items were returned.</p>
+              ) : (
+                <ul className="ai-items-list">
+                  {aiItems.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </Popup>
+          )}
+          {showAllParticipantsPopup && (
+            <Popup 
+              title = "All Trip Participants"
+              onClose={() => setShowAllParticipantsPopup(false)}
+              buttons={
+                <button onClick={() => setShowAllParticipantsPopup(false)}>
+                  Close
+                </button>
+              }
+              >
+              <div className="all-participants-container">
+                {orderedPeople.map((person) => (
+                  <div key={person.user_id} className="individual-participant">
+                    <img
+                      className={`participant-pfp ${isUserActive(person.username) ? 'active' : ''}`}
+                      src={person.photo}
+                      alt={person.username}
+                    />
+                    <span className = "participant-username">{person.username}</span>
+                    {isUserActive(person.username) && (
+                      <span className="is-active">
+                        Active
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Popup>
+          )}
           {openNotesPopup && selectedActivity && (
             <Popup
               title={"Notes for: " + selectedActivity.activity_name}
@@ -1200,7 +1708,7 @@ export default function TripDaysPage() {
                     <button
                       className="btn-rightside"
                       onClick={() => {
-                        updateNotesForActivity(selectedActivity.activity_id, editableNote);
+                        updateNotesForActivity(selectedActivity.activity_id, editableNote, selectedActivity.day_id, selectedActivity.activity_name, days.findIndex(d => d.day_id === selectedActivity.day_id) + 1, user.username);
                         setOpenNotesPopup(false);
                       }}
                     >
@@ -1302,7 +1810,7 @@ export default function TripDaysPage() {
                     type="button"
                     className="btn-rightside"
                     onClick={() => {
-                      handleDeleteActivity(deleteActivity.activity_id);
+                      handleDeleteActivity(deleteActivity.activity_id, deleteActivity.activity_name, deleteActivity.day_id, days.findIndex(d => d.day_id === deleteActivity.day_id) + 1, user.username);
                       setDeleteActivity(null);
                     }}
                   >
@@ -1321,6 +1829,7 @@ export default function TripDaysPage() {
             <Popup
               title="Edit Activity"
               onClose={() => setEditActivity(null)}
+              id="editActivityPopup"
               buttons={
                 <>
                   <button
@@ -1338,7 +1847,10 @@ export default function TripDaysPage() {
                         activity_duration: editDuration,
                         activity_estimated_cost: editCost,
                         notesForActivity: notes || ""
-                      });
+                      }, 
+                      editActivity.day_id,
+                      days.findIndex(d => d.day_id === editActivity.day_id) + 1
+                    );
                     }}
                   >
                     Save
@@ -1346,6 +1858,7 @@ export default function TripDaysPage() {
                 </>
               }
             >
+              <span className="activity-name">{editActivity.activity_name}</span>
               <DistanceAndTimeInfo
                 distanceInfo={distanceInfo}
                 transportMode={transportMode}
@@ -1387,10 +1900,19 @@ export default function TripDaysPage() {
                 <span>Duration (minutes):</span>
                 <input
                   type="number"
+                  min = "0"
                   value={editDuration}
-                  onChange={(e) =>
-                    setEditDuration(e.target.value)
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) =>{
+                    const val = e.target.value;
+                    if(val == '') setEditDuration('');
+                    else setEditDuration(Math.max(0,val));
                   }
+                }
                 />
               </label>
 
@@ -1412,8 +1934,19 @@ export default function TripDaysPage() {
                 <span>Estimated Budget ($):</span>
                 <input
                   type="number"
+                  min = "0"
+                  step = "1"
                   value={editCost}
-                  onChange={(e) => setEditCost(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '.') {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if(val == '') setEditCost('');
+                    else setEditCost(Math.max(0,Math.floor(val)));
+                  }}
                 />
               </label>
             </Popup>
@@ -1439,7 +1972,6 @@ export default function TripDaysPage() {
                       autoCorrect="off"
                       spellCheck="false"
                     />
-
                     {showSuggestions && participantSuggestions.length > 0 && (
                       <ul className="autocomplete">
                         {participantSuggestions.map((s, i) => (
@@ -1461,6 +1993,7 @@ export default function TripDaysPage() {
                   </button>
                 </div>
               )}
+              <div className = "count-of-participants">{participants.length + 1} / 8 participants</div>
               <div className="participants-list">
                 {participants.length === 0 ? (
                   <p>No other participants on this trip.</p>
@@ -1494,7 +2027,13 @@ export default function TripDaysPage() {
               dayIds={Array.isArray(days)
                 ? days.map((d) => d.day_id)
                 : []}
-              onActivityAdded={fetchDays}
+              allDays={days}
+              username = {user.username}
+              onSingleDayWeather={handleSingleDayWeather}
+              onEditActivity={(activity) => {
+                setEditActivity(activity);
+              }}
+
             />
           </div>
         )}

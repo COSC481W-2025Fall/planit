@@ -1,5 +1,5 @@
 import { sql } from "../config/db.js";
-import { sendParticipantAddedEmail } from "../utils/mailer.js";
+import {io} from "../socket.js";
 
 export const readAllUsernames = async (req, res) => {
     if (!req.user) {
@@ -88,16 +88,8 @@ export const addParticipant = async (req, res) => {
         LIMIT 1
     `;
 
-    /* We will try to make emails work in a future PBI
-       await sendParticipantAddedEmail({
-            toEmail: user.email,
-            toUsername: user.username,
-            tripTitle: tripRow.trip_name,
-            ownerUsername: tripRow.owner_username,
-        });
-    */
-
         res.json({ message: "Participant added to shared trip." });
+        io.to(`trip_${tripId}`).emit("addedParticipant");
     }
     catch (err) {
         console.log("Error adding participant:", err);
@@ -137,6 +129,7 @@ export const removeParticipant = async (req, res) => {
         }
 
         res.json({ message: "Participant removed from shared trip." });
+        io.to(`trip_${tripId}`).emit("removedParticipant");
     }
     catch (err) {
         console.log("Error removing participant:", err);
@@ -153,7 +146,7 @@ export const listParticipants = async (req, res) => {
     const tripId = req.trip.trips_id;
     try {
         const result = await sql`
-        SELECT users.user_id, username
+        SELECT users.user_id, username, users.photo
         FROM users
         JOIN shared ON users.user_id = shared.user_id
         WHERE shared.trip_id = ${tripId}
@@ -166,3 +159,23 @@ export const listParticipants = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+export const removeYourselfFromTrip = async(req,res) => {
+    const {userId , tripId} = req.body;
+
+    try {
+        if (!tripId || !userId) {
+            return res.status(400).json({ error: "Invalid trip id or user id" });
+        }
+
+        await sql`
+        DELETE FROM shared
+        WHERE trip_id = ${tripId} AND user_id = ${userId}
+    `;
+
+        res.json({ message: "Participant removed from shared trip." });
+    } catch (err) {
+        console.log("Error removing yourself:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}

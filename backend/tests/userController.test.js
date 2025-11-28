@@ -56,7 +56,6 @@ describe("Username creation", () => {
         .send({ userId: 1, createUsername: "test" });
 
         expect(res.status).toBe(200);
-        expect(res.body).toBe("Username created successfully");
     });
 
     it("should return 400 if username already exists", async () => {
@@ -94,17 +93,26 @@ describe("Update user", () => {
 
         const res = await request(app)
         .put("/user/update")
-        .send({userId: 1, firstname: "John", lastname: "Test", username: "johnnytest"});
+        .send({userId: 1, firstname: "John", lastname: "Test", username: "johnnytest", customPhoto: "data:image/jpeg;base64,"});
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty("success", true);
         expect(res.body.user).toEqual(mockUser);
     });
 
-    it("should return 400 if required fields are missing", async () => {
+    it("should return 400 if username is null", async () => {
         const res = await request(app)
         .put("/user/update")
         .send({ userId: 1, firstname: "John" });
+
+        expect(res.status).toBe(400);
+        expect(res.body).toHaveProperty("error", "Username cannot be null");
+    });
+
+    it("should return 400 if required fields are missing", async () => {
+        const res = await request(app)
+            .put("/user/update")
+            .send({ userId: 1, firstname: "John", username: "testuser" });
 
         expect(res.status).toBe(400);
         expect(res.body).toHaveProperty("error", "userId, first name, last name, and username are required");
@@ -115,7 +123,7 @@ describe("Update user", () => {
 
         const res = await request(app)
         .put("/user/update")
-        .send({userId: 1, firstname: "John", lastname: "Test", username: "johnnytest"});
+        .send({userId: 1, firstname: "John", lastname: "Test", username: "johnnytest", customPhoto: "data:image/jpeg;base64,"});
 
         expect(res.status).toBe(500);
         expect(res.body).toHaveProperty("error", "Internal Server Error");
@@ -130,7 +138,7 @@ describe("Update user", () => {
 
         const res = await request(testApp)
         .put("/user/update")
-        .send({userId: 1, firstname: "John", lastname: "Test", username: "johnnytest"});
+        .send({userId: 1, firstname: "John", lastname: "Test", username: "johnnytest", customPhoto: "data:image/jpeg;base64,"});
 
         expect(res.status).toBe(500);
         expect(res.body).toHaveProperty("error", "Error refreshing session after update:");
@@ -139,7 +147,7 @@ describe("Update user", () => {
 
 describe("Read user", () => {
     it("should return user data if logged in", async () => {
-        const mockUserData = {first_name: "John", last_name: "Test", username: "johnnytest", email: "test@testmail.com"};
+        const mockUserData = {first_name: "John", last_name: "Test", username: "johnnytest", email: "test@testmail.com", customPhoto: "data:image/jpeg;base64,"};
 
         sql.mockResolvedValueOnce([mockUserData]);
 

@@ -143,3 +143,30 @@ export async function removeParticipant(tripId, username) {
   }
   return await res.json();
 }
+
+//Get the owner of the trip for display purposes
+export async function getOwnerForTrip(tripId) {
+  const res = await fetch(`${API_BASE_URL}/trip/owner/${tripId}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to fetch owner for trip");
+  }
+  return await res.json();
+}
+
+export async function retrievePackingItems(trip) {
+  const res = await fetch(`${API_BASE_URL}/trip/packing/predict`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(trip),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Request failed with ${res.status}`);
+  }
+  return await res.json();
+}

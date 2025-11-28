@@ -89,4 +89,24 @@ describe("Likes Controller", () => {
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({ error: "userId is required" });
   });
+  
+  it("should include is_private filter in SQL query", async () => {
+  const req = { body: { userId: 1 } };
+  const res = mockRes();
+  
+  sql.mockResolvedValue([]);
+  
+  await likesController.getAllTripDetailsOfTripsLikedByUser(req, res);
+  
+  // check that sql was called
+  expect(sql).toHaveBeenCalled();
+  
+  // get the actual SQL query that was called
+  const sqlCall = sql.mock.calls[0];
+  const queryString = sqlCall[0].join(' ').toLowerCase();
+  
+  // check that the query contains the is_private filter
+  expect(queryString).toContain('is_private');
+  expect(queryString).toContain('false');
+});
 });
