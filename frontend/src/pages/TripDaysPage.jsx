@@ -1829,6 +1829,7 @@ export default function TripDaysPage() {
             <Popup
               title="Edit Activity"
               onClose={() => setEditActivity(null)}
+              id="editActivityPopup"
               buttons={
                 <>
                   <button
@@ -1857,6 +1858,7 @@ export default function TripDaysPage() {
                 </>
               }
             >
+              <span className="activity-name">{editActivity.activity_name}</span>
               <DistanceAndTimeInfo
                 distanceInfo={distanceInfo}
                 transportMode={transportMode}
@@ -2028,6 +2030,10 @@ export default function TripDaysPage() {
               allDays={days}
               username = {user.username}
               onSingleDayWeather={handleSingleDayWeather}
+              onEditActivity={(activity) => {
+                setEditActivity(activity);
+              }}
+
             />
           </div>
         )}

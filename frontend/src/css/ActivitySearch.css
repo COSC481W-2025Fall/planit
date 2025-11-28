@@ -31,17 +31,15 @@ body {
   position: fixed;
   top: 0;
   right: 0;
-  width: 400px;
-  height: 100vh; /* full viewport height */
+  width: 100%;
+  height: 100vh;
   background: var(--bg-white);
   border-left: 1px solid var(--border-alt);
-  padding: 16px;
   display: flex;
   flex-direction: column;
   z-index: 1000;
   box-shadow: var(--shadow-4);
-  overflow-x: hidden;
-  scrollbar-gutter: stable both-edges;
+  overflow: hidden;
 }
 
 .collapse-btn {
@@ -78,7 +76,7 @@ body {
 }
 
 .search-title {
-  margin: 40px 0 16px;
+  margin: 13px 0px 1px;
   font-family: Tahoma, sans-serif;
   font-weight: bold;
   font-size: 1.25rem;
@@ -199,8 +197,11 @@ html[data-theme="dark"] .search-bar input::placeholder {
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin-bottom: 1rem;
-  overflow: visible;
-  padding-bottom: 2rem;
+  margin-top: 10px;
+  overflow: auto;
+  padding-bottom: 3rem;
+  padding-right: 10px;
+  padding-left: 10px;
 }
 
 .activity-card {
@@ -236,6 +237,12 @@ html[data-theme="dark"] .search-bar input::placeholder {
   font-size: 14px;
   font-weight: bold;
   color: var(--accent);
+}
+
+.activity-card.selected-card {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+  background-color: var(--bg-highlight); 
 }
 
 .card-content {
@@ -318,6 +325,101 @@ html[data-theme="dark"] .time-picker {
   color-scheme: dark;
 }
 
+.map-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: 0;   
+  z-index: 1;
+}
+
+.map-border {
+  overflow: hidden;
+}
+
+.search-form-overlay {
+  z-index: 2;
+}
+
+.drawer {
+  padding: 0;
+}
+
+.map-header {
+  position: relative;
+  height: 50vh; 
+  min-height: 350px;
+  max-height: 600px;
+  flex-shrink: 0;
+}
+
+.search-form-overlay {
+  position: relative;
+  z-index: 10;
+  background: var(--bg-surface-transparent);
+  backdrop-filter: blur(10px);
+  padding: 16px;
+  padding-bottom: 1px;
+}
+
+.custom-zoom-controls {
+  position: absolute;
+  right: 25px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 10;
+}
+
+.custom-control-icon {
+  color: var(--bg-white);
+}
+
+.custom-zoom-controls button {
+  opacity: 70%;
+  width: 36px;
+  height: 36px;
+  border-radius: 100%;
+  border: none;
+  background: var(--accent);
+  box-shadow: var(--shadow-1);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+}
+
+.custom-zoom-controls button:hover {
+  transform: translateY(-1px);
+  background: var(--accent-dark)
+}
+
+.custom-zoom-controls button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-1)
+}
+
+@media (min-width: 1800px) {
+    .drawer {
+        width: 550px; 
+    }
+    
+    .search-results {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .map-header {
+        max-height: 800px;
+    }
+}
+
 /*Responsive Layout*/
 @media (max-width: 1100px) {
   .drawer {
@@ -348,6 +450,7 @@ html[data-theme="dark"] .time-picker {
   }
   .search-results {
     grid-template-columns: 1fr;
+    padding-bottom: 2rem;
   }
 }
 
@@ -372,13 +475,11 @@ html[data-theme="dark"] .time-picker {
   }
 
   .search-title {
-    margin-top: 50px;
     font-size: 1.3rem;
   }
 
   .search-bar,
   .search-actions {
-    flex-direction: column;
     width: 100%;
   }
 
@@ -387,6 +488,10 @@ html[data-theme="dark"] .time-picker {
   .search-btn {
     width: 100%;
     box-sizing: border-box;
+  }
+
+  .search-btn {
+    width: 30%;
   }
 
   .search-bar input + input {
@@ -417,22 +522,31 @@ html[data-theme="dark"] .time-picker {
     transform: translate(-50%, -50%);
     height: auto;
   }
+
+  .custom-zoom-controls button {
+    width: 30px;
+    height: 30px;
+  }
+
+  .custom-zoom-controls {
+    right: 15px;
+  }
 }
 @media (max-width: 763px) and (min-width: 0px) {
   .drawer {
     top: 0;
   }
 }
-.drawer::-webkit-scrollbar {
+.search-results::-webkit-scrollbar {
   width: 10px;
 }
 
-.drawer::-webkit-scrollbar-track {
+.search-results::-webkit-scrollbar-track {
   background: var(--scrollbar-track1);
   border-radius: 10px;
 }
 
-.drawer::-webkit-scrollbar-thumb {
+.search-results::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar-thumb1);
   border-radius: 10px;
   border: 2px solid var(--scrollbar-track1);
@@ -446,7 +560,7 @@ html[data-theme="dark"] .time-picker {
   background-color: var(--bg-offwhite);
   border: 1px solid var(--border);
   border-radius: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 0px;
   color: var(--text);
 }
 
