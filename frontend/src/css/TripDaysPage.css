@@ -661,6 +661,7 @@ html[data-theme="dark"] .textarea-notes {
   object-fit: cover;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-1);
+  cursor: pointer;
 }
 
 .participant-pfp.placeholder {

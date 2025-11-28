@@ -1335,12 +1335,14 @@ export default function TripDaysPage() {
                      src={p.photo}
                      alt={p.username}
                      title={p.username}
+                     onClick={() => setShowAllParticipantsPopup(true)}
                    />
                  ) : (
                    <div
                      key={`${p.user_id || ''}-${p.username}`}
                      className="participant-pfp placeholder"
                      title={p.username}
+                     onClick={() => setShowAllParticipantsPopup(true)}
                    >
                      {p.username?.charAt(0).toUpperCase() || '?'}
                    </div>
