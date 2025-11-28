@@ -5,7 +5,7 @@ import "../css/ActivitySearch.css";
 import "../css/Popup.css";
 import Popup from "../components/Popup";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
-import {Star, Car, Footprints} from "lucide-react";
+import {Star, Car, Footprints, Plus, Minus} from "lucide-react";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
 import OverlapWarning from "./OverlapWarning.jsx";
@@ -685,6 +685,12 @@ export default function ActivitySearch({
                                     );
                                 })}
                             </GoogleMap>
+                            
+                            {/* Custom zoom controls */}
+                            <div className="custom-zoom-controls">
+                                <button onClick={() => map && map.setZoom(map.getZoom() + 1)}><Plus className="custom-control-icon" size={20}></Plus></button>
+                                <button onClick={() => map && map.setZoom(map.getZoom() - 1)}><Minus className="custom-control-icon" size={20}></Minus></button>
+                            </div>
                         </div>
                     )}
                     <div className="search-form-overlay">

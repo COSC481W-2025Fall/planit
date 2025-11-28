@@ -351,8 +351,8 @@ html[data-theme="dark"] .time-picker {
 .map-header {
   position: relative;
   height: 50vh; 
-  min-height: 350px; /* Ensure it doesn't get too small */
-  max-height: 600px; /* Optional cap */
+  min-height: 350px;
+  max-height: 600px;
   flex-shrink: 0;
 }
 
@@ -363,6 +363,47 @@ html[data-theme="dark"] .time-picker {
   backdrop-filter: blur(10px);
   padding: 16px;
   padding-bottom: 1px;
+}
+
+.custom-zoom-controls {
+  position: absolute;
+  right: 25px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 10;
+}
+
+.custom-control-icon {
+  color: var(--bg-white);
+}
+
+.custom-zoom-controls button {
+  opacity: 70%;
+  width: 36px;
+  height: 36px;
+  border-radius: 100%;
+  border: none;
+  background: var(--accent);
+  box-shadow: var(--shadow-1);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+}
+
+.custom-zoom-controls button:hover {
+  transform: translateY(-1px);
+  background: var(--accent-dark)
+}
+
+.custom-zoom-controls button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-1)
 }
 
 @media (min-width: 1800px) {
@@ -480,6 +521,15 @@ html[data-theme="dark"] .time-picker {
     left: 50%;
     transform: translate(-50%, -50%);
     height: auto;
+  }
+
+  .custom-zoom-controls button {
+    width: 30px;
+    height: 30px;
+  }
+
+  .custom-zoom-controls {
+    right: 15px;
   }
 }
 @media (max-width: 763px) and (min-width: 0px) {
