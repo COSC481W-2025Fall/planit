@@ -47,6 +47,7 @@
     --static-darkgray: #9a9a9a;
 
     --radius: 0.75rem;
+    --shadow-card: 0 4px 10px rgba(0, 0, 0, 0.1);
     --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.1);
     --shadow-strong: 0 4px 15px rgba(0, 0, 0, 0.2);
     --shadow-popup: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -65,6 +66,13 @@
     --error: red;
     --warning: orange;
     --info: lightblue;
+
+    --packing-ai-1: #7c3aed;
+    --packing-ai-2: #3b82f6;
+    --packing-ai-3: #10b981;
+
+    --ai-glow-color: rgba(0, 200, 255, 0.75);
+    --ai-glow-color-soft: rgba(0, 200, 255, 0);
 }
 
 :root[data-theme="dark"] {
@@ -106,7 +114,7 @@
     --scrollbar-thumb1: #3b475b;
     --scrollbar-thumb-hover1: #4a5871;
 
-
+    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.45);
     --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.55);
     --shadow-strong: 0 8px 30px rgba(0, 0, 0, 0.6);
     --shadow-popup: 0 12px 36px rgba(0, 0, 0, 0.65);
@@ -118,6 +126,12 @@
 
     --overlay-dark: rgba(0, 0, 0, 0.65);
     --overlay-strong: rgba(0, 0, 0, 0.85);
+
+    --packing-ai-1: #a78bfa;
+    --packing-ai-2: #60a5fa;
+    --packing-ai-3: #34d399;
+    --ai-glow-color: rgba(0, 220, 255, 0.9);
+    --ai-glow-color-soft: rgba(0, 220, 255, 0.15);
 }
 
 @media (prefers-reduced-motion: no-preference) {

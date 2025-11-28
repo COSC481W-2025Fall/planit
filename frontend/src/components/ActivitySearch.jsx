@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import "../css/ActivitySearch.css";
 import "../css/Popup.css";
@@ -10,6 +11,7 @@ import {toast} from "react-toastify";
 import OverlapWarning from "./OverlapWarning.jsx";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import {getWeather} from "../../api/weather.js";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 const MAPS_API_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
@@ -46,6 +48,8 @@ export default function ActivitySearch({
     allDays = [],
     onActivityAdded,
     onEditActivity,
+    username,
+    onSingleDayWeather
 }) {
     const [query, setQuery] = useState("");
     const [cityQuery, setCityQuery] = useState("");
@@ -54,6 +58,8 @@ export default function ActivitySearch({
     const [selectedDay, setSelectedDay] = useState("");
     const [creating, setCreating] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [nextPageToken, setNextPageToken] = useState(null);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     // popup state
     const [showDetails, setShowDetails] = useState(false);
@@ -75,6 +81,7 @@ export default function ActivitySearch({
 
     const debounceTimeout = useRef(null);
     const prevCityQuery = useRef("");
+    const {tripId} = useParams();
 
     const mapPinSvg = "M18.364 17.364L12 23.728l-6.364-6.364a9 9 0 1 1 12.728 0M12 13a2 2 0 1 0 0-4a2 2 0 0 0 0 4";
 
@@ -245,6 +252,7 @@ export default function ActivitySearch({
     const combinedQuery = cityQuery ? `${query} in ${cityQuery}` : query;
     if (combinedQuery.length < 2) {
       setResults([]);
+      setNextPageToken(null);
       return;
     }
     try {
@@ -255,6 +263,7 @@ export default function ActivitySearch({
           { withCredentials: true }
       );
       setResults(res.data.results || []);
+      setNextPageToken(res.data.nextPageToken || null);
     } catch (err) {
       console.error("Search error:", err?.response?.data || err.message);
     } finally {
@@ -411,6 +420,8 @@ export default function ActivitySearch({
             return;
         }
 
+        const dayDate = allDays.find(d => d.day_id === pendingDayId).day_date.split("T")[0];
+
         // Build payload from the selected place
         const place = pendingPlace;
         const name = place.displayName?.text || "Activity";
@@ -455,20 +466,45 @@ export default function ActivitySearch({
 
             // Update with details from popup
             const updatePayload = {
+                tripId: tripId,
                 activityId,
                 activity: {
                     startTime: formStartTime || null,
                     duration: formDuration === "" ? null : Number(formDuration),
                     estimatedCost: formCost === "" ? null : Number(formCost),
                     notesForActivity: notes || null, // ok if backend ignores it
+                    dayId: pendingDayId
                 },
+                dayIndex: allDays.findIndex(d => d.day_id === pendingDayId) + 1,
+                create: true,
+                username: username
             };
 
             await axios.put(`${BASE_URL}/activities/update`, updatePayload, {
                 withCredentials: true,
             });
 
-            toast.success("Activity added!");
+            if (dayActivities.length === 0){
+                try {
+                    const weather = await getWeather(
+                        address,
+                        dayDate,
+                        pendingDayId
+                    );
+
+                    if (typeof onSingleDayWeather === "function") {
+                        onSingleDayWeather({
+                            dayId: pendingDayId,
+                            date: dayDate,
+                            weather,          // { daily_raw: [...], summary: {...} }
+                        });
+                    }
+                } catch (err) {
+                    console.error(err);
+                    toast.error("Failed to load weather data");
+                }
+            }
+
             setShowDetails(false);
             setPendingPlace(null);
             setPendingDayId(null);
@@ -545,6 +581,35 @@ export default function ActivitySearch({
                     map.setZoom(14);
                 }
             }
+        }
+    };
+    
+    const handleLoadMore = async () => {
+        if (!nextPageToken || loadingMore) return;
+
+        const combinedQuery = cityQuery ? `${query} in ${cityQuery}` : query;
+
+        try {
+            setLoadingMore(true);
+            const res = await axios.post(
+                `${BASE_URL}/placesAPI/search`,
+                {
+                    query: combinedQuery,
+
+                    // send the token to get next page
+                    pageToken: nextPageToken
+                },
+                { withCredentials: true }
+            );
+
+            // append new results to existing ones
+            setResults(prev => [...prev, ...(res.data.results || [])]);
+            setNextPageToken(res.data.nextPageToken || null);
+        } catch (err) {
+            console.error("Load more error:", err?.response?.data || err.message);
+            toast.error("Failed to load more results");
+        } finally {
+            setLoadingMore(false);
         }
     };
 
@@ -688,52 +753,73 @@ export default function ActivitySearch({
                             <MoonLoader color="var(--accent)" size={50} speedMultiplier={0.9} />
                         </div>
                     ) : results.length > 0 ? (
-                        results.map((place, idx) => (
-                            <div key={idx}
-                                 onClick={() => handleCardClick(place)}
-                                 className={`activity-card ${activeMarker === place ? "selected-card" : ""}`} 
-                                 ref={el => itemRefs.current[idx] = el}
+                        <>
+                            {results.map((place, idx) => (
+                                <div
+                                    key={idx}
+                                    onClick={() => handleCardClick(place)}
+                                    className={`activity-card ${activeMarker === place ? "selected-card" : ""}`}
+                                    ref={el => (itemRefs.current[idx] = el)}
                                 >
-                                <div className="card-content">
-                                    <h3>{place.displayName?.text}</h3>
-                                    <p className="detail">{getLocationString(place)}</p>
-                                    <p className="detail">Type: {formatType(place.primaryType)}</p>
-                                    <p className="price">{priceLevelDisplay(place.priceLevel)}</p>
-                                    <p className="detail">
-                                        {place.rating !== undefined ? (
-                                            <span className="stars">
-                                                <Star className="star" size={16} fill="currentColor" />
-                                                {` ${place.rating}`}
-                                            </span>
-                                        ) : (
-                                            "No ratings available"
-                                        )}
-                                    </p>
-                                </div>
+                                    <div className="card-content">
+                                        <h3>{place.displayName?.text}</h3>
+                                        <p className="detail">{getLocationString(place)}</p>
+                                        <p className="detail">Type: {formatType(place.primaryType)}</p>
+                                        <p className="price">{priceLevelDisplay(place.priceLevel)}</p>
+                                        <p className="detail">
+                                            {place.rating !== undefined ? (
+                                                <span className="stars">
+                                                    <Star className="star" size={16} fill="currentColor" />
+                                                    {` ${place.rating}`}
+                                                </span>
+                                            ) : (
+                                                "No ratings available"
+                                            )}
+                                        </p>
+                                    </div>
 
-                                <div className="card-actions">
-                                    {place.websiteUri ? (
-                                        <a
-                                            href={place.websiteUri}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="website-link"
+                                    <div className="card-actions">
+                                        {place.websiteUri ? (
+                                            <a
+                                                href={place.websiteUri}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="website-link"
+                                            >
+                                                Website
+                                            </a>
+                                        ) : (
+                                            <span className="website-link disabled">No website</span>
+                                        )}
+                                        <button
+                                            className="add-btn"
+                                            onClick={() => handleAddToTrip(place)}
+                                            disabled={creating}
                                         >
-                                            Website
-                                        </a>
-                                    ) : (
-                                        <span className="website-link disabled">No website</span>
-                                    )}
+                                            Add to Trip
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {nextPageToken && (
+                                <div className="load-more-container">
                                     <button
-                                        className="add-btn"
-                                        onClick={() => handleAddToTrip(place)}
-                                        disabled={creating}
+                                        className="load-more-btn"
+                                        onClick={handleLoadMore}
+                                        disabled={loadingMore}
                                     >
-                                        Add to Trip
+                                        {loadingMore ? (
+                                            <>
+                                                <MoonLoader color="var(--accent)" size={16} />
+                                            </>
+                                        ) : (
+                                            "Load More Results"
+                                        )}
                                     </button>
                                 </div>
-                            </div>
-                        ))
+                            )}
+                        </>
                     ) : (
                         <p className="no-results-text">No results yet. Try a search!</p>
                     )}

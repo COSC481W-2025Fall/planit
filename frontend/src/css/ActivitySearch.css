@@ -199,7 +199,7 @@ html[data-theme="dark"] .search-bar input::placeholder {
   margin-bottom: 1rem;
   margin-top: 10px;
   overflow: auto;
-  padding-bottom: 2rem;
+  padding-bottom: 3rem;
   padding-right: 10px;
   padding-left: 10px;
 }
@@ -409,6 +409,7 @@ html[data-theme="dark"] .time-picker {
   }
   .search-results {
     grid-template-columns: 1fr;
+    padding-bottom: 2rem;
   }
 }
 
@@ -561,3 +562,40 @@ html[data-theme="dark"] .time-picker {
 .transport-toggle:hover:not(:disabled) .icon.active {
   color: var(--accent);
 }
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  grid-column: 1 / -1;
+  margin-top: 10px;
+}
+
+.load-more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  padding: 10px;
+  background: var(--bg-surface);
+  color: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--accent);
+  transition: background 0.2s, color 0.2s, transform 0.15s, box-shadow 0.15s;
+}
+
+.load-more-btn:hover {
+  background: var(--accent);
+  color: var(--bg-surface);
+  transform: scale(1.05);
+  box-shadow: var(--shadow-2);
+}
+
+.load-more-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+} 
