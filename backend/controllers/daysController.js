@@ -1,5 +1,6 @@
 // backend/controllers/daysController.js
 import { sql } from "../config/db.js";
+import {io} from "../socket.js";
 
 // read all days for a specific trip
 export const readDays = async (req, res) => {
@@ -85,6 +86,8 @@ export const createDay = async (req, res) => {
       ]);
       newDay = rows[0];
     }
+    //emit createdDay for frontend to listen for.
+    io.to(`trip_${tripId}`).emit("createdDay");
 
     res.status(201).json(newDay);
 
@@ -128,6 +131,10 @@ export const updateDay = async (req, res) => {
       return res.status(404).json({ error: "Day not found" });
     }
 
+    if(req.body.finalUpdate === true){
+      io.to(`trip_${tripId}`).emit("updatedDay");
+    }
+
     // return the updated day
     res.json(rows[0]);
   } catch (err) {
@@ -156,7 +163,6 @@ export const deleteDay = async (req, res) => {
 
   // check if this is the first day (to determine if we should shift other days)
   const isFirstDay = req.body?.isFirstDay ?? false;
-  console.log("isFirstDay: ", isFirstDay);
 
   try {
     // get the date from the day we are deleting
@@ -194,6 +200,8 @@ export const deleteDay = async (req, res) => {
         WHERE day_id = ${dayId} AND trip_id = ${tripId}
       `;
     }
+
+    io.to(`trip_${tripId}`).emit("deletedDay");
 
     res.status(204).send();
   } catch (err) {

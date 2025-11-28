@@ -134,7 +134,7 @@ export const updateTrip = async (req, res) => {
         const hasSharedAccess = sharedResult.length > 0;
 
         // Only owner can update trips
-        if (!isOwner) {
+        if (!isOwner && !hasSharedAccess) {
             return res.status(403).json({ error: "Only the trip owner can update this trip" });
         }
 
