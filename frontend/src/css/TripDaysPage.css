@@ -661,6 +661,7 @@ html[data-theme="dark"] .textarea-notes {
   object-fit: cover;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-1);
+  cursor: pointer;
 }
 
 .participant-pfp.placeholder {
@@ -670,6 +671,7 @@ html[data-theme="dark"] .textarea-notes {
   justify-content: center;
   font-size: 12px;
   color: var(--muted);
+  cursor: pointer;
 }
 
 .participants-header {
@@ -705,7 +707,6 @@ html[data-theme="dark"] .textarea-notes {
     display: flex;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 16px;
 }
 
 .add-participant-form input {
@@ -1388,6 +1389,16 @@ html[data-theme="dark"] .time-picker {
   margin-top: 0.05rem;
 }
 
+.participant-pfp.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.count-of-participants{
+  color: var(--accent);
+  font-size: 14px;
+}
+
 .clone-btn {
   width: 100%;
   max-width: var(--viewer-width, auto);
@@ -1458,4 +1469,24 @@ html[data-theme="dark"] .time-picker {
   display: flex;
   justify-content: center;
   padding: 40px;
+}
+
+.all-participants-container{
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 5px;
+}
+
+.individual-participant {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.is-active{
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  transform: translateY(1px);
 }
