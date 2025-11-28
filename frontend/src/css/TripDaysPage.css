@@ -2,6 +2,12 @@
 .button-level-bar>.circle-icon-btn {
   margin: 0;
 }
+.transport-and-accommodation-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px; /* spacing between buttons */
+}
 
 
 /* Keep the action buttons on the right */
@@ -46,6 +52,7 @@
 .modal-content {
   background: white;
   width: 500px;
+  max-width: 90%;
   border-radius: 12px;
   padding: 28px;
   position: relative;
@@ -53,6 +60,33 @@
   font-family: Inter, sans-serif;
 }
 
+.modal-body {
+  max-height: 60vh;   
+  overflow-y: auto;   
+  padding-right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.entry-block {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.delete-entry-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /* Close button */
 .close-btn {
@@ -85,22 +119,17 @@
 }
 
 
-/* Inputs */
 .modal-input {
   width: 100%;
-  padding: 12px;
-  border: 1.5px solid #e0e4ea;
-  border-radius: 8px;
-  font-size: 15px;
-  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
 }
-
 
 .modal-input:focus {
-  border-color: #0d1117;
   outline: none;
 }
-
 
 /* Add another entry */
 .modal-add {

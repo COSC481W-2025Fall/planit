@@ -553,12 +553,7 @@ export default function ExplorePage() {
                       ))}
 
                       {/*REAL CARDS */}
-                    {trending.length === 0 ? (
-                      <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
-                        No trending trips yet. Check back soon!
-                      </div>
-                    ) : (
-                      trending.map((t) => (
+                    {trending.map((t) => (
                         <TripCardPublic
                           key={`tr-${t.trips_id}`}
                           trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}

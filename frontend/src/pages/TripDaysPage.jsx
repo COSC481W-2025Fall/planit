@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Plane,Car,Train,Bus,Ship} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Plane,Car,Train,Bus,Ship,Bed} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -91,9 +91,12 @@ export default function TripDaysPage() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => setIsOpen(!isOpen);
-  const [transportType, setSelectedTransport] = useState(null);
-
-
+  const [transportType, setTransportType] = useState(null);
+  const [transportInfo, setTransportInfo] = useState([]);
+  const [accommodationInfo, setAccommodationInfo] = useState([]);
+  const [modalType, setModalType] = useState(null); // "transport" or "accommodation"
+  const [entries, setEntries] = useState([{ ticketNumber: "", price: "" }]);
+  
   const [expandedDays, setExpandedDays] = useState(() => {
     try {
       const saved = localStorage.getItem("planit:expandedDays");
@@ -146,6 +149,28 @@ export default function TripDaysPage() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  useEffect(() => {
+    if (!tripId) return;
+  
+    const base =
+      import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+  
+    // Fetch transport data
+    fetch(`${base}/transport/readTransportInfo?trip_id=${tripId}`, {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => setTransportInfo(data.transportInfo || []))
+      .catch((err) => console.error("Transport fetch error:", err));
+  
+    // Fetch accommodation data
+    fetch(`${base}/transport/readAccommodationInfo?trip_id=${tripId}`, {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => setAccommodationInfo(data.accommodationInfo || []))
+      .catch((err) => console.error("Accommodation fetch error:", err));
+  }, [tripId]);
 
   useEffect(() => {
     fetch(
@@ -1019,8 +1044,211 @@ export default function TripDaysPage() {
       </div>
     );
   }
+  const openModalForType = async (type) => {
+    const isAccommodation = type === "accommodation";
+    const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+  
+    setModalType(isAccommodation ? "accommodation" : "transport");
+    setTransportType(isAccommodation ? null : type);
+    setIsOpen(false);
+  
+    try {
+      if (isAccommodation) {
+        const res = await fetch(
+          `${base}/transport/readAccommodationInfo?trip_id=${tripId}`,
+          { credentials: "include" }
+        );
+        const data = await res.json();
+        const raw = data.accommodationInfo || [];
+  
+        // keep global state in sync
+        setAccommodationInfo(raw);
+  
+        const mapped = raw.map((a) => ({
+          accommodation_type: a.accommodation_type || "",
+          accommodation_price: a.accommodation_price || "",
+          accommodation_note: a.accommodation_note || "",
+          accommodation_id: a.accommodation_id ?? null,
+        }));
+  
+        setEntries(
+          mapped.length > 0
+            ? mapped
+            : [{ accommodation_type: "", accommodation_price: "", accommodation_note: "" }]
+        );
+      } else {
+        const res = await fetch(
+          `${base}/transport/readTransportInfo?trip_id=${tripId}`,
+          { credentials: "include" }
+        );
+        const data = await res.json();
+        const raw = data.transportInfo || [];
+  
+        // keep global state in sync
+        setTransportInfo(raw);
+  
+        const mapped = raw
+          .filter((t) => t.transport_type === type)
+          .map((t) => ({
+            ticketNumber: t.transport_number || "",
+            price: t.transport_price || "",
+            transport_id: t.transport_id ?? null,
+          }));
+  
+        setEntries(
+          mapped.length > 0
+            ? mapped
+            : [{ ticketNumber: "", price: "", transport_id: null }]
+        );
+      }
+  
+      setShowModal(true);
+    } catch (err) {
+      console.error("Failed to open modal:", err);
+      toast.error("Failed to load details.");
+    }
+  };
+  
 
+  const handleSaveEntries = async () => {
+    const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+  
+  
+    for (const entry of entries) {
+      // Skip empty entries
+      if (
+        modalType === "transport" && !entry.ticketNumber && !entry.price ||
+        modalType === "accommodation" && !entry.accommodation_type && !entry.accommodation_price
+      ) {
+        continue;
+      }
+  
+      const isUpdate = modalType === "transport" 
+        ? !!entry.transport_id 
+        : !!entry.accommodation_id;
+  
+      const endpoint = modalType === "transport"
+        ? (isUpdate ? "/transport/updateTransportInfo" : "/transport/addTransportInfo")
+        : (isUpdate ? "/transport/updateAccommodationInfo" : "/transport/addAccommodationInfo");
+  
+      const method = isUpdate ? "PUT" : "POST";
+  
+      const body = modalType === "transport"
+        ? {
+            ...(isUpdate && { transport_id: entry.transport_id }),
+            trip_id: tripId,
+            transport_type: transportType,
+            transport_price: entry.price,
+            transport_note: null,
+            transport_number: entry.ticketNumber,
+          }
+        : {
+            ...(isUpdate && { accommodation_id: entry.accommodation_id }),
+            trip_id: tripId,
+            accommodation_type: entry.accommodation_type,
+            accommodation_price: entry.accommodation_price,
+            accommodation_note: entry.accommodation_note || null,
+          };
+  
+  
+      await fetch(`${base}${endpoint}`, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+    }
+  
+    if (modalType === "transport") refreshTransportInfo();
+    else refreshAccommodationInfo();
+  
+    setShowModal(false);
+    setEntries(
+      modalType === "transport"
+        ? [{ ticketNumber: "", price: "" }]
+        : [{ accommodation_type: "", accommodation_price: "", accommodation_note: "" }]
+    );
+  };
 
+  const handleDeleteEntry = async (id, index) => {
+    const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+
+  
+    if (!id) {
+      setEntries(prev => prev.filter((_, i) => i !== index));
+      return;
+    }
+  
+    const body =
+      modalType === "transport"
+        ? { transport_id: Number(id) }
+        : { accommodation_id: Number(id) }; // normalize type
+  
+    const endpoint =
+      modalType === "transport"
+        ? "/transport/deleteTransportInfo"
+        : "/transport/deleteAccommodationInfo";
+    try {
+      const res = await fetch(`${base}${endpoint}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("Delete failed");
+  
+      // Remove from current modal view
+      setEntries(prev => {
+        const updated = prev.filter((_, i) => i !== index);
+        return updated;
+      });
+  
+     
+      // Refresh the backing arrays so the next open uses correct data
+      if (modalType === "transport") {
+        await refreshTransportInfo();
+      } else {
+        await refreshAccommodationInfo();
+      }
+  
+      toast.success("Entry deleted");
+    } catch (err) {
+      console.error("Delete error:", err);
+      toast.error("Failed to delete entry");
+    }
+  };
+  
+  
+  const refreshAccommodationInfo = async () => {
+    const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+    try {
+      const res = await fetch(`${base}/transport/readAccommodationInfo?trip_id=${tripId}`, { 
+        credentials: "include" 
+      });
+      const data = await res.json();
+      setAccommodationInfo(data.accommodationInfo || []);
+      return data.accommodationInfo || [];
+    } catch (err) {
+      console.error("Accommodation refresh error:", err);
+      throw err;
+    }
+  };
+  
+  const refreshTransportInfo = async () => {
+    const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+    try {
+      const res = await fetch(`${base}/transport/readTransportInfo?trip_id=${tripId}`, { 
+        credentials: "include" 
+      });
+      const data = await res.json();
+      setTransportInfo(data.transportInfo || []);
+      return data.transportInfo || [];
+    } catch (err) {
+      console.error("Transport refresh error:", err);
+      throw err;
+    }
+  };
+  
   return (
     <div className="page-layout">
       <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
@@ -1124,68 +1352,48 @@ export default function TripDaysPage() {
           <div className="button-level-bar">
             <h1 className="itinerary-text">Itinerary</h1>
             <div className="transportation-dropdown-wrapper">
+            <div className="transport-and-accommodation-buttons">
               <button className="circle-icon-btn" onClick={toggleDropdown}>
                 <Plane width={16} height={16} />
               </button>
+              <button
+                className="circle-icon-btn"
+                onClick={() => openModalForType("accommodation")}
+              >
+                <Bed width={16} height={16} />
+              </button>
+              </div>
               {isOpen && (
                 <div className="transportation-dropdown">
                   <ul>
                     <li
-                      onClick={() => {
-                        setIsOpen(false);
-                        setShowModal(true);   // <— opens modal
-                        setSelectedTransport("flight");
-                      }}
+                      onClick={() => openModalForType("flight")}
+
                     >
                       <Plane size={20} />
                       <span>Flight</span>
                     </li>
-
-
                     <li
-                      onClick={() => {
-                        setIsOpen(false);
-                        setSelectedTransport("car");
-                        setShowModal(true);   // <— opens modal
-                      }}
+                      onClick={() => openModalForType("car")}
+
                     >
                       <Car size={20} />
                       <span>Car</span>
                     </li>
-
-
                     <li
-                      onClick={() => {
-                        setIsOpen(false);
-                        setSelectedTransport("train");
-                        setShowModal(true);   // <— opens modal
-                      }}
+                      onClick={() => openModalForType("train")}
                     >
                       <Train size={20} />
                       <span>Train</span>
                     </li>
-
-
                     <li
-                      onClick={() => {
-                        setIsOpen(false);
-                        setSelectedTransport("bus");
-                        setShowModal(true);   // <— opens modal
-                      }}
+                      onClick={() => openModalForType("bus")}
                     >
                       <Bus size={20} />
                       <span>Bus</span>
                     </li>
-
-
                     <li
-                      onClick={() => {
-                        setIsOpen(false);
-                        setSelectedTransport("boat");
-                        setShowModal(true);   // <— opens modal
-
-
-                      }}
+                      onClick={() => openModalForType("boat")}
                     >
                       <Ship size={20} />
                       <span>Boat</span>
@@ -1195,32 +1403,100 @@ export default function TripDaysPage() {
               )}
             </div>
             {showModal && (
-              <div className="modal-overlay">
-                <div className="modal-content">
-                  <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
 
+            <h2 className="modal-title">
+              {modalType === "accommodation" ? "Accommodation Details" : `${transportType?.charAt(0).toUpperCase() + transportType?.slice(1)} Details`}
+            </h2>
 
-                  <h2 className="modal-title">
-                    {transportType === "flight" && " Flight Details"}
-                    {transportType === "car" && " Car Details"}
-                    {transportType === "train" && " Train Details"}
-                    {transportType === "bus" && " Bus Details"}
-                    {transportType === "boat" && " Boat Details"}
-                  </h2>
+            <div className="modal-body">
+              {entries.map((entry, index) => (
+                <div key={index} className="entry-block">
+                  {modalType === "transport" && (
+                    <>
+                      <label>Ticket Number</label>
+                      <input
+                        value={entry.ticketNumber ?? ""}
+                        onChange={(e) => {
+                          const copy = [...entries];
+                          copy[index].ticketNumber = e.target.value;
+                          setEntries(copy);
+                        }}
+                      />
+                      <label>Price</label>
+                      <input
+                        value={entry.price ?? ""}
+                        onChange={(e) => {
+                          const copy = [...entries];
+                          copy[index].price = e.target.value;
+                          setEntries(copy);
+                        }}
+                      />
+                    </>
+                  )}
 
+                  {modalType === "accommodation" && (
+                    <>
+                      <label>Accommodation Type</label>
+                      <input
+                        value={entry.accommodation_type ?? ""}
+                        onChange={(e) => {
+                          const copy = [...entries];
+                          copy[index].accommodation_type = e.target.value;
+                          setEntries(copy);
+                        }}
+                      />
+                      <label>Price</label>
+                      <input
+                        value={entry.accommodation_price ?? ""}
+                        onChange={(e) => {
+                          const copy = [...entries];
+                          copy[index].accommodation_price = e.target.value;
+                          setEntries(copy);
+                        }}
+                      />
+                      <label>Notes</label>
+                      <textarea
+                        value={entry.accommodation_note ?? ""}
+                        onChange={(e) => {
+                          const copy = [...entries];
+                          copy[index].accommodation_note = e.target.value;
+                          setEntries(copy);
+                        }}
+                      />
+                    </>
+                  )}
 
-                  <div className="modal-body">
-                    <label className="modal-label">Ticket Number</label>
-                    <input className="modal-input" placeholder="Enter ticket number" />
+                  <button className="delete-entry-btn" onClick={() => handleDeleteEntry(
+                    modalType === "transport" ? entry.transport_id : entry.accommodation_id,
+                    index
+                  )}>
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))}
 
+              <button
+                className="modal-add"
+                onClick={() =>
+                  setEntries([
+                    ...entries,
+                    modalType === "accommodation"
+                      ? { accommodation_type: "", accommodation_price: "", accommodation_note: "" }
+                      : { ticketNumber: "", price: "" },
+                  ])
+                }
+              >
+                + Add Another Entry
+              </button>
 
-                    <label className="modal-label">Price</label>
-                    <input className="modal-input" placeholder="Enter price" />
-
-
-                    <button className="modal-add">+ Add Another Entry</button>
-                    <button className="modal-save">Save Details</button>
-                  </div>
+              <button className="modal-save" onClick={handleSaveEntries}>
+                Save Details
+              </button>
+              </div>
+                  
                 </div>
               </div>
             )}
