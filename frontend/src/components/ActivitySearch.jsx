@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import "../css/ActivitySearch.css";
 import "../css/Popup.css";
 import Popup from "../components/Popup";
 import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
-import {Star, Car, Footprints} from "lucide-react";
+import {Star, Car, Footprints, Plus, Minus} from "lucide-react";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
 import OverlapWarning from "./OverlapWarning.jsx";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import {getWeather} from "../../api/weather.js";
 
-
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+const MAPS_API_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
 
 // Normalize Google price level
 const toPriceSymbol = (level) => {
@@ -45,6 +47,8 @@ export default function ActivitySearch({
     dayIds = [],
     allDays = [],
     onActivityAdded,
+    onEditActivity,
+    username,
     onSingleDayWeather
 }) {
     const [query, setQuery] = useState("");
@@ -77,6 +81,76 @@ export default function ActivitySearch({
 
     const debounceTimeout = useRef(null);
     const prevCityQuery = useRef("");
+
+    const NYC_BOROUGHS = [
+        "Manhattan, New York, NY",
+        "Brooklyn, New York, NY",
+        "Queens, New York, NY",
+        "The Bronx, New York, NY",
+        "Staten Island, New York, NY"
+    ];
+
+    const {tripId} = useParams();
+
+    const mapPinSvg = "M18.364 17.364L12 23.728l-6.364-6.364a9 9 0 1 1 12.728 0M12 13a2 2 0 1 0 0-4a2 2 0 0 0 0 4";
+
+    const getGreenMapPin = () => {
+        if (!window.google) return null;
+        
+        return {
+            path: mapPinSvg,
+            fillColor: "#18b374",
+            fillOpacity: 1,
+            strokeWeight: 2,
+            strokeColor: "#0e8a58",
+            scale: 1,
+            anchor: new window.google.maps.Point(12, 22),
+        };
+    };
+
+    const getDarkMapPin = () => {
+        if (!window.google) return null;
+
+        return {
+            path: mapPinSvg,
+            fillColor: "#a8a8a8",
+            fillOpacity: 1,
+            strokeWeight: 2,
+            strokeColor: "#8c8c8c",
+            scale: 1,
+            anchor: new window.google.maps.Point(12, 22),
+        };
+    };
+
+    const itemRefs = useRef([]);    
+    const containerStyle = {
+        width: '95%',
+        height: '100%',
+        position: "absolute",
+        top: "0px",
+        left: "10px",
+    };
+
+    //defaults to new york
+    const [mapCenter, setMapCenter] = useState({ 
+        lat: 40.7128, 
+        lng: -74.0060 
+    });
+
+    const center = useMemo(() => mapCenter, [mapCenter]);
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setMapCenter({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    });
+                },
+            );
+        }
+    }, []);
 
   const priceLevelDisplay = (level) => {
     switch (level) {
@@ -401,13 +475,18 @@ export default function ActivitySearch({
 
             // Update with details from popup
             const updatePayload = {
+                tripId: tripId,
                 activityId,
                 activity: {
                     startTime: formStartTime || null,
                     duration: formDuration === "" ? null : Number(formDuration),
                     estimatedCost: formCost === "" ? null : Number(formCost),
                     notesForActivity: notes || null, // ok if backend ignores it
+                    dayId: pendingDayId
                 },
+                dayIndex: allDays.findIndex(d => d.day_id === pendingDayId) + 1,
+                create: true,
+                username: username
             };
 
             await axios.put(`${BASE_URL}/activities/update`, updatePayload, {
@@ -435,7 +514,6 @@ export default function ActivitySearch({
                 }
             }
 
-            toast.success("Activity added!");
             setShowDetails(false);
             setPendingPlace(null);
             setPendingDayId(null);
@@ -452,6 +530,69 @@ export default function ActivitySearch({
         }
     };
 
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: MAPS_API_KEY,
+    });
+
+    const [map, setMap] = useState(null);
+    const [activeMarker, setActiveMarker] = useState(null);
+
+    const onLoad = React.useCallback(function callback(map) {
+        setMap(map);
+    }, []);
+
+    const onUnmount = React.useCallback(function callback(map) {
+        setMap(null);
+    }, []);
+
+    // Effect to fit map bounds to search results
+    useEffect(() => {
+        if (map && results.length > 0) {
+            const bounds = new window.google.maps.LatLngBounds();
+            results.forEach(place => {
+                if (place.location?.latitude && place.location?.longitude) {
+                    bounds.extend({ 
+                        lat: place.location.latitude, 
+                        lng: place.location.longitude 
+                    });
+                }
+            });
+            map.fitBounds(bounds, { 
+                top: 152, 
+                right: 0, 
+                bottom: 0, 
+                left: 0 
+            });
+        }
+    }, [map, results]);
+
+    // go to the activity card when user clicks on map pin
+    const handleMarkerClick = (place, index) => {
+        setActiveMarker(place);
+        const element = itemRefs.current[index];
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    };
+
+    // go to the map pin when a user clicks on the card
+    const handleCardClick = (place) => {
+        const lat = place.location?.lat ?? place.location?.latitude;
+        const lng = place.location?.lng ?? place.location?.longitude;
+
+        if (lat && lng) {
+            setActiveMarker(place);
+            
+            if (map) {
+                map.panTo({ lat, lng });
+                if (map.getZoom() < 14) {
+                    map.setZoom(14);
+                }
+            }
+        }
+    };
+    
     const handleLoadMore = async () => {
         if (!nextPageToken || loadingMore) return;
 
@@ -487,64 +628,161 @@ export default function ActivitySearch({
                 <button className="collapse-btn" onClick={onClose}>
                     ×
                 </button>
+                <div className="map-header">
+                    {isLoaded && (
+                        <div className="map-wrapper">
+                            <GoogleMap
+                                mapContainerStyle={containerStyle}
+                                center={mapCenter}
+                                zoom={10}
+                                onLoad={onLoad}
+                                onUnmount={onUnmount}
+                                options={{ disableDefaultUI: true, zoomControl: false, clickableIcons: false }}
+                            >
+                                {results.map((place, idx) => {
+                                    const lat = place.location?.lat ?? place.location?.latitude;
+                                    const lng = place.location?.lng ?? place.location?.longitude;
 
-                <h2 className="search-title">Add Activities</h2>
+                                    if (!lat || !lng) return null;
 
-                <form onSubmit={handleSubmit}>
-                    <div className="search-bar">
-                        <input
-                            type="text"
-                            placeholder="Search activity type..."
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                        />
+                                    const isAlreadyOnMap = dayActivities.some(activity => {
+                                        //see if we already have the activity on the day
+                                        if (activity.google_place_id && place.id && activity.google_place_id === place.id) {
+                                            return true;
+                                        }
 
-                        <div className="city-autocomplete-wrapper">
-                            <input
-                                type="text"
-                                placeholder="Enter location..."
-                                value={cityQuery}
-                                onChange={(e) => setCityQuery(e.target.value)}
-                            />
-                            {cityResults.length > 0 && (
-                                <ul className="city-results-dropdown">
-                                    {cityResults.map((suggestion, idx) => (
-                                        <li
+                                        // or get the lat and long
+                                        const actLat = activity.latitude ?? activity.location?.latitude;
+                                        const actLng = activity.longitude ?? activity.location?.longitude;
+
+                                        // and see if they are super close together
+                                        return (
+                                            Math.abs(actLat - lat) < 0.0001 &&
+                                            Math.abs(actLng - lng) < 0.0001
+                                        );
+                                    });
+
+                                    if (isAlreadyOnMap) {
+                                        return null;
+                                    }
+
+                                    return (
+                                        <Marker          
                                             key={idx}
-                                            onClick={() => {
-                                                const selectedCity =
-                                                    suggestion.placePrediction?.text?.text || "";
-                                                setCityQuery(selectedCity);
-                                                setCityResults([]);
-                                                prevCityQuery.current = selectedCity;
-                                            }}
-                                        >
-                                            {suggestion.placePrediction?.text?.text || ""}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                                            position={{ lat, lng }}
+                                            onClick={() => handleMarkerClick(place, idx)}
+                                            icon={getGreenMapPin()}
+                                            title={place.displayName?.text}
+                                        />
+                                    );
+                                })}
+                                {dayActivities.map((activity, idx) => {
+                                    const lat = activity.latitude ?? activity.location?.latitude;
+                                    const lng = activity.longitude ?? activity.location?.longitude;
+
+                                    if (!lat || !lng) return null;
+
+                                    return (
+                                        <Marker
+                                            key={`existing-${idx}`}
+                                            position={{ lat, lng }}
+                                            icon={getDarkMapPin()}
+                                            title={`Existing: ${activity.activity_name || activity.name}`}
+                                            zIndex={50}
+                                            onClick={() => onEditActivity(activity)}
+                                        />
+                                    );
+                                })}
+                            </GoogleMap>
+                            
+                            {/* Custom zoom controls */}
+                            <div className="custom-zoom-controls">
+                                <button onClick={() => map && map.setZoom(map.getZoom() + 1)}><Plus className="custom-control-icon" size={20}></Plus></button>
+                                <button onClick={() => map && map.setZoom(map.getZoom() - 1)}><Minus className="custom-control-icon" size={20}></Minus></button>
+                            </div>
                         </div>
-                    </div>
+                    )}
+                    <div className="search-form-overlay">
+                        <h2 className="search-title">Add Activities</h2>
 
-                    <div className="search-actions">
-                        <select
-                            value={selectedDay}
-                            onChange={(e) => setSelectedDay(Number(e.target.value))}
-                        >
-                            <option value="">Any Day</option>
-                            {[...Array(days)].map((_, idx) => (
-                                <option key={idx + 1} value={idx + 1}>
-                                    {`Day ${idx + 1}`}
-                                </option>
-                            ))}
-                        </select>
-                        <button type="submit" className="search-btn">
-                            Search
-                        </button>
-                    </div>
-                </form>
+                        <form onSubmit={handleSubmit}>
+                            <div className="search-bar">
+                                <input
+                                    type="text"
+                                    placeholder="Search activity type..."
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                />
 
+                                <div className="city-autocomplete-wrapper">
+                                    <input
+                                        type="text"
+                                        placeholder="Enter location..."
+                                        value={cityQuery}
+                                        onChange={(e) => setCityQuery(e.target.value)}
+                                    />
+                                    {cityQuery.length >= 2 &&
+                                        (cityQuery.toLowerCase().includes("new york") ||
+                                        cityQuery.toLowerCase().includes("nyc")) &&
+                                        !NYC_BOROUGHS.some(b => b.toLowerCase() === cityQuery.toLowerCase()) &&
+                                        cityResults.length === 0 &&
+                                        cityQuery === prevCityQuery.current && (
+                                        <ul className="city-results-dropdown">
+                                            {NYC_BOROUGHS.map((b, idx) => (
+                                            <li
+                                                key={idx}
+                                                onClick={() => {
+                                                setCityQuery(b);
+                                                setCityResults([]);
+                                                prevCityQuery.current = b;
+                                                }}
+                                            >
+                                                {b}
+                                            </li>
+                                            ))}
+                                        </ul>
+                                        )
+                                    }
+                                    {cityResults.length > 0 && (
+                                        <ul className="city-results-dropdown">
+                                            {cityResults.map((suggestion, idx) => (
+                                                <li
+                                                    key={idx}
+                                                    onClick={() => {
+                                                        const selectedCity =
+                                                            suggestion.placePrediction?.text?.text || "";
+                                                        setCityQuery(selectedCity);
+                                                        setCityResults([]);
+                                                        prevCityQuery.current = selectedCity;
+                                                    }}
+                                                >
+                                                    {suggestion.placePrediction?.text?.text || ""}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="search-actions">
+                                <select
+                                    value={selectedDay}
+                                    onChange={(e) => setSelectedDay(Number(e.target.value))}
+                                >
+                                    <option value="">Any Day</option>
+                                    {[...Array(days)].map((_, idx) => (
+                                        <option key={idx + 1} value={idx + 1}>
+                                            {`Day ${idx + 1}`}
+                                        </option>
+                                    ))}
+                                </select>
+                                <button type="submit" className="search-btn">
+                                    Search
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                 {/*  Loader integrated here */}
                 <div className="search-results">
                     {loading ? (
@@ -553,67 +791,72 @@ export default function ActivitySearch({
                         </div>
                     ) : results.length > 0 ? (
                         <>
-                        {results.map((place, idx) => (
-                            <div key={idx} className="activity-card">
-                                <div className="card-content">
-                                    <h3>{place.displayName?.text}</h3>
-                                    <p className="detail">{getLocationString(place)}</p>
-                                    <p className="detail">Type: {formatType(place.primaryType)}</p>
-                                    <p className="price">{priceLevelDisplay(place.priceLevel)}</p>
-                                    <p className="detail">
-                                        {place.rating !== undefined ? (
-                                            <span className="stars">
-                                                <Star className="star" size={16} fill="currentColor" />
-                                                {` ${place.rating}`}
-                                            </span>
-                                        ) : (
-                                            "No ratings available"
-                                        )}
-                                    </p>
-                                </div>
-
-                                <div className="card-actions">
-                                    {place.websiteUri ? (
-                                        <a
-                                            href={place.websiteUri}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="website-link"
-                                        >
-                                            Website
-                                        </a>
-                                    ) : (
-                                        <span className="website-link disabled">No website</span>
-                                    )}
-                                    <button
-                                        className="add-btn"
-                                        onClick={() => handleAddToTrip(place)}
-                                        disabled={creating}
-                                    >
-                                        Add to Trip
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-
-                                {nextPageToken && (
-                                    <div className="load-more-container">
-                                        <button
-                                            className="load-more-btn"
-                                            onClick={handleLoadMore}
-                                            disabled={loadingMore}
-                                        >
-                                            {loadingMore ? (
-                                                <>
-                                                    <MoonLoader color="var(--accent)" size={16} />
-                                                </>
+                            {results.map((place, idx) => (
+                                <div
+                                    key={idx}
+                                    onClick={() => handleCardClick(place)}
+                                    className={`activity-card ${activeMarker === place ? "selected-card" : ""}`}
+                                    ref={el => (itemRefs.current[idx] = el)}
+                                >
+                                    <div className="card-content">
+                                        <h3>{place.displayName?.text}</h3>
+                                        <p className="detail">{getLocationString(place)}</p>
+                                        <p className="detail">Type: {formatType(place.primaryType)}</p>
+                                        <p className="price">{priceLevelDisplay(place.priceLevel)}</p>
+                                        <p className="detail">
+                                            {place.rating !== undefined ? (
+                                                <span className="stars">
+                                                    <Star className="star" size={16} fill="currentColor" />
+                                                    {` ${place.rating}`}
+                                                </span>
                                             ) : (
-                                                "Load More Results"
+                                                "No ratings available"
                                             )}
+                                        </p>
+                                    </div>
+
+                                    <div className="card-actions">
+                                        {place.websiteUri ? (
+                                            <a
+                                                href={place.websiteUri}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="website-link"
+                                            >
+                                                Website
+                                            </a>
+                                        ) : (
+                                            <span className="website-link disabled">No website</span>
+                                        )}
+                                        <button
+                                            className="add-btn"
+                                            onClick={() => handleAddToTrip(place)}
+                                            disabled={creating}
+                                        >
+                                            Add to Trip
                                         </button>
                                     </div>
-                                )}
-                            </>
+                                </div>
+                            ))}
+
+                            {nextPageToken && (
+                                <div className="load-more-container">
+                                    <button
+                                        className="load-more-btn"
+                                        onClick={handleLoadMore}
+                                        disabled={loadingMore}
+                                    >
+                                        {loadingMore ? (
+                                            <>
+                                                <MoonLoader color="var(--accent)" size={16} />
+                                            </>
+                                        ) : (
+                                            "Load More Results"
+                                        )}
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <p className="no-results-text">No results yet. Try a search!</p>
                     )}
