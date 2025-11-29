@@ -170,6 +170,9 @@
 .trip-date {
     padding-left: 15px;
     padding-right: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .trip-location {

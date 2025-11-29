@@ -516,8 +516,7 @@ export default function TripPage() {
                                           </div>
                                           <p className="trip-date">
                                               {trip.trip_start_date && (
-                                                  <span className="trip-date"
-                                                        style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                                                  <span className="trip-date">
                                               <Calendar size={16} />
                                                       {new Date(trip.trip_start_date).toLocaleDateString()}
                                           </span>
