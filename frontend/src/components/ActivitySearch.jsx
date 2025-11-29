@@ -49,10 +49,12 @@ export default function ActivitySearch({
     onActivityAdded,
     onEditActivity,
     username,
-    onSingleDayWeather
+    onSingleDayWeather,
+    cityQuery: externalCityQuery = "",
+    onCityQueryChange 
 }) {
     const [query, setQuery] = useState("");
-    const [cityQuery, setCityQuery] = useState("");
+    const [cityQuery, setCityQuery] = useState(externalCityQuery);;
     const [results, setResults] = useState([]);
     const [cityResults, setCityResults] = useState([]);
     const [selectedDay, setSelectedDay] = useState("");
@@ -254,6 +256,21 @@ export default function ActivitySearch({
 
         return () => clearTimeout(debounceTimeout.current);
     }, [cityQuery]);
+
+    // sync cityQuery with parent component
+    useEffect(() => {
+        if (onCityQueryChange) {
+            onCityQueryChange(cityQuery);
+        }
+    }, [cityQuery, onCityQueryChange]);
+
+    // init from parent on mount
+    useEffect(() => {
+        if (externalCityQuery) {
+            setCityQuery(externalCityQuery);
+            prevCityQuery.current = externalCityQuery;
+        }
+    }, []);
 
   //  Search submit with loader
   const handleSubmit = async (e) => {
