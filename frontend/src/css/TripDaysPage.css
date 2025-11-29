@@ -1079,3 +1079,100 @@ html[data-theme="dark"] .time-picker {
   flex-shrink: 0;
   margin-top: 0.05rem;
 }
+
+.trip-location-text,
+.trip-dates-text {
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.trip-info-icon {
+  height: 0.9rem;
+  width: 0.9rem;
+  flex-shrink: 0;
+  color: var(--muted);
+  margin-top: 0.05rem;
+}
+
+.trip-cost-icon {
+  height: 1.2rem;
+  width: 1.2rem;
+  flex-shrink: 0;
+  color: var(--accent);
+  margin-top: 0.02rem;
+}
+
+.trip-cost {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+  color: var(--accent);
+}
+
+.trip-cost-label,
+.trip-cost-value {
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.trip-cost-itinerary {
+  margin-right: auto;
+}
+
+.day-top-row-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.day-title {
+  color: var(--text);
+  font-weight: bold;
+  font-size: 0.95em;
+  margin-top: 0.5em;
+}
+
+.day-date {
+  font-size: 0.8em;
+  margin: 0.5em 0;
+  padding-top: 5px;
+}
+
+.day-cost {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.8em;
+  color: var(--accent);
+  margin-top: 2.85em;
+  margin-left: auto;
+}
+
+.day-cost-currency,
+.day-cost-amount {
+  font-size: 1em;
+}
+
+@media (max-width: 600px) {
+  .button-level-bar {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .trip-cost-itinerary {
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  .itinerary-buttons {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+  }
+}
