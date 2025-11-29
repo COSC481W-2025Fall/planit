@@ -507,7 +507,7 @@ body {
 }
 
 .transportation-dropdown li:hover {
-  background-color: var(--accent);
+  background-color: var(--accent-lite);
 }
 
 .transportation-dropdown li svg {

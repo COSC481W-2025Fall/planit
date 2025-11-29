@@ -112,7 +112,7 @@ export default function TripDaysPage() {
   const [accommodationInfo, setAccommodationInfo] = useState([]);
   const [modalType, setModalType] = useState(null); // "transport" or "accommodation"
   const [entries, setEntries] = useState([{ ticketNumber: "", price: "" }]);
-  
+  const dropdownRef = useRef(null);
   const [expandedDays, setExpandedDays] = useState(() => {
     try {
       const saved = localStorage.getItem("planit:expandedDays");
@@ -277,8 +277,11 @@ export default function TripDaysPage() {
         (ref) => ref && ref.contains(e.target)
       );
       if (!clickedInside) setOpenMenu(null);
+    
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setIsOpen(false);
+    }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -1684,7 +1687,7 @@ export default function TripDaysPage() {
            </div>
           <div className="button-level-bar">
             <h1 className="itinerary-text">Itinerary</h1>
-            <div className="transportation-dropdown-wrapper">
+            <div className="transportation-dropdown-wrapper" ref={dropdownRef}>
             <div className="transport-and-accommodation-buttons">
               <button className="circle-icon-btn" onClick={toggleDropdown}>
                 <Plane width={16} height={16} />
@@ -1795,7 +1798,7 @@ export default function TripDaysPage() {
                             </button>
                             {(transportType === "flight" || transportType === "train") && (
                               <>
-                                <label>Ticket Number</label>
+                                <label>{transportType === "flight" ? "Flight Number" : "Ticket Number"}</label>
                                 <input
                                   value={entry.ticketNumber ?? ""}
                                   onChange={(e) => {
@@ -1803,6 +1806,7 @@ export default function TripDaysPage() {
                                     copy[index].ticketNumber = e.target.value;
                                     setEntries(copy);
                                   }}
+                                  placeholder={transportType === "flight" ? "e.g., AA123" : ""}
                                 />
                               </>
                             )}

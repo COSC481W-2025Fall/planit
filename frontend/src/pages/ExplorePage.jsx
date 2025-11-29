@@ -48,15 +48,8 @@ export default function ExplorePage() {
   const prevSearchRef = useRef("");
   const acWrapRef = useRef(null);
   const searchAbortRef = useRef(null);
-  const resRef = useRef(null);
-  const trRef = useRef(null);
-  const topRef = useRef(null);
-
   const SEARCH_DEBOUNCE_MS = 800;
   const MIN_LEN = 2;
-
-  const [carouselCooldown, setCarouselCooldown] = useState(false);
-  const CAROUSEL_COOLDOWN_MS = 350; // adjust between 250–400ms
 
   const navigate = useNavigate();
 
@@ -465,6 +458,11 @@ export default function ExplorePage() {
   }
 
 
+  // carousel refs
+  const resRef = useRef(null);
+  const trRef = useRef(null);
+  const topRef = useRef(null);
+
   function startCooldown() {
     setIsAddCooldown(true);
     setTimeout(() => {
@@ -628,21 +626,15 @@ export default function ExplorePage() {
 
                 <div className="carousel">
                   {trending.length > 0 && (
-                  <button
-                    className="carousel-btn prev"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (carouselCooldown || trending.length === 0) return;
-
-                      setCarouselCooldown(true);
-                      scrollByOneCard(trRef, -1);
-
-                      setTimeout(() => setCarouselCooldown(false), CAROUSEL_COOLDOWN_MS);
-                    }}
-                    disabled={trending.length === 0}
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
+                    <button
+                      className="carousel-btn prev"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        scrollByOneCard(trRef, -1);
+                      }}
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
                   )}
                   <div className="carousel-viewport" ref={trRef}>
                     <div className="carousel-track infinite">
@@ -659,7 +651,7 @@ export default function ExplorePage() {
                       ))}
 
                       {/*REAL CARDS */}
-                    {trending.map((t) => (
+                      {trending.map((t) => (
                         <TripCardPublic
                           key={`tr-${t.trips_id}`}
                           trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
@@ -681,23 +673,16 @@ export default function ExplorePage() {
                       ))}
                     </div>
                   </div>
-                {trending.length > 0 && (
+
                   <button
                     className="carousel-btn next"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (carouselCooldown || trending.length === 0) return;
-                      
-                      setCarouselCooldown(true);
                       scrollByOneCard(trRef, 1);
-
-                      setTimeout(() => setCarouselCooldown(false), CAROUSEL_COOLDOWN_MS);
                     }}
-                    disabled={trending.length === 0}
                   >
                     <ChevronRight size={18} />
                   </button>
-                )}
                 </div>
               </section>
 
