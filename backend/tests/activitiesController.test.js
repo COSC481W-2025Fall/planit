@@ -1,6 +1,14 @@
 import { describe, it, expect, vi } from 'vitest'; 
 import request from 'supertest';
 import * as db from '../config/db.js';
+import * as socket from "../socket.js";
+
+// Mock IO instance
+socket.getIO = () => ({
+  to: () => ({
+    emit: () => {},
+  }),
+});
 
 // Mock the database module
 vi.mock('@neondatabase/serverless', () => {

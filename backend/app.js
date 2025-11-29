@@ -5,6 +5,8 @@ import cors from "cors";
 import passport from "passport";
 import session from "express-session";
 import { neon } from "@neondatabase/serverless";
+import dotenv from "dotenv";
+dotenv.config();
 import "./auth.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -18,6 +20,9 @@ import exploreRoutes from "./routes/exploreRoutes.js";
 import routesAPIRoutes from "./routes/routesAPIRoutes.js";
 import shareRoutes from "./routes/sharedTripsRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
+import travelAccommodationRoutes from "./routes/travelAccommodationRoutes.js";
+import settingsParticipantRoutes from "./routes/settingsParticipantRoutes.js";
+import weatherRoutes from "./routes/weatherRoutes.js";
 
 
 const app = express();
@@ -38,6 +43,7 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(helmet());
 app.use(morgan("dev"));
 
@@ -70,5 +76,9 @@ app.use("/explore", exploreRoutes);
 app.use("/routesAPI", routesAPIRoutes);
 app.use("/shared" , shareRoutes)
 app.use("/settings", settingsRoutes);
+app.use("/transport", travelAccommodationRoutes);
+app.use("/settingsParticipant", settingsParticipantRoutes);
+app.use("/weather", weatherRoutes);
+
 
 export default app; // <- export the app for tests
