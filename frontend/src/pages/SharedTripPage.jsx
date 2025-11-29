@@ -38,6 +38,7 @@ export default function TripPage() {
         if (typeof window === "undefined") return "all";
         return localStorage.getItem("sharedTripsDateFilter") || "all";
     });
+    const [categoryFilter, setCategoryFilter] = useState("all");
 
     const [hiddenLabels, setHiddenLabels] = useState(() => {
         const stored = localStorage.getItem("hiddenTripLabels");
@@ -140,6 +141,15 @@ export default function TripPage() {
 
         let result = [...trips];
 
+        // filter by category
+        if (categoryFilter !== "all") {
+            result = result.filter(
+                (trip) =>
+                    (trip.trip_category || "").toLowerCase() ===
+                    categoryFilter.toLowerCase()
+            );
+        }
+
         // filter: All / Upcoming & in-progress / Past
         result = result.filter((trip) => {
             const start = trip.trip_start_date ? new Date(trip.trip_start_date) : null;
@@ -213,7 +223,7 @@ export default function TripPage() {
         });
 
         return result;
-    }, [trips, sortOption, dateFilter]);
+    }, [trips, sortOption, dateFilter, categoryFilter]);
 
     const isGuestUser = (userId) => {
         return userId && userId.toString().startsWith('guest_');
@@ -310,10 +320,12 @@ export default function TripPage() {
 
                             <div className="banner-controls">
                                 <TripsFilterButton
-                                  sortOption={sortOption}
-                                  setSortOption={setSortOption}
-                                  dateFilter={dateFilter}
-                                  setDateFilter={setDateFilter}
+                                    sortOption={sortOption}
+                                    setSortOption={setSortOption}
+                                    dateFilter={dateFilter}
+                                    setDateFilter={setDateFilter}
+                                    categoryFilter={categoryFilter}
+                                    setCategoryFilter={setCategoryFilter}
                                 />
                             </div>
                         </div>
