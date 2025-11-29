@@ -498,7 +498,7 @@ export default function ExplorePage() {
           {/* Header */}
           <div className="trips-header">
             <div className="trips-title-section">
-              <div className="trips-title">Explore trips</div>
+              <div className="trips-title">Explore Trips</div>
               <div className="trips-subtitle">Find inspiration from public itineraries</div>
             </div>
 
