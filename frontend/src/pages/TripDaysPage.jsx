@@ -547,6 +547,17 @@ export default function TripDaysPage() {
         return toMinutes(a.activity_startTime) - toMinutes(b.activity_startTime);
       });
 
+
+      //const newIds = days.map(d => d.day_id);
+
+      // if (!expandedInitRef.current) {
+      //   // First load: mobile = collapsed, desktop = expanded
+      //   setExpandedDays(window.innerWidth <= 600 ? [] : newIds);
+      //   expandedInitRef.current = true;
+      // } else {
+      //   // Later fetches: keep prior choices, just drop deleted day IDs
+      //   setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
+      // }
       setDays(prevDays => {
         const updatedDays = prevDays.map(d => 
           d.day_id === dayId ? { ...d, activities: sortedActivities } : d);
@@ -1264,7 +1275,7 @@ export default function TripDaysPage() {
 
     const t1 = Date.UTC(y1, m1 - 1, d1);
     const t2 = Date.UTC(y2, m2 - 1, d2);
-    
+
     const MS_PER_DAY = 1000 * 60 * 60 * 24;
     return Math.round((t2 - t1) / MS_PER_DAY);
   }
