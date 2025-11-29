@@ -1551,8 +1551,6 @@ html[data-theme="dark"] .time-picker {
   margin-right: auto;
 }
 
-/* --- ONLY CHANGE: day cost alignment --- */
-
 .day-cost {
   display: flex;
   align-items: center;
@@ -1560,7 +1558,7 @@ html[data-theme="dark"] .time-picker {
   font-size: 0.8em;
   color: var(--accent);
   margin-left: auto;
-  margin-top: -1.5rem;
+  margin-top: -1.6rem;
 }
 
 .day-cost-currency,
