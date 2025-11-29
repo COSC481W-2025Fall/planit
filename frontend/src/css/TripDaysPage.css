@@ -7,6 +7,7 @@
   flex-direction: row;
   align-items: center;
   gap: 8px; 
+
 }
 
 
@@ -279,8 +280,6 @@ body {
   scrollbar-width: thin;
   scrollbar-color: var(--sb-thumb) var(--sb-track);
 }
-
-/* Keep layout from jumping when bars appear */
 .days-scroll-zone {
   scrollbar-gutter: stable both-edges;
 }
@@ -450,7 +449,6 @@ body {
   transform: scale(1.05);
 }
 
-/* When button is in cooldown mode */
 .add-day-button.cooldown {
   opacity: 0.5;
   pointer-events: none;
