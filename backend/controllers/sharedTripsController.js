@@ -181,7 +181,7 @@ export const removeYourselfFromTrip = async(req,res) => {
 }
 
 // Check if a user has any shared trip with is_seen set to false
-export const checkSeenTrips = async(req,res) => {
+export const checkTripsSeen = async(req,res) => {
     const {userId} = req.body;
 
     try {
@@ -200,6 +200,28 @@ export const checkSeenTrips = async(req,res) => {
         res.json({unseen: result});
     } catch (err) {
         console.log("Error checking viewed trips:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+// If the Shared With Me page is opened this controller will be used to set is_seen to true
+export const markTripsSeen = async(req,res) => {
+    const {userId} = req.body;
+
+    try {
+        if (!userId) {
+            return res.status(400).json({ error: "Invalid trip id or user id" });
+        }
+
+        await sql`
+            UPDATE shared
+            SET is_seen = true
+            WHERE user_id = ${userId} AND is_seen = false
+        `;
+
+        res.json({ success: true });
+    } catch (err) {
+        console.log("Error marking trips as seen:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
