@@ -6,15 +6,27 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px; /* spacing between buttons */
+  gap: 8px; 
 }
 
 
-/* Keep the action buttons on the right */
 .itinerary-buttons {
   margin-left: auto;
   display: flex;
   gap: 0.5rem;
+}
+.entry-count {
+  margin-left: auto;
+  background-color: var(--accent); 
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: bold;
 }
 
 
@@ -22,43 +34,17 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 1px solid var(--border-color, #ddd);
-  background: transparent;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
+  color: var(--muted); 
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 
-
-.circle-icon-btn:hover {
-  background: var(--hover-bg, #f0f0f0);
-}
-
-/* Dimmed background */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-
-/* Center modal box */
-.modal-content {
-  background: white;
-  width: 500px;
-  max-width: 90%;
-  border-radius: 12px;
-  padding: 28px;
-  position: relative;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2);
-  font-family: Inter, sans-serif;
-}
 
 .modal-body {
   max-height: 60vh;   
@@ -69,94 +55,125 @@
   gap: 16px;
 }
 .entry-block {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 12px;
+  padding: 16px;
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  background: var(--bg-surface);
+
+}
+.entry-block label {
+  display: block;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  font-size: 1rem;
+
+}
+.entry-block input,
+.entry-block textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--bg-white);
+  color: var(--text);
+  font-size: 1rem;  font-family: inherit;
+  transition: all 0.2s;
+}
+html[data-theme="dark"] .entry-block input,
+html[data-theme="dark"] .entry-block textarea {
+  background-color: var(--bg-hover2);
+  border-color: var(--border);
+
+}
+.entry-block input:focus,
+.entry-block textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+.entry-block textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-size: 13px;
+}
+.char-count {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
 }
 .delete-entry-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
   background: none;
   border: none;
-  padding: 0;
-  margin: 0;
+  color: var(--muted);
   cursor: pointer;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: color 0.2s, transform 0.15s;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+
 }
-
-/* Close button */
-.close-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: none;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
+.delete-entry-btn:hover {
+  color: var(--text);
+  background: var(--bg-offwhite);
+  transform: scale(1.1);
 }
-
-
-/* Title */
-.modal-title {
-  font-size: 24px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
+html[data-theme="dark"] .delete-entry-btn:hover {
+  background: var(--bg-hover2);
+  color: var(--bg-white);
 }
-
-
-/* Field labels */
-.modal-label {
-  font-weight: 600;
-  margin-top: 12px;
-  display: block;
-}
-
-
-.modal-input {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 0.95rem;
-}
-
-.modal-input:focus {
-  outline: none;
-}
-
-/* Add another entry */
 .modal-add {
   width: 100%;
   margin-top: 18px;
-  padding: 12px;
-  background: white;
-  border: 1.5px solid #e0e4ea;
+  padding: 12px 16px;
+  background: transparent;
+  border: 2px solid var(--border);
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+  transition: all 0.2s ease;
+  font-family: "Open Sans", sans-serif;
+
+}
+.modal-add:hover {
+  background: var(--accent);
+  color: var(--bg-white);
+  border-color: var(--accent);
+}
+.modal-body::-webkit-scrollbar {
+  width: var(--sb-size);
 }
 
-
-/* Save button */
-.modal-save {
-  width: 100%;
-  margin-top: 20px;
-  padding: 14px;
-  background: #0d1117;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  border: none;
+.modal-body::-webkit-scrollbar-track {
+  background: var(--sb-track);
 }
 
+.modal-body::-webkit-scrollbar-thumb {
+  background-color: var(--sb-thumb);
+  border-radius: 999px;
+  border: 2px solid var(--sb-track);
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background-color: var(--sb-thumb-hover);
+}
+
+.modal-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sb-thumb) var(--sb-track);
+}
 body {
   background: var(--bg-offwhite);
   margin: 0;
@@ -229,7 +246,6 @@ body {
   transition: margin-right 0.3s ease, transform 0.3s ease;
 }
 
-/* (Chrome/Edge/Safari): same size for vertical & horizontal */
 .TripDaysPage::-webkit-scrollbar,
 .days-scroll-zone::-webkit-scrollbar,
 .days-container::-webkit-scrollbar {
@@ -248,7 +264,7 @@ body {
 .days-container::-webkit-scrollbar-thumb {
   background-color: var(--sb-thumb);
   border-radius: 999px;
-  border: 2px solid var(--sb-track); /* keeps the thumb visually slimmer without changing size */
+  border: 2px solid var(--sb-track); 
 }
 
 .TripDaysPage::-webkit-scrollbar-thumb:hover,
@@ -257,12 +273,10 @@ body {
   background-color: var(--sb-thumb-hover);
 }
 
-/* Firefox: can't set pixels, but keep it consistent (thin always) */
 .TripDaysPage,
 .days-scroll-zone,
 .days-container {
   scrollbar-width: thin;
-  /* consistent thickness */
   scrollbar-color: var(--sb-thumb) var(--sb-track);
 }
 
@@ -459,8 +473,9 @@ body {
 }
 
 .circle-icon-btn:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  
+  background: var(--btn-hover-bg);
+
 }
 
 .transportation-dropdown {
@@ -468,11 +483,10 @@ body {
   top: calc(100% + 8px);
   left: 0;
   min-width: 200px;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-2);
   z-index: 50;
   overflow: hidden;
 }
@@ -491,16 +505,16 @@ body {
   cursor: pointer;
   transition: background-color 0.15s ease;
   font-size: 16px;
-  color: #111827;
+  color: var(--text);
 }
 
 .transportation-dropdown li:hover {
-  background-color: #f3f4f6;
+  background-color: var(--accent);
 }
 
 .transportation-dropdown li svg {
   flex-shrink: 0;
-  color: #374151;
+  color: var(--muted);
 }
 
 .transportation-dropdown li span {
@@ -743,6 +757,11 @@ body {
 .trash-icon {
   height: 0.7rem;
   color: var(--accent);
+}
+html[data-theme="dark"] .trash-icon,
+html[data-theme="dark"] .trash-icon svg {
+  color: var(--bg-white) !important;
+  stroke: var(--bg-white) !important;
 }
 
 .textarea-notes {
@@ -1225,6 +1244,7 @@ html[data-theme="dark"] .textarea-notes {
   border: 1px solid var(--border-input);
   border-radius: 4px;
   font-size: 14px;
+
   background: var(--bg-input);
   color: var(--text);
 }

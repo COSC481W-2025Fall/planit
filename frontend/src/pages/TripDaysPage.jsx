@@ -1361,6 +1361,7 @@ export default function TripDaysPage() {
       </div>
     );
   }
+
   const openModalForType = async (type) => {
     const isAccommodation = type === "accommodation";
     const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
@@ -1410,6 +1411,7 @@ export default function TripDaysPage() {
             ticketNumber: t.transport_number || "",
             price: t.transport_price || "",
             transport_id: t.transport_id ?? null,
+            transport_note: t.transport_note || "",
           }));
   
         setEntries(
@@ -1430,7 +1432,7 @@ export default function TripDaysPage() {
   const handleSaveEntries = async () => {
     const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
   
-  
+    try{
     for (const entry of entries) {
       // Skip empty entries
       if (
@@ -1456,7 +1458,7 @@ export default function TripDaysPage() {
             trip_id: tripId,
             transport_type: transportType,
             transport_price: entry.price,
-            transport_note: null,
+            transport_note: entry.transport_note || null,
             transport_number: entry.ticketNumber,
           }
         : {
@@ -1482,9 +1484,20 @@ export default function TripDaysPage() {
     setShowModal(false);
     setEntries(
       modalType === "transport"
-        ? [{ ticketNumber: "", price: "" }]
+        ? [{ ticketNumber: "", price: "" , transport_note: ""}]
         : [{ accommodation_type: "", accommodation_price: "", accommodation_note: "" }]
     );
+    const successMessage = modalType === "transport" 
+      ? "Transportation has been updated!" 
+      : "Accommodation has been updated!";
+    toast.success(successMessage);
+  } catch (error) {
+    console.error("Error saving entries:", error);
+    const errorMessage = modalType === "transport"
+      ? "Failed to update transportation. Please try again."
+      : "Failed to update accommodation. Please try again.";
+    toast.error(errorMessage);
+  }
   };
 
   const handleDeleteEntry = async (id, index) => {
@@ -1688,138 +1701,258 @@ export default function TripDaysPage() {
                   <ul>
                     <li
                       onClick={() => openModalForType("flight")}
-
+                      className={transportInfo.some(t => t.transport_type === "flight") ? "has-entry" : ""}
                     >
                       <Plane size={20} />
                       <span>Flight</span>
+                      {transportInfo.some(t => t.transport_type === "flight") && (
+                        <span className="entry-count">
+                          {transportInfo.filter(t => t.transport_type === "flight").length}
+                        </span>
+                      )}
                     </li>
                     <li
                       onClick={() => openModalForType("car")}
-
+                      className={transportInfo.some(t => t.transport_type === "car") ? "has-entry" : ""}
                     >
                       <Car size={20} />
                       <span>Car</span>
+                      {transportInfo.some(t => t.transport_type === "car") && (
+                        <span className="entry-count">
+                          {transportInfo.filter(t => t.transport_type === "car").length}
+                        </span>
+                      )}
                     </li>
                     <li
                       onClick={() => openModalForType("train")}
+                      className={transportInfo.some(t => t.transport_type === "train") ? "has-entry" : ""}
                     >
                       <Train size={20} />
                       <span>Train</span>
+                      {transportInfo.some(t => t.transport_type === "train") && (
+                        <span className="entry-count">
+                          {transportInfo.filter(t => t.transport_type === "train").length}
+                        </span>
+                      )}
                     </li>
                     <li
                       onClick={() => openModalForType("bus")}
+                      className={transportInfo.some(t => t.transport_type === "bus") ? "has-entry" : ""}
                     >
                       <Bus size={20} />
                       <span>Bus</span>
+                      {transportInfo.some(t => t.transport_type === "bus") && (
+                        <span className="entry-count">
+                          {transportInfo.filter(t => t.transport_type === "bus").length}
+                        </span>
+                      )}
                     </li>
                     <li
                       onClick={() => openModalForType("boat")}
+                      className={transportInfo.some(t => t.transport_type === "boat") ? "has-entry" : ""}
                     >
                       <Ship size={20} />
                       <span>Boat</span>
+                      {transportInfo.some(t => t.transport_type === "boat") && (
+                        <span className="entry-count">
+                          {transportInfo.filter(t => t.transport_type === "boat").length}
+                        </span>
+                      )}
                     </li>
                   </ul>
                 </div>
               )}
             </div>
-            {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
-
-            <h2 className="modal-title">
-              {modalType === "accommodation" ? "Accommodation Details" : `${transportType?.charAt(0).toUpperCase() + transportType?.slice(1)} Details`}
-            </h2>
-
-            <div className="modal-body">
-              {entries.map((entry, index) => (
-                <div key={index} className="entry-block">
-                  {modalType === "transport" && (
+              {showModal && (
+                <Popup
+                  title={modalType === "accommodation" ? "Accommodation Details" : `${transportType?.charAt(0).toUpperCase() + transportType?.slice(1)} Details`}
+                  onClose={() => setShowModal(false)}
+                  buttons={
                     <>
-                      <label>Ticket Number</label>
-                      <input
-                        value={entry.ticketNumber ?? ""}
-                        onChange={(e) => {
-                          const copy = [...entries];
-                          copy[index].ticketNumber = e.target.value;
-                          setEntries(copy);
-                        }}
-                      />
-                      <label>Price</label>
-                      <input
-                        value={entry.price ?? ""}
-                        onChange={(e) => {
-                          const copy = [...entries];
-                          copy[index].price = e.target.value;
-                          setEntries(copy);
-                        }}
-                      />
+                      <button onClick={() => setShowModal(false)}>
+                        Cancel
+                      </button>
+                      <button className="btn-rightside" onClick={handleSaveEntries}>
+                        Save Details
+                      </button>
                     </>
-                  )}
+                  }
+                >
+                  <div className="modal-body">
+                    {entries.map((entry, index) => (
+                      <div key={index} className="entry-block">
+                        {modalType === "transport" && (
+                          <>
+                            <button 
+                              className="delete-entry-btn" 
+                              onClick={() => handleDeleteEntry(
+                                entry.transport_id, 
+                                index
+                              )}
+                              title="Delete this entry"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                            {(transportType === "flight" || transportType === "train") && (
+                              <>
+                                <label>Ticket Number</label>
+                                <input
+                                  value={entry.ticketNumber ?? ""}
+                                  onChange={(e) => {
+                                    const copy = [...entries];
+                                    copy[index].ticketNumber = e.target.value;
+                                    setEntries(copy);
+                                  }}
+                                />
+                              </>
+                            )}
+              
+                            <label>Price ($)</label>
+                            <input
+                              type="number"
+                              inputMode="decimal"
+                              value={entry.price ?? ""}
+                              onChange={(e) => {
+                                const copy = [...entries];
+                                const value = e.target.value;
+                                if (value === "") {
+                                  copy[index].price = "";
+                                } else {
+                                  const num = parseFloat(value);
+                                  if (!isNaN(num) && num >= 0) {
+                                    copy[index].price = Math.floor(num).toString();
+                                  }
+                                }
+                                setEntries(copy);
+                              }}
+                              onBlur={(e) => {
+                                const copy = [...entries];
+                                const value = e.target.value;
+                                if (value !== "" && !isNaN(parseFloat(value))) {
+                                  copy[index].price = Math.floor(parseFloat(value)).toString();
+                                  setEntries(copy);
+                                }
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === '.' || e.key === '-' || e.key === 'e' || e.key === 'E') {
+                                  e.preventDefault();
+                                }
+                              }}
+                              placeholder="e.g. 10"
+                            />
+              
+                            <label>Notes</label>
+                            <textarea
+                              value={entry.transport_note ?? ""}
+                              onChange={(e) => {
+                                const copy = [...entries];
+                                copy[index].transport_note = e.target.value;
+                                setEntries(copy);
+                              }}
+                              placeholder="Enter any notes about your transportation"
+                              maxLength={200}
+                            />
+                            <div className="char-count">
+                              {(entry.transport_note || "").length} / 200
+                            </div>
+                          </>
+                        )}
+              
+                        {modalType === "accommodation" && (
+                          <>
+                            <button 
+                              className="delete-entry-btn" 
+                              onClick={() => handleDeleteEntry(
+                                entry.accommodation_id, 
+                                index
+                              )}
+                              title="Delete this entry"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+              
+                            <label>Accommodation Type</label>
+                            <input
+                              value={entry.accommodation_type ?? ""}
+                              onChange={(e) => {
+                                const copy = [...entries];
+                                copy[index].accommodation_type = e.target.value;
+                                setEntries(copy);
+                              }}
+                              placeholder="e.g., Hotel, Airbnb, Resort"
+                            />
+              
+                            <label>Price ($)</label>
+                            <input
+                              type="number"
+                              inputMode="decimal"
+                              value={entry.accommodation_price ?? ""}
+                              onChange={(e) => {
+                                const copy = [...entries];
+                                const value = e.target.value;
+                                if (value === "") {
+                                  copy[index].accommodation_price = "";
+                                } else {
+                                  const num = parseFloat(value);
+                                  if (!isNaN(num) && num >= 0) {
+                                    copy[index].accommodation_price = Math.floor(num).toString();
+                                  }
+                                }
+                                setEntries(copy);
+                              }}
+                              onBlur={(e) => {
+                                const copy = [...entries];
+                                const value = e.target.value;
+                                if (value !== "" && !isNaN(parseFloat(value))) {
+                                  copy[index].accommodation_price = Math.floor(parseFloat(value)).toString();
+                                  setEntries(copy);
+                                }
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === '.' || e.key === '-' || e.key === 'e' || e.key === 'E') {
+                                  e.preventDefault();
+                                }
+                              }}
+                              placeholder="e.g. 10"
+                            />
+              
+                            <label>Notes</label>
+                            <textarea
+                              value={entry.accommodation_note ?? ""}
+                              onChange={(e) => {
+                                const copy = [...entries];
+                                copy[index].accommodation_note = e.target.value;
+                                setEntries(copy);
+                              }}
+                              placeholder="Enter any notes about your accommodation"
+                              maxLength={200}
+                            />
+                            <div className="char-count">
+                              {(entry.accommodation_note || "").length} / 200
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))}
+              
+                    <button
+                      className="modal-add"
+                      onClick={() =>
+                        setEntries([
+                          ...entries,
+                          modalType === "accommodation"
+                            ? { accommodation_type: "", accommodation_price: "", accommodation_note: "" }
+                            : { ticketNumber: "", price: "", transport_note: "" },
+                        ])
+                      }
+                    >
+                      + Add Another Entry
+                    </button>
+                  </div>
+                </Popup>
+              )}
 
-                  {modalType === "accommodation" && (
-                    <>
-                      <label>Accommodation Type</label>
-                      <input
-                        value={entry.accommodation_type ?? ""}
-                        onChange={(e) => {
-                          const copy = [...entries];
-                          copy[index].accommodation_type = e.target.value;
-                          setEntries(copy);
-                        }}
-                      />
-                      <label>Price</label>
-                      <input
-                        value={entry.accommodation_price ?? ""}
-                        onChange={(e) => {
-                          const copy = [...entries];
-                          copy[index].accommodation_price = e.target.value;
-                          setEntries(copy);
-                        }}
-                      />
-                      <label>Notes</label>
-                      <textarea
-                        value={entry.accommodation_note ?? ""}
-                        onChange={(e) => {
-                          const copy = [...entries];
-                          copy[index].accommodation_note = e.target.value;
-                          setEntries(copy);
-                        }}
-                      />
-                    </>
-                  )}
-
-                  <button className="delete-entry-btn" onClick={() => handleDeleteEntry(
-                    modalType === "transport" ? entry.transport_id : entry.accommodation_id,
-                    index
-                  )}>
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              ))}
-
-              <button
-                className="modal-add"
-                onClick={() =>
-                  setEntries([
-                    ...entries,
-                    modalType === "accommodation"
-                      ? { accommodation_type: "", accommodation_price: "", accommodation_note: "" }
-                      : { ticketNumber: "", price: "" },
-                  ])
-                }
-              >
-                + Add Another Entry
-              </button>
-
-              <button className="modal-save" onClick={handleSaveEntries}>
-                Save Details
-              </button>
-              </div>
-                  
-                </div>
-              </div>
-            )}
+          
             {canEdit && (
               <div className="itinerary-buttons">
                 <button onClick={() => openAddDayPopup(null)} id="new-day-button">
