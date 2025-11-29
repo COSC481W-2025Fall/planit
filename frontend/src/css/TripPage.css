@@ -154,12 +154,22 @@
     padding: 8px 16px;
 }
 
+.trip-card-footer {
+    display: inline-flex;
+    align-items: center;
+}
+
 .trip-card-title {
     font-size: 1rem;
     font-weight: bold;
     color: var(--text-dark);
     font-family: Tahoma, sans-serif;
     margin: 10px 0 4px;
+}
+
+.trip-date {
+    padding-left: 15px;
+    padding-right: 10px;
 }
 
 .trip-location {
