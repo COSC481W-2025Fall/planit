@@ -278,7 +278,6 @@ body {
   transform: scale(1.05);
 }
 
-/* When button is in cooldown mode */
 .add-day-button.cooldown {
   opacity: 0.5;
   pointer-events: none;
@@ -804,169 +803,231 @@ html[data-theme="dark"] .textarea-notes {
     transition: color 0.2s, background-color 0.2s;
     border-radius: 50%;
 }
-
-.packing-ai-button {
-  position: fixed !important;
-  bottom: 1.2rem;
-  right: 4rem;
-  z-index: 2000;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 20px;
-  font-family: "Open Sans", sans-serif;
-  font-weight: 600;
-  font-size: 0.95rem;
-  border: 2px solid transparent;
-  border-radius: 999px;
-  color: var(--text);
-  background: var(--bg-surface);
-  cursor: pointer;
-}
-
-.packing-ai-button::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(90deg,
-  var(--packing-ai-1),
-  var(--packing-ai-2),
-  var(--packing-ai-3),
-  var(--packing-ai-1)
-  );
-  background-size: 400% 400%;
-  animation: gradient-border 5s linear infinite;
-  -webkit-mask:
-          linear-gradient(#fff 0 0) content-box,
-          linear-gradient(#fff 0 0) border-box;
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  z-index: 1;
-}
-
- .packing-ai-button:hover {
-  background: linear-gradient(90deg,
-  var(--packing-ai-1),
-  var(--packing-ai-2),
-  var(--packing-ai-3),
-  var(--packing-ai-1)
-  );
-  background-size: 400% 400%;
-  animation: ai-gradient-move 4s linear infinite;
-  box-shadow: 0 0 12px var(--packing-ai-2);
-  color: #fff;
-  transition: all 0.3s ease;
-}
-
-.packing-ai-button.cooldown {
-  opacity: 0.4;
-  pointer-events: none;
-  cursor: not-allowed;
-}
-
-@keyframes ai-gradient-move {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes gradient-border {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.packing-ai-button svg {
-  margin-right: 0;
-  width: 15px;
-  height: 15px;
-  transform: translateY(-0.5px);
-}
-
-.packing-ai-button span {
-  transform: translateY(0.5px);
-}
-
-.packing-ai-button.disabled-guest {
-  background: rgba(0, 0, 0, 0.35);
-  filter: grayscale(0.9);
-}
-
 .ai-floating-container {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  z-index: 3000;
-  transition: transform 0.35s ease;
+  z-index: 3500;
+  transition: transform 0.3s ease;
 }
 
-.ai-floating-container.collapsed .packing-ai-button {
-  transform: translateX(150px);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.ai-toggle-btn {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  color: var(--text);
+.ai-expand-btn {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 3501;
-  transition: background 0.25s ease, border-color 0.25s ease;
+  gap: 4px;
+  background: var(--bg-surface);
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem;
+  width: 40px;
+  height: 40px;
+  font-family: "Open Sans", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  transition:
+          width 0.3s ease,
+          padding 0.3s ease,
+          background 0.3s ease,
+          box-shadow 0.25s ease,
+          transform 0.2s ease,
+          justify-content 0.3s ease;
 }
 
-.ai-toggle-btn:hover {
-  background: var(--accent-lite);
-  border-color: var(--accent);
+/* Expanded state */
+.ai-expand-btn.expanded {
+  width: 175px;
+  padding: 0.75rem 1rem;
+  justify-content: flex-start;
 }
 
-.packing-ai-button {
-  z-index: 3500 !important;
+/* Hover effects */
+.ai-expand-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+          0 4px 12px rgba(0, 0, 0, 0.15),
+          0 0 20px var(--ai-glow-color-soft);
+}
+.ai-expand-btn:active {
+  transform: translateY(0);
 }
 
-@keyframes aiPulseActive {
-  0% {
-    box-shadow: 0 0 0px var(--ai-glow-color-soft);
-    transform: scale(1);
+/* ========================= */
+/* BUTTON CHILDREN           */
+/* ========================= */
+
+/* Icon */
+.ai-expand-btn .ai-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text);
+  flex-shrink: 0;
+  transition: color 0.25s ease, left 0.3s ease, transform 0.3s ease;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.ai-expand-btn.expanded .ai-icon {
+  position: relative;
+  left: auto;
+  transform: none;
+}
+
+/* Label text */
+.ai-expand-btn .label {
+  opacity: 0;
+  font-weight: 600;
+  transition: opacity 0.25s ease 0.1s;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  user-select: none;
+  pointer-events: auto;
+}
+
+.ai-expand-btn.expanded .label {
+  opacity: 1;
+}
+
+/* Collapse chevron */
+.ai-expand-btn .collapse-chevron {
+  width: 18px;
+  height: 18px;
+  color: var(--text);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.25s ease, color 0.2s ease;
+  cursor: pointer;
+}
+
+.ai-expand-btn.expanded .collapse-chevron {
+  opacity: 0.7;
+}
+
+.ai-expand-btn .collapse-chevron:hover {
+  color: var(--accent);
+  opacity: 1;
+}
+
+/* ========================= */
+/* ANIMATED GRADIENT BORDER  */
+/* ========================= */
+
+.ai-expand-btn::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  padding: 3px;
+  background: linear-gradient(
+          120deg,
+          var(--packing-ai-1),
+          var(--packing-ai-2),
+          var(--packing-ai-3),
+          var(--packing-ai-2),
+          var(--packing-ai-1)
+  );
+  background-size: 300% 300%;
+  animation: ai-border-flow 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 1;
+  transition: opacity 0.3s ease, inset 0.3s ease, padding 0.3s ease;
+
+  /* Create transparent center using mask */
+  -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+@keyframes ai-border-flow {
+  0%   {
+    background-position: 0% 50%;
   }
-  50% {
-    box-shadow: 0 0 14px var(--ai-glow-color);
-    transform: scale(1.10);
+  50%  {
+    background-position: 100% 50%;
   }
   100% {
-    box-shadow: 0 0 0px var(--ai-glow-color-soft);
-    transform: scale(1);
+    background-position: 0% 50%;
   }
 }
 
+/* Enhanced border on hover - thicker and faster */
+.ai-expand-btn:hover::before {
+  animation: ai-border-flow-fast 2s ease-in-out infinite;
+  inset: -4px;
+  padding: 4px;
+}
 
-.ai-toggle-btn.glow {
-  animation: aiPulseActive 2.2s ease-in-out infinite;
-  border-color: var(--packing-ai-2);
+@keyframes ai-border-flow-fast {
+  0%   {
+    background-position: 0% 50%;
+  }
+  50%  {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.ai-expand-btn.expanded {
+  box-shadow:
+          0 2px 8px rgba(0, 0, 0, 0.1),
+          0 0 15px var(--ai-glow-color-soft);
+  animation: aiPulseGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes aiPulseGlow {
+  0%, 100% {
+    box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.1),
+            0 0 15px var(--ai-glow-color-soft);
+  }
+  50% {
+    box-shadow:
+            0 4px 12px rgba(0, 0, 0, 0.15),
+            0 0 30px var(--ai-glow-color);
+  }
+}
+.ai-expand-btn:hover {
+  background: linear-gradient(
+          135deg,
+          var(--packing-ai-1),
+          var(--packing-ai-2),
+          var(--packing-ai-3)
+  );
+  background-size: 200% 200%;
+  animation: ai-hover-shimmer 2s ease infinite;
+}
+
+.ai-expand-btn:hover .ai-icon,
+.ai-expand-btn:hover .label,
+.ai-expand-btn:hover .collapse-chevron {
+  color: var("--text");
+}
+
+@keyframes ai-hover-shimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.ai-expand-btn.cooldown {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  animation: none;
 }
 
 .ai-items-list {
@@ -1188,6 +1249,24 @@ html[data-theme="dark"] .time-picker {
 
 .TripDaysPage.drawer-open {
   margin-right: 400px;
+}
+@media (max-width: 758px) {
+  .TripDaysPage.drawer-open .ai-floating-container {
+    display: none !important;
+  }
+}
+@media (max-width: 900px) and (min-width: 759px) {
+  .TripDaysPage.drawer-open .ai-floating-container {
+    transform: translateX(-300px);
+    transition: transform 0.3s ease;
+    margin-right: -60px;
+  }
+}
+
+/* When drawer is open, slide AI floater left */
+.TripDaysPage.drawer-open .ai-floating-container {
+  transform: translateX(-380px);
+  transition: transform 0.3s ease;
 }
 
 .activity-search-sidebar {

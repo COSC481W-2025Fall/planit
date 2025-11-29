@@ -247,6 +247,7 @@ export default function TripDaysPage() {
   const [showAIBtn] = useState(true);
   const [aiItems, setAIItems] = useState([]);
   const [showAIPopup, setShowAIPopup] = useState(false);
+  const [aiExpanded, setAiExpanded] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("planit:aiCollapsed");
@@ -1464,27 +1465,62 @@ export default function TripDaysPage() {
             )}
           </div>
           {showAIBtn && (
-              <div className={`ai-floating-container ${aiHidden ? "collapsed" : ""}`}>
-                <button
-                    className={`ai-toggle-btn ${aiHidden ? "glow" : ""}`}
-                    onClick={() => {
-                      const newVal = !aiHidden;
-                      setAiHidden(newVal);
-                      localStorage.setItem("planit:aiCollapsed", newVal.toString());
-                    }}
-                >
-                  {aiHidden ? <Luggage size={18} /> : <ChevronRight size={18} />}
-                </button>
-                <button
-                    className={`packing-ai-button ${isPackingCooldown ? "cooldown" : ""} ${
-                        isGuestUser(user?.user_id) ? "disabled-guest" : ""}`}
-                        onClick={handlePackingAI}
-                        disabled={isPackingCooldown}>
-                  <Luggage size={14} id="ai-icon" />
-                  <span>Packing AI</span>
-                </button>
-              </div>
+            <div className="ai-floating-container">
+              <button
+                className={`ai-expand-btn ${aiExpanded ? "expanded" : ""} ${isPackingCooldown ? "cooldown" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
 
+                  // If collapsed → expand (entire button is clickable)
+                  if (!aiExpanded) {
+                    setAiExpanded(true);
+                    return;
+                  }
+
+                  // If expanded → check what was clicked
+                  const target = e.target;
+                  const clickedOnChevron = target.classList.contains('collapse-chevron') || target.closest('.collapse-chevron');
+
+                  if (clickedOnChevron) {
+                    // Only chevron collapses
+                    setAiExpanded(false);
+                  } else {
+                    // Everything else (icon, label, background) triggers AI
+                    handlePackingAI();
+                  }
+                }}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  if (!aiExpanded) {
+                    setAiExpanded(true);
+                    return;
+                  }
+
+                  const target = e.target;
+                  const clickedOnChevron = target.classList.contains('collapse-chevron') || target.closest('.collapse-chevron');
+
+                  if (clickedOnChevron) {
+                    setAiExpanded(false);
+                  } else {
+                    handlePackingAI();
+                  }
+                }}
+                disabled={isPackingCooldown}
+              >
+                <Luggage className="ai-icon" />
+
+                <span className="label">
+                   Packing AI
+                </span>
+
+                {aiExpanded && (
+                  <ChevronRight className="collapse-chevron" />
+                )}
+              </button>
+            </div>
           )}
           <div className="days-scroll-zone">
             <div className="days-container">
