@@ -70,8 +70,8 @@ export const addParticipant = async (req, res) => {
         }
 
         const inserted = await sql`
-        INSERT INTO shared (trip_id, user_id)
-        VALUES (${tripId}, ${user.user_id})
+        INSERT INTO shared (trip_id, user_id, is_seen)
+        VALUES (${tripId}, ${user.user_id}, ${false})
         ON CONFLICT (trip_id, user_id) DO NOTHING
         RETURNING trip_id, user_id
     `;
@@ -176,6 +176,30 @@ export const removeYourselfFromTrip = async(req,res) => {
         res.json({ message: "Participant removed from shared trip." });
     } catch (err) {
         console.log("Error removing yourself:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+// Check if a user has any shared trip with is_seen set to false
+export const checkSeenTrips = async(req,res) => {
+    const {userId} = req.body;
+
+    try {
+        if (!userId) {
+            return res.status(400).json({ error: "Invalid user id" });
+        }
+
+        const result = await sql`
+            SELECT EXISTS (
+                SELECT 1
+                FROM shared
+                WHERE user_id = ${userId} AND is_seen = false
+            );
+        `;
+
+        res.json({unseen: result});
+    } catch (err) {
+        console.log("Error checking viewed trips:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
