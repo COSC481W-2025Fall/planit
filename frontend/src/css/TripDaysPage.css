@@ -1579,20 +1579,21 @@ html[data-theme="dark"] .time-picker {
   }
 
   .itinerary-buttons {
-    order: 1;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
+    flex-wrap: nowrap;       
     justify-content: flex-start;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.4rem;
     width: 100%;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.2rem;
   }
 
   .itinerary-buttons button {
-    flex: 0 0 auto;
-    min-width: 6.8rem;
-    padding: 0 0.85rem;
+    flex: 0 0 auto;          
+    min-width: 5.6rem;        
+    padding: 0 0.6rem;
+    font-size: 0.85rem;
   }
 
   #participants-button {
@@ -1614,7 +1615,7 @@ html[data-theme="dark"] .time-picker {
 
   .itinerary-text {
     order: 3;
-    margin-top: 0.4rem;
+    margin-top: 0.1em;
     margin-left: 0.1rem;
   }
 }
