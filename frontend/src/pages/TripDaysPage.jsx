@@ -564,16 +564,6 @@ export default function TripDaysPage() {
         return updatedDays;
       });
 
-      //const newIds = days.map(d => d.day_id);
-
-      // if (!expandedInitRef.current) {
-      //   // First load: mobile = collapsed, desktop = expanded
-      //   setExpandedDays(window.innerWidth <= 600 ? [] : newIds);
-      //   expandedInitRef.current = true;
-      // } else {
-      //   // Later fetches: keep prior choices, just drop deleted day IDs
-      //   setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
-      // }
     } catch (err) {
       console.error(err);
     }
@@ -1268,11 +1258,11 @@ export default function TripDaysPage() {
   };
 
   function getDifferenceBetweenDays (startDate, endDate) {
-    const [y1, m1, d1] = startDate.split("-").map(Number);
-    const [y2, m2, d2] = endDate.split("-").map(Number);
+    const [y1, m1, d1] = startDate.split("-");
+    const [y2, m2, d2] = endDate.split("-");
 
-    const t1 = Date.UTC(y1, m1 - 1, d1);
-    const t2 = Date.UTC(y2, m2 - 1, d2);
+    const t1 = Date.UTC(Number(y1), Number(m1) - 1, Number(d1));
+    const t2 = Date.UTC(Number(y2), Number(m2) - 1, Number(d2));
 
     const MS_PER_DAY = 1000 * 60 * 60 * 24;
     return Math.round((t2 - t1) / MS_PER_DAY);
@@ -1560,41 +1550,45 @@ export default function TripDaysPage() {
                             );
                           }}
                         >
+                          <p className="day-title">Day {index + 1}</p>
+
                           <div className="day-top-row-header">
-                            <div className={"day-top-row-header"}>
-                              <p className="day-title">Day {index + 1}</p>
-                            <div className="weather-icon">
-                              {weatherForDay && (
+                            <div className="day-date-and-weather">
+                              <p className="day-date">
+                                {new Date(day.day_date).toLocaleDateString("en-US", {
+                                  weekday: "long",
+                                  month: "short",
+                                  day: "numeric",
+                                })}
+                              </p>
+
+                              <div className="weather-icon">
+                                {weatherForDay && (
                                   <div className="weather-menu">
                                     <div>
                                       <p>High: {Math.round(weatherForDay.max_temp_f)}°F</p>
                                       <p>Low: {Math.round(weatherForDay.min_temp_f)}°F</p>
                                       <p>Prec: {Math.round(weatherForDay.rain_chance)}%</p>
                                     </div>
-                                  </div >
-                              )}
-                              {weatherForDay?.condition_icon ? (
+                                  </div>
+                                )}
+                                {weatherForDay?.condition_icon ? (
                                   <img
-                                      src={`https://${weatherForDay.condition_icon}`}
-                                      alt="Weather icon"
+                                    src={`https://${weatherForDay.condition_icon}`}
+                                    alt="Weather icon"
                                   />
-                              ) : (
+                                ) : (
                                   <div className="empty-weather-icon"/>
-                              )}
+                                )}
+                              </div>
                             </div>
-                          </div>
-                            <p className="day-date">
-                              {new Date(day.day_date).toLocaleDateString("en-US", {
-                                weekday: "long",
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </p>
-                            </div>
+
                             <div className="day-cost">
                               <span className="day-cost-currency">$</span>
                               <span className="day-cost-value">{dayTotal}</span>
                             </div>
+                          </div>
+
                           <div className="day-header-bottom">
                             <span className="number-of-activities">
                               {day.activities?.length ?? 0} Activities
