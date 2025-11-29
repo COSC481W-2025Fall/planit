@@ -519,9 +519,6 @@ export default function ActivitySearch({
             setPendingDayId(null);
 
             onActivityAdded && onActivityAdded(pendingDayId);
-            if (window.innerWidth <= 950) {
-                onClose && onClose();
-            }
         } catch (err) {
             console.error("Save failed:", err?.response?.data || err.message);
             toast.error("Failed to save details. Please try again.");
