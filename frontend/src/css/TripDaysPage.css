@@ -1108,15 +1108,28 @@ html[data-theme="dark"] .time-picker {
     font-size: 1.25rem;
   }
   .button-level-bar {
+    display: flex;
     flex-direction: column-reverse;
     align-items: flex-start;
+    flex-wrap: wrap;
     gap: 0.5rem;
+    width: 100%;
   }
 
+  .itinerary-text {
+    margin-right: 0.35rem; /* tiny space before the cost */
+  }
+
+  .trip-cost-itinerary {
+    display: inline-flex;
+    align-items: center;
+    margin-right: auto;     /* keeps buttons pushed to the next row/right */
+  }
   .itinerary-buttons {
     flex-direction: row;
     justify-content: flex-start;
     gap: 0.5rem;
+    width: 100%;            /* forces buttons onto their own row */
   }
 
   .itinerary-buttons button {
@@ -1544,11 +1557,44 @@ html[data-theme="dark"] .time-picker {
   font-size: 0.8em;
   color: var(--accent);
   margin-left: auto;
-  margin-top: -1.6rem;
+  margin-top: 0.4rem;
 }
 
 .day-cost-currency,
 .day-cost-amount {
   font-size: 1em;
+}
+
+.day-date {
+  margin-bottom: -1.9em;
+}
+
+
+@media (max-width: 600px) {
+  .button-level-bar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "itinerary-title itinerary-cost"
+      "itinerary-buttons itinerary-buttons";
+    align-items: center;
+    column-gap: 0.5rem;
+  }
+
+  .button-level-bar .itinerary-text {
+    grid-area: itinerary-title;
+  }
+
+  .button-level-bar .trip-cost-itinerary {
+    grid-area: itinerary-cost;
+    justify-self: end;
+    white-space: nowrap; 
+  }
+
+  .button-level-bar .itinerary-buttons {
+    grid-area: itinerary-buttons;
+    margin-top: 0.4rem; 
+  }
 }
 
