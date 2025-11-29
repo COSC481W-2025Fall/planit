@@ -1,9 +1,36 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {NavLink} from "react-router-dom";
 import "../css/NavBar.css";
-import {Map, Settings, Binoculars, Users} from "lucide-react";
+import {Map, Settings, Binoculars, Users, Dot} from "lucide-react";
+import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 
 export default function NavBar({isOpen}) {
+    const [hasUnseen, setHasUnseen] = useState(false);
+    useEffect(() => {
+        async function check() {
+            const unseen = await handleCheckSeen();
+            setHasUnseen(unseen);
+        }
+        check();
+    }, []);
+
+    async function handleCheckSeen() {
+        try {
+            const res = await fetch(`${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/shared/checkTrips`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+
+            //true if unseen exists, false otherwise
+            const data = res.json;
+            return data.unseen;
+        } catch (err) {
+            toast.error("There was a problem checking seen trips")
+        }
+    }
+
     return (
         <aside className={`sidebar ${isOpen ? "open" : ""}`}>
             <nav className="nav-list">
@@ -24,7 +51,17 @@ export default function NavBar({isOpen}) {
                     }
                 >
                     <Users className="nav-icon" size={20}/>
-                    <span>Shared With Me</span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        Shared With Me
+                        {hasUnseen && (
+                            <Dot
+                                size={18}
+                                color="red"
+                                style={{ marginLeft: "2px" }}
+                                strokeWidth={3}
+                            />
+                        )}
+                    </span>
                 </NavLink>
 
                 <NavLink

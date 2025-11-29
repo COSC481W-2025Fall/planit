@@ -182,7 +182,7 @@ export const removeYourselfFromTrip = async(req,res) => {
 
 // Check if a user has any shared trip with is_seen set to false
 export const checkTripsSeen = async(req,res) => {
-    const {userId} = req.body;
+    const userId = req.user.user_id;
 
     try {
         if (!userId) {
