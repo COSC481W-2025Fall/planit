@@ -1117,19 +1117,19 @@ html[data-theme="dark"] .time-picker {
   }
 
   .itinerary-text {
-    margin-right: 0.35rem; /* tiny space before the cost */
+    margin-right: 0.35rem; 
   }
 
   .trip-cost-itinerary {
     display: inline-flex;
     align-items: center;
-    margin-right: auto;     /* keeps buttons pushed to the next row/right */
+    margin-right: auto;     
   }
   .itinerary-buttons {
     flex-direction: row;
     justify-content: flex-start;
     gap: 0.5rem;
-    width: 100%;            /* forces buttons onto their own row */
+    width: 100%;           
   }
 
   .itinerary-buttons button {
@@ -1569,32 +1569,53 @@ html[data-theme="dark"] .time-picker {
   margin-bottom: -1.9em;
 }
 
-
 @media (max-width: 600px) {
   .button-level-bar {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto;
-    grid-template-areas:
-      "itinerary-title itinerary-cost"
-      "itinerary-buttons itinerary-buttons";
+    flex-direction: column;         
+    align-items: flex-start;        
+    justify-content: flex-start;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+  }
+
+  .itinerary-buttons {
+    order: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
     align-items: center;
-    column-gap: 0.5rem;
+    gap: 0.45rem;
+    width: 100%;
+    margin-bottom: 0.4rem;
   }
 
-  .button-level-bar .itinerary-text {
-    grid-area: itinerary-title;
+  .itinerary-buttons button {
+    flex: 0 0 auto;
+    min-width: 6.8rem;
+    padding: 0 0.85rem;
   }
 
-  .button-level-bar .trip-cost-itinerary {
-    grid-area: itinerary-cost;
-    justify-self: end;
-    white-space: nowrap; 
+  #participants-button {
+    margin: 0;
   }
 
-  .button-level-bar .itinerary-buttons {
-    grid-area: itinerary-buttons;
-    margin-top: 0.4rem; 
+  .trip-cost-itinerary {
+    order: 2;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 0.15rem;
+    margin-left: 0.1rem;
+    font-size: 0.85rem;
+  }
+
+  .trip-cost-itinerary .trip-cost-icon {
+    margin-right: 0.25rem;
+  }
+
+  .itinerary-text {
+    order: 3;
+    margin-top: 0.4rem;
+    margin-left: 0.1rem;
   }
 }
 
