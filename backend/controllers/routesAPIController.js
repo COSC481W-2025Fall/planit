@@ -19,7 +19,7 @@ export const distanceByTransportation = async (req, res) => {
             {
                 headers: {
                     "Content-Type": "application/json",
-                    "X-Goog-Api-Key": process.env.GOOGLE_PLACES_API_KEY,
+                    "X-Goog-Api-Key": process.env.VITE_GOOGLE_PLACES_API_KEY,
                     "X-Goog-FieldMask": "routes.duration,routes.distanceMeters"
                 }
             }

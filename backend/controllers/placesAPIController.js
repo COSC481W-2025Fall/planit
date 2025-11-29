@@ -1,6 +1,6 @@
 import {sql} from "../config/db.js";
 import axios from "axios";
-const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+const VITE_GOOGLE_PLACES_API_KEY = process.env.VITE_GOOGLE_PLACES_API_KEY;
 
 export const findCityAutocomplete = async (req, res) => {
   try {
@@ -23,7 +23,7 @@ export const findCityAutocomplete = async (req, res) => {
       {
         headers: {
           "Content-Type": "application/json",
-          "X-Goog-Api-Key": process.env.GOOGLE_PLACES_API_KEY,
+          "X-Goog-Api-Key": process.env.VITE_GOOGLE_PLACES_API_KEY,
         },
       }
     );
@@ -57,7 +57,7 @@ export const findPlaces = async (req, res) =>
             {
                 headers: {
                     "Content-Type": "application/json",
-                    "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
+                    "X-Goog-Api-Key": VITE_GOOGLE_PLACES_API_KEY,
                     "X-Goog-FieldMask": "places.id,places.displayName,places.primaryType,places.priceLevel,places.addressComponents,places.rating,places.location,places.websiteUri,nextPageToken",
                 },
             }
