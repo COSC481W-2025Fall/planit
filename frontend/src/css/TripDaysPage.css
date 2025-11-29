@@ -188,8 +188,12 @@ body {
 
 .trip-location-text,
 .trip-dates-text {
-  font-size: 0.85rem;
+  font-size: clamp(0.7rem, 2vw, 0.85rem);
   line-height: 1.2;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .trip-info-icon {
@@ -1093,6 +1097,11 @@ html[data-theme="dark"] .time-picker {
   .participant-item span {
     font-size: 14px;
   }
+  .trip-location-text,
+  .trip-dates-text {
+    font-size: 0.78rem;
+    white-space: normal;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1164,6 +1173,16 @@ html[data-theme="dark"] .time-picker {
 
   .participants-list p{
     padding-top: 25px;
+  }
+  .trip-location,
+  .trip-dates {
+    gap: 4px;
+  }
+
+  .trip-location-text,
+  .trip-dates-text {
+    font-size: 0.72rem;
+    line-height: 1.15;
   }
 }
 

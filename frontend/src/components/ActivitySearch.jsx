@@ -589,7 +589,7 @@ export default function ActivitySearch({
             }
         }
     };
-    
+
     const handleLoadMore = async () => {
         if (!nextPageToken || loadingMore) return;
 
@@ -845,7 +845,7 @@ export default function ActivitySearch({
                                     >
                                         {loadingMore ? (
                                             <>
-                                                <MoonLoader color="var(--accent)" size={16} />
+                                                <MoonLoader color="#ffffff" size={22} />
                                             </>
                                         ) : (
                                             "Load More Results"

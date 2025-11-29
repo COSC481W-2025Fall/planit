@@ -77,7 +77,6 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
           <button onClick={openModal} className="clone-btn">
               Clone Trip
           </button>
-
           {open && (
             <Popup
               title="Clone Trip"
@@ -141,10 +140,10 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
                                       <button type="button" className="month-btn" onClick={decreaseMonth}>
                                           <ChevronLeft size={20} />
                                       </button>
-                                      <span className="month-label">
+                                       <span className="month-label">
                                         {date.toLocaleString("default", { month: "long" })}{" "}
                                           {date.getFullYear()}
-                                    </span>
+                                       </span>
                                       <button type="button" className="month-btn" onClick={increaseMonth}>
                                           <ChevronRight size={20} />
                                       </button>
