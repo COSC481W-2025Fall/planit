@@ -70,7 +70,7 @@ describe("SettingsPage", () => {
         if (body.username === "taken") {
           return Promise.resolve({
             ok: false,
-            json: () => Promise.resolve({ success: false }),
+            json: () => Promise.resolve({ success: false, error: "Username already taken, try again", }),
           });
         }
         return Promise.resolve({
@@ -152,7 +152,7 @@ describe("SettingsPage", () => {
     fireEvent.click(screen.getByText(/Save Changes/i));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith("Username already taken. Please try again.");
+      expect(toast.error).toHaveBeenCalledWith("Username already taken, try again");
     });
   });
 

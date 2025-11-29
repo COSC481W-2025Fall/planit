@@ -66,6 +66,7 @@ export default function TripDaysPage() {
   const [weatherSummary, setWeatherSummary] = useState([]);
   const [dailyWeather, setDailyWeather] = useState([]);
   const [isPackingCooldown, setIsPackingCooldown] = useState(false);
+  const socketDisconnectedRef = useRef(false);
   const [showModal, setShowModal] = useState(false);
 
   const allPeople = [
@@ -160,6 +161,9 @@ export default function TripDaysPage() {
     });
 
     socket.on("connect", () => {
+      // clear disconnect flag on successful reconnection
+      socketDisconnectedRef.current = false;
+
       // emit joinTrip after connection with user data
       socket.emit("joinTrip", `trip_${tripId}`, {
         username: user.username,
@@ -217,11 +221,34 @@ export default function TripDaysPage() {
       toast.success("Participant removed!");
     });
 
+    socket.on("disconnect", () => {
+      // mark that socket disconnected
+      socketDisconnectedRef.current = true;
+    });
+
     return () => {
       socket.emit("leaveTrip", `trip_${tripId}`);
       socket.disconnect();
     };
   }, [tripId, user, userRole]);
+
+  // refesh when user returns if socket was disconnected
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && socketDisconnectedRef.current) {
+        // User came back AND socket was disconnected, show loader and reload
+        setTimeout(() => {
+          window.location.reload();
+        }, 500); // small delay to show the loader so the user knows that we reconnected
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   const [aiHidden, setAiHidden] = useState(false);
   const [showAIBtn] = useState(true);
@@ -2183,6 +2210,7 @@ export default function TripDaysPage() {
             <Popup
               title="Edit Activity"
               onClose={() => setEditActivity(null)}
+              id="editActivityPopup"
               buttons={
                 <>
                   <button
@@ -2211,6 +2239,7 @@ export default function TripDaysPage() {
                 </>
               }
             >
+              <span className="activity-name">{editActivity.activity_name}</span>
               <DistanceAndTimeInfo
                 distanceInfo={distanceInfo}
                 transportMode={transportMode}
@@ -2382,6 +2411,10 @@ export default function TripDaysPage() {
               allDays={days}
               username = {user.username}
               onSingleDayWeather={handleSingleDayWeather}
+              onEditActivity={(activity) => {
+                setEditActivity(activity);
+              }}
+
             />
           </div>
         )}
