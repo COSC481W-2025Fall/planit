@@ -13,6 +13,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import GuestEmptyState from "../components/GuestEmptyState";
 import { toast } from "react-toastify";
 import TripsFilterButton from "../components/TripsFilterButton";
+import Label from "../components/Label.jsx";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
@@ -36,6 +37,11 @@ export default function TripPage() {
     const [dateFilter, setDateFilter] = useState(() => {
         if (typeof window === "undefined") return "all";
         return localStorage.getItem("sharedTripsDateFilter") || "all";
+    });
+
+    const [hiddenLabels, setHiddenLabels] = useState(() => {
+        const stored = localStorage.getItem("hiddenTripLabels");
+        return stored ? JSON.parse(stored) : [];
     });
 
     // Get user details
@@ -350,7 +356,15 @@ export default function TripPage() {
                                             className="trip-card-content"
                                             onClick={() => handleTripRedirect(trip.trips_id)}
                                         >
-                                            <h3 className="trip-card-title">{trip.trip_name}</h3>
+                                            <div className="trip-card-title-row">
+                                                <h3 className="trip-card-title">{trip.trip_name}</h3>
+
+                                                {/* Show label ONLY if category exists AND it's not marked hidden */}
+                                                {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
+                                                    <Label category={trip.trip_category} className="trip-card-badge" />
+                                                )}
+                                            </div>
+
                                             <div className="trip-location">
                                                 <MapPin size={16} style={{ marginRight: "4px" }} />
                                                 {trip.trip_location || "Location not set"}

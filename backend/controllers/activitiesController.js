@@ -108,22 +108,11 @@ export const addActivity = async (req, res) => {
 
     const totalActivities = Number(countRow[0].count);
 
-    //Check if trip already has a category
-    const existingCategoryRow = await sql`
-      SELECT trip_category
-      FROM trips
-      WHERE trips_id = ${tripId}
-      LIMIT 1;
-    `;
-
-    const existingCategory = existingCategoryRow[0]?.trip_category !== null;
-
     console.log("=== AI CHECK START ===");
     console.log("totalActivities:", totalActivities);
-    console.log("existingCategory:", existingCategory);
 
-    //If this is the 5th activity added, trigger categorization
-    if (totalActivities === 5 && !existingCategory) {
+    // Trigger categorization every time activity count hits a multiple of 5 (5, 10, 15…)
+    if (totalActivities > 0 && totalActivities % 5 === 0) {
 
       console.log("AI TRIGGERED — FETCHING TRIP NAME & FIRST FIVE");
       
