@@ -372,6 +372,7 @@ export default function TripDaysPage() {
         setImageUrl(data);
     } catch (err) {
         console.error("Failed to fetch image:", err);
+        setError(err.message);
     }
     };
 
@@ -1258,12 +1259,12 @@ export default function TripDaysPage() {
   };
 
   function getDifferenceBetweenDays (startDate, endDate) {
-    const [y1, m1, d1] = startDate.split("-");
-    const [y2, m2, d2] = endDate.split("-");
+    const [y1, m1, d1] = startDate.split("-").map(Number);
+    const [y2, m2, d2] = endDate.split("-").map(Number);
 
-    const t1 = Date.UTC(Number(y1), Number(m1) - 1, Number(d1));
-    const t2 = Date.UTC(Number(y2), Number(m2) - 1, Number(d2));
-
+    const t1 = Date.UTC(y1, m1 - 1, d1);
+    const t2 = Date.UTC(y2, m2 - 1, d2);
+    
     const MS_PER_DAY = 1000 * 60 * 60 * 24;
     return Math.round((t2 - t1) / MS_PER_DAY);
   }
