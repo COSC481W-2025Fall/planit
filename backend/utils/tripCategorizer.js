@@ -1,8 +1,27 @@
 import OpenAI from "openai";
 
-const client = new OpenAI({
+let client = null;
+
+if (process.env.NODE_ENV === "test" || !process.env.OPENAI_API_KEY) {
+  client = {
+    chat: {
+      completions: {
+        create: async () => ({
+          choices: [
+            { message: { content: "Uncategorized" } }
+          ]
+        })
+      }
+    }
+  };
+} else {
+  // Real client for production/dev
+  client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
-});
+  });
+}
+
+export default client;
 
 const CATEGORIES = [
     'Adventure',
