@@ -519,9 +519,6 @@ export default function ActivitySearch({
             setPendingDayId(null);
 
             onActivityAdded && onActivityAdded(pendingDayId);
-            if (window.innerWidth <= 950) {
-                onClose && onClose();
-            }
         } catch (err) {
             console.error("Save failed:", err?.response?.data || err.message);
             toast.error("Failed to save details. Please try again.");
@@ -592,7 +589,7 @@ export default function ActivitySearch({
             }
         }
     };
-    
+
     const handleLoadMore = async () => {
         if (!nextPageToken || loadingMore) return;
 
@@ -848,7 +845,7 @@ export default function ActivitySearch({
                                     >
                                         {loadingMore ? (
                                             <>
-                                                <MoonLoader color="var(--accent)" size={16} />
+                                                <MoonLoader color="#ffffff" size={22} />
                                             </>
                                         ) : (
                                             "Load More Results"

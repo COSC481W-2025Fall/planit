@@ -34,6 +34,8 @@ export default function TripPage() {
     const [deleteTripId, setDeleteTripId] = useState(null);
     const [privacyDraft, setPrivacyDraft] = useState(true);
 
+  const isMobile = () => window.innerWidth <= 600;
+
     // persist sort / filter choices
     const [sortOption, setSortOption] = useState(() => {
       if (typeof window === "undefined") return "recent";
@@ -615,6 +617,8 @@ export default function TripPage() {
                                   className="date-input"
                                   dateFormat="MM-dd-yyyy"
                                   shouldCloseOnSelect={true}
+                                  withPortal={isMobile()}
+                                  portalId="root-portal"
                                   onClickOutside={() =>
                                     setTimeout(() => {
                                       document.activeElement?.blur();
@@ -653,6 +657,8 @@ export default function TripPage() {
                                       : null
                                   }
                                   shouldCloseOnSelect={true}
+                                  withPortal={isMobile()}
+                                  portalId="root-portal"
                                   onClickOutside={() =>
                                     setTimeout(() => {
                                       document.activeElement?.blur();

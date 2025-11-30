@@ -293,7 +293,7 @@ html[data-theme="dark"] .search-bar input::placeholder {
 
 .loading-container {
   position: absolute;
-  top: 50%;
+  top: 70%;
   left: 200px;
   transform: translate(-50%, -50%);
   display: flex;
@@ -517,7 +517,7 @@ html[data-theme="dark"] .time-picker {
   }
   .loading-container {
     position: absolute;
-    top: 50%;
+    top: 75%;
     left: 50%;
     transform: translate(-50%, -50%);
     height: auto;
