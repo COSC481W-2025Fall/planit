@@ -334,6 +334,13 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
     grid-row: 3;
     flex-wrap: wrap;
     row-gap: 8px;
+    overflow: visible !important;
+    position: relative;
+  }
+
+  .filter-dropdown {
+    left: 0 !important;
+    transform: translateX(0) !important;
   }
 
   .explore-search {

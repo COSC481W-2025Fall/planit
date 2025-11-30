@@ -813,62 +813,116 @@ html[data-theme="dark"] .textarea-notes {
 
 .ai-expand-btn {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  background: var(--bg-surface);
-  border: none;
-  border-radius: 999px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 0.75rem;
-  width: 40px;
-  height: 40px;
+  gap: 8px;
+  padding: 12px 20px;
   font-family: "Open Sans", sans-serif;
-  font-size: 0.95rem;
   font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid transparent;
+  border-radius: 999px;
   color: var(--text);
+  background: var(--bg-surface);
   cursor: pointer;
+  width: 32px;
+  height: 36px;
   overflow: hidden;
   white-space: nowrap;
-  transition:
-          width 0.3s ease,
-          padding 0.3s ease,
-          background 0.3s ease,
-          box-shadow 0.25s ease,
-          transform 0.2s ease,
-          justify-content 0.3s ease;
+  transition: width 0.3s ease, padding 0.3s ease, justify-content 0.3s ease;
 }
 
-/* Expanded state */
 .ai-expand-btn.expanded {
   width: 175px;
-  padding: 0.75rem 1rem;
+  padding: 12px 20px;
   justify-content: flex-start;
 }
 
-/* Hover effects */
+.ai-expand-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(90deg,
+  var(--packing-ai-1),
+  var(--packing-ai-2),
+  var(--packing-ai-3),
+  var(--packing-ai-1)
+  );
+  background-size: 400% 400%;
+  animation: gradient-border 5s linear infinite;
+  -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0) border-box;
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: -1;
+}
+
+@keyframes gradient-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.ai-expand-btn {
+  animation: aiPulseActive 2.2s ease-in-out infinite;
+}
+
+@keyframes aiPulseActive {
+  0%, 100% {
+    box-shadow: 0 0 0px var(--packing-ai-2);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--packing-ai-2);
+    transform: scale(1.08);
+  }
+}
+
 .ai-expand-btn:hover {
-  transform: translateY(-2px);
-  box-shadow:
-          0 4px 12px rgba(0, 0, 0, 0.15),
-          0 0 20px var(--ai-glow-color-soft);
+  background: linear-gradient(90deg,
+  var(--packing-ai-1),
+  var(--packing-ai-2),
+  var(--packing-ai-3),
+  var(--packing-ai-1)
+  );
+  background-size: 400% 400%;
+  animation: ai-gradient-move 4s linear infinite, aiPulseActive 2.2s ease-in-out infinite;
+  box-shadow: 0 0 12px var(--packing-ai-2);
+  color: #fff;
 }
+
+@keyframes ai-gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .ai-expand-btn:active {
-  transform: translateY(0);
+  transform: scale(0.98);
 }
 
-/* ========================= */
-/* BUTTON CHILDREN           */
-/* ========================= */
-
-/* Icon */
 .ai-expand-btn .ai-icon {
   width: 20px;
   height: 20px;
   color: var(--text);
   flex-shrink: 0;
-  transition: color 0.25s ease, left 0.3s ease, transform 0.3s ease;
+  transition: color 0.25s ease;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -881,7 +935,11 @@ html[data-theme="dark"] .textarea-notes {
   transform: none;
 }
 
-/* Label text */
+.ai-expand-btn:hover .ai-icon {
+  color: #fff;
+}
+
+
 .ai-expand-btn .label {
   opacity: 0;
   font-weight: 600;
@@ -890,14 +948,17 @@ html[data-theme="dark"] .textarea-notes {
   min-width: 0;
   cursor: pointer;
   user-select: none;
-  pointer-events: auto;
 }
 
 .ai-expand-btn.expanded .label {
   opacity: 1;
 }
 
-/* Collapse chevron */
+.ai-expand-btn:hover .label {
+  color: #fff;
+}
+
+
 .ai-expand-btn .collapse-chevron {
   width: 18px;
   height: 18px;
@@ -913,120 +974,17 @@ html[data-theme="dark"] .textarea-notes {
 }
 
 .ai-expand-btn .collapse-chevron:hover {
-  color: var(--accent);
   opacity: 1;
 }
 
-/* ========================= */
-/* ANIMATED GRADIENT BORDER  */
-/* ========================= */
-
-.ai-expand-btn::before {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: inherit;
-  padding: 3px;
-  background: linear-gradient(
-          120deg,
-          var(--packing-ai-1),
-          var(--packing-ai-2),
-          var(--packing-ai-3),
-          var(--packing-ai-2),
-          var(--packing-ai-1)
-  );
-  background-size: 300% 300%;
-  animation: ai-border-flow 3s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 1;
-  transition: opacity 0.3s ease, inset 0.3s ease, padding 0.3s ease;
-
-  /* Create transparent center using mask */
-  -webkit-mask:
-          linear-gradient(#fff 0 0) content-box,
-          linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
-
-@keyframes ai-border-flow {
-  0%   {
-    background-position: 0% 50%;
-  }
-  50%  {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Enhanced border on hover - thicker and faster */
-.ai-expand-btn:hover::before {
-  animation: ai-border-flow-fast 2s ease-in-out infinite;
-  inset: -4px;
-  padding: 4px;
-}
-
-@keyframes ai-border-flow-fast {
-  0%   {
-    background-position: 0% 50%;
-  }
-  50%  {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.ai-expand-btn.expanded {
-  box-shadow:
-          0 2px 8px rgba(0, 0, 0, 0.1),
-          0 0 15px var(--ai-glow-color-soft);
-  animation: aiPulseGlow 2.5s ease-in-out infinite;
-}
-
-@keyframes aiPulseGlow {
-  0%, 100% {
-    box-shadow:
-            0 2px 8px rgba(0, 0, 0, 0.1),
-            0 0 15px var(--ai-glow-color-soft);
-  }
-  50% {
-    box-shadow:
-            0 4px 12px rgba(0, 0, 0, 0.15),
-            0 0 30px var(--ai-glow-color);
-  }
-}
-.ai-expand-btn:hover {
-  background: linear-gradient(
-          135deg,
-          var(--packing-ai-1),
-          var(--packing-ai-2),
-          var(--packing-ai-3)
-  );
-  background-size: 200% 200%;
-  animation: ai-hover-shimmer 2s ease infinite;
-}
-
-.ai-expand-btn:hover .ai-icon,
-.ai-expand-btn:hover .label,
 .ai-expand-btn:hover .collapse-chevron {
-  color: var("--text");
-}
-
-@keyframes ai-hover-shimmer {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  color: #fff;
 }
 
 .ai-expand-btn.cooldown {
-  opacity: 0.5;
-  cursor: not-allowed;
+  opacity: 0.4;
   pointer-events: none;
+  cursor: not-allowed;
   animation: none;
 }
 
@@ -1127,6 +1085,30 @@ html[data-theme="dark"] .time-picker {
   }
 }
 
+.TripDaysPage.drawer-open .ai-floating-container {
+  transform: translateX(-400px);
+  transition: transform 0.3s ease;
+}
+
+
+@media (max-width: 1099px) and (min-width: 900px) {
+  .TripDaysPage.drawer-open .ai-floating-container {
+    transform: translateX(-360px);
+  }
+}
+
+@media (max-width: 899px) and (min-width: 759px) {
+  .TripDaysPage.drawer-open .ai-floating-container {
+    transform: translateX(-320px);
+  }
+}
+
+@media (max-width: 758px) {
+  .TripDaysPage.drawer-open .ai-floating-container {
+    display: none !important;
+  }
+}
+
 @media (max-width: 900px) {
   .days-container {
     flex-wrap: nowrap;
@@ -1162,6 +1144,10 @@ html[data-theme="dark"] .time-picker {
   .trip-dates-text {
     font-size: 0.78rem;
     white-space: normal;
+  }
+  .day-actions-ellipsis {
+    opacity: 1 !important;
+    visibility: visible !important;
   }
 }
 
@@ -1249,24 +1235,6 @@ html[data-theme="dark"] .time-picker {
 
 .TripDaysPage.drawer-open {
   margin-right: 400px;
-}
-@media (max-width: 758px) {
-  .TripDaysPage.drawer-open .ai-floating-container {
-    display: none !important;
-  }
-}
-@media (max-width: 900px) and (min-width: 759px) {
-  .TripDaysPage.drawer-open .ai-floating-container {
-    transform: translateX(-300px);
-    transition: transform 0.3s ease;
-    margin-right: -60px;
-  }
-}
-
-/* When drawer is open, slide AI floater left */
-.TripDaysPage.drawer-open .ai-floating-container {
-  transform: translateX(-380px);
-  transition: transform 0.3s ease;
 }
 
 .activity-search-sidebar {

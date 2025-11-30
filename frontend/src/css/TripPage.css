@@ -497,7 +497,7 @@ html[data-theme="dark"] .react-datepicker__day--keyboard-selected {
     background: none;
     border: none;
     padding: 4px;
-    font-size: 18px;
+    font-size: 22px;
     color: var(--text-dark2);
     cursor: pointer;
     display: flex;
