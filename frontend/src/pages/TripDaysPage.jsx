@@ -49,6 +49,7 @@ export default function TripDaysPage() {
   const [editableNote, setEditableNote] = useState("");
   const [isAddCooldown, setIsAddCooldown] = useState(false);
   const [showAllParticipantsPopup, setShowAllParticipantsPopup] = useState(false);
+  const [activitySearchCity, setActivitySearchCity] = useState("");
   //Constants for image url
   const [imageUrl, setImageUrl] = useState(null);
   const [deleteActivity, setDeleteActivity] = useState(null);
@@ -1118,6 +1119,7 @@ export default function TripDaysPage() {
     const q = (participantUsername || "").trim().toLowerCase();
     if (!q) return [];
     return allUsernames
+      .filter((name) => name && typeof name === 'string')
       .filter((name) => name.toLowerCase().includes(q))
       .filter((name) => name !== user?.username)
       .slice(0, 4);
@@ -1572,7 +1574,29 @@ export default function TripDaysPage() {
                             );
                           }}
                         >
-                          <p className="day-title">Day {index + 1}</p>
+                          <div className="title-and-weather-container">
+                            <p className="day-title">Day {index + 1}</p>
+                            <div className="weather-icon">
+                              {weatherForDay && (
+                                <div className="weather-menu">
+                                  <div>
+                                    <p>High: {Math.round(weatherForDay.max_temp_f)}°F</p>
+                                    <p>Low: {Math.round(weatherForDay.min_temp_f)}°F</p>
+                                    <p>Prec: {Math.round(weatherForDay.rain_chance)}%</p>
+                                  </div>
+                                </div>
+                              )}
+                              {weatherForDay?.condition_icon ? (
+                                <img
+                                  className = "weather-icon"
+                                  src={`https://${weatherForDay.condition_icon}`}
+                                  alt="Weather icon"
+                                />
+                              ) : (
+                                <div className="empty-weather-icon" />
+                              )}
+                            </div>
+                          </div>
 
                           <div className="day-top-row-header">
                             <div className="day-date-and-weather">
@@ -1584,25 +1608,6 @@ export default function TripDaysPage() {
                                 })}
                               </p>
 
-                              <div className="weather-icon">
-                                {weatherForDay && (
-                                  <div className="weather-menu">
-                                    <div>
-                                      <p>High: {Math.round(weatherForDay.max_temp_f)}°F</p>
-                                      <p>Low: {Math.round(weatherForDay.min_temp_f)}°F</p>
-                                      <p>Prec: {Math.round(weatherForDay.rain_chance)}%</p>
-                                    </div>
-                                  </div>
-                                )}
-                                {weatherForDay?.condition_icon ? (
-                                  <img
-                                    src={`https://${weatherForDay.condition_icon}`}
-                                    alt="Weather icon"
-                                  />
-                                ) : (
-                                  <div className="empty-weather-icon"/>
-                                )}
-                              </div>
                             </div>
 
                             <div className="day-cost">
@@ -2085,7 +2090,8 @@ export default function TripDaysPage() {
               onEditActivity={(activity) => {
                 setEditActivity(activity);
               }}
-
+              cityQuery={activitySearchCity}
+              onCityQueryChange={setActivitySearchCity}
             />
           </div>
         )}

@@ -133,6 +133,17 @@ export default function TripPage() {
         }
     }, [dateFilter]);
 
+    useEffect(() => {
+        async function markSeen() {await fetch(`${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/shared/markTrips`, {
+                method: "PUT",
+                credentials: "include"
+            });
+            localStorage.setItem("hasUnseen", "false");
+            window.dispatchEvent(new Event("unseenTripsCleared"));
+        }
+        markSeen();
+    }, []);
+
     const sortedFilteredTrips = useMemo(() => {
         if (!Array.isArray(trips)) return [];
 
