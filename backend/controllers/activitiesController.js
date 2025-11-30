@@ -114,8 +114,8 @@ export const addActivity = async (req, res) => {
     console.log("totalActivities:", totalActivities);
     let categoryApplied = false;
 
-    // Trigger categorization every time activity count hits a multiple of 5 (5, 10, 15…)
-    if (totalActivities > 0 && totalActivities % 5 === 0) {
+    // Trigger categorization every time activity count hits a multiple of 10 (10, 20, 30…)
+    if (totalActivities > 0 && totalActivities % 10 === 0) {
 
       console.log("AI TRIGGERED — FETCHING TRIP NAME & FIRST FIVE");
       
@@ -128,14 +128,14 @@ export const addActivity = async (req, res) => {
 
       const tripName = tripNameRow[0].trip_name;
 
-      //Get first 5 activities for this trip
+      //Get first 10 activities for this trip
       const firstFive = await sql`
         SELECT a.activity_name
         FROM activities a
         JOIN days d ON a.day_id = d.day_id
         WHERE d.trip_id = ${tripId}
         ORDER BY a.activity_id ASC
-        LIMIT 5;
+        LIMIT 10;
       `;
 
       //Run AI categorization
