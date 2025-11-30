@@ -206,11 +206,11 @@ export const checkTripsSeen = async(req,res) => {
 
 // If the Shared With Me page is opened this controller will be used to set is_seen to true
 export const markTripsSeen = async(req,res) => {
-    const {userId} = req.body;
+    const userId = req.user.user_id;
 
     try {
         if (!userId) {
-            return res.status(400).json({ error: "Invalid trip id or user id" });
+            return res.status(400).json({ error: "Invalid user id" });
         }
 
         await sql`

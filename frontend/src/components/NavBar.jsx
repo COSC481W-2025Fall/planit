@@ -1,17 +1,40 @@
 import React, {useEffect, useState} from "react";
 import {NavLink} from "react-router-dom";
 import "../css/NavBar.css";
-import {Map, Settings, Binoculars, Users, Dot} from "lucide-react";
+import {Map, Settings, Binoculars, Users} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 
 export default function NavBar({isOpen}) {
     const [hasUnseen, setHasUnseen] = useState(false);
     useEffect(() => {
-        async function check() {
+        // Listen for immediate updates from the SharedTripPage and update state and cache
+        const handleUnseenCleared = () => {
+            setHasUnseen(false);
+            localStorage.setItem("hasUnseen", "false");
+        };
+        window.addEventListener("unseenTripsCleared", handleUnseenCleared);
+
+        // Load cached value and set state if unseen is true
+        const stored = localStorage.getItem("hasUnseen");
+        if (stored === "true") {
+            setHasUnseen(true);
+            return () => {
+                window.removeEventListener("unseenTripsCleared", handleUnseenCleared);
+            };
+        }
+
+        // To check for new unseen trips. Run backend check if localStorage hasUnseen is not true.
+        const timeout = setTimeout(async () => {
             const unseen = await handleCheckSeen();
             setHasUnseen(unseen);
-        }
-        check();
+            localStorage.setItem("hasUnseen", unseen);
+        }, 0);
+
+        //Cleanup on component dismount
+        return () => {
+            clearTimeout(timeout);
+            window.removeEventListener("unseenTripsCleared", handleUnseenCleared);
+        };
     }, []);
 
     async function handleCheckSeen() {
