@@ -1,0 +1,98 @@
+/* Import Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
+
+/* Container and layout */
+.notfound-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  gap: 60px;
+  min-height: 100vh;
+  background-color: #dfe8e1; /* full background color */
+  overflow-x: hidden;
+  flex-wrap: wrap;
+}
+
+/* Plane image */
+.plane {
+  width: 400px;
+  max-width: 80%;
+  flex-shrink: 0;
+}
+
+/* Text box styling */
+.text-box {
+  max-width: 500px;
+  text-align: center;
+  font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Headings */
+.text-box h1 {
+  font-family: Tahoma, Geneva, Verdana, sans-serif; /* bolder heading font */
+  font-size: 80px;
+  font-weight: 700;
+  color: #1e7a3d;
+  margin: 0;
+}
+
+/* Paragraph */
+.text-box p {
+  font-size: 20px;
+  color: #355e3b;
+  line-height: 1.5;
+}
+
+/* Button */
+.home-btn {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 28px;
+  background-color: #18823a;
+  color: white;
+  text-decoration: none;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Open Sans", sans-serif;
+  transition: background 0.2s ease;
+}
+
+.home-btn:hover {
+  background-color: #0f5d28;
+}
+
+@media (max-width: 768px) {
+  .notfound-container {
+    flex-direction: column; /* stack plane and text vertically */
+    gap: 30px;
+    padding: 40px 20px;
+  }
+
+  .plane {
+    width: 70%; /* scale down plane image */
+  }
+
+  .text-box h1 {
+    font-size: 60px; /* smaller heading */
+  }
+
+  .text-box p {
+    font-size: 18px; /* smaller text */
+  }
+}
+
+@media (max-width: 480px) {
+  .plane {
+    width: 90%; /* nearly full width on tiny screens */
+  }
+
+  .text-box h1 {
+    font-size: 45px; /* adjust heading for phones */
+  }
+
+  .text-box p {
+    font-size: 16px;
+  }
+}
