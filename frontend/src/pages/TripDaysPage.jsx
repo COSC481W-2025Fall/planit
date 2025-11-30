@@ -68,7 +68,7 @@ export default function TripDaysPage() {
   const [isPackingCooldown, setIsPackingCooldown] = useState(false);
   const socketDisconnectedRef = useRef(false);
   const [showModal, setShowModal] = useState(false);
-
+  const [initialEntries, setInitialEntries] = useState([]);
   const allPeople = [
     ...(owner ? [owner] : []),
     ...(Array.isArray(participants) ? participants : []),
@@ -1409,6 +1409,12 @@ export default function TripDaysPage() {
           accommodation_note: a.accommodation_note || "",
           accommodation_id: a.accommodation_id ?? null,
         }));
+        const finalEntries = mapped.length > 0
+          ? mapped
+          : [{ accommodation_type: "", accommodation_price: "", accommodation_note: "" }];
+
+        setEntries(finalEntries);
+        setInitialEntries(JSON.parse(JSON.stringify(finalEntries)));
   
         setEntries(
           mapped.length > 0
@@ -1434,7 +1440,12 @@ export default function TripDaysPage() {
             transport_id: t.transport_id ?? null,
             transport_note: t.transport_note || "",
           }));
-  
+        const finalEntries = mapped.length > 0
+          ? mapped
+          : [{ ticketNumber: "", price: "", transport_id: null, transport_note: "" }];
+
+        setEntries(finalEntries);
+        setInitialEntries(JSON.parse(JSON.stringify(finalEntries))); 
         setEntries(
           mapped.length > 0
             ? mapped
@@ -1452,6 +1463,12 @@ export default function TripDaysPage() {
 
   const handleSaveEntries = async () => {
     const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+    const entriesChanged = JSON.stringify(entries) !== JSON.stringify(initialEntries);
+    if (!entriesChanged) {
+      // Close modal silently without any toast
+      setShowModal(false);
+      return;
+    }
     const invalidEntries = entries.filter(entry => {
       if (modalType === "transport") {
 
