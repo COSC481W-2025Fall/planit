@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "../css/Popup.css";
 import { X } from "lucide-react";
-import {createPortal} from "react-dom";
 
 export default function Popup({ title, children, buttons, onClose, id, }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -54,12 +53,13 @@ export default function Popup({ title, children, buttons, onClose, id, }) {
     setIsDragging(false);
   };
 
-  return createPortal (
+  return (
     <div className="popup-screen-overlay" onClick={handleOverlayClick}>
       <div
           className="popup"
           id={id}
           onClick={(e) => e.stopPropagation()}
+
           // Touch listeners for mobile drag
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -78,7 +78,6 @@ export default function Popup({ title, children, buttons, onClose, id, }) {
         <div className="popup-form">{children}</div>
         {buttons && <div className="popup-buttons">{buttons}</div>}
       </div>
-    </div>,
-      document.body
+    </div>
   );
 }

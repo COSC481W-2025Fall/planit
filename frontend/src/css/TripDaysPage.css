@@ -1411,6 +1411,16 @@ html[data-theme="dark"] .time-picker {
 @media (min-width: 1800px) {
   .TripDaysPage.drawer-open {
     margin-right: 550px;
+
+  }
+  .activity-search-sidebar {
+    width: 549px;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1100px) {
+  .activity-search-sidebar {
+    width: 360px;
   }
 }
 .distance-display {
