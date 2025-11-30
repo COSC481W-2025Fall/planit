@@ -457,6 +457,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 2px;
 }
 
 .weather-menu {
@@ -1636,9 +1637,6 @@ html[data-theme="dark"] .time-picker {
   font-size: 1em;
 }
 
-.day-date {
-  margin-bottom: -1.9em;
-}
 
 @media (max-width: 600px) {
   .button-level-bar {
@@ -1689,5 +1687,10 @@ html[data-theme="dark"] .time-picker {
     margin-top: 0.1em;
     margin-left: 0.1rem;
   }
+}
+
+.title-and-weather-container{
+  display: flex;
+  flex-direction: row;
 }
 
