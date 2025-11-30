@@ -865,6 +865,11 @@ export default function ActivitySearch({
                 <Popup
                     id="add-activity-popup"
                     title="Add Activity Details"
+                    onClose={() => {
+                        setShowDetails(false);
+                        setPendingPlace(null);
+                        setPendingDayId(null);
+                    }}
                     buttons={
                         <>
                             <button

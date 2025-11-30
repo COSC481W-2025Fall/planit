@@ -194,6 +194,7 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     .popup-screen-overlay {
         align-items: flex-end;
         padding: 0;
+        z-index: 9999;
     }
 
     .popup {
@@ -227,26 +228,9 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
         touch-action: none;
         will-change: transform;
     }
-    .popup-screen-overlay:has(#add-activity-popup) {
-        align-items: center;
-        justify-content: center;
-        padding: 16px;
-    }
-
-    #add-activity-popup.popup {
-        width: min(92vw, 560px);
-        max-height: 85vh;
-        border-radius: 16px;
-        animation: fadeInScale .22s ease;
-    }
 
     #participants-popup {
         height: 40%;
-    }
-
-    @keyframes fadeInScale {
-        from { transform: scale(.96); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
     }
 
     .popup::before {
