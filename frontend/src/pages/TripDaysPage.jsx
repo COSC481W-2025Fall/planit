@@ -48,6 +48,7 @@ export default function TripDaysPage() {
   const [editableNote, setEditableNote] = useState("");
   const [isAddCooldown, setIsAddCooldown] = useState(false);
   const [showAllParticipantsPopup, setShowAllParticipantsPopup] = useState(false);
+  const [activitySearchCity, setActivitySearchCity] = useState("");
   //Constants for image url
   const [imageUrl, setImageUrl] = useState(null);
   const [deleteActivity, setDeleteActivity] = useState(null);
@@ -2078,7 +2079,8 @@ export default function TripDaysPage() {
               onEditActivity={(activity) => {
                 setEditActivity(activity);
               }}
-
+              cityQuery={activitySearchCity}
+              onCityQueryChange={setActivitySearchCity}
             />
           </div>
         )}
