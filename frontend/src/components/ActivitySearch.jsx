@@ -497,9 +497,9 @@ export default function ActivitySearch({
                 { withCredentials: true }
             );
 
-            if (createRes.data?.categoryApplied) {
-                toast.success("New trip category applied!");
-            }
+            // if (createRes.data?.categoryApplied) {
+            //     toast.success("New trip category applied!");
+            // }
 
             const created = createRes.data?.activity;
             const activityId = created?.activity_id ?? created?.id;

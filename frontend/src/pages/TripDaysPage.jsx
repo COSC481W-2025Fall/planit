@@ -223,6 +223,16 @@ export default function TripDaysPage() {
       toast.success("Participant removed!");
     });
 
+    socket.on("categoryApplied", (category) => {
+      // update the trip state with the new category
+      setTrip(prev => ({
+        ...prev,
+        trip_category: category
+      }));
+
+      toast.success("New trip category applied: " + category);
+    });
+
     socket.on("disconnect", () => {
       // mark that socket disconnected
       socketDisconnectedRef.current = true;

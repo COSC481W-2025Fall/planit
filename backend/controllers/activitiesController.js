@@ -110,10 +110,6 @@ export const addActivity = async (req, res) => {
 
     const totalActivities = Number(countRow[0].count);
 
-    console.log("=== AI CHECK START ===");
-    console.log("totalActivities:", totalActivities);
-    let categoryApplied = false;
-
     // Trigger categorization every time activity count hits a multiple of 10 (10, 20, 30…)
     if (totalActivities > 0 && totalActivities % 10 === 0) {
       
@@ -146,14 +142,13 @@ export const addActivity = async (req, res) => {
           SET trip_category = ${category}
           WHERE trips_id = ${tripId};
         `;
-        categoryApplied = true;
+        io.to(`trip_${tripId}`).emit("categoryApplied", category);
       }
     }
 
     res.json({
       message: "Activity added successfully",
-      activity: newActivity,
-      categoryApplied: categoryApplied
+      activity: newActivity
     });
   } catch (err) {
     console.error(err);
