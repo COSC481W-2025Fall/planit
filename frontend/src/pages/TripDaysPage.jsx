@@ -1740,17 +1740,7 @@ export default function TripDaysPage() {
       />
            </div>
           <div className="button-level-bar">
-            <h1 className="itinerary-text">Itinerary</h1>
-            {days.length > 0 && (
-              <div className="trip-cost trip-cost-itinerary">
-                <PiggyBank className="trip-info-icon trip-cost-icon"/>
-                <span className="trip-cost-label">Total Cost:</span>
-                <span className="trip-cost-value">
-                  ${totalTripCost}
-                </span>
-              </div>
-            )}
-            <div className="transportation-dropdown-wrapper" ref={dropdownRef}>
+          <div className="transportation-dropdown-wrapper" ref={dropdownRef}>
             <div className="transport-and-accommodation-buttons">
               <button className="circle-icon-btn" onClick={toggleDropdown}>
                 <Plane width={16} height={16} />
@@ -1984,8 +1974,16 @@ export default function TripDaysPage() {
                   </div>
                 </Popup>
               )}
-
-          
+            <h1 className="itinerary-text">Itinerary</h1>
+            {days.length > 0 && (
+              <div className="trip-cost trip-cost-itinerary">
+                <PiggyBank className="trip-info-icon trip-cost-icon"/>
+                <span className="trip-cost-label">Total Cost:</span>
+                <span className="trip-cost-value">
+                  ${totalTripCost}
+                </span>
+              </div>
+            )}
             {canEdit && (
               <div className="itinerary-buttons">
                 <button onClick={() => openAddDayPopup(null)} id="new-day-button">

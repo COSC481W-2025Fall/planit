@@ -1,6 +1,21 @@
-.button-level-bar>.itinerary-text,
-.button-level-bar>.circle-icon-btn {
-  margin: 0;
+.transportation-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+  justify-content: flex-end;
+  width: 100%;
+  margin-bottom: 0rem;
+}
+.transportation-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 200px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-2);
+  z-index: 50;
+  overflow: hidden;
 }
 .transport-and-accommodation-buttons {
   display: flex;
@@ -9,7 +24,10 @@
   gap: 8px; 
 
 }
-
+.button-level-bar>.itinerary-text,
+.button-level-bar>.circle-icon-btn {
+  margin: 0;
+}
 
 .itinerary-buttons {
   margin-left: auto;
@@ -32,8 +50,8 @@
 
 
 .circle-icon-btn {
-  width: 30px;
-  height: 30px;
+  width: 25px;
+  height: 25px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--bg-surface);
@@ -125,13 +143,13 @@ html[data-theme="dark"] .entry-block textarea {
 
 }
 .delete-entry-btn:hover {
-  color: var(--text);
+  color: var(--accent);
   background: var(--bg-offwhite);
   transform: scale(1.1);
 }
 html[data-theme="dark"] .delete-entry-btn:hover {
   background: var(--bg-hover2);
-  color: var(--bg-white);
+  color: var(--accent);
 }
 .modal-add {
   width: 100%;
@@ -392,7 +410,7 @@ body {
   align-items: center;
   flex-wrap: wrap;
   width: 100%;
-  margin-top: 0.5rem;
+  margin-top: 0rem;
   gap: 0.75rem;
 }
 
@@ -465,28 +483,10 @@ body {
   transform: scale(0.9);
 }
 
-.transportation-dropdown-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
 .circle-icon-btn:hover {
   
   background: var(--btn-hover-bg);
 
-}
-
-.transportation-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  min-width: 200px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow-2);
-  z-index: 50;
-  overflow: hidden;
 }
 
 .transportation-dropdown ul {
