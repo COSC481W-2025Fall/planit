@@ -51,13 +51,10 @@ export default function NavBar({isOpen}) {
                     }
                 >
                     <Users className="nav-icon" size={20}/>
-                    <span>
+                    <span className="share-nav-icon">
                         Shared With Me
                         {hasUnseen && (
-                            <Dot className="unseen-trip-indicator"
-                                size={45}
-                                color="red"
-                            />
+                            <span className="unseen-trip-indicator"></span>
                         )}
                     </span>
                 </NavLink>
