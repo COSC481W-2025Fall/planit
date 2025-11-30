@@ -446,7 +446,21 @@ export default function ActivitySearch({
             return;
         }
 
-        const dayDate = allDays.find(d => d.day_id === pendingDayId).day_date.split("T")[0];
+        let dayDate;
+        try {
+            const dayObject = allDays.find(d => d.day_id === pendingDayId);
+
+            if (!dayObject) {
+                throw new Error("Day object not found");
+            }
+
+            dayDate = dayObject.day_date.split("T")[0];
+
+        } catch (err) {
+            toast.error("Selected day not found. Please select a different day.");
+            setShowDetails(false);
+            return;
+        }
 
         // Build payload from the selected place
         const place = pendingPlace;
