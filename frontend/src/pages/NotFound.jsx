@@ -12,7 +12,7 @@ export default function NotFound() {
           The page you were looking for<br />
           could not be found.
         </p>
-        <a href="/" className="home-btn">
+        <a href="/trip" className="home-btn">
           Back To Home
         </a>
       </div>
