@@ -1114,6 +1114,7 @@ export default function TripDaysPage() {
     const q = (participantUsername || "").trim().toLowerCase();
     if (!q) return [];
     return allUsernames
+      .filter((name) => name && typeof name === 'string')
       .filter((name) => name.toLowerCase().includes(q))
       .filter((name) => name !== user?.username)
       .slice(0, 4);
