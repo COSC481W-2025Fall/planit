@@ -56,6 +56,12 @@
     font-family: "Open Sans", sans-serif;
 }
 
+.unseen-trip-indicator{
+    position: absolute;
+    top: 55px;
+    right: 0px;
+}
+
 /* Mobile*/
 @media (max-width: 900px) {
     .sidebar {

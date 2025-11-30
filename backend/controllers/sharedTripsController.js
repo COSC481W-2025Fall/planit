@@ -197,7 +197,7 @@ export const checkTripsSeen = async(req,res) => {
             );
         `;
 
-        res.json({unseen: result});
+        res.json({unseen: result[0].exists});
     } catch (err) {
         console.log("Error checking viewed trips:", err);
         return res.status(500).json({ error: "Internal Server Error" });

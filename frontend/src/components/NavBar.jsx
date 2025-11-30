@@ -24,7 +24,7 @@ export default function NavBar({isOpen}) {
             );
 
             //true if unseen exists, false otherwise
-            const data = res.json;
+            const data = await res.json();
             return data.unseen;
         } catch (err) {
             toast.error("There was a problem checking seen trips")
@@ -51,14 +51,12 @@ export default function NavBar({isOpen}) {
                     }
                 >
                     <Users className="nav-icon" size={20}/>
-                    <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <span>
                         Shared With Me
                         {hasUnseen && (
-                            <Dot
-                                size={18}
+                            <Dot className="unseen-trip-indicator"
+                                size={45}
                                 color="red"
-                                style={{ marginLeft: "2px" }}
-                                strokeWidth={3}
                             />
                         )}
                     </span>
