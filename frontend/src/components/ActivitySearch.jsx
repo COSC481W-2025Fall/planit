@@ -458,6 +458,8 @@ export default function ActivitySearch({
 
         } catch (err) {
             toast.error("Selected day not found. Please select a different day.");
+            setShowDetails(false);
+            return;
         }
 
         // Build payload from the selected place
@@ -553,8 +555,7 @@ export default function ActivitySearch({
             }
         } catch (err) {
             console.error("Save failed:", err?.response?.data || err.message);
-            if(dayDate)
-                toast.error("Failed to save details. Please try again.");
+            toast.error("Failed to save details. Please try again.");
         } finally {
             setSaving(false);
         }
