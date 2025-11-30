@@ -50,8 +50,8 @@
 
 
 .circle-icon-btn {
-  width: 25px;
-  height: 25px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--bg-surface);
@@ -485,8 +485,13 @@ body {
 
 .circle-icon-btn:hover {
   
-  background: var(--btn-hover-bg);
+  background: var(--accent);
 
+}
+
+.circle-icon-btn:hover svg {
+  color: var(--bg-white);
+  stroke: var(--bg-white);
 }
 
 .transportation-dropdown ul {
