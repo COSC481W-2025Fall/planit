@@ -154,6 +154,11 @@
     padding: 8px 16px;
 }
 
+.trip-card-footer {
+    display: inline-flex;
+    align-items: center;
+}
+
 .trip-card-title {
     font-size: 1rem;
     font-weight: bold;
@@ -162,6 +167,7 @@
     margin: 10px 0 4px;
 }
 
+<<<<<<< HEAD
 .trip-card-title-row {
     display: flex;
     align-items: center;
@@ -175,6 +181,16 @@
 }
 
 
+=======
+.trip-date {
+    padding-left: 15px;
+    padding-right: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+>>>>>>> 1be05f5aa1d5a339a78f732f7442c45e4f30fe60
 .trip-location {
     color: var(--text-medium);
     font-size: 0.9rem;

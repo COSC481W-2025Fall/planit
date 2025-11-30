@@ -1108,15 +1108,28 @@ html[data-theme="dark"] .time-picker {
     font-size: 1.25rem;
   }
   .button-level-bar {
+    display: flex;
     flex-direction: column-reverse;
     align-items: flex-start;
+    flex-wrap: wrap;
     gap: 0.5rem;
+    width: 100%;
   }
 
+  .itinerary-text {
+    margin-right: 0.35rem; 
+  }
+
+  .trip-cost-itinerary {
+    display: inline-flex;
+    align-items: center;
+    margin-right: auto;     
+  }
   .itinerary-buttons {
     flex-direction: row;
     justify-content: flex-start;
     gap: 0.5rem;
+    width: 100%;           
   }
 
   .itinerary-buttons button {
@@ -1542,3 +1555,100 @@ html[data-theme="dark"] .time-picker {
   font-weight: 600;
   transform: translateY(1px);
 }
+
+.trip-cost-icon {
+  height: 1.2rem;
+  width: 1.2rem;
+  flex-shrink: 0;
+  color: var(--accent);
+  margin-top: 0.02rem;
+}
+
+.trip-cost {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+  color: var(--accent);
+}
+
+.trip-cost-label,
+.trip-cost-value {
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.trip-cost-itinerary {
+  margin-right: auto;
+}
+
+.day-cost {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.8em;
+  color: var(--accent);
+  margin-left: auto;
+  margin-top: 0.4rem;
+}
+
+.day-cost-currency,
+.day-cost-amount {
+  font-size: 1em;
+}
+
+.day-date {
+  margin-bottom: -1.9em;
+}
+
+@media (max-width: 600px) {
+  .button-level-bar {
+    flex-direction: column;         
+    align-items: flex-start;        
+    justify-content: flex-start;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+  }
+
+  .itinerary-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;       
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+    margin-bottom: 0.2rem;
+  }
+
+  .itinerary-buttons button {
+    flex: 0 0 auto;          
+    min-width: 5.6rem;        
+    padding: 0 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  #participants-button {
+    margin: 0;
+  }
+
+  .trip-cost-itinerary {
+    order: 2;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 0.15rem;
+    margin-left: 0.1rem;
+    font-size: 0.85rem;
+  }
+
+  .trip-cost-itinerary .trip-cost-icon {
+    margin-right: 0.25rem;
+  }
+
+  .itinerary-text {
+    order: 3;
+    margin-top: 0.1em;
+    margin-left: 0.1rem;
+  }
+}
+

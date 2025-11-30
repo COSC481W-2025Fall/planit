@@ -5,7 +5,7 @@ import NavBar from "../components/NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
-import { MapPin, Pencil, Trash, UserPlus, X } from "lucide-react";
+import {Calendar, MapPin, Pencil, Trash, UserPlus, X} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
 import { getSharedTrips } from "../../api/trips";
@@ -377,9 +377,20 @@ export default function TripPage() {
                                                 )}
                                             </div>
 
-                                            <div className="trip-location">
-                                                <MapPin size={16} style={{ marginRight: "4px" }} />
-                                                {trip.trip_location || "Location not set"}
+                                            <div className="trip-card-footer">
+                                                <div className="trip-location">
+                                                    <MapPin size={16} style={{marginRight: "4px"}}/>
+                                                    {trip.trip_location || "Location not set"}
+                                                </div>
+
+                                                <p className="trip-date">
+                                                    {trip.trip_start_date && (
+                                                        <span className="trip-date">
+                                              <Calendar size={16} />
+                                                            {new Date(trip.trip_start_date).toLocaleDateString()}
+                                          </span>
+                                                    )}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>

@@ -6,7 +6,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
 import {createTrip, updateTrip, getTrips, deleteTrip} from "../../api/trips";
-import {MapPin, Pencil, Trash,  Lock, Unlock, UserPlus, X, Eye, ChevronLeft, ChevronRight} from "lucide-react";
+import {MapPin, Pencil, Trash,  Lock, Unlock, UserPlus, X, Eye, ChevronLeft, ChevronRight, Calendar} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
@@ -563,6 +563,7 @@ export default function TripPage() {
                                   >
                                       <div className="trip-card-title-row">
                                       <h3 className="trip-card-title">{trip.trip_name}</h3>
+<<<<<<< HEAD
                                     {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
                                       <Label category={trip.trip_category} className="trip-card-badge" />
                                     )}
@@ -570,6 +571,22 @@ export default function TripPage() {
                                       <div className="trip-location">
                                           <MapPin size={16} style={{marginRight: "4px"}}/>
                                           {trip.trip_location || "Location not set"}
+=======
+
+                                      <div className="trip-card-footer">
+                                          <div className="trip-location">
+                                              <MapPin size={16} style={{marginRight: "4px"}}/>
+                                              {trip.trip_location || "Location not set"}
+                                          </div>
+                                          <p className="trip-date">
+                                              {trip.trip_start_date && (
+                                                  <span className="trip-date">
+                                              <Calendar size={16} />
+                                                      {new Date(trip.trip_start_date).toLocaleDateString()}
+                                          </span>
+                                              )}
+                                          </p>
+>>>>>>> 1be05f5aa1d5a339a78f732f7442c45e4f30fe60
                                       </div>
                                   </div>
                               </div>
