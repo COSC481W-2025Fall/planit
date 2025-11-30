@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronRight} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronRight, PiggyBank} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -256,6 +256,23 @@ export default function TripDaysPage() {
     }
   }, []);
 
+
+  // total cost across the entire trip (all days & activities)
+  const totalTripCost = useMemo(() => {
+    if (!Array.isArray(days)) return 0;
+
+    return days.reduce((tripSum, day) => {
+      const activities = day.activities || [];
+
+      const daySum = activities.reduce((acc, activity) => {
+        const rawCost = activity.activity_price_estimated ?? 0;
+        const cost = Number(rawCost);
+        return acc + (Number.isFinite(cost) ? cost : 0);
+      }, 0);
+
+      return tripSum + daySum;
+    }, 0);
+  }, [days]);
 
   //responsive
   useEffect(() => {
@@ -531,6 +548,17 @@ export default function TripDaysPage() {
         return toMinutes(a.activity_startTime) - toMinutes(b.activity_startTime);
       });
 
+
+      //const newIds = days.map(d => d.day_id);
+
+      // if (!expandedInitRef.current) {
+      //   // First load: mobile = collapsed, desktop = expanded
+      //   setExpandedDays(window.innerWidth <= 600 ? [] : newIds);
+      //   expandedInitRef.current = true;
+      // } else {
+      //   // Later fetches: keep prior choices, just drop deleted day IDs
+      //   setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
+      // }
       setDays(prevDays => {
         const updatedDays = prevDays.map(d =>
           d.day_id === dayId ? { ...d, activities: sortedActivities } : d);
@@ -549,16 +577,6 @@ export default function TripDaysPage() {
         return updatedDays;
       });
 
-      //const newIds = days.map(d => d.day_id);
-
-      // if (!expandedInitRef.current) {
-      //   // First load: mobile = collapsed, desktop = expanded
-      //   setExpandedDays(window.innerWidth <= 600 ? [] : newIds);
-      //   expandedInitRef.current = true;
-      // } else {
-      //   // Later fetches: keep prior choices, just drop deleted day IDs
-      //   setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
-      // }
     } catch (err) {
       console.error(err);
     }
@@ -1440,6 +1458,15 @@ export default function TripDaysPage() {
           </div>
           <div className="button-level-bar">
             <h1 className="itinerary-text">Itinerary</h1>
+            {days.length > 0 && (
+              <div className="trip-cost trip-cost-itinerary">
+                <PiggyBank className="trip-info-icon trip-cost-icon"/>
+                <span className="trip-cost-label">Total Cost:</span>
+                <span className="trip-cost-value">
+                  ${totalTripCost}
+                </span>
+              </div>
+            )}
             {canEdit && (
               <div className="itinerary-buttons">
                 <button onClick={() => openAddDayPopup(null)} id="new-day-button">
@@ -1534,6 +1561,11 @@ export default function TripDaysPage() {
                 days.map((day, index) => {
                   const isExpanded = expandedDays.includes(day.day_id);
                   const weatherForDay = dailyWeather.find(w => w.day_id === day.day_id);
+                  const dayTotal = (day.activities || []).reduce((sum, activity) => {
+                    const rawCost = activity.activity_price_estimated ?? 0;
+                    const cost = Number(rawCost);
+                    return sum + (Number.isFinite(cost) ? cost : 0);
+                  }, 0);
                   return (
                     <React.Fragment key={day.day_id}>
                       {index === 0 && canEdit && (
@@ -1566,35 +1598,45 @@ export default function TripDaysPage() {
                             );
                           }}
                         >
-                          <div className={"day-top-row-header"}>
-                            <p className="day-title">Day {index + 1}</p>
-                            <div className="weather-icon">
-                              {weatherForDay && (
-                                <div className="weather-menu">
-                                  <div>
-                                    <p>High: {Math.round(weatherForDay.max_temp_f)}°F</p>
-                                    <p>Low: {Math.round(weatherForDay.min_temp_f)}°F</p>
-                                    <p>Prec: {Math.round(weatherForDay.rain_chance)}%</p>
+                          <p className="day-title">Day {index + 1}</p>
+
+                          <div className="day-top-row-header">
+                            <div className="day-date-and-weather">
+                              <p className="day-date">
+                                {new Date(day.day_date).toLocaleDateString("en-US", {
+                                  weekday: "long",
+                                  month: "short",
+                                  day: "numeric",
+                                })}
+                              </p>
+
+                              <div className="weather-icon">
+                                {weatherForDay && (
+                                  <div className="weather-menu">
+                                    <div>
+                                      <p>High: {Math.round(weatherForDay.max_temp_f)}°F</p>
+                                      <p>Low: {Math.round(weatherForDay.min_temp_f)}°F</p>
+                                      <p>Prec: {Math.round(weatherForDay.rain_chance)}%</p>
+                                    </div>
                                   </div>
-                                </div >
-                              )}
-                              {weatherForDay?.condition_icon ? (
-                                <img
-                                  src={`https://${weatherForDay.condition_icon}`}
-                                  alt="Weather icon"
-                                />
-                              ) : (
-                                <div className="empty-weather-icon"/>
-                              )}
+                                )}
+                                {weatherForDay?.condition_icon ? (
+                                  <img
+                                    src={`https://${weatherForDay.condition_icon}`}
+                                    alt="Weather icon"
+                                  />
+                                ) : (
+                                  <div className="empty-weather-icon"/>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="day-cost">
+                              <span className="day-cost-currency">$</span>
+                              <span className="day-cost-value">{dayTotal}</span>
                             </div>
                           </div>
-                          <p className="day-date">
-                            {new Date(day.day_date).toLocaleDateString("en-US", {
-                              weekday: "long",
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </p>
+
                           <div className="day-header-bottom">
                             <span className="number-of-activities">
                               {day.activities?.length ?? 0} Activities
