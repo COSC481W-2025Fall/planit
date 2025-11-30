@@ -1,7 +1,5 @@
-/* Import Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
 
-/* Container and layout */
 .notfound-container {
   display: flex;
   align-items: center;
@@ -9,26 +7,24 @@
   padding: 60px 40px;
   gap: 60px;
   min-height: 100vh;
-  background-color: #dfe8e1; /* full background color */
+  background-color: #e3ece6;
   overflow-x: hidden;
   flex-wrap: wrap;
 }
 
-/* Plane image */
+/* plane image */
 .plane {
   width: 400px;
   max-width: 80%;
   flex-shrink: 0;
 }
 
-/* Text box styling */
 .text-box {
   max-width: 500px;
   text-align: center;
   font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Headings */
 .text-box h1 {
   font-family: Tahoma, Geneva, Verdana, sans-serif; /* bolder heading font */
   font-size: 80px;
@@ -37,19 +33,17 @@
   margin: 0;
 }
 
-/* Paragraph */
 .text-box p {
   font-size: 20px;
-  color: #355e3b;
+  color: #1e7a3d;
   line-height: 1.5;
 }
 
-/* Button */
 .home-btn {
   display: inline-block;
   margin-top: 20px;
   padding: 12px 28px;
-  background-color: #18823a;
+  background-color: #1e7a3d;
   color: white;
   text-decoration: none;
   border-radius: 30px;
@@ -65,31 +59,31 @@
 
 @media (max-width: 768px) {
   .notfound-container {
-    flex-direction: column; /* stack plane and text vertically */
+    flex-direction: column;
     gap: 30px;
     padding: 40px 20px;
   }
 
   .plane {
-    width: 70%; /* scale down plane image */
+    width: 70%;
   }
 
   .text-box h1 {
-    font-size: 60px; /* smaller heading */
+    font-size: 60px;
   }
 
   .text-box p {
-    font-size: 18px; /* smaller text */
+    font-size: 18px;
   }
 }
 
 @media (max-width: 480px) {
   .plane {
-    width: 90%; /* nearly full width on tiny screens */
+    width: 80%;
   }
 
   .text-box h1 {
-    font-size: 45px; /* adjust heading for phones */
+    font-size: 45px;
   }
 
   .text-box p {
