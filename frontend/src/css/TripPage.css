@@ -767,6 +767,8 @@ html[data-theme="dark"] .sort-select {
     right: 0;
     bottom: auto;
     min-width: 220px;
+    overflow: auto;
+    height: calc(100vh - 250px);
 }
 
 /* labels inside the dropdown ("Show", "Sort by") */
