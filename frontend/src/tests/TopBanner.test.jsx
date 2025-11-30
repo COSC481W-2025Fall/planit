@@ -4,8 +4,6 @@ import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import {MemoryRouter} from "react-router-dom";
 import TopBanner from "../components/TopBanner.jsx";
-//import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
-//import { vi } from "vitest";
 
 global.fetch = vi.fn();
 
