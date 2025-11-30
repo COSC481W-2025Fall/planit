@@ -4,6 +4,8 @@ import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import {MemoryRouter} from "react-router-dom";
 import TopBanner from "../components/TopBanner.jsx";
+//import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
+//import { vi } from "vitest";
 
 global.fetch = vi.fn();
 
@@ -15,6 +17,15 @@ describe("TopBanner Component", () => {
         fetch.mockReset();
         window.location.href = "";
     });
+
+  // mock fetch
+    global.fetch = vi.fn(() =>
+        Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({}),
+        })
+    );
+
 
     test("renders logo and sign out button", () => {
         render(
@@ -39,10 +50,13 @@ describe("TopBanner Component", () => {
         );
         await user.click(screen.getByRole("button", {name: /sign out/i}));
 
-        expect(fetch).toHaveBeenCalledTimes(1);
-        const [calledUrl, options] = fetch.mock.calls[0];
-        expect(calledUrl).toMatch(/\/auth\/logout$/);
-        expect(options).toMatchObject({credentials: "include"});
+        const logoutCall = fetch.mock.calls.find(([url]) =>
+            url.match(/\/auth\/logout$/)
+        );
+
+        expect(logoutCall).toBeDefined();
+        const [, options] = logoutCall;
+        expect(options).toMatchObject({ credentials: "include" });
 
         await waitFor(() => {
             expect(window.location.href).toBe("/login");

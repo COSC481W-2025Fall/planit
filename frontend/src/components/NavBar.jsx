@@ -3,6 +3,7 @@ import {NavLink} from "react-router-dom";
 import "../css/NavBar.css";
 import {Map, Settings, Binoculars, Users} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
+import { toast } from "react-toastify";
 
 export default function NavBar({isOpen}) {
     const [hasUnseen, setHasUnseen] = useState(false);
