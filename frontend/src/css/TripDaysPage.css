@@ -1090,6 +1090,11 @@ html[data-theme="dark"] .time-picker {
   transition: transform 0.3s ease;
 }
 
+@media (min-width: 1800px) {
+  .TripDaysPage.drawer-open .ai-floating-container {
+    transform: translateX(-545px);
+  }
+}
 
 @media (max-width: 1099px) and (min-width: 900px) {
   .TripDaysPage.drawer-open .ai-floating-container {
