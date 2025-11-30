@@ -1434,7 +1434,43 @@ export default function TripDaysPage() {
 
   const handleSaveEntries = async () => {
     const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
-  
+    const invalidEntries = entries.filter(entry => {
+      if (modalType === "transport") {
+
+        const needsTicket = transportType === "flight" || transportType === "train";
+        if (needsTicket) {
+          return (entry.ticketNumber && !entry.price) || (!entry.ticketNumber && entry.price);
+        } else {
+          return false; 
+        }
+      } else {
+        return (entry.accommodation_type && !entry.accommodation_price) || 
+               (!entry.accommodation_type && entry.accommodation_price);
+      }
+    });
+    
+    if (invalidEntries.length > 0) {
+      toast.error("Please fill in all required fields or leave entries completely empty");
+      return;
+    }
+    
+    const validEntries = entries.filter(entry => {
+      if (modalType === "transport") {
+        const needsTicket = transportType === "flight" || transportType === "train";
+        if (needsTicket) {
+          return entry.ticketNumber && entry.price;
+        } else {
+          return entry.price; 
+        }
+      } else {
+        return entry.accommodation_type && entry.accommodation_price;
+      }
+    });
+    
+    if (validEntries.length === 0) {
+      toast.warning("Please fill in at least one entry to save");
+      return;
+    }
     try{
     for (const entry of entries) {
       // Skip empty entries
@@ -1800,47 +1836,31 @@ export default function TripDaysPage() {
                               <>
                                 <label>{transportType === "flight" ? "Flight Number" : "Ticket Number"}</label>
                                 <input
+                                  type="text"
                                   value={entry.ticketNumber ?? ""}
                                   onChange={(e) => {
                                     const copy = [...entries];
                                     copy[index].ticketNumber = e.target.value;
                                     setEntries(copy);
                                   }}
-                                  placeholder={transportType === "flight" ? "e.g., AA123" : ""}
+                                  placeholder="e.g. AA1234"
                                 />
                               </>
                             )}
               
                             <label>Price ($)</label>
                             <input
-                              type="number"
-                              inputMode="decimal"
-                              value={entry.price ?? ""}
+                              type="text"            
+                              inputMode="numeric"       
+                              value={entry.accommodation_price ?? ""}
                               onChange={(e) => {
+                                const raw = e.target.value;
+
+                                const cleaned = raw.replace(/[^0-9]/g, "");
+
                                 const copy = [...entries];
-                                const value = e.target.value;
-                                if (value === "") {
-                                  copy[index].price = "";
-                                } else {
-                                  const num = parseFloat(value);
-                                  if (!isNaN(num) && num >= 0) {
-                                    copy[index].price = Math.floor(num).toString();
-                                  }
-                                }
+                                copy[index].accommodation_price = cleaned;
                                 setEntries(copy);
-                              }}
-                              onBlur={(e) => {
-                                const copy = [...entries];
-                                const value = e.target.value;
-                                if (value !== "" && !isNaN(parseFloat(value))) {
-                                  copy[index].price = Math.floor(parseFloat(value)).toString();
-                                  setEntries(copy);
-                                }
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === '.' || e.key === '-' || e.key === 'e' || e.key === 'E') {
-                                  e.preventDefault();
-                                }
                               }}
                               placeholder="e.g. 10"
                             />
@@ -1885,37 +1905,19 @@ export default function TripDaysPage() {
                               }}
                               placeholder="e.g., Hotel, Airbnb, Resort"
                             />
-              
                             <label>Price ($)</label>
                             <input
-                              type="number"
-                              inputMode="decimal"
+                              type="text"            
+                              inputMode="numeric"       
                               value={entry.accommodation_price ?? ""}
                               onChange={(e) => {
+                                const raw = e.target.value;
+
+                                const cleaned = raw.replace(/[^0-9]/g, "");
+
                                 const copy = [...entries];
-                                const value = e.target.value;
-                                if (value === "") {
-                                  copy[index].accommodation_price = "";
-                                } else {
-                                  const num = parseFloat(value);
-                                  if (!isNaN(num) && num >= 0) {
-                                    copy[index].accommodation_price = Math.floor(num).toString();
-                                  }
-                                }
+                                copy[index].accommodation_price = cleaned;
                                 setEntries(copy);
-                              }}
-                              onBlur={(e) => {
-                                const copy = [...entries];
-                                const value = e.target.value;
-                                if (value !== "" && !isNaN(parseFloat(value))) {
-                                  copy[index].accommodation_price = Math.floor(parseFloat(value)).toString();
-                                  setEntries(copy);
-                                }
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === '.' || e.key === '-' || e.key === 'e' || e.key === 'E') {
-                                  e.preventDefault();
-                                }
                               }}
                               placeholder="e.g. 10"
                             />
