@@ -1887,14 +1887,14 @@ export default function TripDaysPage() {
                             <input
                               type="text"            
                               inputMode="numeric"       
-                              value={entry.accommodation_price ?? ""}
+                              value={entry.price ?? ""}
                               onChange={(e) => {
                                 const raw = e.target.value;
 
                                 const cleaned = raw.replace(/[^0-9]/g, "");
 
                                 const copy = [...entries];
-                                copy[index].accommodation_price = cleaned;
+                                copy[index].price = cleaned;
                                 setEntries(copy);
                               }}
                               placeholder="e.g. 10"
