@@ -500,7 +500,7 @@ export default function ActivitySearch({
             if (createRes.data?.categoryApplied) {
                 toast.success("New trip category applied!");
             }
-            
+
             const created = createRes.data?.activity;
             const activityId = created?.activity_id ?? created?.id;
             if (!activityId) {
@@ -904,7 +904,7 @@ export default function ActivitySearch({
                 <Popup
                     id="add-activity-popup"
                     title="Add Activity Details"
-                    buttons={
+                    buttons={ saving ? [] : (
                         <>
                             <button
                                 type="button"
@@ -932,8 +932,15 @@ export default function ActivitySearch({
                                 {saving ? "Saving..." : "Save"}
                             </button>
                         </>
+                    )
                     }
                 >
+                    {saving ? (
+                        <div className="loading-spinner">
+                            <MoonLoader color="var(--accent)" size={50} />
+                        </div>
+                    ) : (
+                        <>
             <DistanceAndTimeInfo
               distanceInfo={distanceInfo}
               transportMode={transportMode}
@@ -1025,6 +1032,8 @@ export default function ActivitySearch({
                             disabled={saving}
                         />
                     </label>
+                        </>
+                    )}
                 </Popup>
             )}
         </>
