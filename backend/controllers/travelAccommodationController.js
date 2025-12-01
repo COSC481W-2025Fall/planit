@@ -164,7 +164,7 @@ export const readAccommodationInfo = async (req, res) => {
 
 export const updateAccommodationInfo = async (req, res) => {
     try {
-        const {accommodation_id, accommodation_price, accommodation_note, accommodation_type} = req.body;
+        const {trip_id, accommodation_id, accommodation_price, accommodation_note, accommodation_type, username} = req.body;
 
         if(!accommodation_id) {
             return res.status(400).json({ error: "Missing required fields"});
