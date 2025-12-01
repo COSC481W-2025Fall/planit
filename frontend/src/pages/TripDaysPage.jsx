@@ -222,6 +222,54 @@ export default function TripDaysPage() {
       toast.success("Participant removed!");
     });
 
+    socket.on("addedTransport", (transportType, ticketNumber, price, transport_note, username) => {
+      refreshTransportInfo();
+
+      //Patch entries state
+      setEntries(prev => [...prev, {
+        ticketNumber,
+        price,
+        transport_note
+      }
+      ]);
+
+      transportType = transportType.charAt(0).toUpperCase() + transportType.slice(1);
+      toast.success(`${transportType} has been added by ${username}!`);
+    });
+
+    socket.on("updatedTransport", (transportType, transportId, ticketNumber, price, transport_note, username) => {
+      refreshTransportInfo();
+
+      //Patch entries state
+      setEntries(prev =>
+        prev.map(entry =>
+          entry.transport_id === transportId ? {
+              ...entry,
+              ticketNumber,
+              price,
+              transport_note
+            }
+            : entry
+        )
+      );
+
+      transportType = transportType.charAt(0).toUpperCase() + transportType.slice(1);
+      toast.success(`${transportType} has been updated by ${username}!`);
+    });
+
+    socket.on("deletedTransport", (transportType, username, index) => {
+      refreshTransportInfo();
+
+      // Remove from current modal view
+      setEntries(prev => {
+        const updated = prev.filter((_, i) => i !== index);
+        return updated;
+      });
+
+      transportType = transportType.charAt(0).toUpperCase() + transportType.slice(1);
+      toast.success(`${transportType} has been deleted by ${username}!`);
+    });
+
     socket.on("disconnect", () => {
       // mark that socket disconnected
       socketDisconnectedRef.current = true;
@@ -1536,6 +1584,7 @@ export default function TripDaysPage() {
             transport_price: entry.price,
             transport_note: entry.transport_note || null,
             transport_number: entry.ticketNumber,
+            username: user.username
           }
         : {
             ...(isUpdate && { accommodation_id: entry.accommodation_id }),
@@ -1543,6 +1592,7 @@ export default function TripDaysPage() {
             accommodation_type: entry.accommodation_type,
             accommodation_price: entry.accommodation_price,
             accommodation_note: entry.accommodation_note || null,
+            username: user.username
           };
   
   
@@ -1554,19 +1604,8 @@ export default function TripDaysPage() {
       });
     }
   
-    if (modalType === "transport") refreshTransportInfo();
-    else refreshAccommodationInfo();
   
     setShowModal(false);
-    setEntries(
-      modalType === "transport"
-        ? [{ ticketNumber: "", price: "" , transport_note: ""}]
-        : [{ accommodation_type: "", accommodation_price: "", accommodation_note: "" }]
-    );
-    const successMessage = modalType === "transport" 
-      ? "Transportation has been updated!" 
-      : "Accommodation has been updated!";
-    toast.success(successMessage);
   } catch (error) {
     console.error("Error saving entries:", error);
     const errorMessage = modalType === "transport"
@@ -1576,7 +1615,7 @@ export default function TripDaysPage() {
   }
   };
 
-  const handleDeleteEntry = async (id, index) => {
+  const handleDeleteEntry = async (id, index, type) => {
     const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
   
@@ -1587,8 +1626,8 @@ export default function TripDaysPage() {
   
     const body =
       modalType === "transport"
-        ? { transport_id: Number(id) }
-        : { accommodation_id: Number(id) }; // normalize type
+        ? { transport_id: Number(id), trip_id: trip.trips_id, transport_type: type, username: user.username, index: index}
+        : { accommodation_id: Number(id), trip_id: trip.trips_id, accommodation_type: type, username: user.username, index: index}; // normalize type
   
     const endpoint =
       modalType === "transport"
@@ -1602,22 +1641,7 @@ export default function TripDaysPage() {
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error("Delete failed");
-  
-      // Remove from current modal view
-      setEntries(prev => {
-        const updated = prev.filter((_, i) => i !== index);
-        return updated;
-      });
-  
-     
-      // Refresh the backing arrays so the next open uses correct data
-      if (modalType === "transport") {
-        await refreshTransportInfo();
-      } else {
-        await refreshAccommodationInfo();
-      }
-  
-      toast.success("Entry deleted");
+
     } catch (err) {
       console.error("Delete error:", err);
       toast.error("Failed to delete entry");
@@ -1862,7 +1886,8 @@ export default function TripDaysPage() {
                               className="delete-entry-btn" 
                               onClick={() => handleDeleteEntry(
                                 entry.transport_id, 
-                                index
+                                index,
+                                transportType
                               )}
                               title="Delete this entry"
                             >
@@ -1924,7 +1949,8 @@ export default function TripDaysPage() {
                               className="delete-entry-btn" 
                               onClick={() => handleDeleteEntry(
                                 entry.accommodation_id, 
-                                index
+                                index,
+                                entry.accommodation_type
                               )}
                               title="Delete this entry"
                             >
