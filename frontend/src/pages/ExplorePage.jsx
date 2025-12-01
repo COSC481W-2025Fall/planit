@@ -27,6 +27,7 @@ export default function ExplorePage() {
   // filter/sort for liked trips
   const [sortOption, setSortOption] = useState("recent");
   const [dateFilter, setDateFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   // likes
   const [likedIds, setLikedIds] = useState(new Set());
@@ -267,6 +268,15 @@ export default function ExplorePage() {
 
     let result = [...likedTrips];
 
+    // filter by category
+    if (categoryFilter !== "all") {
+      result = result.filter(
+        (trip) =>
+          (trip.trip_category || "").toLowerCase() ===
+          categoryFilter.toLowerCase()
+      );
+    }
+
     // filter: All / Upcoming / Past 
     result = result.filter((trip) => {
       const start = trip.trip_start_date ? new Date(trip.trip_start_date) : null;
@@ -345,7 +355,7 @@ export default function ExplorePage() {
     });
 
     return result;
-  }, [likedTrips, sortOption, dateFilter]);
+  }, [likedTrips, sortOption, dateFilter, categoryFilter]);
 
   // like toggle
   const handleToggleLike = async (tripId, tripData) => {
@@ -498,7 +508,7 @@ export default function ExplorePage() {
           {/* Header */}
           <div className="trips-header">
             <div className="trips-title-section">
-              <div className="trips-title">Explore trips</div>
+              <div className="trips-title">Explore Trips</div>
               <div className="trips-subtitle">Find inspiration from public itineraries</div>
             </div>
 
@@ -510,6 +520,8 @@ export default function ExplorePage() {
                   setSortOption={setSortOption}
                   dateFilter={dateFilter}
                   setDateFilter={setDateFilter}
+                  categoryFilter={categoryFilter}
+                  setCategoryFilter={setCategoryFilter}
                 />
               </div>
             )}

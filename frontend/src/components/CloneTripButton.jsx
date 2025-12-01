@@ -42,6 +42,7 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
             return;
         }
 
+        try{
         setLoading(true);
 
         const res = await fetch(`${BASE}/trip/${tripId}/clone`, {
@@ -67,6 +68,10 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
         }
         else {
             toast.error("Failed to clone trip.");
+        }
+        } finally {
+            // regardless of what happens still set the loader off
+            setLoading(false);
         }
     }
 
