@@ -13,6 +13,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import GuestEmptyState from "../components/GuestEmptyState";
 import { toast } from "react-toastify";
 import TripsFilterButton from "../components/TripsFilterButton";
+import Label from "../components/Label.jsx";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
@@ -36,6 +37,12 @@ export default function TripPage() {
     const [dateFilter, setDateFilter] = useState(() => {
         if (typeof window === "undefined") return "all";
         return localStorage.getItem("sharedTripsDateFilter") || "all";
+    });
+    const [categoryFilter, setCategoryFilter] = useState("all");
+
+    const [hiddenLabels, setHiddenLabels] = useState(() => {
+        const stored = localStorage.getItem("hiddenTripLabels");
+        return stored ? JSON.parse(stored) : [];
     });
 
     // Get user details
@@ -145,6 +152,15 @@ export default function TripPage() {
 
         let result = [...trips];
 
+        // filter by category
+        if (categoryFilter !== "all") {
+            result = result.filter(
+                (trip) =>
+                    (trip.trip_category || "").toLowerCase() ===
+                    categoryFilter.toLowerCase()
+            );
+        }
+
         // filter: All / Upcoming & in-progress / Past
         result = result.filter((trip) => {
             const start = trip.trip_start_date ? new Date(trip.trip_start_date) : null;
@@ -218,7 +234,7 @@ export default function TripPage() {
         });
 
         return result;
-    }, [trips, sortOption, dateFilter]);
+    }, [trips, sortOption, dateFilter, categoryFilter]);
 
     const isGuestUser = (userId) => {
         return userId && userId.toString().startsWith('guest_');
@@ -315,10 +331,12 @@ export default function TripPage() {
 
                             <div className="banner-controls">
                                 <TripsFilterButton
-                                  sortOption={sortOption}
-                                  setSortOption={setSortOption}
-                                  dateFilter={dateFilter}
-                                  setDateFilter={setDateFilter}
+                                    sortOption={sortOption}
+                                    setSortOption={setSortOption}
+                                    dateFilter={dateFilter}
+                                    setDateFilter={setDateFilter}
+                                    categoryFilter={categoryFilter}
+                                    setCategoryFilter={setCategoryFilter}
                                 />
                             </div>
                         </div>
@@ -361,12 +379,21 @@ export default function TripPage() {
                                             className="trip-card-content"
                                             onClick={() => handleTripRedirect(trip.trips_id)}
                                         >
-                                            <h3 className="trip-card-title">{trip.trip_name}</h3>
+                                            <div className="trip-card-title-row">
+                                                <h3 className="trip-card-title">{trip.trip_name}</h3>
+
+                                                {/* Show label ONLY if category exists AND it's not marked hidden */}
+                                                {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
+                                                    <Label category={trip.trip_category} className="trip-card-badge" />
+                                                )}
+                                            </div>
+
                                             <div className="trip-card-footer">
                                                 <div className="trip-location">
                                                     <MapPin size={16} style={{marginRight: "4px"}}/>
                                                     {trip.trip_location || "Location not set"}
                                                 </div>
+
                                                 <p className="trip-date">
                                                     {trip.trip_start_date && (
                                                         <span className="trip-date">

@@ -63,7 +63,7 @@ export const getAllTripDetailsOfTripsLikedByUser = async (req, res) => {
         }
 
         const userLikes = await sql`
-            SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, t.image_id, t.trip_updated_at, l.liked_at
+            SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, t.image_id, t.trip_category, t.trip_updated_at, l.liked_at
             FROM trips AS t
             JOIN likes AS l ON t.trips_id = l.trip_id
             WHERE l.user_id = ${userId}

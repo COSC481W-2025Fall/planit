@@ -27,7 +27,7 @@ export const getTopLikedTrips = async (req, res) => {
         const isGuest = isGuestUser(userId);
         
         const topLikedTripsAllTime = await sql`
-            SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, t.image_id, t.trip_updated_at,
+            SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, t.image_id, t.trip_updated_at, t.trip_category,
             COUNT(l.like_id) AS like_count,
             ${isGuest 
                 ? sql`false` 
@@ -55,7 +55,7 @@ export const getTrendingTrips = async (req, res) => {
         const isGuest = isGuestUser(userId);
         
         const trendingTrips = await sql`
-            SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, t.image_id, t.trip_updated_at,
+            SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, t.image_id, t.trip_updated_at, t.trip_category,
             COUNT(l.like_id) AS like_count, 
             ${isGuest 
                 ? sql`false` 
@@ -83,7 +83,7 @@ export const searchTrips = async (req, res) => {
         const isGuest = isGuestUser(userId);
         
         const searchResults = await sql`
-            SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, t.image_id, 
+            SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, t.image_id, t.trip_category,
             COUNT(l.like_id) AS like_count, 
             ${isGuest 
                 ? sql`false` 

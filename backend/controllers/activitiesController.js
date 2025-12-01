@@ -1,5 +1,6 @@
 import axios from "axios";
 import { sql } from "../config/db.js";
+import { categorizeTrip } from "../utils/tripCategorizer.js";
 import {io} from "../socket.js";
 
 // Map undefined → null so inserts/updates send proper NULLs to Postgres
@@ -85,9 +86,69 @@ export const addActivity = async (req, res) => {
       LIMIT 1;
     `;
 
+    const newActivity = created[0];
+
+    // AI Categorization Logic
+    //Get trip_id from days table
+    const tripRow = await sql`
+      SELECT trip_id
+      FROM days
+      WHERE day_id = ${day}
+      LIMIT 1;
+    `;
+
+    const tripId = tripRow[0].trip_id;
+
+    //Count all activities for this trip
+
+    const countRow = await sql`
+      SELECT count(*) AS count
+      FROM activities a
+      JOIN days d ON a.day_id = d.day_id
+      WHERE d.trip_id = ${tripId};
+    `;
+
+    const totalActivities = Number(countRow[0].count);
+
+    // Trigger categorization every time activity count hits a multiple of 10 (10, 20, 30…)
+    if (totalActivities > 0 && totalActivities % 10 === 0) {
+      
+      const tripNameRow = await sql`
+        SELECT trip_name
+        FROM trips
+        WHERE trips_id = ${tripId}
+        LIMIT 1;
+      `;
+
+      const tripName = tripNameRow[0].trip_name;
+
+      //Get first 10 activities for this trip
+      const allActivities = await sql`
+        SELECT a.activity_name
+        FROM activities a
+        JOIN days d ON a.day_id = d.day_id
+        WHERE d.trip_id = ${tripId}
+        ORDER BY a.activity_id ASC;
+      `;
+
+      //Run AI categorization
+      const category =  await categorizeTrip(tripName, allActivities);
+
+
+      if (category) {
+        //Update trip with category
+        await sql`
+          UPDATE trips
+          SET trip_category = ${category}
+          WHERE trips_id = ${tripId};
+        `;
+        io.to(`trip_${tripId}`).emit("categoryApplied", category);
+      }
+    }
+
     res.json({
       message: "Activity added successfully",
-      activity: created[0],
+      activity: newActivity
     });
   } catch (err) {
     console.error(err);

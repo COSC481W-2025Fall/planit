@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import {getWeather} from "../../api/weather.js";
 import CloneTripButton from "../components/CloneTripButton.jsx";
+import Label from "../components/Label.jsx";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -222,6 +223,16 @@ export default function TripDaysPage() {
       toast.success("Participant removed!");
     });
 
+    socket.on("categoryApplied", (category) => {
+      // update the trip state with the new category
+      setTrip(prev => ({
+        ...prev,
+        trip_category: category
+      }));
+
+      toast.success("New trip category applied: " + category);
+    });
+
     socket.on("disconnect", () => {
       // mark that socket disconnected
       socketDisconnectedRef.current = true;
@@ -263,6 +274,10 @@ export default function TripDaysPage() {
     }
   }, []);
 
+  const [hiddenLabels, setHiddenLabels] = useState(() => {
+    const stored = localStorage.getItem("hiddenTripLabels");
+    return stored ? JSON.parse(stored) : [];
+  });
 
   // total cost across the entire trip (all days & activities)
   const totalTripCost = useMemo(() => {
@@ -1663,7 +1678,12 @@ export default function TripDaysPage() {
         <NavBar />
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
+          <div className = "title-left">
   <h1 className="trip-title">{trip.trip_name}</h1>
+  {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
+  <Label category={trip.trip_category} />
+)}
+  </div>
 
   <div className="title-action-row">
       {isViewer && (
