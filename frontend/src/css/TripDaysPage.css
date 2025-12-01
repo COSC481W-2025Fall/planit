@@ -771,6 +771,10 @@ html[data-theme="dark"] .trash-icon svg {
   color: var(--bg-white) !important;
   stroke: var(--bg-white) !important;
 }
+html[data-theme="dark"] .day-menu .trash-icon {
+  stroke: var(--accent) !important;
+  color: var(--accent) !important;
+}
 
 .textarea-notes {
   padding: 8px 10px;
