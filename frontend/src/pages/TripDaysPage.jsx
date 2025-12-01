@@ -245,7 +245,7 @@ export default function TripDaysPage() {
       ]);
 
       transportType = transportType.charAt(0).toUpperCase() + transportType.slice(1);
-      toast.success(`${transportType} has been added by ${username}!`);
+      toast.success(`${transportType} entry has been added by ${username}!`);
     });
 
     socket.on("updatedTransport", (transportType, transportId, ticketNumber, price, transport_note, username) => {
@@ -265,7 +265,7 @@ export default function TripDaysPage() {
       );
 
       transportType = transportType.charAt(0).toUpperCase() + transportType.slice(1);
-      toast.success(`${transportType} has been updated by ${username}!`);
+      //toast.success(`${transportType} entry has been updated by ${username}!`);
     });
 
     socket.on("deletedTransport", (transportType, username, index) => {
@@ -278,7 +278,7 @@ export default function TripDaysPage() {
       });
 
       transportType = transportType.charAt(0).toUpperCase() + transportType.slice(1);
-      toast.success(`${transportType} has been deleted by ${username}!`);
+      toast.success(`${transportType} entry has been deleted by ${username}!`);
     });
 
     socket.on("addedAccommodation", (accommodation_type, accommodation_price, accommodation_note, username) => {
@@ -294,7 +294,7 @@ export default function TripDaysPage() {
       ]);
 
       accommodation_type = accommodation_type.charAt(0).toUpperCase() + accommodation_type.slice(1);
-      toast.success(`${accommodation_type} has been added by ${username}!`);
+      toast.success(`${accommodation_type} entry has been added by ${username}!`);
     });
 
     socket.on("updatedAccommodation", (accommodationId, accommodation_type, accommodation_price, accommodation_note, username) => {
@@ -314,7 +314,7 @@ export default function TripDaysPage() {
       );
 
       accommodation_type = accommodation_type.charAt(0).toUpperCase() + accommodation_type.slice(1);
-      toast.success(`${accommodation_type} has been updated by ${username}!`);
+      //toast.success(`${accommodation_type} entry has been updated by ${username}!`);
     });
 
     socket.on("deletedAccommodation", (accommodationType, username, index) => {
@@ -326,7 +326,7 @@ export default function TripDaysPage() {
       });
 
       accommodationType = accommodationType.charAt(0).toUpperCase() + accommodationType.slice(1);
-      toast.success(`${accommodationType} has been deleted by ${username}!`);
+      toast.success(`${accommodationType} entry has been deleted by ${username}!`);
     });
 
     socket.on("disconnect", () => {
