@@ -5,7 +5,7 @@ import NavBar from "../components/NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
-import { MapPin, Pencil, Trash, UserPlus, X } from "lucide-react";
+import {Calendar, MapPin, Pencil, Trash, UserPlus, X} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
 import { getSharedTrips } from "../../api/trips";
@@ -13,6 +13,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import GuestEmptyState from "../components/GuestEmptyState";
 import { toast } from "react-toastify";
 import TripsFilterButton from "../components/TripsFilterButton";
+import Label from "../components/Label.jsx";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
@@ -36,6 +37,12 @@ export default function TripPage() {
     const [dateFilter, setDateFilter] = useState(() => {
         if (typeof window === "undefined") return "all";
         return localStorage.getItem("sharedTripsDateFilter") || "all";
+    });
+    const [categoryFilter, setCategoryFilter] = useState("all");
+
+    const [hiddenLabels, setHiddenLabels] = useState(() => {
+        const stored = localStorage.getItem("hiddenTripLabels");
+        return stored ? JSON.parse(stored) : [];
     });
 
     // Get user details
@@ -126,6 +133,17 @@ export default function TripPage() {
         }
     }, [dateFilter]);
 
+    useEffect(() => {
+        async function markSeen() {await fetch(`${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/shared/markTrips`, {
+                method: "PUT",
+                credentials: "include"
+            });
+            localStorage.setItem("hasUnseen", "false");
+            window.dispatchEvent(new Event("unseenTripsCleared"));
+        }
+        markSeen();
+    }, []);
+
     const sortedFilteredTrips = useMemo(() => {
         if (!Array.isArray(trips)) return [];
 
@@ -133,6 +151,15 @@ export default function TripPage() {
         today.setHours(0, 0, 0, 0);
 
         let result = [...trips];
+
+        // filter by category
+        if (categoryFilter !== "all") {
+            result = result.filter(
+                (trip) =>
+                    (trip.trip_category || "").toLowerCase() ===
+                    categoryFilter.toLowerCase()
+            );
+        }
 
         // filter: All / Upcoming & in-progress / Past
         result = result.filter((trip) => {
@@ -207,7 +234,7 @@ export default function TripPage() {
         });
 
         return result;
-    }, [trips, sortOption, dateFilter]);
+    }, [trips, sortOption, dateFilter, categoryFilter]);
 
     const isGuestUser = (userId) => {
         return userId && userId.toString().startsWith('guest_');
@@ -304,10 +331,12 @@ export default function TripPage() {
 
                             <div className="banner-controls">
                                 <TripsFilterButton
-                                  sortOption={sortOption}
-                                  setSortOption={setSortOption}
-                                  dateFilter={dateFilter}
-                                  setDateFilter={setDateFilter}
+                                    sortOption={sortOption}
+                                    setSortOption={setSortOption}
+                                    dateFilter={dateFilter}
+                                    setDateFilter={setDateFilter}
+                                    categoryFilter={categoryFilter}
+                                    setCategoryFilter={setCategoryFilter}
                                 />
                             </div>
                         </div>
@@ -350,10 +379,29 @@ export default function TripPage() {
                                             className="trip-card-content"
                                             onClick={() => handleTripRedirect(trip.trips_id)}
                                         >
-                                            <h3 className="trip-card-title">{trip.trip_name}</h3>
-                                            <div className="trip-location">
-                                                <MapPin size={16} style={{ marginRight: "4px" }} />
-                                                {trip.trip_location || "Location not set"}
+                                            <div className="trip-card-title-row">
+                                                <h3 className="trip-card-title">{trip.trip_name}</h3>
+
+                                                {/* Show label ONLY if category exists AND it's not marked hidden */}
+                                                {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
+                                                    <Label category={trip.trip_category} className="trip-card-badge" />
+                                                )}
+                                            </div>
+
+                                            <div className="trip-card-footer">
+                                                <div className="trip-location">
+                                                    <MapPin size={16} style={{marginRight: "4px"}}/>
+                                                    {trip.trip_location || "Location not set"}
+                                                </div>
+
+                                                <p className="trip-date">
+                                                    {trip.trip_start_date && (
+                                                        <span className="trip-date">
+                                              <Calendar size={16} />
+                                                            {new Date(trip.trip_start_date).toLocaleDateString()}
+                                          </span>
+                                                    )}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>

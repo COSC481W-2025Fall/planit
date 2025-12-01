@@ -55,6 +55,34 @@
     line-height: 1.2;
     font-family: "Open Sans", sans-serif;
 }
+.share-nav-icon{
+    position: relative;
+}
+
+.unseen-trip-indicator {
+    position: absolute;
+    top: -4px;
+    right: -9px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: red;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
 
 /* Mobile*/
 @media (max-width: 900px) {

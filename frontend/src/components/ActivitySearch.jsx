@@ -49,10 +49,12 @@ export default function ActivitySearch({
     onActivityAdded,
     onEditActivity,
     username,
-    onSingleDayWeather
+    onSingleDayWeather,
+    cityQuery: externalCityQuery = "",
+    onCityQueryChange 
 }) {
     const [query, setQuery] = useState("");
-    const [cityQuery, setCityQuery] = useState("");
+    const [cityQuery, setCityQuery] = useState(externalCityQuery);;
     const [results, setResults] = useState([]);
     const [cityResults, setCityResults] = useState([]);
     const [selectedDay, setSelectedDay] = useState("");
@@ -255,6 +257,21 @@ export default function ActivitySearch({
         return () => clearTimeout(debounceTimeout.current);
     }, [cityQuery]);
 
+    // sync cityQuery with parent component
+    useEffect(() => {
+        if (onCityQueryChange) {
+            onCityQueryChange(cityQuery);
+        }
+    }, [cityQuery, onCityQueryChange]);
+
+    // init from parent on mount
+    useEffect(() => {
+        if (externalCityQuery) {
+            setCityQuery(externalCityQuery);
+            prevCityQuery.current = externalCityQuery;
+        }
+    }, []);
+
   //  Search submit with loader
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -429,7 +446,21 @@ export default function ActivitySearch({
             return;
         }
 
-        const dayDate = allDays.find(d => d.day_id === pendingDayId).day_date.split("T")[0];
+        let dayDate;
+        try {
+            const dayObject = allDays.find(d => d.day_id === pendingDayId);
+
+            if (!dayObject) {
+                throw new Error("Day object not found");
+            }
+
+            dayDate = dayObject.day_date.split("T")[0];
+
+        } catch (err) {
+            toast.error("Selected day not found. Please select a different day.");
+            setShowDetails(false);
+            return;
+        }
 
         // Build payload from the selected place
         const place = pendingPlace;
@@ -465,6 +496,11 @@ export default function ActivitySearch({
                 createPayload,
                 { withCredentials: true }
             );
+
+            // if (createRes.data?.categoryApplied) {
+            //     toast.success("New trip category applied!");
+            // }
+
             const created = createRes.data?.activity;
             const activityId = created?.activity_id ?? created?.id;
             if (!activityId) {
@@ -519,9 +555,6 @@ export default function ActivitySearch({
             setPendingDayId(null);
 
             onActivityAdded && onActivityAdded(pendingDayId);
-            if (window.innerWidth <= 950) {
-                onClose && onClose();
-            }
         } catch (err) {
             console.error("Save failed:", err?.response?.data || err.message);
             toast.error("Failed to save details. Please try again.");
@@ -592,7 +625,7 @@ export default function ActivitySearch({
             }
         }
     };
-    
+
     const handleLoadMore = async () => {
         if (!nextPageToken || loadingMore) return;
 
@@ -848,7 +881,7 @@ export default function ActivitySearch({
                                     >
                                         {loadingMore ? (
                                             <>
-                                                <MoonLoader color="var(--accent)" size={16} />
+                                                <MoonLoader color="var(--text-dark)" size={22} />
                                             </>
                                         ) : (
                                             "Load More Results"
@@ -868,7 +901,12 @@ export default function ActivitySearch({
                 <Popup
                     id="add-activity-popup"
                     title="Add Activity Details"
-                    buttons={
+                    onClose={() => {
+                        setShowDetails(false);
+                        setPendingPlace(null);
+                        setPendingDayId(null);
+                    }}
+                    buttons={ saving ? [] : (
                         <>
                             <button
                                 type="button"
@@ -896,8 +934,15 @@ export default function ActivitySearch({
                                 {saving ? "Saving..." : "Save"}
                             </button>
                         </>
+                    )
                     }
                 >
+                    {saving ? (
+                        <div className="loading-spinner">
+                            <MoonLoader color="var(--accent)" size={50} />
+                        </div>
+                    ) : (
+                        <>
             <DistanceAndTimeInfo
               distanceInfo={distanceInfo}
               transportMode={transportMode}
@@ -939,6 +984,7 @@ export default function ActivitySearch({
                         <input
                             type="number"
                             min="0"
+                            max = "1440"
                             placeholder="e.g. 90"
                             value={formDuration}
                             onKeyDown={(e) => {
@@ -949,7 +995,7 @@ export default function ActivitySearch({
                             onChange={(e) => {
                                 const val = e.target.value;
                                 if(val == '') setFormDuration('');
-                                else setFormDuration(Math.max(0,val));
+                                else setFormDuration(Math.min(1440, Math.max(0,val)));
                             }}
                             disabled={saving}
                         />
@@ -973,6 +1019,7 @@ export default function ActivitySearch({
                         <input
                             type="number"
                             min="0"
+                            max = "10000000"
                             step="1"
                             placeholder="e.g. 25"
                             value={formCost}
@@ -984,11 +1031,13 @@ export default function ActivitySearch({
                             onChange={(e) => {
                                 const val = e.target.value;
                                 if(val == '') setFormCost('');
-                                else setFormCost(Math.max(0,Math.floor(val)));
+                                else setFormCost(Math.min(10000000, Math.max(0,Math.floor(val))));
                             }}
                             disabled={saving}
                         />
                     </label>
+                        </>
+                    )}
                 </Popup>
             )}
         </>

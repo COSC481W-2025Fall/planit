@@ -116,6 +116,7 @@ vi.mock("../utils/mailer.js", () => ({
 
 //Import the router to be tested
 import sharedTripsRouter from '../routes/sharedTripsRoutes.js';
+import { checkTripsSeen, markTripsSeen } from "../controllers/sharedTripsController.js";
 import { sql } from '../config/db.js';
 
 //Helper app setup
@@ -330,4 +331,103 @@ describe("Shared Trips Controller Unit Tests", () => {
             expect(sql).toHaveBeenCalledTimes(1);
         });
     });
+});
+
+describe("checkTripsSeen", () => {
+  let req, res;
+
+  const mockResponse = () => {
+    const res = {};
+    res.status = vi.fn().mockReturnValue(res);
+    res.json = vi.fn().mockReturnValue(res);
+    return res;
+  };
+
+  beforeEach(() => {
+    req = { user: { user_id: 123 } };
+    res = mockResponse();
+    vi.clearAllMocks();
+    sql.__forceError = false;
+  });
+
+  it("returns 400 if user_id is missing", async () => {
+    req.user.user_id = null;
+
+    await checkTripsSeen(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: "Invalid user id" });
+  });
+
+  it("returns unseen=true when unseen shared trips exist", async () => {
+    sql.mockResolvedValueOnce([{ exists: true }]);
+
+    await checkTripsSeen(req, res);
+
+    expect(sql).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({ unseen: true });
+  });
+
+  it("returns unseen=false when no unseen shared trips exist", async () => {
+    sql.mockResolvedValueOnce([{ exists: false }]);
+
+    await checkTripsSeen(req, res);
+
+    expect(sql).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({ unseen: false });
+  });
+
+  it("returns 500 on SQL error", async () => {
+    sql.__forceError = true;
+
+    await checkTripsSeen(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
+  });
+});
+
+describe("markTripsSeen", () => {
+  let req, res;
+
+  const mockResponse = () => {
+    const res = {};
+    res.status = vi.fn().mockReturnValue(res);
+    res.json = vi.fn().mockReturnValue(res);
+    return res;
+  };
+
+  beforeEach(() => {
+    req = { user: { user_id: 123 } };
+    res = mockResponse();
+    vi.clearAllMocks();
+    sql.__forceError = false;
+  });
+
+  it("returns 400 if user_id is missing", async () => {
+    req.user.user_id = null;
+
+    await markTripsSeen(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: "Invalid user id" });
+  });
+
+  it("sets trips as seen and returns success=true", async () => {
+    sql.mockResolvedValueOnce([]);
+
+    await markTripsSeen(req, res);
+
+    expect(sql).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({ success: true });
+  });
+
+  it("returns 500 on SQL error", async () => {
+    sql.__forceError = true;
+
+    await markTripsSeen(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
+  });
 });
