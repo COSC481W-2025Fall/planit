@@ -381,8 +381,12 @@ body {
 
 .trip-location-text,
 .trip-dates-text {
-  font-size: 0.85rem;
+  font-size: clamp(0.7rem, 2vw, 0.85rem);
   line-height: 1.2;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .trip-info-icon {
@@ -1041,12 +1045,16 @@ html[data-theme="dark"] .textarea-notes {
     transition: color 0.2s, background-color 0.2s;
     border-radius: 50%;
 }
+.ai-floating-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 3500;
+  transition: transform 0.3s ease;
+}
 
-.packing-ai-button {
-  position: fixed !important;
-  bottom: 1.2rem;
-  right: 4rem;
-  z-index: 2000;
+.ai-expand-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1060,9 +1068,20 @@ html[data-theme="dark"] .textarea-notes {
   color: var(--text);
   background: var(--bg-surface);
   cursor: pointer;
+  width: 32px;
+  height: 36px;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: width 0.3s ease, padding 0.3s ease, justify-content 0.3s ease;
 }
 
-.packing-ai-button::before {
+.ai-expand-btn.expanded {
+  width: 175px;
+  padding: 12px 20px;
+  justify-content: flex-start;
+}
+
+.ai-expand-btn::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -1081,39 +1100,7 @@ html[data-theme="dark"] .textarea-notes {
           linear-gradient(#fff 0 0) border-box;
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  z-index: 1;
-}
-
- .packing-ai-button:hover {
-  background: linear-gradient(90deg,
-  var(--packing-ai-1),
-  var(--packing-ai-2),
-  var(--packing-ai-3),
-  var(--packing-ai-1)
-  );
-  background-size: 400% 400%;
-  animation: ai-gradient-move 4s linear infinite;
-  box-shadow: 0 0 12px var(--packing-ai-2);
-  color: #fff;
-  transition: all 0.3s ease;
-}
-
-.packing-ai-button.cooldown {
-  opacity: 0.4;
-  pointer-events: none;
-  cursor: not-allowed;
-}
-
-@keyframes ai-gradient-move {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  z-index: -1;
 }
 
 @keyframes gradient-border {
@@ -1128,82 +1115,119 @@ html[data-theme="dark"] .textarea-notes {
   }
 }
 
-.packing-ai-button svg {
-  margin-right: 0;
-  width: 15px;
-  height: 15px;
-  transform: translateY(-0.5px);
-}
-
-.packing-ai-button span {
-  transform: translateY(0.5px);
-}
-
-.packing-ai-button.disabled-guest {
-  background: rgba(0, 0, 0, 0.35);
-  filter: grayscale(0.9);
-}
-
-.ai-floating-container {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  z-index: 3000;
-  transition: transform 0.35s ease;
-}
-
-.ai-floating-container.collapsed .packing-ai-button {
-  transform: translateX(150px);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.ai-toggle-btn {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 3501;
-  transition: background 0.25s ease, border-color 0.25s ease;
-}
-
-.ai-toggle-btn:hover {
-  background: var(--accent-lite);
-  border-color: var(--accent);
-}
-
-.packing-ai-button {
-  z-index: 3500 !important;
+.ai-expand-btn {
+  animation: aiPulseActive 2.2s ease-in-out infinite;
 }
 
 @keyframes aiPulseActive {
-  0% {
-    box-shadow: 0 0 0px var(--ai-glow-color-soft);
+  0%, 100% {
+    box-shadow: 0 0 0px var(--packing-ai-2);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 14px var(--ai-glow-color);
-    transform: scale(1.10);
-  }
-  100% {
-    box-shadow: 0 0 0px var(--ai-glow-color-soft);
-    transform: scale(1);
+    box-shadow: 0 0 20px var(--packing-ai-2);
+    transform: scale(1.08);
   }
 }
 
+.ai-expand-btn:hover {
+  background: linear-gradient(90deg,
+  var(--packing-ai-1),
+  var(--packing-ai-2),
+  var(--packing-ai-3),
+  var(--packing-ai-1)
+  );
+  background-size: 400% 400%;
+  animation: ai-gradient-move 4s linear infinite, aiPulseActive 2.2s ease-in-out infinite;
+  box-shadow: 0 0 12px var(--packing-ai-2);
+  color: #fff;
+}
 
-.ai-toggle-btn.glow {
-  animation: aiPulseActive 2.2s ease-in-out infinite;
-  border-color: var(--packing-ai-2);
+@keyframes ai-gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.ai-expand-btn:active {
+  transform: scale(0.98);
+}
+
+.ai-expand-btn .ai-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text);
+  flex-shrink: 0;
+  transition: color 0.25s ease;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.ai-expand-btn.expanded .ai-icon {
+  position: relative;
+  left: auto;
+  transform: none;
+}
+
+.ai-expand-btn:hover .ai-icon {
+  color: #fff;
+}
+
+
+.ai-expand-btn .label {
+  opacity: 0;
+  font-weight: 600;
+  transition: opacity 0.25s ease 0.1s;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ai-expand-btn.expanded .label {
+  opacity: 1;
+}
+
+.ai-expand-btn:hover .label {
+  color: #fff;
+}
+
+
+.ai-expand-btn .collapse-chevron {
+  width: 18px;
+  height: 18px;
+  color: var(--text);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.25s ease, color 0.2s ease;
+  cursor: pointer;
+}
+
+.ai-expand-btn.expanded .collapse-chevron {
+  opacity: 0.7;
+}
+
+.ai-expand-btn .collapse-chevron:hover {
+  opacity: 1;
+}
+
+.ai-expand-btn:hover .collapse-chevron {
+  color: #fff;
+}
+
+.ai-expand-btn.cooldown {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+  animation: none;
 }
 
 .ai-items-list {
@@ -1310,6 +1334,35 @@ html[data-theme="dark"] .time-picker {
   }
 }
 
+.TripDaysPage.drawer-open .ai-floating-container {
+  transform: translateX(-400px);
+  transition: transform 0.3s ease;
+}
+
+@media (min-width: 1800px) {
+  .TripDaysPage.drawer-open .ai-floating-container {
+    transform: translateX(-545px);
+  }
+}
+
+@media (max-width: 1099px) and (min-width: 900px) {
+  .TripDaysPage.drawer-open .ai-floating-container {
+    transform: translateX(-360px);
+  }
+}
+
+@media (max-width: 899px) and (min-width: 759px) {
+  .TripDaysPage.drawer-open .ai-floating-container {
+    transform: translateX(-320px);
+  }
+}
+
+@media (max-width: 758px) {
+  .TripDaysPage.drawer-open .ai-floating-container {
+    display: none !important;
+  }
+}
+
 @media (max-width: 900px) {
   .days-container {
     flex-wrap: nowrap;
@@ -1340,6 +1393,15 @@ html[data-theme="dark"] .time-picker {
 
   .participant-item span {
     font-size: 14px;
+  }
+  .trip-location-text,
+  .trip-dates-text {
+    font-size: 0.78rem;
+    white-space: normal;
+  }
+  .day-actions-ellipsis {
+    opacity: 1 !important;
+    visibility: visible !important;
   }
 }
 
@@ -1425,6 +1487,16 @@ html[data-theme="dark"] .time-picker {
 
   .participants-list p{
     padding-top: 25px;
+  }
+  .trip-location,
+  .trip-dates {
+    gap: 4px;
+  }
+
+  .trip-location-text,
+  .trip-dates-text {
+    font-size: 0.72rem;
+    line-height: 1.15;
   }
 }
 
@@ -1589,6 +1661,16 @@ html[data-theme="dark"] .time-picker {
 @media (min-width: 1800px) {
   .TripDaysPage.drawer-open {
     margin-right: 550px;
+
+  }
+  .activity-search-sidebar {
+    width: 549px;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1100px) {
+  .activity-search-sidebar {
+    width: 360px;
   }
 }
 .distance-display {

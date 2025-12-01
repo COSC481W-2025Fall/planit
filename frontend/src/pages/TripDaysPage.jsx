@@ -30,7 +30,7 @@ export default function TripDaysPage() {
   //constants for data
   const [user, setUser] = useState(null);
   const [trip, setTrip] = useState(null);
-  const [userRole, setUserRole] = useState(null); 
+  const [userRole, setUserRole] = useState(null);
   const [days, setDays] = useState([]);
   const [deleteDayId, setDeleteDayId] = useState(null);
 
@@ -147,7 +147,7 @@ export default function TripDaysPage() {
   const isViewer = userRole === "viewer";
   const canEdit = isOwner || isShared;
   const canManageParticipants = isOwner;
-  
+
   // Sets up Socket.IO connection, disconnect, and listeners.
   useEffect(() => {
     // don't connect until user information is loaded
@@ -266,6 +266,7 @@ export default function TripDaysPage() {
   const [showAIBtn] = useState(true);
   const [aiItems, setAIItems] = useState([]);
   const [showAIPopup, setShowAIPopup] = useState(false);
+  const [aiExpanded, setAiExpanded] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("planit:aiCollapsed");
@@ -393,7 +394,7 @@ export default function TripDaysPage() {
   //Fetch banner image url
   useEffect(() => {
     const fetchImage = async () => {
-    if (!trip?.image_id) return;
+      if (!trip?.image_id) return;
 
       // Check if the image URL is already in localStorage global cache
       const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
@@ -404,28 +405,28 @@ export default function TripDaysPage() {
         return;
       }
 
-    try {
+      try {
         const res = await fetch(
-            `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
-            { credentials: "include" }
+          `${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/image/readone?imageId=${trip.image_id}`,
+          { credentials: "include" }
         );
 
         if (!res.ok) {
-            const errData = await res.json();
-            throw new Error(errData.error || "Failed to fetch image.");
+          const errData = await res.json();
+          throw new Error(errData.error || "Failed to fetch image.");
         }
 
         const data = await res.json();
         localStorage.setItem(`image_${trip.image_id}`, data);
         setImageUrl(data);
-    } catch (err) {
+      } catch (err) {
         console.error("Failed to fetch image:", err);
         setError(err.message);
-    }
+      }
     };
 
     fetchImage();
-}, [trip?.image_id])
+  }, [trip?.image_id])
 
   useEffect(() => {
     if (editActivity) {
@@ -558,7 +559,7 @@ export default function TripDaysPage() {
       }
 
       const hasAnyActivityAddress = daysWithActivities.some(
-          day => day.activities && day.activities[0]?.activity_address
+        day => day.activities && day.activities[0]?.activity_address
       );
 
       if (trip && hasAnyActivityAddress && !weatherFetchedRef.current) {
@@ -607,7 +608,7 @@ export default function TripDaysPage() {
       //   setExpandedDays(prev => prev.filter(id => newIds.includes(id)));
       // }
       setDays(prevDays => {
-        const updatedDays = prevDays.map(d => 
+        const updatedDays = prevDays.map(d =>
           d.day_id === dayId ? { ...d, activities: sortedActivities } : d);
 
         // Find the day we just updated
@@ -664,7 +665,7 @@ export default function TripDaysPage() {
   async function findDistance(origin, destination, transportation, previousActivity) {
     // create cache key
     const cacheKey = `${origin.latitude},${origin.longitude}-${destination.latitude},${destination.longitude}`;
-    
+
     // check if we already have both distances cached
     if (distanceCache.current[cacheKey]?.DRIVE && distanceCache.current[cacheKey]?.WALK) {
       const cached = distanceCache.current[cacheKey];
@@ -680,7 +681,7 @@ export default function TripDaysPage() {
 
     try {
       setDistanceLoading(true);
-      
+
       // fetch both modes in parallel
       const [driveRes, walkRes] = await Promise.all([
         axios.post(`${BASE_URL}/routesAPI/distance/between/activity`, {
@@ -699,7 +700,7 @@ export default function TripDaysPage() {
         distanceMiles: driveRes.data.distanceMiles,
         durationMinutes: Math.round(driveRes.data.durationSeconds / 60)
       };
-      
+
       const walkData = {
         distanceMiles: walkRes.data.distanceMiles,
         durationMinutes: Math.round(walkRes.data.durationSeconds / 60)
@@ -742,9 +743,9 @@ export default function TripDaysPage() {
         };
 
         const newTime = timeToMinutes(startTime);
-        
+
         // find the day that contains this activity
-        const currentDay = days.find(day => 
+        const currentDay = days.find(day =>
           day.activities?.some(act => act.activity_id === editActivity.activity_id)
         );
 
@@ -758,7 +759,7 @@ export default function TripDaysPage() {
 
         for (let i = 0; i < dayActivities.length; i++) {
           const currActivity = dayActivities[i];
-          
+
           // skip the activity being edited
           if (currActivity.activity_id === editActivity.activity_id) continue;
 
@@ -1065,9 +1066,9 @@ export default function TripDaysPage() {
       let movedDayDate;
 
       if (dragFromDay === days[days.length-1] && overDay === days[days.length-2]
-      || dragFromDay === days[0] && overDay === days[0]
-      || overDay === days[days.indexOf(dragFromDay)-1]
-      || overDay === dragFromDay) {
+        || dragFromDay === days[0] && overDay === days[0]
+        || overDay === days[days.indexOf(dragFromDay)-1]
+        || overDay === dragFromDay) {
         toast.warning("No days were moved");
         setDragFromDay(null);
         setDragOverInfo({ dayId: null, index: null });
@@ -1173,11 +1174,11 @@ export default function TripDaysPage() {
         setShowSuggestions(false);
       }
     };
-    
+
     if (openParticipantsPopup) {
       document.addEventListener("mousedown", onDocClick);
     }
-    
+
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [openParticipantsPopup]);
 
@@ -1299,9 +1300,9 @@ export default function TripDaysPage() {
 
       // Detect null, undefined, empty string, NaN
       if (
-          value === null ||
-          value === undefined ||
-          value === ""
+        value === null ||
+        value === undefined ||
+        value === ""
       ) {
         toast.warning(`Packing AI cannot process, weather not available.`);
         return;
@@ -1355,9 +1356,9 @@ export default function TripDaysPage() {
       }
 
       const weather = await getWeather(
-          activityLocations,
-          tripDaysDates,
-          tripDaysKeys
+        activityLocations,
+        tripDaysDates,
+        tripDaysKeys
       );
 
       setWeatherSummary(weather.summary || []);
@@ -1697,78 +1698,78 @@ export default function TripDaysPage() {
 )}
   </div>
 
-  <div className="title-action-row">
-      {isViewer && (
-        <div className="permission-badge viewer-badge">
-          <Eye className="view-icon" />
-          <span>Viewing Only</span>
-        </div>
-      )}
+            <div className="title-action-row">
+              {isViewer && (
+                <div className="permission-badge viewer-badge">
+                  <Eye className="view-icon" />
+                  <span>Viewing Only</span>
+                </div>
+              )}
 
-            {canEdit && (
-            <div className="participant-photos">
-               {visibleParticipants.map((p) =>
-                 p.photo ? (
-                   <img
-                     key={`${p.user_id || ''}-${p.username}`}
-                     className={`participant-pfp ${isUserActive(p.username) ? 'active' : ''}`}
-                     src={p.photo}
-                     alt={p.username}
-                     title={p.username}
-                     onClick={() => setShowAllParticipantsPopup(true)}
-                   />
-                 ) : (
-                   <div
-                     key={`${p.user_id || ''}-${p.username}`}
-                     className="participant-pfp placeholder"
-                     title={p.username}
-                     onClick={() => setShowAllParticipantsPopup(true)}
-                   >
-                     {p.username?.charAt(0).toUpperCase() || '?'}
-                   </div>
-                 )
-               )}
+              {canEdit && (
+                <div className="participant-photos">
+                  {visibleParticipants.map((p) =>
+                    p.photo ? (
+                      <img
+                        key={`${p.user_id || ''}-${p.username}`}
+                        className={`participant-pfp ${isUserActive(p.username) ? 'active' : ''}`}
+                        src={p.photo}
+                        alt={p.username}
+                        title={p.username}
+                        onClick={() => setShowAllParticipantsPopup(true)}
+                      />
+                    ) : (
+                      <div
+                        key={`${p.user_id || ''}-${p.username}`}
+                        className="participant-pfp placeholder"
+                        title={p.username}
+                        onClick={() => setShowAllParticipantsPopup(true)}
+                      >
+                        {p.username?.charAt(0).toUpperCase() || '?'}
+                      </div>
+                    )
+                  )}
 
-                {hiddenCount > 0 && (
-                  <div
-                    className="participant-pfp placeholder remainder"
-                    title={hiddenUsernamesString}
-                    onClick={() => setShowAllParticipantsPopup(true)}
-                  >
-                    +{hiddenCount}
-                  </div>
-                )}
+                  {hiddenCount > 0 && (
+                    <div
+                      className="participant-pfp placeholder remainder"
+                      title={hiddenUsernamesString}
+                      onClick={() => setShowAllParticipantsPopup(true)}
+                    >
+                      +{hiddenCount}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          )}
-          </div>
           </div>
 
           <div className="trip-info">
 
             <div className="trip-left-side">
-            <div className="trip-location">
-              <MapPin className="trip-info-icon" />
-              <p className="trip-location-text">{trip.trip_location}</p>
-            </div>
-
-            {days.length > 0 && (
-              <div className="trip-dates">
-                <Calendar className="trip-info-icon" />
-                <p className="trip-dates-text">
-                  {new Date(days[0].day_date).toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "short",
-                    day: "numeric",
-                  })}{" "}
-                  -{" "}
-                  {new Date(days[days.length - 1].day_date).toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </p>
+              <div className="trip-location">
+                <MapPin className="trip-info-icon" />
+                <p className="trip-location-text">{trip.trip_location}</p>
               </div>
-            )}
+
+              {days.length > 0 && (
+                <div className="trip-dates">
+                  <Calendar className="trip-info-icon" />
+                  <p className="trip-dates-text">
+                    {new Date(days[0].day_date).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "short",
+                      day: "numeric",
+                    })}{" "}
+                    -{" "}
+                    {new Date(days[days.length - 1].day_date).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="clone-trip-wrapper">
@@ -1785,11 +1786,11 @@ export default function TripDaysPage() {
 
           <div className="image-banner">
             <img
-            src={imageUrl}
-            alt={trip.trip_name}
-            id={`image${trip.image_id}`}
-      />
-           </div>
+              src={imageUrl}
+              alt={trip.trip_name}
+              id={`image${trip.image_id}`}
+            />
+          </div>
           <div className="button-level-bar">
           <div className="transportation-dropdown-wrapper" ref={dropdownRef}>
             <div className="transport-and-accommodation-buttons">
@@ -2050,44 +2051,79 @@ export default function TripDaysPage() {
                 )}
                 {canManageParticipants && (
                   <button
-                    onClick={() => handleOpenParticipantsPopup()} 
+                    onClick={() => handleOpenParticipantsPopup()}
                     id="participants-button">
                     <UserPlus id="user-plus-icon" size={14}/>
-                    <span>Share</span> 
+                    <span>Share</span>
                   </button>
                 )}
               </div>
             )}
           </div>
           {showAIBtn && (
-              <div className={`ai-floating-container ${aiHidden ? "collapsed" : ""}`}>
-                <button
-                    className={`ai-toggle-btn ${aiHidden ? "glow" : ""}`}
-                    onClick={() => {
-                      const newVal = !aiHidden;
-                      setAiHidden(newVal);
-                      localStorage.setItem("planit:aiCollapsed", newVal.toString());
-                    }}
-                >
-                  {aiHidden ? <Luggage size={18} /> : <ChevronRight size={18} />}
-                </button>
-                <button
-                    className={`packing-ai-button ${isPackingCooldown ? "cooldown" : ""} ${
-                        isGuestUser(user?.user_id) ? "disabled-guest" : ""}`}
-                        onClick={handlePackingAI}
-                        disabled={isPackingCooldown}>
-                  <Luggage size={14} id="ai-icon" />
-                  <span>Packing AI</span>
-                </button>
-              </div>
+            <div className="ai-floating-container">
+              <button
+                className={`ai-expand-btn ${aiExpanded ? "expanded" : ""} ${isPackingCooldown ? "cooldown" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
 
+                  // If collapsed -> expand
+                  if (!aiExpanded) {
+                    setAiExpanded(true);
+                    return;
+                  }
+
+                  // If expanded -> check what was clicked
+                  const target = e.target;
+                  const clickedOnChevron = target.classList.contains('collapse-chevron') || target.closest('.collapse-chevron');
+
+                  if (clickedOnChevron) {
+                    // Only chevron collapses
+                    setAiExpanded(false);
+                  } else {
+                    // Everything else (icon, label, background) triggers AI
+                    handlePackingAI();
+                  }
+                }}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  if (!aiExpanded) {
+                    setAiExpanded(true);
+                    return;
+                  }
+
+                  const target = e.target;
+                  const clickedOnChevron = target.classList.contains('collapse-chevron') || target.closest('.collapse-chevron');
+
+                  if (clickedOnChevron) {
+                    setAiExpanded(false);
+                  } else {
+                    handlePackingAI();
+                  }
+                }}
+                disabled={isPackingCooldown}
+              >
+                <Luggage className="ai-icon" />
+
+                <span className="label">
+                   Packing AI
+                </span>
+
+                {aiExpanded && (
+                  <ChevronRight className="collapse-chevron" />
+                )}
+              </button>
+            </div>
           )}
           <div className="days-scroll-zone">
             <div className="days-container">
               {days.length === 0 ? (
                 <p className="empty-state-text">
-                  {canEdit 
-                    ? "No days added to your itinerary yet. Click + New Day to get started!" 
+                  {canEdit
+                    ? "No days added to your itinerary yet. Click + New Day to get started!"
                     : "No days have been added to this itinerary yet."}
                 </p>
               ) : (
@@ -2213,8 +2249,8 @@ export default function TripDaysPage() {
                           <>
                             {(day.activities?.length ?? 0) === 0 ? (
                               <p className="add-activity-blurb">
-                                {canEdit 
-                                  ? "No activities planned. Add an activity from the sidebar." 
+                                {canEdit
+                                  ? "No activities planned. Add an activity from the sidebar."
                                   : "No activities have been planned for this day yet."}
                               </p>
                             ) : (
@@ -2281,7 +2317,7 @@ export default function TripDaysPage() {
             </Popup>
           )}
           {showAllParticipantsPopup && (
-            <Popup 
+            <Popup
               title = "All Trip Participants"
               onClose={() => setShowAllParticipantsPopup(false)}
               buttons={
@@ -2289,7 +2325,7 @@ export default function TripDaysPage() {
                   Close
                 </button>
               }
-              >
+            >
               <div className="all-participants-container">
                 {orderedPeople.map((person) => (
                   <div key={person.user_id} className="individual-participant">
@@ -2457,14 +2493,14 @@ export default function TripDaysPage() {
                     className="btn-rightside"
                     onClick={() => {
                       handleUpdateActivity(editActivity.activity_id, {
-                        activity_startTime: editStartTime,
-                        activity_duration: editDuration,
-                        activity_estimated_cost: editCost,
-                        notesForActivity: notes || ""
-                      }, 
-                      editActivity.day_id,
-                      days.findIndex(d => d.day_id === editActivity.day_id) + 1
-                    );
+                          activity_startTime: editStartTime,
+                          activity_duration: editDuration,
+                          activity_estimated_cost: editCost,
+                          notesForActivity: notes || ""
+                        },
+                        editActivity.day_id,
+                        days.findIndex(d => d.day_id === editActivity.day_id) + 1
+                      );
                     }}
                   >
                     Save
@@ -2493,20 +2529,20 @@ export default function TripDaysPage() {
                   />
                 </span>
                 <input className = "time-picker"
-                  type="time"
-                  value={editStartTime}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setEditStartTime(val);
+                       type="time"
+                       value={editStartTime}
+                       onChange={(e) => {
+                         const val = e.target.value;
+                         setEditStartTime(val);
 
-                    // Clear distance info when user starts typing
-                    setDistanceInfo(null);
+                         // Clear distance info when user starts typing
+                         setDistanceInfo(null);
 
-                    // check if time is fully entered
-                    if (/^\d{2}:\d{2}$/.test(val)) {
-                      handleDistanceCheck(val);
-                    }
-                  }}
+                         // check if time is fully entered
+                         if (/^\d{2}:\d{2}$/.test(val)) {
+                           handleDistanceCheck(val);
+                         }
+                       }}
                 />
               </label>
 
@@ -2527,7 +2563,7 @@ export default function TripDaysPage() {
                     if(val == '') setEditDuration('');
                     else setEditDuration(Math.min(1440, Math.max(0,val)));
                   }
-                }
+                  }
                 />
               </label>
 
@@ -2568,7 +2604,7 @@ export default function TripDaysPage() {
             </Popup>
           )}
           {openParticipantsPopup && (
-            <Popup 
+            <Popup
               id="participants-popup"
               title="Participants"
               onClose={() => setOpenParticipantsPopup(false)}
@@ -2631,7 +2667,7 @@ export default function TripDaysPage() {
                 )}
               </div>
             </Popup>
-          
+
           )}
         </main>
 
