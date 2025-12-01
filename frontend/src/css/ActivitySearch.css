@@ -464,7 +464,6 @@ html[data-theme="dark"] .time-picker {
     border-left: none;
     border-top: 1px solid var(--border-alt);
     border-radius: 0;
-    padding: 20px;
     box-shadow: none;
   }
 
