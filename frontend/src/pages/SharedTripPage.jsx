@@ -345,12 +345,21 @@ export default function TripPage() {
                         <div className="trip-cards">
                             {sortedFilteredTrips.length === 0 ? (
                                 <div className="empty-state">
-                                    <h3>No trips have been shared with you yet!</h3>
-                                    <div>
-                                        {user
-                                            ? `${user.first_name}, no trips have been shared with you yet.`
-                                            : <MoonLoader color="var(--accent)" size={25} />}
-                                    </div>
+                                    {trips.length == 0 ? (
+                                        <>
+                                            <h3>No trips have been shared with you yet!</h3>
+                                            <div>
+                                                {user
+                                                    ? `${user.username}, no trips have been shared with you yet.`
+                                                    : <MoonLoader color="var(--accent)" size={25} />}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <h3>No trips match your filters</h3>
+                                            <div>Try adjusting your filters to see more trips</div>
+                                        </>
+                                    )}
                                 </div>
                             ) : (
                                 sortedFilteredTrips.map((trip) => (

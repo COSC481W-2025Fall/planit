@@ -1872,7 +1872,7 @@ export default function TripDaysPage() {
                 </div>
               )}
             </div>
-          )}
+            )}
               {showModal && (
                 <Popup
                   title={modalType === "accommodation" ? "Accommodation Details" : `${transportType?.charAt(0).toUpperCase() + transportType?.slice(1)} Details`}
