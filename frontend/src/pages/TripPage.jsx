@@ -464,12 +464,21 @@ export default function TripPage() {
                       <div className="trip-cards">
                           {sortedFilteredTrips.length === 0 ? (
                             <div className="empty-state">
+                              {trips.length == 0  ?  (
+                                <>
                                 <h3>No trips yet!</h3>
                                 <div>
                                     {user
                                       ? `${user.first_name}, you haven't created any trips! PlanIt now!`
                                       : <MoonLoader color="var(--accent)" size={25}/>}
                                 </div>
+                                </>
+                              ) : (
+                                <>
+                                <h3>No trips match your filters</h3>
+                                <div>Try adjusting your filters to see more trips</div>
+                                </>
+                              )}
                             </div>
                           ) : (
                             sortedFilteredTrips.map((trip) => (
