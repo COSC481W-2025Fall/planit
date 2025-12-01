@@ -1792,6 +1792,7 @@ export default function TripDaysPage() {
             />
           </div>
           <div className="button-level-bar">
+            {canEdit && (
           <div className="transportation-dropdown-wrapper" ref={dropdownRef}>
             <div className="transport-and-accommodation-buttons">
               <button className="circle-icon-btn" onClick={toggleDropdown}>
@@ -1871,6 +1872,7 @@ export default function TripDaysPage() {
                 </div>
               )}
             </div>
+            )}
               {showModal && (
                 <Popup
                   title={modalType === "accommodation" ? "Accommodation Details" : `${transportType?.charAt(0).toUpperCase() + transportType?.slice(1)} Details`}
