@@ -56,8 +56,6 @@
     flex: 1;
     overflow-y: auto;
     min-height: 0;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
 }
 
 .popup-input {
@@ -204,7 +202,7 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
         max-height: 95vh;
         border-radius: 15px 15px 0 0;
         animation: slideUp 0.3s ease;
-        touch-action: pan-y;
+        touch-action: none;
         will-change: transform;
     }
 
