@@ -881,7 +881,7 @@ export default function ActivitySearch({
                                     >
                                         {loadingMore ? (
                                             <>
-                                                <MoonLoader color="#ffffff" size={22} />
+                                                <MoonLoader color="var(--text-dark)" size={22} />
                                             </>
                                         ) : (
                                             "Load More Results"
