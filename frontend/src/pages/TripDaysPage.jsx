@@ -1960,6 +1960,7 @@ export default function TripDaysPage() {
                 <input
                   type="number"
                   min = "0"
+                  max = "1440"
                   value={editDuration}
                   onKeyDown={(e) => {
                     if (e.key === '-' || e.key === 'e' || e.key === 'E') {
@@ -1969,7 +1970,7 @@ export default function TripDaysPage() {
                   onChange={(e) =>{
                     const val = e.target.value;
                     if(val == '') setEditDuration('');
-                    else setEditDuration(Math.max(0,val));
+                    else setEditDuration(Math.min(1440, Math.max(0,val)));
                   }
                 }
                 />
@@ -1994,6 +1995,7 @@ export default function TripDaysPage() {
                 <input
                   type="number"
                   min = "0"
+                  max = "10000000"
                   step = "1"
                   value={editCost}
                   onKeyDown={(e) => {
@@ -2004,7 +2006,7 @@ export default function TripDaysPage() {
                   onChange={(e) => {
                     const val = e.target.value;
                     if(val == '') setEditCost('');
-                    else setEditCost(Math.max(0,Math.floor(val)));
+                    else setEditCost(Math.min(10000000, Math.max(0,Math.floor(val))));
                   }}
                 />
               </label>

@@ -956,6 +956,7 @@ export default function ActivitySearch({
                         <input
                             type="number"
                             min="0"
+                            max = "1440"
                             placeholder="e.g. 90"
                             value={formDuration}
                             onKeyDown={(e) => {
@@ -966,7 +967,7 @@ export default function ActivitySearch({
                             onChange={(e) => {
                                 const val = e.target.value;
                                 if(val == '') setFormDuration('');
-                                else setFormDuration(Math.max(0,val));
+                                else setFormDuration(Math.min(1440, Math.max(0,val)));
                             }}
                             disabled={saving}
                         />
@@ -990,6 +991,7 @@ export default function ActivitySearch({
                         <input
                             type="number"
                             min="0"
+                            max = "10000000"
                             step="1"
                             placeholder="e.g. 25"
                             value={formCost}
@@ -1001,7 +1003,7 @@ export default function ActivitySearch({
                             onChange={(e) => {
                                 const val = e.target.value;
                                 if(val == '') setFormCost('');
-                                else setFormCost(Math.max(0,Math.floor(val)));
+                                else setFormCost(Math.min(10000000, Math.max(0,Math.floor(val))));
                             }}
                             disabled={saving}
                         />
