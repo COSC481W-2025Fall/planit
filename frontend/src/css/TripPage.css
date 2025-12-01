@@ -167,6 +167,18 @@
     margin: 10px 0 4px;
 }
 
+.trip-card-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+}
+
+.trip-card-badge {
+  transform: translate(-6px, 3px);
+  display: inline-flex;
+}
+
 .trip-date {
     padding-left: 15px;
     padding-right: 10px;
@@ -755,6 +767,8 @@ html[data-theme="dark"] .sort-select {
     right: 0;
     bottom: auto;
     min-width: 220px;
+    overflow: auto;
+    height: calc(100vh - 250px);
 }
 
 /* labels inside the dropdown ("Show", "Sort by") */
