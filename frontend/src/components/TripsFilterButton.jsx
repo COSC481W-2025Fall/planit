@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Mountain, Smile, Briefcase, Theater, Leaf, Utensils, Moon, Users, Heart, } from "lucide-react";
 
 export default function TripsFilterButton({
   sortOption,
   setSortOption,
   dateFilter,
   setDateFilter,
+  categoryFilter,
+  setCategoryFilter,
   className = "",
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -75,6 +77,109 @@ export default function TripsFilterButton({
             onClick={() => handleDateChange("past")}
           >
             Past trips
+          </button>
+
+          <div className="filter-divider"></div>
+
+          <div className="filter-section-label">Categories</div>
+
+          <button
+            type="button"
+            className={`dropdown-item ${categoryFilter === "all" ? "active" : ""
+              }`}
+            onClick={() => setCategoryFilter("all")}
+          >
+            All categories
+          </button>
+
+          <button
+            type="button"
+            className={`dropdown-item ${categoryFilter === "adventure" ? "active" : ""
+              }`}
+            onClick={() => setCategoryFilter("adventure")}
+          >
+            <Mountain size={16} style={{ marginRight: 6 }} />
+            Adventure
+          </button>
+
+          <button
+            type="button"
+            className={`dropdown-item ${categoryFilter === "relaxation" ? "active" : ""
+              }`}
+            onClick={() => setCategoryFilter("relaxation")}
+          >
+            <Smile size={16} style={{ marginRight: 6 }} />
+            Relaxation
+          </button>
+
+          <button
+            type="button"
+            className={`dropdown-item ${categoryFilter === "business" ? "active" : ""
+              }`}
+            onClick={() => setCategoryFilter("business")}
+          >
+            <Briefcase size={16} style={{ marginRight: 6 }} />
+            Business
+          </button>
+
+          <button
+            type="button"
+            className={`dropdown-item ${categoryFilter === "cultural" ? "active" : ""
+              }`}
+            onClick={() => setCategoryFilter("cultural")}
+          >
+            <Theater size={16} style={{ marginRight: 6 }} />
+            Cultural
+          </button>
+
+          <button
+            type="button"
+            className={`dropdown-item ${categoryFilter === "nature" ? "active" : ""
+              }`}
+            onClick={() => setCategoryFilter("nature")}
+          >
+            <Leaf size={16} style={{ marginRight: 6 }} />
+            Nature
+          </button>
+
+          <button
+            type="button"
+            className={`dropdown-item ${categoryFilter === "food" ? "active" : ""
+              }`}
+            onClick={() => setCategoryFilter("food")}
+          >
+            <Utensils size={16} style={{ marginRight: 6 }} />
+            Food
+          </button>
+
+          <button
+            type="button"
+            className={`dropdown-item ${categoryFilter === "nightlife" ? "active" : ""
+              }`}
+            onClick={() => setCategoryFilter("nightlife")}
+          >
+            <Moon size={16} style={{ marginRight: 6 }} />
+            Nightlife
+          </button>
+
+          <button
+            type="button"
+            className={`dropdown-item ${categoryFilter === "family" ? "active" : ""
+              }`}
+            onClick={() => setCategoryFilter("family")}
+          >
+            <Users size={16} style={{ marginRight: 6 }} />
+            Family
+          </button>
+
+          <button
+            type="button"
+            className={`dropdown-item ${categoryFilter === "romantic" ? "active" : ""
+              }`}
+            onClick={() => setCategoryFilter("romantic")}
+          >
+            <Heart size={16} style={{ marginRight: 6 }} />
+            Romantic
           </button>
 
           <div className="filter-divider"></div>

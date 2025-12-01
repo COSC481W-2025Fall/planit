@@ -6,7 +6,7 @@ import {LOCAL_BACKEND_URL, VITE_BACKEND_URL} from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
 import {createTrip, updateTrip, getTrips, deleteTrip} from "../../api/trips";
-import {MapPin, Pencil, Trash, Lock, Unlock, UserPlus, X, ChevronLeft, ChevronRight, Calendar} from "lucide-react";
+import {MapPin, Pencil, Trash,  Lock, Unlock, UserPlus, X, Eye, ChevronLeft, ChevronRight, Calendar} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {MoonLoader} from "react-spinners";
 import {toast} from "react-toastify";
@@ -15,6 +15,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import ImageSelector from "../components/ImageSelector";
 import GuestEmptyState from "../components/GuestEmptyState";
 import TripsFilterButton from "../components/TripsFilterButton";
+import Label from "../components/Label.jsx";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
@@ -43,6 +44,26 @@ export default function TripPage() {
       if (typeof window === "undefined") return "all";
       return localStorage.getItem("tripDateFilter") || "all"; // default: All trips
     });
+    const [hiddenLabels, setHiddenLabels] = useState(() => {
+      const stored = localStorage.getItem("hiddenTripLabels");
+      return stored ? JSON.parse(stored) : [];
+    });
+    const [categoryFilter, setCategoryFilter] = useState("all");
+
+    const toggleLabelVisibility = (tripId) => {
+  setHiddenLabels((prev) => {
+    let updated;
+
+    if (prev.includes(tripId)) {
+      updated = prev.filter(id => id !== tripId);   // unhide
+    } else {
+      updated = [...prev, tripId];                  // hide
+    }
+
+    localStorage.setItem("hiddenTripLabels", JSON.stringify(updated));
+    return updated;
+  });
+};
 
     // Close dropdown if click outside
     useEffect(() => {
@@ -173,6 +194,11 @@ export default function TripPage() {
 
         let result = [...trips];
 
+        //filter by category
+        if (categoryFilter !== "all") {
+            result = result.filter((trip) => (trip.trip_category || "").toLowerCase() === categoryFilter.toLowerCase());
+        }
+
         // filter: All / Upcoming / Past
         result = result.filter((trip) => {
             const start = trip.trip_start_date ? new Date(trip.trip_start_date) : null;
@@ -253,7 +279,7 @@ export default function TripPage() {
         });
 
         return result;
-    }, [trips, sortOption, dateFilter]);
+    }, [trips, sortOption, dateFilter, categoryFilter]);
 
   const isGuestUser = (userId) => {
     return userId && userId.toString().startsWith('guest_');
@@ -428,6 +454,8 @@ export default function TripPage() {
                   setSortOption={setSortOption}
                   dateFilter={dateFilter}
                   setDateFilter={setDateFilter}
+                  categoryFilter={categoryFilter}
+                  setCategoryFilter={setCategoryFilter}
                 />
               </div>
             </div>
@@ -436,12 +464,21 @@ export default function TripPage() {
                       <div className="trip-cards">
                           {sortedFilteredTrips.length === 0 ? (
                             <div className="empty-state">
+                              {trips.length == 0  ?  (
+                                <>
                                 <h3>No trips yet!</h3>
                                 <div>
                                     {user
                                       ? `${user.first_name}, you haven't created any trips! PlanIt now!`
                                       : <MoonLoader color="var(--accent)" size={25}/>}
                                 </div>
+                                </>
+                              ) : (
+                                <>
+                                <h3>No trips match your filters</h3>
+                                <div>Try adjusting your filters to see more trips</div>
+                                </>
+                              )}
                             </div>
                           ) : (
                             sortedFilteredTrips.map((trip) => (
@@ -480,34 +517,66 @@ export default function TripPage() {
                                       ⋮
                                   </button>
 
-                                  {openDropdownId === trip.trips_id && (
-                                    <div className="trip-dropdown" ref={dropdownRef}>
+                                {openDropdownId === trip.trips_id && (
+                                  <div className="trip-dropdown" ref={dropdownRef}>
+
+                                    <button
+                                      className="dropdown-item edit-item"
+                                      onClick={() => {
+                                        handleEditTrip(trip);
+                                        setOpenDropdownId(null);
+                                      }}
+                                    >
+                                      <Pencil size={16} /> Edit Trip
+                                    </button>
+
+                                    <button
+                                      className="dropdown-item delete-item"
+                                      onClick={() => {
+                                        setDeleteTripId(trip.trips_id);
+                                        setOpenDropdownId(null);
+                                      }}
+                                    >
+                                      <Trash size={16} /> Delete Trip
+                                    </button>
+
+                                    {trip.trip_category && (
+                                      hiddenLabels.includes(trip.trips_id) ? (
                                         <button
-                                          className="dropdown-item edit-item"
+                                          className="dropdown-item"
                                           onClick={() => {
-                                              handleEditTrip(trip);
-                                              setOpenDropdownId(null);
+                                            toggleLabelVisibility(trip.trips_id);
+                                            setOpenDropdownId(null);
                                           }}
                                         >
-                                            <Pencil size={16}/> Edit Trip
+                                          <Eye size={16} /> Show Label
                                         </button>
+                                      ) : (
                                         <button
-                                            className="dropdown-item delete-item"
-                                            onClick={() => {
-                                                setDeleteTripId(trip.trips_id);
-                                                setOpenDropdownId(null);
-                                            }}
-                                            >
-                                                <Trash size={16} /> Delete Trip
-                                            </button>
-                                    </div>
-                                  )}
+                                          className="dropdown-item"
+                                          onClick={() => {
+                                            toggleLabelVisibility(trip.trips_id);
+                                            setOpenDropdownId(null);
+                                          }}
+                                        >
+                                          <X size={16} /> Hide Label
+                                        </button>
+                                      )
+                                    )}
+                                  </div>
+                                )}
 
                                   <div
                                     className="trip-card-content"
                                     onClick={() => handleTripRedirect(trip.trips_id)}
                                   >
+                                      <div className="trip-card-title-row">
                                       <h3 className="trip-card-title">{trip.trip_name}</h3>
+
+                                    {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
+                                      <Label category={trip.trip_category} className="trip-card-badge" />
+                                    )}
+                                      </div>
 
                                       <div className="trip-card-footer">
                                           <div className="trip-location">
