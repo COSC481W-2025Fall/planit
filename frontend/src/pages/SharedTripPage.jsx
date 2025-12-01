@@ -5,7 +5,7 @@ import NavBar from "../components/NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
-import {Calendar, MapPin, Pencil, Trash, UserPlus, X} from "lucide-react";
+import {Calendar, MapPin, Pencil, Trash2, UserPlus, X} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
 import { getSharedTrips } from "../../api/trips";
@@ -368,7 +368,7 @@ export default function TripPage() {
                                                 setSelectedTripToRemove(trip);
                                                 setOpenRemoveYourselfPopup(true);
                                             }}>
-                                            <Trash size={16} />
+                                            <Trash2 size={16} />
                                         </button>
                                         {openDropdownId === trip.trips_id && (
                                             <div className="trip-dropdown" ref={dropdownRef}>
