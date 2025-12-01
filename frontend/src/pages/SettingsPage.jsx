@@ -331,7 +331,7 @@ export default function SettingsPage() {
                             <div className="info-card-container">
                                 <div className="profile-picture">
                                     <img className="pfp pfp-preview" src={pfp || user.photo} alt="Profile" />
-                                    <label for="imgupload" class="image-upload-button" title="Upload New Image"><Camera size={18} className="camera-icon"></Camera></label>
+                                    <label htmlFor="imgupload" className="image-upload-button" title="Upload New Image"><Camera size={18} className="camera-icon"></Camera></label>
                                     <input
                                         id="imgupload"
                                         type="file"
