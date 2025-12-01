@@ -756,6 +756,7 @@ body {
 .day-menu button:hover {
   background-color: var(--accent-lite);
   color: var(--text);
+  border-radius: inherit !important;
 }
 
 .day-menu button:active {
