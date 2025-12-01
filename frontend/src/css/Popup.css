@@ -56,6 +56,8 @@
     flex: 1;
     overflow-y: auto;
     min-height: 0;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
 }
 
 .popup-input {
@@ -202,6 +204,8 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
         max-height: 95vh;
         border-radius: 15px 15px 0 0;
         animation: slideUp 0.3s ease;
+        touch-action: pan-y;
+        will-change: transform;
     }
 
     @keyframes slideUp {
@@ -222,10 +226,6 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     .popup-input input {
         font-size: 1rem;
         padding: 12px;
-    }
-    .popup {
-        touch-action: none;
-        will-change: transform;
     }
     .popup-screen-overlay:has(#add-activity-popup) {
         align-items: center;
