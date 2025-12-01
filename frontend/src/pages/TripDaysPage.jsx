@@ -1210,6 +1210,18 @@ export default function TripDaysPage() {
     return userId && userId.toString().startsWith('guest_');
   };
 
+  const formatPrice = (num) => {
+    const format = (value, suffix) => {
+      const formatted = (value).toFixed(1);
+      return formatted.endsWith(".0")
+        ? Math.round(value) + suffix
+        : formatted + suffix;
+    };
+    if (num >= 1_000_000) return format(num / 1_000_000, "M");
+    if (num >= 1_000) return format(num / 1_000, "K");
+    return num.toString();
+  };
+
   const handlePackingAI = async () => {
     if (isPackingCooldown) return;
 
@@ -2019,7 +2031,7 @@ export default function TripDaysPage() {
                 <PiggyBank className="trip-info-icon trip-cost-icon"/>
                 <span className="trip-cost-label">Total Cost:</span>
                 <span className="trip-cost-value">
-                  ${totalTripCost}
+                  ${formatPrice(totalTripCost)}
                 </span>
               </div>
             )}
@@ -2157,7 +2169,7 @@ export default function TripDaysPage() {
 
                             <div className="day-cost">
                               <span className="day-cost-currency">$</span>
-                              <span className="day-cost-value">{dayTotal}</span>
+                              <span className="day-cost-value">{formatPrice(dayTotal)}</span>
                             </div>
                           </div>
 
@@ -2503,6 +2515,7 @@ export default function TripDaysPage() {
                 <input
                   type="number"
                   min = "0"
+                  max = "1440"
                   value={editDuration}
                   onKeyDown={(e) => {
                     if (e.key === '-' || e.key === 'e' || e.key === 'E') {
@@ -2512,7 +2525,7 @@ export default function TripDaysPage() {
                   onChange={(e) =>{
                     const val = e.target.value;
                     if(val == '') setEditDuration('');
-                    else setEditDuration(Math.max(0,val));
+                    else setEditDuration(Math.min(1440, Math.max(0,val)));
                   }
                 }
                 />
@@ -2537,6 +2550,7 @@ export default function TripDaysPage() {
                 <input
                   type="number"
                   min = "0"
+                  max = "10000000"
                   step = "1"
                   value={editCost}
                   onKeyDown={(e) => {
@@ -2547,7 +2561,7 @@ export default function TripDaysPage() {
                   onChange={(e) => {
                     const val = e.target.value;
                     if(val == '') setEditCost('');
-                    else setEditCost(Math.max(0,Math.floor(val)));
+                    else setEditCost(Math.min(10000000, Math.max(0,Math.floor(val))));
                   }}
                 />
               </label>
