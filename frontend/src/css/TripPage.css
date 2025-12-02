@@ -567,6 +567,32 @@ select:focus {
     font-weight: bold;
 }
 
+.mobile-date-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-input);
+    border-radius: 4px;
+    font-size: 14px;
+    background: var(--bg-input);
+    cursor: pointer;
+    color: var(--text);
+    user-select: none;
+}
+
+.mobile-date-input.placeholder {
+    color: var(--text-placeholder);
+}
+
+html[data-theme="dark"] .mobile-date-input.placeholder {
+    color: var(--text-placeholder) !important;
+}
+
+html[data-theme="dark"] .mobile-date-input {
+    background: var(--bg-hover2);
+    color: var(--static-white);
+    border-color: var(--border-input);
+}
+
 .privacy-toggle-btn, .remove-yourself-from-trip-btn {
     position: absolute;
     top: 10px;
