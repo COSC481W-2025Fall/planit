@@ -35,7 +35,19 @@ export default function TripPage() {
     const [deleteTripId, setDeleteTripId] = useState(null);
     const [privacyDraft, setPrivacyDraft] = useState(true);
 
+
+
   const isMobile = () => window.innerWidth <= 600;
+
+  const MobileDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
+    <div
+      className={`mobile-date-input ${!value ? 'placeholder' : ''}`}
+      onClick={onClick}
+      ref={ref}
+    >
+      {value || placeholder}
+    </div>
+  ));
 
     // persist sort / filter choices
     const [sortOption, setSortOption] = useState(() => {
@@ -699,6 +711,7 @@ export default function TripPage() {
                                   shouldCloseOnSelect={true}
                                   withPortal={isMobile()}
                                   portalId="root-portal"
+                                  customInput={isMobile() ? <MobileDateInput placeholder="Start Date" /> : undefined}
                                   onClickOutside={() =>
                                     setTimeout(() => {
                                       document.activeElement?.blur();
@@ -739,6 +752,7 @@ export default function TripPage() {
                                   shouldCloseOnSelect={true}
                                   withPortal={isMobile()}
                                   portalId="root-portal"
+                                  customInput={isMobile() ? <MobileDateInput placeholder="End Date" /> : undefined}
                                   onClickOutside={() =>
                                     setTimeout(() => {
                                       document.activeElement?.blur();

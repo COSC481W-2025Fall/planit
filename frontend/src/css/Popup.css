@@ -189,6 +189,61 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     transform: scale(1.18);
 }
 
+/* Clone Trip popup - make inputs match */
+.popup-input-field,
+.popup-input .date-input,
+.popup-input .mobile-date-input,
+.popup-input .react-datepicker__input-container input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--bg-white) !important;
+    color: var(--text);
+}
+
+.popup-input .mobile-date-input {
+    cursor: pointer;
+    user-select: none;
+}
+
+.popup-input .mobile-date-input.placeholder {
+    color: var(--text-placeholder);
+}
+
+.popup-input-field::placeholder,
+.popup-input .date-input::placeholder,
+.popup-input .mobile-date-input::placeholder,
+.popup-input .react-datepicker__input-container input::placeholder {
+    color: var(--text-placeholder);
+    opacity: 1;
+}
+
+.popup-input-field:focus,
+.popup-input .date-input:focus,
+.popup-input .mobile-date-input:focus,
+.popup-input .react-datepicker__input-container input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+html[data-theme="dark"] .popup-input-field,
+html[data-theme="dark"] .popup-input .date-input,
+html[data-theme="dark"] .popup-input .mobile-date-input,
+html[data-theme="dark"] .popup-input .react-datepicker__input-container input {
+    background: var(--bg-hover2) !important;
+    color: var(--static-white);
+    border-color: var(--border-input);
+}
+
+html[data-theme="dark"] .popup-input .mobile-date-input.placeholder,
+html[data-theme="dark"] .popup-input-field::placeholder,
+html[data-theme="dark"] .popup-input .date-input::placeholder,
+html[data-theme="dark"] .popup-input .react-datepicker__input-container input::placeholder {
+    color: var(--text-placeholder);
+}
 
 @media (max-width: 768px) {
     .popup-screen-overlay {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from 'react-toastify';
@@ -16,6 +16,16 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
     const [loading, setLoading] = useState(false);
     const isMobile = () => window.innerWidth <= 600;
     const BASE = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+
+    const MobileDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
+      <div
+        className={`mobile-date-input ${!value ? 'placeholder' : ''}`}
+        onClick={onClick}
+        ref={ref}
+      >
+          {value || placeholder}
+      </div>
+    ));
 
     useEffect(() => {
         if (trip?.trip_name) {
@@ -133,6 +143,13 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
                             shouldCloseOnSelect={true}
                             withPortal={isMobile()}
                             portalId="root-portal"
+                            customInput={
+                                isMobile() ? (
+                                  <MobileDateInput
+                                    placeholder="Choose Start Date"
+                                  />
+                                ) : undefined
+                            }
                             onClickOutside={() =>
                               setTimeout(() => {
                                   document.activeElement?.blur();
