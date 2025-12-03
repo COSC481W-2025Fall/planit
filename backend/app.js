@@ -45,31 +45,31 @@ app.use(
   })
 );
 
-// short-term limit
-const perMinuteLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 200,            // 100 requests/minute
-  message: "Too many requests, please slow down.",
-});
+// // short-term limit
+// const perMinuteLimiter = rateLimit({
+//   windowMs: 60 * 1000, // 1 minute
+//   max: 200,            // 100 requests/minute
+//   message: "Too many requests, please slow down.",
+// });
 
-// medium-term limit (hourly)
-const perHourLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 6000,                // 6000 requests/hour
-  message: "Hourly rate limit reached.",
-});
+// // medium-term limit (hourly)
+// const perHourLimiter = rateLimit({
+//   windowMs: 60 * 60 * 1000, // 1 hour
+//   max: 6000,                // 6000 requests/hour
+//   message: "Hourly rate limit reached.",
+// });
 
-// long-term limit (daily)
-const perDayLimiter = rateLimit({
-  windowMs: 24 * 60 * 60 * 1000, // 24h
-  max: 50000,                     // 50k requests/day
-  message: "Daily rate limit reached.",
-});
+// // long-term limit (daily)
+// const perDayLimiter = rateLimit({
+//   windowMs: 24 * 60 * 60 * 1000, // 24h
+//   max: 50000,                     // 50k requests/day
+//   message: "Daily rate limit reached.",
+// });
 
-// Apply globally
-app.use(perMinuteLimiter);
-app.use(perHourLimiter);
-app.use(perDayLimiter);
+// // Apply globally
+// app.use(perMinuteLimiter);
+// app.use(perHourLimiter);
+// app.use(perDayLimiter);
 
 app.use(helmet());
 app.use(morgan("dev"));
