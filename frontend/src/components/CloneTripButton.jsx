@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from 'react-toastify';
 import "../css/Popup.css";
 import Popup from "../components/Popup";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import { MoonLoader } from "react-spinners";
 
@@ -13,7 +14,18 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
     const [newTripName, setNewTripName] = useState("");
     const [dayCount, setDayCount] = useState(null);
     const [loading, setLoading] = useState(false);
+    const isMobile = () => window.innerWidth <= 600;
     const BASE = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+
+    const MobileDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
+      <div
+        className={`mobile-date-input ${!value ? 'placeholder' : ''}`}
+        onClick={onClick}
+        ref={ref}
+      >
+          {value || placeholder}
+      </div>
+    ));
 
     useEffect(() => {
         if (trip?.trip_name) {
@@ -52,8 +64,8 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ newStartDate: newStartDate.toISOString().slice(0, 10),
-            newTripName
-                }),
+                newTripName
+            }),
         });
 
         const data = await res.json();
@@ -76,65 +88,96 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
     }
 
     return (
-        <>
-            <button onClick={openModal} className="clone-btn">
-                Clone Trip
-            </button>
+      <>
+          <button onClick={openModal} className="clone-btn">
+              Clone Trip
+          </button>
+          {open && (
+            <Popup
+              title="Clone Trip"
+              onClose={loading ? undefined : () => setOpen(false)}
+              buttons={ loading ? [] :[
+                  <button key="cancel" onClick={() => setOpen(false)}>
+                      Cancel
+                  </button>,
+                  <button
+                    key="clone"
+                    className="btn-rightside"
+                    disabled={loading || !newStartDate}
+                    onClick={clone}
+                  >
+                      {loading ? "Cloning..." : "Clone"}
+                  </button>
+              ]}
+            >
+                {loading ? (
+                  <div className = "loading-spinner">
+                      <MoonLoader color="var(--accent)" size={50} />
+                  </div>
+                ) : (
+                  <>
+                      <div className="popup-body-text">
+                          This trip is {dayCount} {dayCount === 1 ? "day" : "days"} long.
+                      </div>
 
-            {open && (
-                <Popup
-                    title="Clone Trip"
-                    onClose={loading ? undefined : () => setOpen(false)}
-                    buttons={ loading ? [] :[
-                        <button key="cancel" onClick={() => setOpen(false)}>
-                            Cancel
-                        </button>,
-                        <button
-                            key="clone"
-                            className="btn-rightside"
-                            disabled={loading || !newStartDate}
-                            onClick={clone}
-                        >
-                            {loading ? "Cloning..." : "Clone"}
-                        </button>
-                    ]}
-                >
-                    {loading ? (
-                        <div className = "loading-spinner">
-                            <MoonLoader color="var(--accent)" size={50} />
-                        </div>
-                    ) : (
-                        <>
-                    <div className="popup-body-text">
-                        This trip is {dayCount} {dayCount === 1 ? "day" : "days"} long.
-                    </div>
-
-                    <div className="popup-input">
-                        <span>Trip Name</span>
-                        <input
+                      <div className="popup-input">
+                          <span>Trip Name</span>
+                          <input
                             type="text"
                             value={newTripName}
                             onChange={(e) => setNewTripName(e.target.value)}
                             className="popup-input-field"
                             required
-                        />
-                    </div>
-                    
-                    <div className="popup-input">
-                        <span>New Start Date</span>
-                        <DatePicker
+                          />
+                      </div>
+
+                      <div className="popup-input">
+                          <span>New Start Date</span>
+                          <DatePicker
                             selected={newStartDate}
                             onChange={(date) => setNewStartDate(date)}
                             placeholderText="Choose Start Date"
-                            className="popup-datepicker"
+                            popperPlacement="bottom"
+                            className="date-input"
                             dateFormat="MM-dd-yyyy"
+                            shouldCloseOnSelect={true}
+                            withPortal={isMobile()}
+                            portalId="root-portal"
+                            customInput={
+                                isMobile() ? (
+                                  <MobileDateInput
+                                    placeholder="Choose Start Date"
+                                  />
+                                ) : undefined
+                            }
+                            onClickOutside={() =>
+                              setTimeout(() => {
+                                  document.activeElement?.blur();
+                              }, 120)
+                            }
                             required
-                        />
-                    </div>
-                    </>
-                    )}
-                </Popup>
-            )}
-        </>
+                            renderCustomHeader={({ date, decreaseMonth, increaseMonth }) => (
+                              <div className="calendar-header">
+                                  <div className="month-nav">
+                                      <button type="button" className="month-btn" onClick={decreaseMonth}>
+                                          <ChevronLeft size={20} />
+                                      </button>
+                                       <span className="month-label">
+                                        {date.toLocaleString("default", { month: "long" })}{" "}
+                                          {date.getFullYear()}
+                                       </span>
+                                      <button type="button" className="month-btn" onClick={increaseMonth}>
+                                          <ChevronRight size={20} />
+                                      </button>
+                                  </div>
+                              </div>
+                            )}
+                          />
+                      </div>
+                  </>
+                )}
+            </Popup>
+          )}
+      </>
     );
 }

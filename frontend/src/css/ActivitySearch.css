@@ -293,7 +293,7 @@ html[data-theme="dark"] .search-bar input::placeholder {
 
 .loading-container {
   position: absolute;
-  top: 50%;
+  top: 70%;
   left: 200px;
   transform: translate(-50%, -50%);
   display: flex;
@@ -464,12 +464,11 @@ html[data-theme="dark"] .time-picker {
     border-left: none;
     border-top: 1px solid var(--border-alt);
     border-radius: 0;
-    padding: 20px;
     box-shadow: none;
   }
 
   .collapse-btn {
-    top: 16px;
+    top: 6px;
     left: 16px;
     font-size: 24px;
   }
@@ -517,7 +516,7 @@ html[data-theme="dark"] .time-picker {
   }
   .loading-container {
     position: absolute;
-    top: 50%;
+    top: 75%;
     left: 50%;
     transform: translate(-50%, -50%);
     height: auto;
