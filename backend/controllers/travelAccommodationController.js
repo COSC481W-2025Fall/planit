@@ -15,7 +15,7 @@ export const addTransportInfo = async (req, res) => {
             RETURNING *
         `;
 
-        io.to(`trip_${trip_id}`).emit("addedTransport", transport_type, transport_number, transport_price, transport_note, username);
+        io.to(`trip_${trip_id}`).emit("addedTransport", transport_type, username);
 
         res.json({
       message: "Transport added successfully",
@@ -74,7 +74,7 @@ export const updateTransportInfo = async (req, res) => {
                 return res.status(404).json({ error: "Transport not found" });
     }       
 
-        io.to(`trip_${trip_id}`).emit("updatedTransport", transport_type, transport_id, transport_number, transport_price, transport_note, username);
+        io.to(`trip_${trip_id}`).emit("updatedTransport", transport_type, username);
 
         res.json({
             message: "Transport info updated successfully", 
@@ -126,7 +126,7 @@ export const addAccommodationInfo = async (req, res) => {
             RETURNING *
         `;
 
-        io.to(`trip_${trip_id}`).emit("addedAccommodation", accommodation_type, accommodation_price, accommodation_note, username);
+        io.to(`trip_${trip_id}`).emit("addedAccommodation", accommodation_type, username);
 
         res.json({
       message: "Accommodation added successfully",
@@ -183,7 +183,7 @@ export const updateAccommodationInfo = async (req, res) => {
             return res.status(404).json ({ error: "Accommodation not found" });
         }
 
-        io.to(`trip_${trip_id}`).emit("updatedAccommodation", accommodation_id, accommodation_type, accommodation_price, accommodation_note, username);
+        io.to(`trip_${trip_id}`).emit("updatedAccommodation", accommodation_type, username);
 
         res.json({
             message: "Accommodation info updated successfully",

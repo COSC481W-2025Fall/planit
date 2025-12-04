@@ -235,22 +235,18 @@ export default function TripDaysPage() {
       toast.success("New trip category applied: " + category);
     });
 
-    socket.on("addedTransport", async (changedTransportType, ticketNumber, price, transport_note, username) => {
-      //console.log("Modal?", showModal);
-      //if (!showModal) return;
-      //if (modalType !== "transport") return;
-      //if (transportType !== changedTransportType) return;
+    socket.on("addedTransport", async (changedTransportType, username) => {
       await fetchTransportInfo(changedTransportType);
 
       changedTransportType = changedTransportType.charAt(0).toUpperCase() + changedTransportType.slice(1);
       toast.success(`${changedTransportType} entry has been added by ${username}!`);
     });
 
-    socket.on("updatedTransport", async (transportType, transportId, ticketNumber, price, transport_note, username) => {
-      fetchTransportInfo(transportType);
+    socket.on("updatedTransport", async (changedTransportType, username) => {
+      fetchTransportInfo(changedTransportType);
 
-      transportType = transportType.charAt(0).toUpperCase() + transportType.slice(1);
-      toast.success(`${transportType} entry has been updated by ${username}!`);
+      changedTransportType = changedTransportType.charAt(0).toUpperCase() + changedTransportType.slice(1);
+      toast.success(`${changedTransportType} entry has been updated by ${username}!`);
     });
 
     socket.on("deletedTransport", (transportType, username, index) => {
@@ -266,18 +262,18 @@ export default function TripDaysPage() {
       toast.success(`${transportType} entry has been deleted by ${username}!`);
     });
 
-    socket.on("addedAccommodation", (accommodation_type, accommodation_price, accommodation_note, username) => {
+    socket.on("addedAccommodation", (changedAccommodationType, username) => {
       fetchAccommodationInfo();
 
-      accommodation_type = accommodation_type.charAt(0).toUpperCase() + accommodation_type.slice(1);
-      toast.success(`${accommodation_type} entry has been added by ${username}!`);
+      changedAccommodationType = changedAccommodationType.charAt(0).toUpperCase() + changedAccommodationType.slice(1);
+      toast.success(`${changedAccommodationType} entry has been added by ${username}!`);
     });
 
-    socket.on("updatedAccommodation", (accommodationId, accommodation_type, accommodation_price, accommodation_note, username) => {
+    socket.on("updatedAccommodation", (changedAccommodationType, username) => {
       fetchAccommodationInfo();
 
-      accommodation_type = accommodation_type.charAt(0).toUpperCase() + accommodation_type.slice(1);
-      toast.success(`${accommodation_type} entry has been updated by ${username}!`);
+      changedAccommodationType = changedAccommodationType.charAt(0).toUpperCase() + changedAccommodationType.slice(1);
+      toast.success(`${changedAccommodationType} entry has been updated by ${username}!`);
     });
 
     socket.on("deletedAccommodation", (accommodationType, username, index) => {
