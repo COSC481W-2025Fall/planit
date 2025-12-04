@@ -9,17 +9,17 @@ export default function NavBar({isOpen, userId, isGuest}) {
     const [hasUnseen, setHasUnseen] = useState(false);
     useEffect(() => {
         if(userId === undefined || isGuest) return;
-        const cachedState = `hasUnseen_${userId}`;
+        const cachedUnseen = `hasUnseen_${userId}`;
 
         // Listen for immediate updates from the SharedTripPage and update state and cache
         const handleUnseenCleared = () => {
             setHasUnseen(false);
-            localStorage.setItem(cachedState, "false");
+            localStorage.setItem(cachedUnseen, "false");
         };
         window.addEventListener("unseenTripsCleared", handleUnseenCleared);
 
         // Load cached value and set state if unseen is true
-        const stored = localStorage.getItem(cachedState);
+        const stored = localStorage.getItem(cachedUnseen);
         if (stored === "true") {
             setHasUnseen(true);
             return () => {
@@ -31,7 +31,7 @@ export default function NavBar({isOpen, userId, isGuest}) {
         const timeout = setTimeout(async () => {
             const unseen = await handleCheckSeen();
             setHasUnseen(unseen);
-            localStorage.setItem(cachedState, unseen);
+            localStorage.setItem(cachedUnseen, unseen);
         }, 0);
 
         //Cleanup on component dismount

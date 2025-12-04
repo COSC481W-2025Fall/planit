@@ -135,12 +135,12 @@ export default function TripPage() {
 
     useEffect(() => {
         if(user === null || isGuestUser(user?.user_id)) return;
-        const cachedState = `hasUnseen_${user.user_id}`;
+        const cachedUnseen = `hasUnseen_${user.user_id}`;
         async function markSeen() {await fetch(`${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/shared/markTrips`, {
                 method: "PUT",
                 credentials: "include"
             });
-            localStorage.setItem(cachedState, "false");
+            localStorage.setItem(cachedUnseen, "false");
             window.dispatchEvent(new Event("unseenTripsCleared"));
         }
         markSeen();
