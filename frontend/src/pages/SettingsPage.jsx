@@ -32,6 +32,9 @@ export default function SettingsPage() {
         return localStorage.getItem("planit:disablePackingAI") === "true";
     });
 
+    const [showCompletedTrips, setShowCompletedTrips] = useState(() => {
+        return localStorage.getItem("planit:showCompletedTrips") !== "false";
+    });
 
     useEffect(() => {
         fetch(
@@ -476,6 +479,7 @@ export default function SettingsPage() {
                         <div className="settings-card pref-card">
                             <h3>App Preferences</h3>
 
+                            {/* Packing AI */}
                             <div className="pref-row inline-pref">
                                 <span className="pref-label">Packing AI</span>
 
@@ -489,6 +493,21 @@ export default function SettingsPage() {
                                 >
                                     <div className="mini-thumb"></div>
                                     <span className="mini-status">{disablePackingAI ? "OFF" : "ON"}</span>
+                                </div>
+                            </div>
+                            {/* Show Completed Trips */}
+                            <div className="pref-row inline-pref">
+                                <span className="pref-label">Show Completed Trips</span>
+                                <div
+                                  className={`mini-toggle ${showCompletedTrips ? "on" : "off"}`}
+                                  onClick={() => {
+                                      const val = !showCompletedTrips;
+                                      setShowCompletedTrips(val);
+                                      localStorage.setItem("planit:showCompletedTrips", val);
+                                  }}
+                                >
+                                    <div className="mini-thumb"></div>
+                                    <span className="mini-status">{showCompletedTrips ? "ON" : "OFF"}</span>
                                 </div>
                             </div>
                         </div>

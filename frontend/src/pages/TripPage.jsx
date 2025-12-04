@@ -64,7 +64,17 @@ export default function TripPage() {
     });
     const [categoryFilter, setCategoryFilter] = useState("all");
 
-    const toggleLabelVisibility = (tripId) => {
+  const [showCompletedTrips, setShowCompletedTrips] = useState(() => {
+    return localStorage.getItem("planit:showCompletedTrips") !== "false";
+  });
+
+  useEffect(() => {
+    setShowCompletedTrips(localStorage.getItem("planit:showCompletedTrips") !== "false");
+  }, []);
+
+
+
+  const toggleLabelVisibility = (tripId) => {
   setHiddenLabels((prev) => {
     let updated;
 
@@ -223,6 +233,10 @@ export default function TripPage() {
             const isPast =
               (end && end < today) ||
               (!end && start && start < today);
+
+          if (!showCompletedTrips && isPast) {
+            return false;
+          }
 
             if (dateFilter === "upcoming") {
                 return !isPast;
@@ -439,6 +453,20 @@ export default function TripPage() {
         }
     };
 
+  const isTripCompleted = (trip) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const start = trip.trip_start_date ? new Date(trip.trip_start_date) : null;
+    const end = trip.trip_end_date ? new Date(trip.trip_end_date) : null;
+
+    return (
+      (end && end < today) ||
+      (!end && start && start < today)
+    );
+  };
+
+
   return (
     <div className="trip-page">
       <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
@@ -499,6 +527,11 @@ export default function TripPage() {
                               <div key={trip.trips_id} className="trip-card">       
                                   <div className="trip-card-image"
                                     onClick={() => handleTripRedirect(trip.trips_id)}>
+                                    {isTripCompleted(trip) && (
+                                      <div className="completed-badge-top">
+                                        Completed
+                                      </div>
+                                    )}
                                     <img
                                     src={imageUrls[trip.trips_id]}
                                     alt={trip.trip_name}
@@ -591,7 +624,6 @@ export default function TripPage() {
                                       <Label category={trip.trip_category} className="trip-card-badge" />
                                     )}
                                       </div>
-
                                       <div className="trip-card-footer">
                                           <div className="trip-location">
                                               <MapPin size={16} style={{marginRight: "4px"}}/>

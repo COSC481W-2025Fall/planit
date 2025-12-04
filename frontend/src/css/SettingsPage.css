@@ -194,7 +194,7 @@
 }
 
 .settings-section h3{
-    padding-bottom: 5px;
+    padding-bottom: 8px;
 }
 
 .setting-page-loading-container {
@@ -371,7 +371,12 @@
         flex-direction: column;
     }
 }
-
+@media (max-width: 1090px) {
+    .pref-card {
+        width: 100%;
+        height: auto;
+    }
+}
 /*Mobile*/
 @media (max-width: 900px) {
     .setting-with-sidebar {
@@ -394,7 +399,7 @@
         flex-direction: column;
     }
 
-    .info-card, .stats-card {
+    .info-card, .stats-card{
         width: 100%;
         height: auto;
     }

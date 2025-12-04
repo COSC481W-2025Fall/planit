@@ -271,6 +271,7 @@ export default function TripDaysPage() {
     localStorage.getItem("planit:disablePackingAI") === "true"
   );
 
+
 // If the setting changes (user toggles it in settings), refresh:
   useEffect(() => {
     const handler = () => {
