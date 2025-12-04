@@ -642,15 +642,15 @@ html[data-theme="dark"] .mobile-date-input {
     position: absolute;
     top: 10px;
     left: 10px;
-    background: var(--accent);   /* ← your theme color */
+    background: var(--accent);
     color: var(--bg-white);
     padding: 4px 10px;
     border-radius: 12px;
     font-size: 0.75rem;
     font-weight: 600;
     z-index: 5;
-    width: auto;            /* prevent full width */
-    display: inline-block;  /* prevent stretching */
+    width: auto;
+    display: inline-block;
     backdrop-filter: blur(4px);
 }
 

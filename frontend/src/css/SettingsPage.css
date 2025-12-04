@@ -283,8 +283,8 @@
 
 .inline-pref {
     display: flex;
-    gap: 12px;            /* space between text + toggle */
-    align-items: center;  /* vertically centered */
+    gap: 12px;
+    align-items: center;
     justify-content: flex-start !important;
     padding: 0;
 }
@@ -331,7 +331,6 @@
     transform: translateX(0px);
 }
 
-/* ON/OFF text */
 .mini-status {
     position: absolute;
     right: 6px;
@@ -341,7 +340,7 @@
 }
 
 .mini-toggle.off .mini-status {
-    color: #4a4a4a;
+    color: var("text-dark3");
 }
 
 

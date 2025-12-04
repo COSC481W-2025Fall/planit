@@ -29,6 +29,7 @@
     --text-medium: #666666;
     --text-dark: #000000;
     --text-dark2: #333333;
+    --text-dark3: #4a4a4a;
 
     --border: #e5e7eb;
     --border-input: #dddddd;
@@ -101,6 +102,7 @@
     --text-medium: #c8d0dc;
     --text-dark: #f5f7fa;
     --text-dark2: #ffffff;
+    --text-dark3: #e0e0e0;
 
     --border: #2a3341;
     --border-input: #2b3545;
