@@ -28,6 +28,11 @@ export default function SettingsPage() {
     const croppieElement = useRef(null);
     const croppieInstance = useRef(null);
 
+    const [disablePackingAI, setDisablePackingAI] = useState(() => {
+        return localStorage.getItem("planit:disablePackingAI") === "true";
+    });
+
+
     useEffect(() => {
         fetch(
             (import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL) +
@@ -467,6 +472,25 @@ export default function SettingsPage() {
                                 </div>
                             </div>
                             )}                            
+                        </div>
+                        <div className="settings-card pref-card">
+                            <h3>App Preferences</h3>
+
+                            <div className="pref-row inline-pref">
+                                <span className="pref-label">Packing AI</span>
+
+                                <div
+                                  className={`mini-toggle ${disablePackingAI ? "off" : "on"}`}
+                                  onClick={() => {
+                                      const val = !disablePackingAI;
+                                      setDisablePackingAI(val);
+                                      localStorage.setItem("planit:disablePackingAI", val);
+                                  }}
+                                >
+                                    <div className="mini-thumb"></div>
+                                    <span className="mini-status">{disablePackingAI ? "OFF" : "ON"}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {/* Popup for cropping profile picture */}

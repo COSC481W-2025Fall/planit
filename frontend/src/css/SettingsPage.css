@@ -67,6 +67,18 @@
     height: 470px;
 }
 
+.pref-card {
+    gap: 1rem;
+    background: var(--bg-surface);
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-2);
+    margin-top: 1rem;
+    width: 45%;
+    height: auto;
+}
+
+
 .profile-picture {
     padding-top: 10px;
     padding-bottom: 20px;
@@ -268,6 +280,70 @@
     justify-content: right;
     gap: 10px;
 }
+
+.inline-pref {
+    display: flex;
+    gap: 12px;            /* space between text + toggle */
+    align-items: center;  /* vertically centered */
+    justify-content: flex-start !important;
+    padding: 0;
+}
+
+.pref-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-dark2);
+}
+
+.mini-toggle {
+    width: 48px;
+    height: 22px;
+    border-radius: 20px;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.25s ease;
+}
+
+.mini-toggle.on {
+    background: var(--accent);
+}
+
+.mini-toggle.off {
+    background: #bfbfbf;
+}
+
+.mini-thumb {
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
+}
+
+.mini-toggle.on .mini-thumb {
+    transform: translateX(26px);
+}
+
+.mini-toggle.off .mini-thumb {
+    transform: translateX(0px);
+}
+
+/* ON/OFF text */
+.mini-status {
+    position: absolute;
+    right: 6px;
+    font-size: 0.55rem;
+    font-weight: bold;
+    color: white;
+}
+
+.mini-toggle.off .mini-status {
+    color: #4a4a4a;
+}
+
 
 /*Tablet*/
 @media (max-width: 1090px) and (min-width: 901px) {
