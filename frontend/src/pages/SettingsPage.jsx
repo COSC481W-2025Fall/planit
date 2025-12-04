@@ -315,7 +315,7 @@ export default function SettingsPage() {
         <div className="setting-page">
             <TopBanner user={user} />
             <div className="setting-with-sidebar">
-                <NavBar />
+                <NavBar userId={user.user_id} isGuest={isGuestUser(user?.user_id)}/>
                 <div className="setting-main-content">
                     {/* Header row */}
                     <div className="settings-header">

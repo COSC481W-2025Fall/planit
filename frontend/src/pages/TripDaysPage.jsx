@@ -1688,7 +1688,7 @@ export default function TripDaysPage() {
       <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
 
       <div className="content-with-sidebar">
-        <NavBar />
+        <NavBar userId={user.user_id} isGuest={isGuestUser(user?.user_id)}/>
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
           <div className = "title-left">

@@ -443,7 +443,7 @@ export default function TripPage() {
     <div className="trip-page">
       <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
       <div className="content-with-sidebar">
-        <NavBar />
+        <NavBar userId={user.user_id} isGuest={isGuestUser(user?.user_id)}/>
         <div className="main-content">
           <div className="trips-section">
             {/* Header row */}

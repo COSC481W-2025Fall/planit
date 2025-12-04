@@ -502,7 +502,7 @@ export default function ExplorePage() {
     <div className="trip-page explore-page">
       <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
       <div className="content-with-sidebar">
-        <NavBar />
+        <NavBar userId={user.user_id} isGuest={isGuestUser(user?.user_id)}/>
 
         <div className="main-content">
           {/* Header */}
