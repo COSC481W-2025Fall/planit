@@ -124,6 +124,8 @@ export default function TripDaysPage() {
     }
   });
 
+  const transportTypeRef = useRef(null);
+
   useEffect(() => {
     try {
       localStorage.setItem("planit:expandedDays", JSON.stringify(expandedDays));
@@ -233,39 +235,22 @@ export default function TripDaysPage() {
       toast.success("New trip category applied: " + category);
     });
 
-    socket.on("addedTransport", (transportType, ticketNumber, price, transport_note, username) => {
-      refreshTransportInfo();
+    socket.on("addedTransport", async (changedTransportType, ticketNumber, price, transport_note, username) => {
+      //console.log("Modal?", showModal);
+      //if (!showModal) return;
+      //if (modalType !== "transport") return;
+      //if (transportType !== changedTransportType) return;
+      await fetchTransportInfo(changedTransportType);
 
-      //Patch entries state
-      setEntries(prev => [...prev, {
-        ticketNumber,
-        price,
-        transport_note
-      }
-      ]);
-
-      transportType = transportType.charAt(0).toUpperCase() + transportType.slice(1);
-      toast.success(`${transportType} entry has been added by ${username}!`);
+      changedTransportType = changedTransportType.charAt(0).toUpperCase() + changedTransportType.slice(1);
+      toast.success(`${changedTransportType} entry has been added by ${username}!`);
     });
 
-    socket.on("updatedTransport", (transportType, transportId, ticketNumber, price, transport_note, username) => {
-      refreshTransportInfo();
-
-      //Patch entries state
-      setEntries(prev =>
-        prev.map(entry =>
-          entry.transport_id === transportId ? {
-              ...entry,
-              ticketNumber,
-              price,
-              transport_note
-            }
-            : entry
-        )
-      );
+    socket.on("updatedTransport", async (transportType, transportId, ticketNumber, price, transport_note, username) => {
+      fetchTransportInfo(transportType);
 
       transportType = transportType.charAt(0).toUpperCase() + transportType.slice(1);
-      //toast.success(`${transportType} entry has been updated by ${username}!`);
+      toast.success(`${transportType} entry has been updated by ${username}!`);
     });
 
     socket.on("deletedTransport", (transportType, username, index) => {
@@ -282,39 +267,17 @@ export default function TripDaysPage() {
     });
 
     socket.on("addedAccommodation", (accommodation_type, accommodation_price, accommodation_note, username) => {
-      refreshAccommodationInfo();
-      [{ accommodation_type: "", accommodation_price: "", accommodation_note: "" }]
-
-      //Patch entries state
-      setEntries(prev => [...prev, {
-        accommodation_type,
-        accommodation_price,
-        accommodation_note
-      }
-      ]);
+      fetchAccommodationInfo();
 
       accommodation_type = accommodation_type.charAt(0).toUpperCase() + accommodation_type.slice(1);
       toast.success(`${accommodation_type} entry has been added by ${username}!`);
     });
 
     socket.on("updatedAccommodation", (accommodationId, accommodation_type, accommodation_price, accommodation_note, username) => {
-      refreshAccommodationInfo();
-
-      //Patch entries state
-      setEntries(prev =>
-        prev.map(entry =>
-          entry.transport_id === accommodationId ? {
-            ...entry,
-            accommodation_type,
-            accommodation_price,
-            accommodation_note
-          }
-            : entry
-        )
-      );
+      fetchAccommodationInfo();
 
       accommodation_type = accommodation_type.charAt(0).toUpperCase() + accommodation_type.slice(1);
-      //toast.success(`${accommodation_type} entry has been updated by ${username}!`);
+      toast.success(`${accommodation_type} entry has been updated by ${username}!`);
     });
 
     socket.on("deletedAccommodation", (accommodationType, username, index) => {
@@ -1514,6 +1477,7 @@ export default function TripDaysPage() {
   
     setModalType(isAccommodation ? "accommodation" : "transport");
     setTransportType(isAccommodation ? null : type);
+    transportTypeRef.current = isAccommodation ? null : type;
     setIsOpen(false);
   
     try {
@@ -1584,7 +1548,70 @@ export default function TripDaysPage() {
       toast.error("Failed to load details.");
     }
   };
-  
+
+  // Called by listeners to fetch and update transport/entry states for all users
+  const fetchTransportInfo = async (changedTransportType) => {
+    // Fetch all transport info
+    const res = await fetch(
+      `${BASE_URL}/transport/readTransportInfo?trip_id=${tripId}`,
+      { credentials: "include" }
+    );
+    const data = await res.json();
+    const raw = data.transportInfo || [];
+
+    setTransportInfo(raw);
+
+    if (transportTypeRef.current !== changedTransportType) return;
+
+    const mapped = raw
+      .filter(t => t.transport_type === changedTransportType)
+      .map(t => ({
+        ticketNumber: t.transport_number || "",
+        price: t.transport_price || "",
+        transport_id: t.transport_id ?? null,
+        transport_note: t.transport_note || "",
+      }));
+
+    const finalEntries = mapped.length > 0
+      ? mapped
+      : [{ ticketNumber: "", price: "", transport_id: null, transport_note: "" }];
+
+    setEntries(finalEntries);
+    setInitialEntries(JSON.parse(JSON.stringify(finalEntries)));
+  }
+
+  // Called by listeners to fetch and update accommodation/entry states for all users
+  const fetchAccommodationInfo = async () => {
+    // fetch accommodation info
+    const res = await fetch(
+      `${BASE_URL}/transport/readAccommodationInfo?trip_id=${tripId}`,
+      { credentials: "include" }
+    );
+    const data = await res.json();
+    const raw = data.accommodationInfo || [];
+
+    // keep global state in sync
+    setAccommodationInfo(raw);
+
+    const mapped = raw.map((a) => ({
+      accommodation_type: a.accommodation_type || "",
+      accommodation_price: a.accommodation_price || "",
+      accommodation_note: a.accommodation_note || "",
+      accommodation_id: a.accommodation_id ?? null,
+    }));
+    const finalEntries = mapped.length > 0
+      ? mapped
+      : [{ accommodation_type: "", accommodation_price: "", accommodation_note: "" }];
+
+    setEntries(finalEntries);
+    setInitialEntries(JSON.parse(JSON.stringify(finalEntries)));
+
+    setEntries(
+      mapped.length > 0
+        ? mapped
+        : [{ accommodation_type: "", accommodation_price: "", accommodation_note: "" }]
+    );
+  }
 
   const handleSaveEntries = async () => {
     const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
@@ -1632,27 +1659,37 @@ export default function TripDaysPage() {
       return;
     }
     try{
-    for (const entry of entries) {
-      // Skip empty entries
-      if (
-        modalType === "transport" && !entry.ticketNumber && !entry.price ||
-        modalType === "accommodation" && !entry.accommodation_type && !entry.accommodation_price
-      ) {
-        continue;
+      const originalById = {};
+      for (const e of initialEntries) {
+        const id = modalType === "transport" ? e.transport_id : e.accommodation_id;
+        if (id) originalById[id] = e;
       }
-  
-      const isUpdate = modalType === "transport" 
-        ? !!entry.transport_id 
-        : !!entry.accommodation_id;
-  
-      const endpoint = modalType === "transport"
-        ? (isUpdate ? "/transport/updateTransportInfo" : "/transport/addTransportInfo")
-        : (isUpdate ? "/transport/updateAccommodationInfo" : "/transport/addAccommodationInfo");
-  
-      const method = isUpdate ? "PUT" : "POST";
-  
-      const body = modalType === "transport"
-        ? {
+
+      for (const entry of entries) {
+        const id = modalType === "transport" ? entry.transport_id : entry.accommodation_id;
+
+        const isUpdate = !!id;
+        const original = id ? originalById[id] : null;
+
+        const empty =
+          (modalType === "transport" && !entry.ticketNumber && !entry.price) ||
+          (modalType === "accommodation" && !entry.accommodation_type && !entry.accommodation_price);
+
+        if (empty) continue;
+
+        // Skip if entry has not changed
+        if (isUpdate && original && JSON.stringify(entry) === JSON.stringify(original)) {
+          continue;
+        }
+
+        const endpoint = modalType === "transport"
+          ? (isUpdate ? "/transport/updateTransportInfo" : "/transport/addTransportInfo")
+          : (isUpdate ? "/transport/updateAccommodationInfo" : "/transport/addAccommodationInfo");
+
+        const method = isUpdate ? "PUT" : "POST";
+
+        const body = modalType === "transport"
+          ? {
             ...(isUpdate && { transport_id: entry.transport_id }),
             trip_id: tripId,
             transport_type: transportType,
@@ -1669,7 +1706,6 @@ export default function TripDaysPage() {
             accommodation_note: entry.accommodation_note || null,
             username: user.username
           };
-  
   
       await fetch(`${base}${endpoint}`, {
         method: method,
@@ -1738,7 +1774,7 @@ export default function TripDaysPage() {
       throw err;
     }
   };
-  
+
   const refreshTransportInfo = async () => {
     const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
     try {

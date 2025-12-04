@@ -40,6 +40,7 @@ export const readTransportInfo = async (req, res) => {
         const result = await sql`
             SELECT * FROM transport
             WHERE trip_id = ${trip_id}
+            ORDER BY transport_id
         `;
 
         res.json({
@@ -149,6 +150,7 @@ export const readAccommodationInfo = async (req, res) => {
         const result = await sql`
             SELECT * FROM accommodation 
             WHERE trip_id = ${trip_id}
+            ORDER BY accommodation_id
         `;
 
         res.json({
