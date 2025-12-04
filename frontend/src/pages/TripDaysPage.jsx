@@ -179,9 +179,7 @@ export default function TripDaysPage() {
       setActiveUsers(users);
     });
 
-    //Listener that listens for "createdDay" from backend. Takes tripId from backend as json which is then 
-    //compared to the tripId we are currently on(this will eventually be changed once rooms are implemented)
-    //if tripIds match we retrive days and activities.
+    //Listener that listens for "createdDay" from backend.
     socket.on("createdDay", () => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
       toast.success("New day added successfully!");
@@ -235,8 +233,8 @@ export default function TripDaysPage() {
       toast.success("New trip category applied: " + category);
     });
 
-    socket.on("addedTransport", async (changedTransportType, username) => {
-      await fetchTransportInfo(changedTransportType);
+    socket.on("addedTransport", (changedTransportType, username) => {
+      fetchTransportInfo(changedTransportType);
 
       changedTransportType = changedTransportType.charAt(0).toUpperCase() + changedTransportType.slice(1);
       toast.success(`${changedTransportType} entry has been added by ${username}!`);
