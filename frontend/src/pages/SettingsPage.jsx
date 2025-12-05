@@ -3,7 +3,7 @@ import "../css/SettingsPage.css";
 import TopBanner from "../components/TopBanner";
 import NavBar from "../components/NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
-import { Camera } from "lucide-react";
+import { Camera, Heart } from "lucide-react";
 import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import GuestEmptyState from "../components/GuestEmptyState.jsx";
@@ -19,6 +19,8 @@ export default function SettingsPage() {
     const [stats, setStats] = useState(null);
     const [groupStats, setGroupStats] = useState(null);
     const [tab, setTab] = useState("userStats"); //"user stats" || "group stats"
+    const [loadingStats, setLoadingStats] = useState(false);
+    const [loadingGroupStats, setLoadingGroupStats] = useState(false);
 
     const [pfp, setPfp] = useState(null);
 
@@ -49,11 +51,14 @@ export default function SettingsPage() {
     useEffect(() => {
         if (user && !isGuestUser(user?.user_id)) {
             const loadStats = async () => {
+                setLoadingStats(true);
                 try {
                     const statsData = await fetchUserStats(user.user_id);
                     setStats(statsData);
                 } catch (err) {
                     console.error("Error loading stats:", err);
+                } finally {
+                    setLoadingStats(false);
                 }
             };
             loadStats();
@@ -104,8 +109,15 @@ export default function SettingsPage() {
         // once we set group stats this won't be called again "!groupStats
         if (tab === "groupStats" && user && !isGuestUser(user.user_id) && !groupStats) {
             const loadGroupStats = async () => {
-                const data = await fetchGroupStats(user.user_id);
-                setGroupStats(data);
+                setLoadingGroupStats(true);
+                try {
+                    const data = await fetchGroupStats(user.user_id);
+                    setGroupStats(data);
+                } catch (err) {
+                    console.error("Error loading group stats:", err);
+                } finally {
+                    setLoadingGroupStats(false);
+                }
             };
             loadGroupStats();
         }
@@ -273,6 +285,20 @@ export default function SettingsPage() {
         return userId && userId.toString().startsWith('guest_');
     };
 
+    const formatPrice = (num) => {
+        if (num == null || isNaN(num)) return "N/A";
+        const format = (value, suffix) => {
+            const formatted = (value).toFixed(1);
+            return formatted.endsWith(".0")
+                ? Math.round(value) + suffix
+                : formatted + suffix;
+        };
+        if(num >= 1_000_000_000) return format(num / 1_000_000_000, "B");
+        if (num >= 1_000_000) return format(num / 1_000_000, "M");
+        if (num >= 1_000) return format(num / 1_000, "K");
+        return num.toString();
+    };
+
     // Loading state
     if (!user) {
         return (
@@ -399,7 +425,15 @@ export default function SettingsPage() {
                             {/* Display user stats */}
                             {tab === "userStats" && (
                             <div className="stats">
-                                
+                                    {loadingStats ? (
+                                        <div className="stats-loading-container">
+                                            <MoonLoader
+                                                color="var(--accent)"
+                                                size={100}
+                                            />
+                                        </div>
+                                    ) : (
+                                            <>
                                 <div className="stat-line">
                                     <span className="stat-label">Trips Made: </span>
                                     <span className="stat-value">{stats?.tripCount ?? "N/A"}</span>
@@ -422,20 +456,30 @@ export default function SettingsPage() {
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Money Spent: </span>
-                                    <span className="stat-value">{stats?.totalMoneySpent ?? "N/A"}</span>
+                                    <span className="stat-value">${formatPrice(stats?.totalMoneySpent) ?? "N/A"}</span>
                                 </div>
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Likes: </span>
-                                    <span className="stat-value">{stats?.totalLikes ?? "N/A"}</span>
+                                    <span className="stat-value"><Heart className = "heart-icon" size={15}/>{formatPrice(stats?.totalLikes) ?? "N/A"}</span>
                                 </div>
+                                        </>
+                                    )}
                             </div>
                             )}
 
                             {/*Display group stats */}
                             {tab === "groupStats" && (
                             <div className="stats">
-                                
+                                    {loadingGroupStats ? (
+                                        <div className="stats-loading-container">
+                                            <MoonLoader
+                                                color="var(--accent)"
+                                                size={100}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <>
                                 <div className="stat-line">
                                     <span className="stat-label">Trips Shared With You: </span>
                                     <span className="stat-value">{groupStats?.tripCount ?? "N/A"}</span>
@@ -458,13 +502,15 @@ export default function SettingsPage() {
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Money Spent: </span>
-                                    <span className="stat-value">{groupStats?.totalMoneySpent ?? "N/A"}</span>
+                                    <span className="stat-value">${formatPrice(groupStats?.totalMoneySpent)?? "N/A"}</span>
                                 </div>
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Likes: </span>
-                                    <span className="stat-value">{groupStats?.totalLikes ?? "N/A"}</span>
+                                    <span className="stat-value"><Heart className="heart-icon" size={15}/>{formatPrice(groupStats?.totalLikes) ?? "N/A"}</span>
                                 </div>
+                                        </>
+                                    )}
                             </div>
                             )}                            
                         </div>
