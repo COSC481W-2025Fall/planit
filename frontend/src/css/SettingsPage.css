@@ -419,3 +419,14 @@ html[data-theme="dark"] .stats-tab.active { background: var(--accent); color: va
         position: static;
     }
 }
+
+.heart-icon {
+    fill: currentColor;
+}
+
+.stats-loading-container{
+    display: flex;
+    padding: 40px;
+    justify-content: center;
+    align-items: center;
+}
