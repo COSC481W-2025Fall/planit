@@ -187,7 +187,7 @@ it('should add a new activity', async () => {
   } else {
     const list = await request(app)
       .get('/activities/read/all')
-      .send({ dayId: 1 });
+      .send({ dayId: 1 , canEdit: true});
     expect(list.status).toBe(200);
     expect(Array.isArray(list.body.activities)).toBe(true);
     expect(list.body.activities.length).toBeGreaterThan(0);
@@ -201,7 +201,7 @@ it('should add a new activity', async () => {
   it('should get all activities for a day', async () => {
     const res = await request(app)
       .get('/activities/read/all')
-      .send({ dayId: 1 }); // controller reads from body
+      .send({ dayId: 1, canEdit: true }); // controller reads from body
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body.activities)).toBe(true);
   });
