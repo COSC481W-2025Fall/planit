@@ -180,9 +180,9 @@ export default function TripDaysPage() {
     //Listener that listens for "createdDay" from backend. Takes tripId from backend as json which is then 
     //compared to the tripId we are currently on(this will eventually be changed once rooms are implemented)
     //if tripIds match we retrive days and activities.
-    socket.on("createdDay", () => {
+    socket.on("createdDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.success("New day added successfully!");
+      toast.success(`Day added by ${username}`);
     });
 
     socket.on("updatedDay", () => {
@@ -190,9 +190,9 @@ export default function TripDaysPage() {
       toast.info("Day moved");
     });
 
-    socket.on("deletedDay", () => {
+      socket.on("deletedDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.success("Day has been deleted.");
+      toast.success(`Day has been deleted by ${username}`);
     });
 
     socket.on("updatedActivity", (dayId, activityName, dayIndex, username, create) => {
@@ -804,7 +804,7 @@ export default function TripDaysPage() {
     if (!newDay) return;
 
     try {
-      await createDay(tripId, { day_date: newDay, newDayInsertBefore});
+      await createDay(tripId, { day_date: newDay, newDayInsertBefore}, user.username);
 
       if (newDayInsertBefore) {
         await updateTrip({
@@ -839,7 +839,7 @@ export default function TripDaysPage() {
       // detects if first day is being deleted
       const isFirstDay = days.length > 0 && dayId === days[0].day_id;
 
-      await deleteDay(tripId, dayId, isFirstDay);
+      await deleteDay(tripId, dayId, isFirstDay, user.username);
 
       if (isFirstDay) {
         // if first day is deleted, update trip start date
