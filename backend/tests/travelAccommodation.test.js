@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import * as transportController from "../controllers/travelAccommodationController.js";
+import * as socket from "../socket.js";
+
+// Mock IO instance
+socket.getIO = () => ({
+  to: () => ({
+    emit: () => {},
+  }),
+});
 
 // Mock the sql import
 vi.mock("../config/db.js", () => ({
@@ -7,6 +14,7 @@ sql: vi.fn(),
 }));
 
 import { sql } from "../config/db.js";
+import * as transportController from "../controllers/travelAccommodationController.js";
 
 describe("Transport & Accommodation Controllers", () => {
 beforeEach(() => {
@@ -170,7 +178,7 @@ it("should retrieve accommodation info successfully", async () => {
 
 //Test updateAccommodationInfo
 it("should update accommodation successfully", async () => {
-  const req = { body: { accommodation_id: 1, accommodation_type: "Hostel" } };
+  const req = { body: { accommodation_id: 1, accommodation_type: "Hostel"} };
   const res = { json: vi.fn(), status: vi.fn().mockReturnThis() };
   sql.mockResolvedValue([{ accommodation_id: 1, accommodation_type: "Hostel" }]);
 
