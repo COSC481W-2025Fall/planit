@@ -581,7 +581,7 @@ export default function TripDaysPage() {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               credentials: "include",
-              body: JSON.stringify({ dayId: day.day_id }),
+              body: JSON.stringify({ dayId: day.day_id, canEdit }),
             }
           );
           const { activities } = await res.json();
@@ -634,7 +634,7 @@ export default function TripDaysPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({dayId})
+          body: JSON.stringify({dayId, canEdit})
         }
       );
       const {activities} = await res.json();
