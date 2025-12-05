@@ -204,7 +204,7 @@ export default function TripDaysPage() {
 
       socket.on("deletedDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      
+
       if(user.username === username){
         toast.success("Day deleted successfully!");
       }
@@ -215,19 +215,37 @@ export default function TripDaysPage() {
 
     socket.on("updatedActivity", (dayId, activityName, dayIndex, username, create) => {
       fetchDay(dayId);
-      toast.success(create ? `Day ${dayIndex} activity "${activityName}" added by ${username}!` : `Day ${dayIndex} activity "${activityName}" updated by ${username}!`);
+
+      if(user.username === username){
+        toast.success(create ? `Day ${dayIndex} activity "${activityName}" added!` : `Day ${dayIndex} activity "${activityName}" updated!`);
+      }
+      else{
+        toast.success(create ? `Day ${dayIndex} activity "${activityName}" added by ${username}!` : `Day ${dayIndex} activity "${activityName}" updated by ${username}!`);
+      }
     });
 
     socket.on("deletedActivity", (dayId, activityName, dayIndex, username) => {
       fetchDay(dayId);
-      toast.success(`Day ${dayIndex} activity "${activityName}" deleted by ${username}!`);
+
+      if(user.username === username){
+        toast.success(`Day ${dayIndex} activity "${activityName}" deleted!`);
+      }
+      else{
+        toast.success(`Day ${dayIndex} activity "${activityName}" deleted by ${username}!`);
+      }
     });
 
     socket.on("noteUpdated", (dayId, activityName, dayIndex, username, notes) => {
       if(notes != ""){
         const toastNote = notes.length > 20 ? notes.slice(0, 20) + "..." : notes;
         fetchDay(dayId);
-        toast.success(`Day ${dayIndex} activity "${activityName}" ${username} notes: "${toastNote}"`);
+
+        if(user.username === username){
+          toast.success(`Day ${dayIndex} activity "${activityName}" you note: "${toastNote}"`);
+        }
+        else{
+          toast.success(`Day ${dayIndex} activity "${activityName}" ${username} notes: "${toastNote}"`);
+        }
       }
     });
 
