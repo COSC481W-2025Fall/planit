@@ -422,6 +422,7 @@ html[data-theme="dark"] .stats-tab.active { background: var(--accent); color: va
 
 .heart-icon {
     fill: currentColor;
+    margin-right: 5px;
 }
 
 .stats-loading-container{

@@ -461,7 +461,7 @@ export default function SettingsPage() {
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Likes: </span>
-                                    <span className="stat-value"><Heart className = "heart-icon" size={15}/>{formatPrice(stats?.totalLikes) ?? "N/A"}</span>
+                                    <span className="stat-value"><span><Heart className = "heart-icon" size={15}/></span>{formatPrice(stats?.totalLikes) ?? "N/A"}</span>
                                 </div>
                                         </>
                                     )}
@@ -507,7 +507,7 @@ export default function SettingsPage() {
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Likes: </span>
-                                    <span className="stat-value"><Heart className="heart-icon" size={15}/>{formatPrice(groupStats?.totalLikes) ?? "N/A"}</span>
+                                    <span className="stat-value"><span><Heart className="heart-icon" size={15}/></span>{formatPrice(groupStats?.totalLikes) ?? "N/A"}</span>
                                 </div>
                                         </>
                                     )}
