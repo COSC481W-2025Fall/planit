@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronRight, PiggyBank, Plane,Car,Train,Bus,Ship,Bed} from "lucide-react";
-import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
+import { LOCAL_BACKEND_URL, VITE_BACKEND_URL, LOCAL_FRONTEND_URL, VITE_FRONTEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
 import "../css/Popup.css";
@@ -24,6 +24,7 @@ import CloneTripButton from "../components/CloneTripButton.jsx";
 import Label from "../components/Label.jsx";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+const BASE_FRONTEND_URL = import.meta.env.PROD ? VITE_FRONTEND_URL : LOCAL_FRONTEND_URL
 
 export default function TripDaysPage() {
 
@@ -249,14 +250,20 @@ export default function TripDaysPage() {
       }
     });
 
-    socket.on("addedParticipant", () => {
+    socket.on("addedParticipant", (username) => {
       displayParticipants();
-      toast.success("Participant added!");
+      toast.success(`Participant ${username} added!`);
     });
 
-    socket.on("removedParticipant", () => {
-      displayParticipants();
-      toast.success("Participant removed!");
+    socket.on("removedParticipant", (username) => {
+      if(user.username === username){
+        localStorage.setItem("removedToast", "You have been removed from this trip.");
+        window.location.href = `${BASE_FRONTEND_URL}/trip`;
+      }
+      else{
+        displayParticipants();
+        toast.success(`Participant ${username} removed!`);
+      }
     });
 
     socket.on("categoryApplied", (category) => {

@@ -118,6 +118,14 @@ export default function TripPage() {
           .catch((err) => console.error("Failed to fetch trips:", err));
     }, [user?.user_id]);
 
+  useEffect(() => {
+    const message = localStorage.getItem("removedToast");
+    if (message) {
+      toast.success(message);
+      localStorage.removeItem("removedToast");
+    }
+  }, []);
+
     useEffect(() => {
         if (editingTrip) {
             setStartDate(new Date(editingTrip.trip_start_date));

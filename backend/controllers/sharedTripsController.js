@@ -89,7 +89,7 @@ export const addParticipant = async (req, res) => {
     `;
 
         res.json({ message: "Participant added to shared trip." });
-        io.to(`trip_${tripId}`).emit("addedParticipant");
+        io.to(`trip_${tripId}`).emit("addedParticipant", username);
     }
     catch (err) {
         console.log("Error adding participant:", err);
@@ -129,7 +129,7 @@ export const removeParticipant = async (req, res) => {
         }
 
         res.json({ message: "Participant removed from shared trip." });
-        io.to(`trip_${tripId}`).emit("removedParticipant");
+        io.to(`trip_${tripId}`).emit("removedParticipant", username);
     }
     catch (err) {
         console.log("Error removing participant:", err);
