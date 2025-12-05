@@ -182,17 +182,35 @@ export default function TripDaysPage() {
     //if tripIds match we retrive days and activities.
     socket.on("createdDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.success(`Day added by ${username}`);
+
+      if(user.username === username){
+        toast.success("New day added successfully!");
+      }
+      else{
+        toast.success(`New day added by ${username}!`);
+      }
     });
 
     socket.on("updatedDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.info(`Day moved by ${username}`);
+
+      if (user.username === username) {
+        toast.success("Day moved successfully!");
+      }
+      else {
+        toast.success(`Day moved by ${username}`);
+      }
     });
 
       socket.on("deletedDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.success(`Day deleted by ${username}`);
+      
+      if(user.username === username){
+        toast.success("Day deleted successfully!");
+      }
+      else{
+        toast.success(`Day deleted by ${username}`);
+      }
     });
 
     socket.on("updatedActivity", (dayId, activityName, dayIndex, username, create) => {
