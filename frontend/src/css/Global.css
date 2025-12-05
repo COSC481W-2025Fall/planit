@@ -22,6 +22,7 @@
     --bg-hover: #f0f0f0;
     --text: #111111;
     --muted: #7c8189;
+    --gray-light: #bfbfbf;
     --text-strong: #0b1120;
     --text-placeholder: #999999;
     --text-disabled: #bbbbbb;
@@ -95,6 +96,7 @@
 
     --text: #e8edf4;
     --muted: #a8b1bf;
+    --gray-light: #bfbfbf;
     --text-strong: #ffffff;
     --text-placeholder: #8b93a3;
     --text-disabled: #6c7380;

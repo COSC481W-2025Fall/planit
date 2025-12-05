@@ -62,6 +62,10 @@ export default function TripPage() {
       const stored = localStorage.getItem("hiddenTripLabels");
       return stored ? JSON.parse(stored) : [];
     });
+    const [showAILabels, setShowAILabels] = useState(() => {
+        return localStorage.getItem("planit:showAILabels") !== "false";
+    });
+
     const [categoryFilter, setCategoryFilter] = useState("all");
 
   const [showCompletedTrips, setShowCompletedTrips] = useState(() => {
@@ -72,7 +76,9 @@ export default function TripPage() {
     setShowCompletedTrips(localStorage.getItem("planit:showCompletedTrips") !== "false");
   }, []);
 
-
+    useEffect(() => {
+        setShowAILabels(localStorage.getItem("planit:showAILabels") !== "false");
+    }, [])
 
   const toggleLabelVisibility = (tripId) => {
   setHiddenLabels((prev) => {
@@ -620,9 +626,11 @@ export default function TripPage() {
                                       <div className="trip-card-title-row">
                                       <h3 className="trip-card-title">{trip.trip_name}</h3>
 
-                                    {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
-                                      <Label category={trip.trip_category} className="trip-card-badge" />
-                                    )}
+                                          {showAILabels &&
+                                              trip.trip_category &&
+                                              !hiddenLabels.includes(trip.trips_id) && (
+                                                  <Label category={trip.trip_category} className="trip-card-badge" />
+                                              )}
                                       </div>
                                       <div className="trip-card-footer">
                                           <div className="trip-location">

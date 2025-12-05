@@ -283,16 +283,16 @@
 
 .inline-pref {
     display: flex;
-    gap: 12px;
-    align-items: center;
-    justify-content: flex-start !important;
-    padding: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 12px;
 }
 
 .pref-label {
     font-size: 1rem;
     font-weight: 500;
-    color: var(--text-dark2);
+    color: var(--text-dark3);
 }
 
 .mini-toggle {
@@ -312,7 +312,7 @@
 }
 
 .mini-toggle.off {
-    background: #bfbfbf;
+    background: var(--gray-light);
 }
 
 .mini-thumb {

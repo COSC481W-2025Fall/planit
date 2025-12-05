@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../css/SettingsPage.css";
+import { useTheme } from "../theme/ThemeProvider.jsx";
 import TopBanner from "../components/TopBanner";
 import NavBar from "../components/NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
@@ -27,9 +28,14 @@ export default function SettingsPage() {
     const [tempImage, setTempImage] = useState(null);
     const croppieElement = useRef(null);
     const croppieInstance = useRef(null);
+    const { theme, toggle } = useTheme();
 
     const [disablePackingAI, setDisablePackingAI] = useState(() => {
         return localStorage.getItem("planit:disablePackingAI") === "true";
+    });
+
+    const [showAILabels, setShowAILabels] = useState(() => {
+        return localStorage.getItem("planit:showAILabels") !== "false";
     });
 
     const [showCompletedTrips, setShowCompletedTrips] = useState(() => {
@@ -479,37 +485,68 @@ export default function SettingsPage() {
                         <div className="settings-card pref-card">
                             <h3>App Preferences</h3>
 
-                            {/* Packing AI */}
-                            <div className="pref-row inline-pref">
-                                <span className="pref-label">Packing AI</span>
+                            {/* AI Features Group */}
+                            <div className="pref-group">
+                                <div className="pref-row inline-pref">
+                                    <span className="pref-label">Packing AI</span>
+                                    <div
+                                        className={`mini-toggle ${disablePackingAI ? "off" : "on"}`}
+                                        onClick={() => {
+                                            const val = !disablePackingAI;
+                                            setDisablePackingAI(val);
+                                            localStorage.setItem("planit:disablePackingAI", val);
+                                        }}
+                                    >
+                                        <div className="mini-thumb"></div>
+                                        <span className="mini-status">{disablePackingAI ? "OFF" : "ON"}</span>
+                                    </div>
+                                </div>
 
-                                <div
-                                  className={`mini-toggle ${disablePackingAI ? "off" : "on"}`}
-                                  onClick={() => {
-                                      const val = !disablePackingAI;
-                                      setDisablePackingAI(val);
-                                      localStorage.setItem("planit:disablePackingAI", val);
-                                  }}
-                                >
-                                    <div className="mini-thumb"></div>
-                                    <span className="mini-status">{disablePackingAI ? "OFF" : "ON"}</span>
+                                <div className="pref-row inline-pref">
+                                    <span className="pref-label">Show AI Labels</span>
+                                    <div
+                                        className={`mini-toggle ${showAILabels ? "on" : "off"}`}
+                                        onClick={() => {
+                                            const val = !showAILabels;
+                                            setShowAILabels(val);
+                                            localStorage.setItem("planit:showAILabels", val);
+                                        }}
+                                    >
+                                        <div className="mini-thumb"></div>
+                                        <span className="mini-status">{showAILabels ? "ON" : "OFF"}</span>
+                                    </div>
                                 </div>
                             </div>
-                            {/* Show Completed Trips */}
+
+                            {/* Existing preferences */}
                             <div className="pref-row inline-pref">
                                 <span className="pref-label">Show Completed Trips</span>
                                 <div
-                                  className={`mini-toggle ${showCompletedTrips ? "on" : "off"}`}
-                                  onClick={() => {
-                                      const val = !showCompletedTrips;
-                                      setShowCompletedTrips(val);
-                                      localStorage.setItem("planit:showCompletedTrips", val);
-                                  }}
+                                    className={`mini-toggle ${showCompletedTrips ? "on" : "off"}`}
+                                    onClick={() => {
+                                        const val = !showCompletedTrips;
+                                        setShowCompletedTrips(val);
+                                        localStorage.setItem("planit:showCompletedTrips", val);
+                                    }}
                                 >
                                     <div className="mini-thumb"></div>
                                     <span className="mini-status">{showCompletedTrips ? "ON" : "OFF"}</span>
                                 </div>
                             </div>
+
+                            {/* light/dark mode */}
+                            <div className="pref-row inline-pref">
+                                <span className="pref-label">Dark Mode</span>
+
+                                <div
+                                    className={`mini-toggle ${theme === "dark" ? "on" : "off"}`}
+                                    onClick={toggle}
+                                >
+                                    <div className="mini-thumb"></div>
+                                    <span className="mini-status">{theme === "dark" ? "ON" : "OFF"}</span>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                     {/* Popup for cropping profile picture */}
