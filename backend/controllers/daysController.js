@@ -120,6 +120,8 @@ export const updateDay = async (req, res) => {
   // validate input
   const date = req.body?.day_date ?? null;
 
+  const username = req.body?.username;
+
   // update day in database
   try {
     const rows = await sql`
@@ -134,7 +136,7 @@ export const updateDay = async (req, res) => {
     }
 
     if(req.body.finalUpdate === true){
-      io.to(`trip_${tripId}`).emit("updatedDay");
+      io.to(`trip_${tripId}`).emit("updatedDay", username);
     }
 
     // return the updated day

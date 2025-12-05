@@ -185,14 +185,14 @@ export default function TripDaysPage() {
       toast.success(`Day added by ${username}`);
     });
 
-    socket.on("updatedDay", () => {
+    socket.on("updatedDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.info("Day moved");
+      toast.info(`Day moved by ${username}`);
     });
 
       socket.on("deletedDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.success(`Day has been deleted by ${username}`);
+      toast.success(`Day deleted by ${username}`);
     });
 
     socket.on("updatedActivity", (dayId, activityName, dayIndex, username, create) => {
@@ -1053,7 +1053,7 @@ export default function TripDaysPage() {
           await updateDay(tripId, d.day_id, { day_date: newDate, finalUpdate: false });
         }
 
-        await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date , finalUpdate: true});
+        await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date , finalUpdate: true}, user.username);
 
         setDragFromDay(null);
         setDragOverInfo({ dayId: null, dayDate: null });
@@ -1103,7 +1103,7 @@ export default function TripDaysPage() {
       }
 
       // Finally, update the date of the day we're dragging
-      await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate, finalUpdate: true });
+      await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate, finalUpdate: true }, user.username);
 
       setDragFromDay(null);
       setDragOverInfo({ dayId: null, index: null });
