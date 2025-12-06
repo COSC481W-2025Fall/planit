@@ -34,10 +34,15 @@ export default function TripPage() {
     const [endDate, setEndDate] = useState(null);
     const [deleteTripId, setDeleteTripId] = useState(null);
     const [privacyDraft, setPrivacyDraft] = useState(true);
+    const [tripNotesDraft, setTripNotesDraft] = useState("");
 
 
 
   const isMobile = () => window.innerWidth <= 600;
+
+  const [showAILabelsGlobal, setShowAILabelsGlobal] = useState(() => {
+        return localStorage.getItem("planit:showAILabels") !== "false";
+    });
 
   const MobileDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
     <div
@@ -64,7 +69,8 @@ export default function TripPage() {
     });
     const [categoryFilter, setCategoryFilter] = useState("all");
 
-    const toggleLabelVisibility = (tripId) => {
+  const toggleLabelVisibility = (tripId) => {
+
   setHiddenLabels((prev) => {
     let updated;
 
@@ -78,6 +84,15 @@ export default function TripPage() {
     return updated;
   });
 };
+// Sync "Show AI Labels" with SettingsPage changes
+    useEffect(() => {
+        const handler = () => {
+            const val = localStorage.getItem("planit:showAILabels") !== "false";
+            setShowAILabelsGlobal(val);
+        };
+        window.addEventListener("storage", handler);
+        return () => window.removeEventListener("storage", handler);
+    }, []);
 
     // Close dropdown if click outside
     useEffect(() => {
@@ -86,7 +101,7 @@ export default function TripPage() {
               setOpenDropdownId(null);
           }
       };
-      document.addEventListener("mousedown", 
+      document.addEventListener("mousedown",
       handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [])
@@ -127,18 +142,24 @@ export default function TripPage() {
   }, []);
 
     useEffect(() => {
-        if (editingTrip) {
-            setStartDate(new Date(editingTrip.trip_start_date));
-            if (editingTrip.trip_end_date) {
-                setEndDate(new Date(editingTrip.trip_end_date));
-            }
-            setPrivacyDraft(editingTrip.is_private ?? true);
-        } else {
-            setStartDate(null);
-            setEndDate(null);
-            setPrivacyDraft(true);
+    if (editingTrip) {
+        setStartDate(new Date(editingTrip.trip_start_date));
+        if (editingTrip.trip_end_date) {
+            setEndDate(new Date(editingTrip.trip_end_date));
         }
-    }, [editingTrip]);
+        setPrivacyDraft(editingTrip.is_private ?? true);
+
+        // preload existing trip notes
+        setTripNotesDraft(editingTrip.notes || "");
+    } else {
+        setStartDate(null);
+        setEndDate(null);
+        setPrivacyDraft(true);
+
+        // clear notes for "New Trip"
+        setTripNotesDraft("");
+    }
+}, [editingTrip]);
 
     // Fetch image URLs for trips when component loads or trips change
     useEffect(() => {
@@ -396,13 +417,14 @@ export default function TripPage() {
         setEditingTrip(null);
         setStartDate(null);
         setEndDate(null);
-        setPrivacyDraft(true);                
+        setPrivacyDraft(true);  
+        setTripNotesDraft("");
         setIsModalOpen(true);
     };
 
     const handleEditTrip = async (trip) => {
         setEditingTrip(trip);
-        setPrivacyDraft(trip.is_private ?? true); 
+        setPrivacyDraft(trip.is_private ?? true);
         setIsModalOpen(true);
 
         if (trip.image_id && trip.image_id !== 0) {
@@ -448,7 +470,6 @@ export default function TripPage() {
             toast.error("Failed to update privacy.");
         }
     };
-
   return (
     <div className="trip-page">
       <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
@@ -506,7 +527,7 @@ export default function TripPage() {
                             </div>
                           ) : (
                             sortedFilteredTrips.map((trip) => (
-                              <div key={trip.trips_id} className="trip-card">       
+                              <div key={trip.trips_id} className="trip-card">
                                   <div className="trip-card-image"
                                     onClick={() => handleTripRedirect(trip.trips_id)}>
                                     <img
@@ -515,7 +536,6 @@ export default function TripPage() {
                                     className="trip-card-img"
                                     />
                                   </div>
-
                                   <button
                                     className="privacy-toggle-btn"
                                     title={trip.is_private ? "Unprivate" : "Private"}
@@ -597,11 +617,12 @@ export default function TripPage() {
                                       <div className="trip-card-title-row">
                                       <h3 className="trip-card-title">{trip.trip_name}</h3>
 
-                                    {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
-                                      <Label category={trip.trip_category} className="trip-card-badge" />
-                                    )}
+                                          {showAILabelsGlobal &&
+                                              trip.trip_category &&
+                                              !hiddenLabels.includes(trip.trips_id) && (
+                                                  <Label category={trip.trip_category} className="trip-card-badge" />
+                                              )}
                                       </div>
-
                                       <div className="trip-card-footer">
                                           <div className="trip-location">
                                               <MapPin size={16} style={{marginRight: "4px"}}/>
@@ -682,14 +703,25 @@ export default function TripPage() {
                               onSubmit={async (e) => {
                                   e.preventDefault();
                                   const formData = new FormData(e.target);
+                                  
+                                  const tripName = formData.get("name")?.trim() || "";
+                                  const words = tripName.split(/\s+/).filter(Boolean);
+                                  const tooLongWord = words.find(word => word.length > 14);
+
+                                  if (tooLongWord) {
+                                    toast.error("Each word in the trip name must be 14 characters or fewer.");
+                                    return;
+                                  }
+
                                   const tripData = {
                                       trip_name: formData.get("name"),
                                       trip_location: formData.get("location"),
                                       trip_start_date: formData.get("startDate"),
-                                      image_id: selectedImage ? selectedImage.image_id : (editingTrip?.image_id ?? 1),                                      
+                                      image_id: selectedImage ? selectedImage.image_id : (editingTrip?.image_id ?? 1),
                                       trip_end_date: formData.get("endDate"),
                                       user_id: user.user_id,
-                                      isPrivate: privacyDraft //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
+                                      isPrivate: privacyDraft,
+                                      notes: tripNotesDraft
                                   };
                                   if (editingTrip) tripData.trips_id = editingTrip.trips_id;
                                   console.log(tripData)
@@ -699,14 +731,14 @@ export default function TripPage() {
                                 <input
                                   name="name"
                                   placeholder="Trip Name"
-                                  maxLength="30"
+                                  maxLength="44"
                                   defaultValue={editingTrip?.trip_name || ""}
                                   required
                                 />
                                 <input
                                   name="location"
                                   placeholder="Location"
-                                  maxLength="30"
+                                  maxLength="36"
                                   defaultValue={editingTrip?.trip_location || ""}
                                   required
                                 />
@@ -791,40 +823,57 @@ export default function TripPage() {
                                 <input
                                   type="hidden"
                                   name="startDate"
-                                  value={startDate ? startDate.toISOString().split("T")[0] : ""}          
+                                  value={startDate ? startDate.toISOString().split("T")[0] : ""}
                                 />
-                                <ImageSelector onSelect={(img) => setSelectedImage(img)} />
-                                 <input
-                                  type="hidden"
-                                  name="endDate"
-                                  value={endDate ? endDate.toISOString().split("T")[0] : ""}
-                                />
-                              <div className="privacy-switch-container">
-                                <div
-                                  className={`privacy-switch ${privacyDraft ? "private" : "public"}`}
-                                  onClick={() => setPrivacyDraft(!privacyDraft)}
-                                >
-                                  <div
-                                    className={`privacy-icon left ${privacyDraft ? "active" : ""}`}
-                                    data-label="Private"
-                                  >
-                                    <Lock size={14} />
-                                  </div>
+                                <div className="image-selector-privacy-container">
+                                  <ImageSelector onSelect={(img) => setSelectedImage(img)} />
+                                  <input
+                                    type="hidden"
+                                    name="endDate"
+                                    value={endDate ? endDate.toISOString().split("T")[0] : ""}
+                                  />
 
-                                  <div
-                                    className={`privacy-icon right ${!privacyDraft ? "active" : ""}`}
-                                    data-label="Public"
-                                  >
-                                    <Unlock size={14} />
-                                  </div>
+                                  <div className="privacy-switch-container">
+                                    <div
+                                      className={`privacy-switch ${privacyDraft ? "private" : "public"}`}
+                                      onClick={() => setPrivacyDraft(!privacyDraft)}
+                                    >
+                                      <div
+                                        className={`privacy-icon left ${privacyDraft ? "active" : ""}`}
+                                        data-label="Private"
+                                      >
+                                        <Lock size={14} />
+                                      </div>
 
-                                  <div className="privacy-switch-knob"></div>
+                                      <div
+                                        className={`privacy-icon right ${!privacyDraft ? "active" : ""}`}
+                                        data-label="Public"
+                                      >
+                                        <Unlock size={14} />
+                                      </div>
+
+                                      <div className="privacy-switch-knob"></div>
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
+                                <label className="popup-input">
+                                  <span>Notes</span>
 
+                                  <textarea
+                                    name="tripNotes"
+                                    className="textarea-notes"
+                                    placeholder="Enter any notes you have about this trip!"
+                                    value={tripNotesDraft}
+                                    onChange={(e) => setTripNotesDraft(e.target.value)}
+                                    maxLength={200}
+                                  />
 
-                            </form>
-                        </div>
+                                  <div className="char-count">
+                                    {tripNotesDraft.length} / 200
+                                  </div>
+                                </label>
+                              </form>
+                            </div>
                     </Popup>
                   )}
               </div>
