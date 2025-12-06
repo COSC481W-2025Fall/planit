@@ -47,10 +47,6 @@ export default function SettingsPage() {
     });
 
     const handleConfirmDelete = async () => {
-        if (deleteUsername.trim() !== user.username.trim()) {
-            return toast.error("Username does not match. Deletion cancelled.");
-        }
-
         if (user.user_id.toString().startsWith("guest_")) {
             return toast.error("Guest accounts cannot be deleted.");
         }
@@ -61,7 +57,6 @@ export default function SettingsPage() {
             const backend = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
             const response = await fetch(`${backend}/user/delete`, {
-
                 method: "DELETE",
                 credentials: "include"
             });
@@ -629,10 +624,6 @@ export default function SettingsPage() {
                                 >
                                     Delete Account
                                 </button>
-
-                                <p className="delete-warning-text">
-                                    This action is permanent and cannot be undone.
-                                </p>
                             </div>
                         </div>
                     </div>
@@ -691,7 +682,7 @@ export default function SettingsPage() {
                                     <button
                                         type="button"
                                         className="btn-rightside"
-                                        disabled={isDeleting}
+                                        disabled={isDeleting || deleteUsername.trim() !== user.username.trim()}
                                         onClick={handleConfirmDelete}
                                     >
                                         {isDeleting ? "Deleting..." : "Delete"}

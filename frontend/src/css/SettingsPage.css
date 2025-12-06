@@ -80,7 +80,16 @@
 }
 
 .stats-card,
-.info-card,
+.info-card{
+    gap: 1rem;
+    background: var(--bg-surface);
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-2);
+    margin-top: 1rem;
+    width: 47%;
+}
+
 .pref-card {
     gap: 1rem;
     background: var(--bg-surface);
@@ -88,7 +97,8 @@
     border-radius: var(--radius);
     box-shadow: var(--shadow-2);
     margin-top: 1rem;
-    width: 45%;
+    width: 94.7%;
+    height: auto;
 }
 
 .stats-card,
@@ -398,14 +408,6 @@ html[data-theme="dark"] .stats-tab.active {
 .delete-button:active {
     background: var(--danger-active);
 }
-
-.delete-warning-text {
-    color: var(--danger-lighter);
-    margin-top: -3px;
-    font-size: 0.85rem;
-}
-
-/* Delete Popup */
 #delete-account-popup .popup-title {
     margin-bottom: 20px !important;
     font-size: 1.35rem;
@@ -511,9 +513,17 @@ html[data-theme="dark"] .delete-input::placeholder {
     font-family: "Open Sans", sans-serif !important;
 }
 
-#delete-account-popup .btn-rightside:hover {
+#delete-account-popup .btn-rightside:hover:not(:disabled) {
     background: var(--danger-hover) !important;
     transform: scale(1.05) !important;
+}
+
+#delete-account-popup .btn-rightside:disabled {
+    background: var(--gray-light) !important;
+    color: var(--text-disabled) !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+    transform: none !important;
 }
 
 .setting-page-loading-container {
