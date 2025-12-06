@@ -17,7 +17,6 @@
     "axios": "^1.12.2",
     "better-sqlite3": "^12.4.1",
     "cloudinary": "^2.7.0",
-    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "croppie": "^2.6.5",
     "date-fns": "^4.1.0",
