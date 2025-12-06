@@ -23,7 +23,8 @@ import settingsRoutes from "./routes/settingsRoutes.js";
 import travelAccommodationRoutes from "./routes/travelAccommodationRoutes.js";
 import settingsParticipantRoutes from "./routes/settingsParticipantRoutes.js";
 import weatherRoutes from "./routes/weatherRoutes.js";
-import rateLimit from "express-rate-limit";
+//import rateLimit from "express-rate-limit";
+import cookieParser from "cookie-parser";
 
 
 const app = express();
@@ -33,6 +34,7 @@ export const sql = neon(process.env.DATABASE_URL);
 
 // middleware
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: [

@@ -193,6 +193,44 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.trip-page .modal-content .textarea-notes {
+background: var(--bg-hover2);
+  padding: 12px;
+  border: 1px solid var(--border-input);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--text);
+  width: 100%;
+  resize: none;
+  box-sizing: border-box;
+}
+
+.trip-page .modal-content .textarea-notes::placeholder {
+  color: var(--text-placeholder);
+  opacity: 1;
+}
+
+.trip-page .modal-content .textarea-notes:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark2);
 }
 
 .trip-duration-badge {
