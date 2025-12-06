@@ -199,12 +199,12 @@
 }
 
 .trip-page .modal-content .textarea-notes {
-background: var(--bg-hover2);
-  font-size: 14px;
-  color: var(--text);
-  width: 100%;
-  resize: none;
-  box-sizing: border-box;
+    background: var(--bg-hover2);
+    font-size: 14px;
+    color: var(--text);
+    width: 100%;
+    resize: none;
+    box-sizing: border-box;
 }
 
 .trip-page .modal-content .textarea-notes::placeholder {
