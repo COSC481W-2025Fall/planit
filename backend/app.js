@@ -23,7 +23,7 @@ import settingsRoutes from "./routes/settingsRoutes.js";
 import travelAccommodationRoutes from "./routes/travelAccommodationRoutes.js";
 import settingsParticipantRoutes from "./routes/settingsParticipantRoutes.js";
 import weatherRoutes from "./routes/weatherRoutes.js";
-import rateLimit from "express-rate-limit";
+//import rateLimit from "express-rate-limit";
 
 
 const app = express();
