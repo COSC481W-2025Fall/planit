@@ -638,21 +638,6 @@ html[data-theme="dark"] .mobile-date-input {
     box-shadow: var(--shadow-1);
     transition: transform 0.2s ease;
 }
-.completed-badge-top {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: var(--accent);
-    color: var(--bg-white);
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    z-index: 5;
-    width: auto;
-    display: inline-block;
-    backdrop-filter: blur(4px);
-}
 
 .privacy-icon {
     flex: 1;

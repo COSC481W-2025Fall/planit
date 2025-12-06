@@ -38,9 +38,6 @@ export default function SettingsPage() {
         return localStorage.getItem("planit:showAILabels") !== "false";
     });
 
-    const [showCompletedTrips, setShowCompletedTrips] = useState(() => {
-        return localStorage.getItem("planit:showCompletedTrips") !== "false";
-    });
 
     useEffect(() => {
         fetch(
@@ -515,22 +512,6 @@ export default function SettingsPage() {
                                         <div className="mini-thumb"></div>
                                         <span className="mini-status">{showAILabels ? "ON" : "OFF"}</span>
                                     </div>
-                                </div>
-                            </div>
-
-                            {/* Existing preferences */}
-                            <div className="pref-row inline-pref">
-                                <span className="pref-label">Show Completed Trips</span>
-                                <div
-                                    className={`mini-toggle ${showCompletedTrips ? "on" : "off"}`}
-                                    onClick={() => {
-                                        const val = !showCompletedTrips;
-                                        setShowCompletedTrips(val);
-                                        localStorage.setItem("planit:showCompletedTrips", val);
-                                    }}
-                                >
-                                    <div className="mini-thumb"></div>
-                                    <span className="mini-status">{showCompletedTrips ? "ON" : "OFF"}</span>
                                 </div>
                             </div>
 
