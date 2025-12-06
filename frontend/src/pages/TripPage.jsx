@@ -815,25 +815,25 @@ export default function TripPage() {
                                   name="startDate"
                                   value={startDate ? startDate.toISOString().split("T")[0] : ""}
                                 />
-                  <div className = "image-selector-privacy-container">
-                    <ImageSelector onSelect={(img) => setSelectedImage(img)} />
-                    <input
-                      type="hidden"
-                      name="endDate"
-                      value={endDate ? endDate.toISOString().split("T")[0] : ""}
-                    />
+                                <div className = "image-selector-privacy-container">
+                                  <ImageSelector onSelect={(img) => setSelectedImage(img)} />
+                                  <input
+                                    type="hidden"
+                                    name="endDate"
+                                    value={endDate ? endDate.toISOString().split("T")[0] : ""}
+                                  />
 
-                    <div className="privacy-switch-container">
-                      <div
-                        className={`privacy-switch ${privacyDraft ? "private" : "public"}`}
-                        onClick={() => setPrivacyDraft(!privacyDraft)}
-                      >
-                        <div
-                          className={`privacy-icon left ${privacyDraft ? "active" : ""}`}
-                          data-label="Private"
-                        >
-                          <Lock size={14} />
-                        </div>
+                                  <div className="privacy-switch-container">
+                                    <div
+                                    className={`privacy-switch ${privacyDraft ? "private" : "public"}`}
+                                    onClick={() => setPrivacyDraft(!privacyDraft)}
+                                  >
+                                  <div
+                                    className={`privacy-icon left ${privacyDraft ? "active" : ""}`}
+                                    data-label="Private"
+                                   >
+                                  <Lock size={14} />
+                                </div>
 
                         <div
                           className={`privacy-icon right ${!privacyDraft ? "active" : ""}`}
