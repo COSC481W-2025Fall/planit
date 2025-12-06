@@ -199,7 +199,7 @@ export default function TripDaysPage() {
         toast.success("Day moved successfully!");
       }
       else {
-        toast.success(`Day moved by ${username}`);
+        toast.success(`Day moved by ${username}!`);
       }
     });
 
@@ -210,7 +210,7 @@ export default function TripDaysPage() {
         toast.success("Day deleted successfully!");
       }
       else{
-        toast.success(`Day deleted by ${username}`);
+        toast.success(`Day deleted by ${username}!`);
       }
     });
 
