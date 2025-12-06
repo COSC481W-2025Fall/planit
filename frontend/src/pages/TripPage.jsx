@@ -815,7 +815,7 @@ export default function TripPage() {
                                   name="startDate"
                                   value={startDate ? startDate.toISOString().split("T")[0] : ""}
                                 />
-                                <div className = "image-selector-privacy-container">
+                                <div className="image-selector-privacy-container">
                                   <ImageSelector onSelect={(img) => setSelectedImage(img)} />
                                   <input
                                     type="hidden"
@@ -825,45 +825,45 @@ export default function TripPage() {
 
                                   <div className="privacy-switch-container">
                                     <div
-                                    className={`privacy-switch ${privacyDraft ? "private" : "public"}`}
-                                    onClick={() => setPrivacyDraft(!privacyDraft)}
-                                  >
-                                  <div
-                                    className={`privacy-icon left ${privacyDraft ? "active" : ""}`}
-                                    data-label="Private"
-                                   >
-                                  <Lock size={14} />
+                                      className={`privacy-switch ${privacyDraft ? "private" : "public"}`}
+                                      onClick={() => setPrivacyDraft(!privacyDraft)}
+                                    >
+                                      <div
+                                        className={`privacy-icon left ${privacyDraft ? "active" : ""}`}
+                                        data-label="Private"
+                                      >
+                                        <Lock size={14} />
+                                      </div>
+
+                                      <div
+                                        className={`privacy-icon right ${!privacyDraft ? "active" : ""}`}
+                                        data-label="Public"
+                                      >
+                                        <Unlock size={14} />
+                                      </div>
+
+                                      <div className="privacy-switch-knob"></div>
+                                    </div>
+                                  </div>
                                 </div>
+                                <label className="popup-input">
+                                  <span>Notes</span>
 
-                        <div
-                          className={`privacy-icon right ${!privacyDraft ? "active" : ""}`}
-                          data-label="Public"
-                        >
-                          <Unlock size={14} />
-                        </div>
+                                  <textarea
+                                    name="tripNotes"
+                                    className="textarea-notes"
+                                    placeholder="Enter any notes you have about this trip!"
+                                    value={tripNotesDraft}
+                                    onChange={(e) => setTripNotesDraft(e.target.value)}
+                                    maxLength={200}
+                                  />
 
-                        <div className="privacy-switch-knob"></div>
-                      </div>
-                    </div>
-                  </div>
-                  <label className="popup-input">
-                    <span>Notes</span>
-
-                    <textarea
-                      name="tripNotes"
-                      className="textarea-notes"
-                      placeholder="Enter any notes you have about this trip!"
-                      value={tripNotesDraft}
-                      onChange={(e) => setTripNotesDraft(e.target.value)}
-                      maxLength={200}
-                    />
-
-                    <div className="char-count">
-                      {tripNotesDraft.length} / 200
-                    </div>
-                  </label>
-                            </form>
-                        </div>
+                                  <div className="char-count">
+                                    {tripNotesDraft.length} / 200
+                                  </div>
+                                </label>
+                              </form>
+                            </div>
                     </Popup>
                   )}
               </div>
