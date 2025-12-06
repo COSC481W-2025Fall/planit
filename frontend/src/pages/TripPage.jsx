@@ -526,7 +526,6 @@ export default function TripPage() {
                                     className="trip-card-img"
                                     />
                                   </div>
-
                                   <button
                                     className="privacy-toggle-btn"
                                     title={trip.is_private ? "Unprivate" : "Private"}
@@ -816,12 +815,37 @@ export default function TripPage() {
                                   name="startDate"
                                   value={startDate ? startDate.toISOString().split("T")[0] : ""}
                                 />
-                                <ImageSelector onSelect={(img) => setSelectedImage(img)} />
-                                 <input
-                                  type="hidden"
-                                  name="endDate"
-                                  value={endDate ? endDate.toISOString().split("T")[0] : ""}
-                                />
+                  <div className = "image-selector-privacy-container">
+                    <ImageSelector onSelect={(img) => setSelectedImage(img)} />
+                    <input
+                      type="hidden"
+                      name="endDate"
+                      value={endDate ? endDate.toISOString().split("T")[0] : ""}
+                    />
+
+                    <div className="privacy-switch-container">
+                      <div
+                        className={`privacy-switch ${privacyDraft ? "private" : "public"}`}
+                        onClick={() => setPrivacyDraft(!privacyDraft)}
+                      >
+                        <div
+                          className={`privacy-icon left ${privacyDraft ? "active" : ""}`}
+                          data-label="Private"
+                        >
+                          <Lock size={14} />
+                        </div>
+
+                        <div
+                          className={`privacy-icon right ${!privacyDraft ? "active" : ""}`}
+                          data-label="Public"
+                        >
+                          <Unlock size={14} />
+                        </div>
+
+                        <div className="privacy-switch-knob"></div>
+                      </div>
+                    </div>
+                  </div>
                   <label className="popup-input">
                     <span>Notes</span>
 
@@ -838,31 +862,6 @@ export default function TripPage() {
                       {tripNotesDraft.length} / 200
                     </div>
                   </label>
-
-                              <div className="privacy-switch-container">
-                                <div
-                                  className={`privacy-switch ${privacyDraft ? "private" : "public"}`}
-                                  onClick={() => setPrivacyDraft(!privacyDraft)}
-                                >
-                                  <div
-                                    className={`privacy-icon left ${privacyDraft ? "active" : ""}`}
-                                    data-label="Private"
-                                  >
-                                    <Lock size={14} />
-                                  </div>
-
-                                  <div
-                                    className={`privacy-icon right ${!privacyDraft ? "active" : ""}`}
-                                    data-label="Public"
-                                  >
-                                    <Unlock size={14} />
-                                  </div>
-
-                                  <div className="privacy-switch-knob"></div>
-                                </div>
-                              </div>
-
-
                             </form>
                         </div>
                     </Popup>
