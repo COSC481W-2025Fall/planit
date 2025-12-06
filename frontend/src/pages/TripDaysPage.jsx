@@ -493,7 +493,8 @@ export default function TripDaysPage() {
       if (!trip?.image_id) return;
 
       // Check if the image URL is already in localStorage global cache
-      const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+      const imageCacheKey = `image_${trip.image_id}_v1`;
+      const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
       // If the image is cached, use it
       if (cachedImageUrl) {
@@ -513,7 +514,7 @@ export default function TripDaysPage() {
         }
 
         const data = await res.json();
-        localStorage.setItem(`image_${trip.image_id}`, data);
+        localStorage.setItem(imageCacheKey, data);
         setImageUrl(data);
       } catch (err) {
         console.error("Failed to fetch image:", err);
