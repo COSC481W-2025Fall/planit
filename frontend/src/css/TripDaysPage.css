@@ -313,6 +313,15 @@ body {
   line-height: 1.4rem;
 }
 
+.trip-title:hover, .trip-location:hover, .trip-dates:hover, .trip-location:hover .trip-info-icon, .trip-dates:hover .trip-info-icon {
+  color: var(--accent);
+  transform: translateY(-1px);
+  cursor: pointer;
+  font-weight: 600;
+  stroke: var(--accent);
+}
+
+
 .trip-info {
   display: flex;
   flex-direction: row;
