@@ -127,14 +127,14 @@ export default function TripPage() {
         }
         setPrivacyDraft(editingTrip.is_private ?? true);
 
-        // ✅ preload existing trip notes
+        // preload existing trip notes
         setTripNotesDraft(editingTrip.notes || "");
     } else {
         setStartDate(null);
         setEndDate(null);
         setPrivacyDraft(true);
 
-        // ✅ clear notes for "New Trip"
+        // clear notes for "New Trip"
         setTripNotesDraft("");
     }
 }, [editingTrip]);
