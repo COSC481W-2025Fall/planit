@@ -75,6 +75,12 @@
 
     --ai-glow-color: rgba(0, 200, 255, 0.75);
     --ai-glow-color-soft: rgba(0, 200, 255, 0);
+
+    --danger: #ff4d4d;
+    --danger-hover: #e04545;
+    --danger-active: #c63b3b;
+    --danger-light: #ff6b6b;
+    --danger-lighter: #ff8080;
 }
 
 :root[data-theme="dark"] {
@@ -136,6 +142,12 @@
     --packing-ai-3: #34d399;
     --ai-glow-color: rgba(0, 220, 255, 0.9);
     --ai-glow-color-soft: rgba(0, 220, 255, 0.15);
+
+    --danger: #ff4d4d;
+    --danger-hover: #e04545;
+    --danger-active: #c63b3b;
+    --danger-light: #ff6b6b;
+    --danger-lighter: #ff8080;
 }
 
 @media (prefers-reduced-motion: no-preference) {
