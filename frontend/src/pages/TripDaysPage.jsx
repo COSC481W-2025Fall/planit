@@ -316,10 +316,24 @@ export default function TripDaysPage() {
   }, []);
 
   const [aiHidden, setAiHidden] = useState(false);
-  const [showAIBtn] = useState(true);
   const [aiItems, setAIItems] = useState([]);
   const [showAIPopup, setShowAIPopup] = useState(false);
   const [aiExpanded, setAiExpanded] = useState(false);
+
+  const [aiDisabled, setAiDisabled] = useState(
+    localStorage.getItem("planit:disablePackingAI") === "true"
+  );
+
+
+// If the setting changes (user toggles it in settings), refresh:
+  useEffect(() => {
+    const handler = () => {
+      setAiDisabled(localStorage.getItem("planit:disablePackingAI") === "true");
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
+
 
   useEffect(() => {
     const saved = localStorage.getItem("planit:aiCollapsed");
@@ -2166,7 +2180,7 @@ export default function TripDaysPage() {
               </div>
             )}
           </div>
-          {showAIBtn && (
+          {!aiDisabled && (
             <div className="ai-floating-container">
               <button
                 className={`ai-expand-btn ${aiExpanded ? "expanded" : ""} ${isPackingCooldown ? "cooldown" : ""}`}

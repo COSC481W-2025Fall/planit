@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../css/SettingsPage.css";
+import { useTheme } from "../theme/ThemeProvider.jsx";
 import TopBanner from "../components/TopBanner";
 import NavBar from "../components/NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
@@ -10,6 +11,7 @@ import GuestEmptyState from "../components/GuestEmptyState.jsx";
 import Croppie from "croppie";
 import "croppie/croppie.css";
 import Popup from "../components/Popup.jsx";
+
 
 export default function SettingsPage() {
     const [user, setUser] = useState(null);
@@ -29,6 +31,57 @@ export default function SettingsPage() {
     const [tempImage, setTempImage] = useState(null);
     const croppieElement = useRef(null);
     const croppieInstance = useRef(null);
+    const { theme, toggle } = useTheme();
+
+    const [showDeletePopup, setShowDeletePopup] = useState(false);
+    const [deleteUsername, setDeleteUsername] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
+
+
+    const [disablePackingAI, setDisablePackingAI] = useState(() => {
+        return localStorage.getItem("planit:disablePackingAI") === "true";
+    });
+
+    const [showAILabels, setShowAILabels] = useState(() => {
+        return localStorage.getItem("planit:showAILabels") !== "false";
+    });
+
+    const handleConfirmDelete = async () => {
+        if (user.user_id.toString().startsWith("guest_")) {
+            return toast.error("Guest accounts cannot be deleted.");
+        }
+
+        setIsDeleting(true);
+
+        try {
+            const backend = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+
+            const response = await fetch(`${backend}/user/delete`, {
+                method: "DELETE",
+                credentials: "include"
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                toast.success("Account deleted successfully.");
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 500);
+            } else {
+                toast.error(data.error || "Failed to delete account.");
+            }
+
+        } catch (err) {
+            console.error("Delete error:", err);
+            toast.error("Something went wrong. Try again.");
+        }
+
+        setIsDeleting(false);
+        setShowDeletePopup(false);
+    };
+
+
 
     useEffect(() => {
         fetch(
@@ -514,6 +567,65 @@ export default function SettingsPage() {
                             </div>
                             )}                            
                         </div>
+                        <div className="settings-card pref-card">
+                            <h3>App Preferences</h3>
+
+                            {/* AI Features Group */}
+                            <div className="pref-group">
+                                <div className="pref-row inline-pref">
+                                    <span className="pref-label">Packing AI</span>
+                                    <div
+                                        className={`mini-toggle ${disablePackingAI ? "off" : "on"}`}
+                                        onClick={() => {
+                                            const val = !disablePackingAI;
+                                            setDisablePackingAI(val);
+                                            localStorage.setItem("planit:disablePackingAI", val);
+                                        }}
+                                    >
+                                        <div className="mini-thumb"></div>
+                                        <span className="mini-status">{disablePackingAI ? "OFF" : "ON"}</span>
+                                    </div>
+                                </div>
+
+                                <div className="pref-row inline-pref">
+                                    <span className="pref-label">Show AI Labels</span>
+                                    <div
+                                        className={`mini-toggle ${showAILabels ? "on" : "off"}`}
+                                        onClick={() => {
+                                            const val = !showAILabels;
+                                            setShowAILabels(val);
+                                            localStorage.setItem("planit:showAILabels", val);
+                                        }}
+                                    >
+                                        <div className="mini-thumb"></div>
+                                        <span className="mini-status">{showAILabels ? "ON" : "OFF"}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* light/dark mode */}
+                            <div className="pref-row inline-pref">
+                                <span className="pref-label">Dark Mode</span>
+
+                                <div
+                                    className={`mini-toggle ${theme === "dark" ? "on" : "off"}`}
+                                    onClick={toggle}
+                                >
+                                    <div className="mini-thumb"></div>
+                                    <span className="mini-status">{theme === "dark" ? "ON" : "OFF"}</span>
+                                </div>
+                            </div>
+                            <hr className="settings-divider" />
+                            <div className="delete-card">
+                                <h3 className="danger-title">Danger Zone</h3>
+                                <button
+                                    className="delete-button"
+                                    onClick={() => setShowDeletePopup(true)}
+                                >
+                                    Delete Account
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     {/* Popup for cropping profile picture */}
                     {showCropper && (
@@ -542,6 +654,59 @@ export default function SettingsPage() {
                                     className="crop-wrapper" 
                                     style={{ width: "100%", height: "350px" }} 
                                 ></div>
+                            </div>
+                        </Popup>
+                    )}
+                    {showDeletePopup && (
+                        <Popup
+                            title="Confirm Account Deletion"
+                            onClose={() => {
+                                setDeleteUsername("");
+                                setShowDeletePopup(false);
+                            }}
+                            id="delete-account-popup"
+                            buttons={
+                                <>
+                                    {/* Keep your original cancel button styling */}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setDeleteUsername("");
+                                            setShowDeletePopup(false);
+                                        }}
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    {/* Keep your original delete button styling */}
+                                    <button
+                                        type="button"
+                                        className="btn-rightside"
+                                        disabled={isDeleting || deleteUsername.trim() !== user.username.trim()}
+                                        onClick={handleConfirmDelete}
+                                    >
+                                        {isDeleting ? "Deleting..." : "Delete"}
+                                    </button>
+                                </>
+                            }
+                        >
+                            <div className="delete-popup-content">
+                                <p className="delete-popup-text">
+                                    To confirm deletion, type your username:
+                                    <span className="delete-popup-username"> {user.username}</span>
+                                </p>
+
+                                <input
+                                    type="text"
+                                    className="delete-input"
+                                    placeholder="Enter your username"
+                                    value={deleteUsername}
+                                    onChange={(e) => setDeleteUsername(e.target.value)}
+                                />
+
+                                <p className="delete-popup-warning">
+                                    This action is permanent and cannot be undone.
+                                </p>
                             </div>
                         </Popup>
                     )}
