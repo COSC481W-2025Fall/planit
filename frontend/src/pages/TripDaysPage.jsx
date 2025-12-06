@@ -1794,12 +1794,12 @@ export default function TripDaysPage() {
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
           <div className = "title-left">
-  <h1 className="trip-title">{trip.trip_name}</h1>
-  {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
-  <Label category={trip.trip_category} />
-)}
-  </div>
-
+              <h1 className="trip-title">{trip.trip_name}</h1>
+              {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
+                <Label category={trip.trip_category} />
+              )}
+            </div>
+            
             <div className="title-action-row">
               {isViewer && (
                 <div className="permission-badge viewer-badge">

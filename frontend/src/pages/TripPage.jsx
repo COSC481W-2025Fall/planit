@@ -34,6 +34,7 @@ export default function TripPage() {
     const [endDate, setEndDate] = useState(null);
     const [deleteTripId, setDeleteTripId] = useState(null);
     const [privacyDraft, setPrivacyDraft] = useState(true);
+    const [tripNotesDraft, setTripNotesDraft] = useState("");
 
 
 
@@ -119,18 +120,24 @@ export default function TripPage() {
     }, [user?.user_id]);
 
     useEffect(() => {
-        if (editingTrip) {
-            setStartDate(new Date(editingTrip.trip_start_date));
-            if (editingTrip.trip_end_date) {
-                setEndDate(new Date(editingTrip.trip_end_date));
-            }
-            setPrivacyDraft(editingTrip.is_private ?? true);
-        } else {
-            setStartDate(null);
-            setEndDate(null);
-            setPrivacyDraft(true);
+    if (editingTrip) {
+        setStartDate(new Date(editingTrip.trip_start_date));
+        if (editingTrip.trip_end_date) {
+            setEndDate(new Date(editingTrip.trip_end_date));
         }
-    }, [editingTrip]);
+        setPrivacyDraft(editingTrip.is_private ?? true);
+
+        // ✅ preload existing trip notes
+        setTripNotesDraft(editingTrip.notes || "");
+    } else {
+        setStartDate(null);
+        setEndDate(null);
+        setPrivacyDraft(true);
+
+        // ✅ clear notes for "New Trip"
+        setTripNotesDraft("");
+    }
+}, [editingTrip]);
 
     // Fetch image URLs for trips when component loads or trips change
     useEffect(() => {
@@ -387,7 +394,8 @@ export default function TripPage() {
         setEditingTrip(null);
         setStartDate(null);
         setEndDate(null);
-        setPrivacyDraft(true);                
+        setPrivacyDraft(true);  
+        setTripNotesDraft("");
         setIsModalOpen(true);
     };
 
@@ -672,6 +680,16 @@ export default function TripPage() {
                               onSubmit={async (e) => {
                                   e.preventDefault();
                                   const formData = new FormData(e.target);
+                                  
+                                  const tripName = formData.get("name")?.trim() || "";
+                                  const words = tripName.split(/\s+/).filter(Boolean);
+                                  const tooLongWord = words.find(word => word.length > 14);
+
+                                  if (tooLongWord) {
+                                    toast.error("Each word in the trip name must be 14 characters or fewer.");
+                                    return;
+                                  }
+
                                   const tripData = {
                                       trip_name: formData.get("name"),
                                       trip_location: formData.get("location"),
@@ -679,7 +697,8 @@ export default function TripPage() {
                                       image_id: selectedImage ? selectedImage.image_id : (editingTrip?.image_id ?? 1),                                      
                                       trip_end_date: formData.get("endDate"),
                                       user_id: user.user_id,
-                                      isPrivate: privacyDraft //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
+                                      isPrivate: privacyDraft,
+                                      notes: tripNotesDraft
                                   };
                                   if (editingTrip) tripData.trips_id = editingTrip.trips_id;
                                   console.log(tripData)
@@ -689,14 +708,14 @@ export default function TripPage() {
                                 <input
                                   name="name"
                                   placeholder="Trip Name"
-                                  maxLength="30"
+                                  maxLength="44"
                                   defaultValue={editingTrip?.trip_name || ""}
                                   required
                                 />
                                 <input
                                   name="location"
                                   placeholder="Location"
-                                  maxLength="30"
+                                  maxLength="36"
                                   defaultValue={editingTrip?.trip_location || ""}
                                   required
                                 />
@@ -789,6 +808,23 @@ export default function TripPage() {
                                   name="endDate"
                                   value={endDate ? endDate.toISOString().split("T")[0] : ""}
                                 />
+                  <label className="popup-input">
+                    <span>Notes</span>
+
+                    <textarea
+                      name="tripNotes"
+                      className="textarea-notes"
+                      placeholder="Enter any notes you have about this trip!"
+                      value={tripNotesDraft}
+                      onChange={(e) => setTripNotesDraft(e.target.value)}
+                      maxLength={200}
+                    />
+
+                    <div className="char-count">
+                      {tripNotesDraft.length} / 200
+                    </div>
+                  </label>
+
                               <div className="privacy-switch-container">
                                 <div
                                   className={`privacy-switch ${privacyDraft ? "private" : "public"}`}
