@@ -346,7 +346,7 @@ export default function TripDaysPage() {
       setTripNotesDraft(trip.notes || "");
       setTripNameDraft(trip.trip_name || "");
       setTripLocationDraft(trip.trip_location || "");
-      setTripStartDateDraft(trip.trip_start_date);
+      setTripStartDateDraft(trip.trip_start_date ? new Date(trip.trip_start_date) : null);
     }
   }, [isTripInfoPopupOpen, trip]);
 
@@ -2838,11 +2838,24 @@ export default function TripDaysPage() {
                     className="btn-rightside"
                     onClick={async () => {
                       try {
-                        console.log(trip);
+                        if (!tripNameDraft.trim()) {
+                          toast.error("Trip name is required");
+                          return;
+                        }
+                        if (!tripLocationDraft.trim()) {
+                          toast.error("Trip location is required");
+                          return;
+                        }
+                        if (!tripStartDateDraft) {
+                          toast.error("Trip start date is required");
+                          return;
+                        }
+
+                        const startDateString = tripStartDateDraft.toISOString().split('T')[0];
                         await updateTrip({
                           trips_id: trip.trips_id,
                           trip_name: tripNameDraft,
-                          tripStartDate: tripStartDateDraft,
+                          trip_start_date: startDateString,
                           trip_location: tripLocationDraft,
                           isPrivate: trip.isPrivate,
                           imageid: trip.image_id,
