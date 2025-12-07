@@ -1,12 +1,11 @@
 import axios from "axios";
 
 const WEATHER_API = process.env.WEATHER_API;
+const futureAfter14DaysUrl = "https://api.weatherapi.com/v1/future.json";
+const forecastWithin14DaysUrl = "https://api.weatherapi.com/v1/forecast.json";
+const historyUrl = "https://api.weatherapi.com/v1/history.json";
 
 export const getWeatherForecast = async (req, res) => {
-    const futureAfter14DaysUrl = "https://api.weatherapi.com/v1/future.json";
-    const forecastWithin14DaysUrl = "https://api.weatherapi.com/v1/forecast.json";
-    const historyUrl = "https://api.weatherapi.com/v1/history.json";
-
     try {
         const { activityLocations, tripDaysDates, tripDaysKeys } = req.body;
 
@@ -16,25 +15,11 @@ export const getWeatherForecast = async (req, res) => {
                 .json({ error: "Missing destination ${tripLocation} or ${tripDaysDates} in params" });
         }
 
-        // detect season
-        let month;
-        tripDaysKeys.length !== undefined ? month = new Date(tripDaysDates[0]).getMonth() + 1 : month = new Date(tripDaysDates).getMonth() + 1;
-
-        let season = ""
-        if (month === 12 || month === 1 || month === 2) {
-            season = "winter"
-        } else if (month >= 3 && month <= 5) {
-            season = "spring"
-        } else if (month >= 6 && month <= 8) {
-            season = "summer"
-        } else {
-            season = "fall";
-        }
+        const season = getSeason(tripDaysDates, tripDaysKeys)
 
         tripDaysKeys.length !== undefined ? console.log(`Starting weather fetch between days ${tripDaysDates[0]} and ${tripDaysDates[tripDaysDates.length - 1]}...`) : console.log(`Starting weather fetch for ${tripDaysDates}...`)
 
-        const dailyValues = [];
-        let isPast365Days = false;
+        let dailyValues = [];
 
         if (tripDaysKeys.length !== undefined) {
             let index = 0;
@@ -42,185 +27,15 @@ export const getWeatherForecast = async (req, res) => {
                 const tripLocation = activityLocations[index];
                 const dayId = tripDaysKeys[index];
 
-                let isFuture = false;
-                let isForecast = false;
-                let isHistory = false;
-                let currentDate = new Date().toISOString().split("T")[0];
-                let eachDateString = new Date(dt).toISOString().split("T")[0];
-
-                const numOfDaysDifference = getDaysBetweenDates(currentDate, eachDateString);
-
-                if (currentDate <= eachDateString) {
-                    if (numOfDaysDifference <= 14) {
-                        isFuture = true;
-                    } else {
-                        isForecast = true;
-                    }
-
-                } else if (currentDate > eachDateString) {
-                    isHistory = true;
+                const value = await getData(tripLocation, dayId, dt);
+                if (value) {
+                    dailyValues.push(value);
                 }
 
-                if (numOfDaysDifference >= 365){
-                    isPast365Days = true;
-                }
-
-                if (tripLocation === null) {
-                    console.log(`No location for ${dt}, therefore no forecast.`);
-                    index++;
-                    continue;
-                }
-
-                console.log(`Fetching weather for ${tripLocation} on ${dt}...`);
-
-                let data;
-
-                if (!isPast365Days) {
-                    if (isFuture) {
-                        const response = await axios.get(forecastWithin14DaysUrl, {
-                            params: {
-                                key: WEATHER_API,
-                                q: tripLocation,
-                                dt,
-                            },
-                        });
-                        data = response.data;
-                    }
-                    if (isForecast) {
-                        const response = await axios.get(futureAfter14DaysUrl, {
-                            params: {
-                                key: WEATHER_API,
-
-                                q: tripLocation,
-                                days: 1,
-                                dt,
-                            },
-                        });
-                        data = response.data;
-                    }
-                    if (isHistory) {
-                        const response = await axios.get(historyUrl, {
-                            params: {
-                                key: WEATHER_API,
-
-                                q: tripLocation,
-                                dt,
-                            },
-                        });
-                        data = response.data;
-                    }
-                }
-
-                const forecastDay = data?.forecast?.forecastday?.[0];
-                if (!forecastDay || !forecastDay.day) {
-                    console.log("No forecast for:", dt);
-                    continue;
-                }
-
-                const d = forecastDay.day;
-                const c = forecastDay.day.condition;
-
-                const precipitationChance = deriveDailyRainChance(forecastDay);
-
-                dailyValues.push({
-                    date: forecastDay.date,
-                    max_temp_c: d.maxtemp_c,
-                    min_temp_c: d.mintemp_c,
-                    max_temp_f: d.maxtemp_f,
-                    min_temp_f: d.mintemp_f,
-                    avg_humidity: d.avghumidity,
-                    avg_precipitation_chance: precipitationChance,
-                    condition_icon: c.icon.split("//")[1],
-                    day_id: dayId
-                });
                 index++;
             }
         } else {
-            const tripLocation = activityLocations;
-            const dayId = tripDaysKeys;
-
-            let isFuture = false;
-            let isForecast = false;
-            let isHistory = false;
-            let currentDate = new Date().toISOString().split("T")[0];
-            let eachDateString = new Date(tripDaysDates).toISOString().split("T")[0];
-
-            const numOfDaysDifference = getDaysBetweenDates(currentDate, eachDateString);
-
-            if (currentDate <= eachDateString) {
-                if (numOfDaysDifference <= 14) {
-                    isFuture = true;
-                } else {
-                    isForecast = true;
-                }
-
-            } else if (currentDate > eachDateString) {
-                isHistory = true;
-            }
-
-            console.log(`Fetching weather for ${tripLocation} on ${tripDaysDates}...`);
-
-            if (tripLocation === null){
-                console.log(`No location for ${tripDaysDates}, therefore no forecast.`);
-            }
-
-            let data;
-
-            if (isFuture) {
-                const response = await axios.get(forecastWithin14DaysUrl, {
-                    params: {
-                        key: WEATHER_API,
-                        q: tripLocation,
-                        dt: tripDaysDates,
-                    },
-                });
-                data = response.data;
-            }
-            if (isForecast) {
-                const response = await axios.get(futureAfter14DaysUrl, {
-                    params: {
-                        key: WEATHER_API,
-
-                        q: tripLocation,
-                        days: 1,
-                        dt: tripDaysDates,
-                    },
-                });
-                data = response.data;
-            }
-            if (isHistory) {
-                const response = await axios.get(historyUrl, {
-                    params: {
-                        key: WEATHER_API,
-
-                        q: tripLocation,
-                        dt: tripDaysDates,
-                    },
-                });
-                data = response.data;
-            }
-
-            const forecastDay = data?.forecast?.forecastday?.[0];
-            if (!forecastDay || !forecastDay.day) {
-                console.log("No forecast for:", tripDaysDates);
-            }
-
-            const d = forecastDay.day;
-            const c = forecastDay.day.condition;
-
-            const precipitationChance = deriveDailyRainChance(forecastDay);
-
-            dailyValues.push({
-                date: forecastDay.date,
-                max_temp_c: d.maxtemp_c,
-                min_temp_c: d.mintemp_c,
-                max_temp_f: d.maxtemp_f,
-                min_temp_f: d.mintemp_f,
-                avg_humidity: d.avghumidity,
-                avg_precipitation_chance: precipitationChance,
-                condition_icon: c.icon.split("//")[1],
-                day_id: dayId
-            });
+            dailyValues.push(await getData(activityLocations, tripDaysKeys, tripDaysDates));
         }
 
         if (dailyValues.length === 0) {
@@ -261,9 +76,6 @@ export const getWeatherForecast = async (req, res) => {
 
 function deriveDailyRainChance(forecastDay) {
     const d = forecastDay.day;
-
-    console.log(d.daily_chance_of_snow);
-    console.log(typeof d.daily_chance_of_rain);
 
     if (typeof d.daily_chance_of_rain === "number" && d.daily_chance_of_rain !== 0) {
         if (typeof d.daily_chance_of_snow === "number" && d.daily_chance_of_snow !== 0){
@@ -311,3 +123,116 @@ function getDaysBetweenDates(startDate, endDate) {
     return Math.round((t2 - t1) / MS_PER_DAY);
 }
 
+function getSeason(tripDaysDates, tripDaysKeys) {
+    // detect season
+    let month;
+    tripDaysKeys.length !== undefined ? month = new Date(tripDaysDates[0]).getMonth() + 1 : month = new Date(tripDaysDates).getMonth() + 1;
+
+    let season = ""
+    if (month === 12 || month === 1 || month === 2) {
+        season = "winter"
+    } else if (month >= 3 && month <= 5) {
+        season = "spring"
+    } else if (month >= 6 && month <= 8) {
+        season = "summer"
+    } else {
+        season = "fall";
+    }
+
+    return season;
+}
+
+async function getData(tripLocation, dayId, dateToRetrieveData) {
+    let isPast365Days = false;
+
+    let isFuture = false;
+    let isForecast = false;
+    let isHistory = false;
+    let currentDate = new Date().toISOString().split("T")[0];
+    let eachDateString = new Date(dateToRetrieveData).toISOString().split("T")[0];
+
+    const numOfDaysDifference = getDaysBetweenDates(currentDate, eachDateString);
+
+    if (currentDate <= eachDateString) {
+        if (numOfDaysDifference <= 14) {
+            isFuture = true;
+        } else {
+            isForecast = true;
+        }
+
+    } else if (currentDate > eachDateString) {
+        isHistory = true;
+    }
+
+    if (numOfDaysDifference >= 365) {
+        isPast365Days = true;
+    }
+
+    if (tripLocation === null) {
+        console.log(`No location for ${dateToRetrieveData}, therefore no forecast.`);
+        return;
+    }
+
+    console.log(`Fetching weather for ${tripLocation} on ${dateToRetrieveData}...`);
+
+    let data;
+
+    if (!isPast365Days) {
+        if (isFuture) {
+            const response = await axios.get(forecastWithin14DaysUrl, {
+                params: {
+                    key: WEATHER_API,
+                    q: tripLocation,
+                    dateToRetrieveData,
+                },
+            });
+            data = response.data;
+        }
+        if (isForecast) {
+            const response = await axios.get(futureAfter14DaysUrl, {
+                params: {
+                    key: WEATHER_API,
+
+                    q: tripLocation,
+                    days: 1,
+                    dt: dateToRetrieveData,
+                },
+            });
+            data = response.data;
+        }
+        if (isHistory) {
+            const response = await axios.get(historyUrl, {
+                params: {
+                    key: WEATHER_API,
+
+                    q: tripLocation,
+                    dt: dateToRetrieveData,
+                },
+            });
+            data = response.data;
+        }
+    }
+
+
+    const forecastDay = data?.forecast?.forecastday?.[0];
+    if (!forecastDay || !forecastDay.day) {
+        console.log("No forecast for:", dateToRetrieveData);
+        return;
+    }
+
+    const d = forecastDay.day;
+    const c = forecastDay.day.condition;
+    const precipitationChance = deriveDailyRainChance(forecastDay);
+
+    return {
+        date: forecastDay.date,
+        max_temp_c: d.maxtemp_c,
+        min_temp_c: d.mintemp_c,
+        max_temp_f: d.maxtemp_f,
+        min_temp_f: d.mintemp_f,
+        avg_humidity: d.avghumidity,
+        avg_precipitation_chance: precipitationChance,
+        condition_icon: c.icon.split("//")[1],
+        day_id: dayId
+    };
+}
