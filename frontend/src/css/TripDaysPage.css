@@ -1999,7 +1999,7 @@ html[data-theme="dark"] .time-picker {
   flex-direction: row;
 }
 
-.trip-name-input, .trip-location-input{
+.trip-name-input, .trip-location-input, .date-input, .clone-popup-input {
   padding: 12px;
   border: 1px solid var(--border-input);
   border-radius: var(--radius);
@@ -2011,4 +2011,10 @@ html[data-theme="dark"] .time-picker {
 
 .react-datepicker-wrapper{
   width: 100%;
+}
+
+.trip-info-popup-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }

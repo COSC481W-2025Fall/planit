@@ -124,9 +124,9 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
                           <span>Trip Name</span>
                           <input
                             type="text"
+                            className = "clone-popup-input"
                             value={newTripName}
                             onChange={(e) => setNewTripName(e.target.value)}
-                            className="popup-input-field"
                             required
                           />
                       </div>
@@ -138,7 +138,7 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
                             onChange={(date) => setNewStartDate(date)}
                             placeholderText="Choose Start Date"
                             popperPlacement="bottom"
-                            className="date-input"
+                            className="clone-date-input"
                             dateFormat="MM-dd-yyyy"
                             shouldCloseOnSelect={true}
                             withPortal={isMobile()}

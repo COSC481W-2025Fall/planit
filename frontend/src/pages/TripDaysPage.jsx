@@ -2906,7 +2906,7 @@ export default function TripDaysPage() {
                 <div className="trip-start-date-container">
                   <div className="trip-start-date-textview">Start Date:</div>
                   <DatePicker
-                    id="hi"
+                    id="date-picker-trip-info"
                     selected={tripStartDateDraft}
                     required
                     onChange={(date) => setTripStartDateDraft(date)}
