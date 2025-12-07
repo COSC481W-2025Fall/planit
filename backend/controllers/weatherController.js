@@ -120,6 +120,8 @@ export const getWeatherForecast = async (req, res) => {
                 const d = forecastDay.day;
                 const c = forecastDay.day.condition;
 
+                const precipitationChance = deriveDailyRainChance(forecastDay);
+
                 dailyValues.push({
                     date: forecastDay.date,
                     max_temp_c: d.maxtemp_c,
@@ -127,7 +129,7 @@ export const getWeatherForecast = async (req, res) => {
                     max_temp_f: d.maxtemp_f,
                     min_temp_f: d.mintemp_f,
                     avg_humidity: d.avghumidity,
-                    rain_chance: Number(d.daily_chance_of_rain || 0), // 0–100
+                    avg_precipitation_chance: precipitationChance,
                     condition_icon: c.icon.split("//")[1],
                     day_id: dayId
                 });
@@ -206,6 +208,8 @@ export const getWeatherForecast = async (req, res) => {
             const d = forecastDay.day;
             const c = forecastDay.day.condition;
 
+            const precipitationChance = deriveDailyRainChance(forecastDay);
+
             dailyValues.push({
                 date: forecastDay.date,
                 max_temp_c: d.maxtemp_c,
@@ -213,7 +217,7 @@ export const getWeatherForecast = async (req, res) => {
                 max_temp_f: d.maxtemp_f,
                 min_temp_f: d.mintemp_f,
                 avg_humidity: d.avghumidity,
-                rain_chance: Number(d.daily_chance_of_rain || 0), // 0–100
+                avg_precipitation_chance: precipitationChance,
                 condition_icon: c.icon.split("//")[1],
                 day_id: dayId
             });
@@ -233,7 +237,7 @@ export const getWeatherForecast = async (req, res) => {
         const highsC = dailyValues.map((d) => d.max_temp_c);
         const lowsC = dailyValues.map((d) => d.min_temp_c);
         const humidity = dailyValues.map((d) => d.avg_humidity);
-        const rainChances = dailyValues.map((d) => d.rain_chance);
+        const precipitationChances = dailyValues.map((d) => d.avg_precipitation_chance);
 
         const summary = {
             avg_high_f: Math.round(avg(highsF)),
@@ -241,7 +245,7 @@ export const getWeatherForecast = async (req, res) => {
             avg_high_c: Math.round(avg(highsC)),
             avg_low_c: Math.round(avg(lowsC)),
             avg_humidity: Math.round(avg(humidity)),
-            avg_rain_chance: Math.round(avg(rainChances)),
+            avg_precipitation_chance: Math.round(avg(precipitationChances)),
             season: season,
         };
 
@@ -254,6 +258,47 @@ export const getWeatherForecast = async (req, res) => {
         return res.status(500).json({ error: "Failed to fetch weather" });
     }
 };
+
+function deriveDailyRainChance(forecastDay) {
+    const d = forecastDay.day;
+
+    console.log(d.daily_chance_of_snow);
+    console.log(typeof d.daily_chance_of_rain);
+
+    if (typeof d.daily_chance_of_rain === "number" && d.daily_chance_of_rain !== 0) {
+        if (typeof d.daily_chance_of_snow === "number" && d.daily_chance_of_snow !== 0){
+            return d.daily_chance_of_rain > d.daily_chance_of_snow ? d.daily_chance_of_rain : d.daily_chance_of_snow
+        } else {
+            return d.daily_chance_of_rain;
+        }
+    }
+
+    const hours = forecastDay.hour || [];
+    if (!hours.length) return 0;
+
+    const hourlyPrecipChances = hours.map((h) => {
+        const rain = typeof h.chance_of_rain === "number" ? h.chance_of_rain : 0;
+        const snow = typeof h.chance_of_snow === "number" ? h.chance_of_snow : 0;
+
+        const pRain = Math.min(Math.max(rain / 100, 0), 1);
+        const pSnow = Math.min(Math.max(snow / 100, 0), 1);
+
+        const noPrecip = (1 - pRain) * (1 - pSnow);
+        const precipitationPercentage = 1 - noPrecip;
+
+        return precipitationPercentage * 100;
+    });
+
+    if (!hourlyPrecipChances.length) return 0;
+
+    const maxChance = Math.max(...hourlyPrecipChances);
+    const avgChance =
+        hourlyPrecipChances.reduce((sum, v) => sum + v, 0) / hourlyPrecipChances.length;
+
+    const blendedMaxAndAverage = 0.6 * maxChance + 0.4 * avgChance;
+
+    return Math.round(blendedMaxAndAverage);
+}
 
 function getDaysBetweenDates(startDate, endDate) {
     const [y1, m1, d1] = startDate.split("-").map(Number);
