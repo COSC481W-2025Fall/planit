@@ -33,6 +33,7 @@ export default function TripDaysPage() {
   const [userRole, setUserRole] = useState(null);
   const [days, setDays] = useState([]);
   const [deleteDayId, setDeleteDayId] = useState(null);
+  const [isTripInfoPopupOpen, setTripInfoPopupOpen] = useState(false);
 
   //constants for UI components
   const [openMenu, setOpenMenu] = useState(null);
@@ -1808,7 +1809,7 @@ export default function TripDaysPage() {
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
           <div className = "title-left">
-              <h1 className="trip-title">{trip.trip_name}</h1>
+              <h1 className="trip-title" onClick={() => setTripInfoPopupOpen(true)}>{trip.trip_name}</h1>
               {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
                 <Label category={trip.trip_category} />
               )}
@@ -1863,13 +1864,13 @@ export default function TripDaysPage() {
           <div className="trip-info">
 
             <div className="trip-left-side">
-              <div className="trip-location">
+              <div className="trip-location" onClick={() => setTripInfoPopupOpen(true)}>
                 <MapPin className="trip-info-icon" />
                 <p className="trip-location-text">{trip.trip_location}</p>
               </div>
 
               {days.length > 0 && (
-                <div className="trip-dates">
+                <div className="trip-dates" onClick={() => setTripInfoPopupOpen(true)}>
                   <Calendar className="trip-info-icon" />
                   <p className="trip-dates-text">
                     {new Date(days[0].day_date).toLocaleDateString("en-US", {
@@ -2789,6 +2790,14 @@ export default function TripDaysPage() {
             </Popup>
 
           )}
+
+           {isTripInfoPopupOpen && (
+              <Popup
+              id="trip-info-popup"
+              title="Trip Information"
+              onClose={() => setTripInfoPopupOpen(false)}>
+              </Popup>
+            )}
         </main>
 
         {openActivitySearch && canEdit && (

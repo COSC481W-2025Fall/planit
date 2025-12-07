@@ -321,7 +321,6 @@ body {
   stroke: var(--accent);
 }
 
-
 .trip-info {
   display: flex;
   flex-direction: row;
