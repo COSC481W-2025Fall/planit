@@ -2843,12 +2843,12 @@ export default function TripDaysPage() {
                           trips_id: trip.trips_id,
                           trip_name: tripNameDraft,
                           tripStartDate: tripStartDateDraft,
-                          tripLocation: trip.trip_location,
+                          trip_location: tripLocationDraft,
                           isPrivate: trip.isPrivate,
                           imageid: trip.image_id,
                           notes: tripNotesDraft
                         });
-                        setTrip({ ...trip, trip_name: tripNameDraft, trip_start_date: tripStartDateDraft, notes: tripNotesDraft });
+                        setTrip({ ...trip, trip_name: tripNameDraft, trip_start_date: tripStartDateDraft, trip_location: tripLocationDraft, notes: tripNotesDraft });
                         toast.success("Trip information updated!");
                         setTripInfoPopupOpen(false);
                         setTripStartDateDraft(null);
