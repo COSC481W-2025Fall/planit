@@ -150,6 +150,10 @@ export default function TripDaysPage() {
   const canEdit = isOwner || isShared;
   const canManageParticipants = isOwner;
 
+  const [showAILabels, setShowAILabels] = useState(
+      localStorage.getItem("planit:showAILabels") !== "false"
+  );
+
   // Sets up Socket.IO connection, disconnect, and listeners.
   useEffect(() => {
     // don't connect until user information is loaded
@@ -332,6 +336,14 @@ export default function TripDaysPage() {
     };
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
+  }, []);
+
+  useEffect(() => {
+    const update = () => {
+      setShowAILabels(localStorage.getItem("planit:showAILabels") !== "false");
+    };
+    window.addEventListener("storage", update);
+    return () => window.removeEventListener("storage", update);
   }, []);
 
 
@@ -1809,10 +1821,13 @@ export default function TripDaysPage() {
           <div className="title-div">
           <div className = "title-left">
   <h1 className="trip-title">{trip.trip_name}</h1>
-  {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
-  <Label category={trip.trip_category} />
-)}
-  </div>
+            {showAILabels &&
+                trip.trip_category &&
+                !hiddenLabels.includes(trip.trips_id) && (
+                    <Label category={trip.trip_category} />
+                )}
+
+          </div>
 
             <div className="title-action-row">
               {isViewer && (
