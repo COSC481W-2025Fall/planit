@@ -125,7 +125,7 @@ export const getRecentTrips = async (req, res) => {
       FROM trips t
       WHERE t.is_private = false
       ORDER BY t.trip_updated_at DESC
-      LIMIT 12;
+      LIMIT 50;
     `;
 
     return res.status(200).json(recentTrips);

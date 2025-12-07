@@ -782,7 +782,7 @@ export default function ExplorePage() {
                 </div>
               </section>
                 <section className="recent-trips-section">
-                  <h2 className="section-title">Recently Updated</h2>
+                  <h2 className="section-title">Explore Recent</h2>
                   {recentTrips && recentTrips.length > 0 ? (
                     <div className="recent-grid">
                       {recentTrips.map(trip => (
