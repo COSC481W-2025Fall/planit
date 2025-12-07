@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronRight, PiggyBank, Plane,Car,Train,Bus,Ship,Bed} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronRight, PiggyBank, Plane,Car,Train,Bus,Ship,Bed, ChevronLeft} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -22,6 +22,7 @@ import io from "socket.io-client";
 import {getWeather} from "../../api/weather.js";
 import CloneTripButton from "../components/CloneTripButton.jsx";
 import Label from "../components/Label.jsx";
+import DatePicker from "react-datepicker";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -133,7 +134,7 @@ export default function TripDaysPage() {
     } catch {}
   }, [expandedDays]);
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+  // const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
   const expandedInitRef = useRef(false);
 
   const menuRefs = useRef({});
@@ -1458,6 +1459,19 @@ export default function TripDaysPage() {
       setWeatherSummary(prev => ({ ...prev, ...weather.summary }));
     }
   };
+
+  const MobileDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
+    <div
+      className={`mobile-date-input ${!value ? 'placeholder' : ''}`}
+      onClick={onClick}
+      ref={ref}
+    >
+      {value || placeholder}
+    </div>
+  ));
+
+  const isMobile = () => window.innerWidth <= 600;
+
 
   //Loading State
   if (!user || !trip) {
@@ -2796,6 +2810,58 @@ export default function TripDaysPage() {
               id="trip-info-popup"
               title="Trip Information"
               onClose={() => setTripInfoPopupOpen(false)}>
+                <div className = "trip-info-popup-container">
+                  <div className="trip-name-container">
+                    <div className = "trip-name-textview">Trip Name:</div>
+                    <input className = "trip-name-input"
+                           type="text" 
+                           maxLength={44} 
+                           value={trip.trip_name}
+                           onChange={(e) => setTrip({ ...trip, trip_name: e.target.value })}>
+                    </input>
+                  </div>
+
+                  <div className = "trip-start-date-container">
+                    <div className="trip-start-date-textview">Start Date:</div>
+                  <DatePicker
+                    selected={trip.trip_start_date ? new Date(trip.trip_start_date) : null}
+                    onChange={(date) => setTrip({ ...trip, trip_start_date: date })}
+                    placeholderText="Choose Start Date"
+                    popperPlacement="bottom"
+                    className="date-input"
+                    dateFormat="MM-dd-yyyy"
+                    shouldCloseOnSelect={true}
+                    withPortal={isMobile()}
+                    portalId="root-portal"
+                    customInput={
+                      isMobile() ? (
+                        <MobileDateInput placeholder="Choose Start Date" />
+                      ) : undefined
+                    }
+                    onClickOutside={() =>
+                      setTimeout(() => {
+                        document.activeElement?.blur();
+                      }, 120)
+                    }
+                    renderCustomHeader={({ date, decreaseMonth, increaseMonth }) => (
+                      <div className="calendar-header">
+                        <div className="month-nav">
+                          <button type="button" className="month-btn" onClick={decreaseMonth}>
+                            <ChevronLeft size={20} />
+                          </button>
+                          <span className="month-label">
+                            {date.toLocaleString("default", { month: "long" })}{" "}
+                            {date.getFullYear()}
+                          </span>
+                          <button type="button" className="month-btn" onClick={increaseMonth}>
+                            <ChevronRight size={20} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  />
+                  </div>
+                </div>
               </Popup>
             )}
         </main>

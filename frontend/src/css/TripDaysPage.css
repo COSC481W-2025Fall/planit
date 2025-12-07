@@ -2000,3 +2000,9 @@ html[data-theme="dark"] .time-picker {
   flex-direction: row;
 }
 
+.trip-name-input{
+  padding: 10px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  font-size: 14px;
+}
