@@ -23,6 +23,7 @@ import {getWeather} from "../../api/weather.js";
 import CloneTripButton from "../components/CloneTripButton.jsx";
 import Label from "../components/Label.jsx";
 import DatePicker from "react-datepicker";
+import { set } from "date-fns";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
@@ -35,6 +36,9 @@ export default function TripDaysPage() {
   const [days, setDays] = useState([]);
   const [deleteDayId, setDeleteDayId] = useState(null);
   const [isTripInfoPopupOpen, setTripInfoPopupOpen] = useState(false);
+  const [tripNotesDraft, setTripNotesDraft] = useState("");
+  const [tripNameDraft, setTripNameDraft] = useState("");
+  const [tripStartDateDraft, setTripStartDateDraft] = useState(null);
 
   //constants for UI components
   const [openMenu, setOpenMenu] = useState(null);
@@ -336,6 +340,13 @@ export default function TripDaysPage() {
     return () => window.removeEventListener("storage", handler);
   }, []);
 
+  useEffect(() => {
+    if (isTripInfoPopupOpen && trip) {
+      setTripNotesDraft(trip.notes || "");
+      setTripNameDraft(trip.trip_name || "");
+      setTripStartDateDraft(trip.trip_start_date);
+    }
+  }, [isTripInfoPopupOpen, trip]);
 
   useEffect(() => {
     const saved = localStorage.getItem("planit:aiCollapsed");
@@ -2807,6 +2818,48 @@ export default function TripDaysPage() {
 
            {isTripInfoPopupOpen && (
               <Popup
+               buttons={
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {setTripNotesDraft(""); 
+                                    setTripNameDraft("");
+                                    setTripStartDateDraft(null);
+                                    setTripInfoPopupOpen(false); 
+                                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-rightside"
+                    onClick={async () => {
+                      try {
+                        console.log(trip);
+                        await updateTrip({
+                          trips_id: trip.trips_id,
+                          trip_name: tripNameDraft,
+                          tripStartDate: tripStartDateDraft,
+                          tripLocation: trip.trip_location,
+                          isPrivate: trip.isPrivate,
+                          imageid: trip.image_id,
+                          notes: tripNotesDraft
+                        });
+                        setTrip({ ...trip, trip_name: tripNameDraft, trip_start_date: tripStartDateDraft, notes: tripNotesDraft });
+                        toast.success("Trip information updated!");
+                        setTripInfoPopupOpen(false);
+                        setTripStartDateDraft(null);
+                        setTripNameDraft("");
+                        setTripNotesDraft("");
+                      } catch (err) {
+                        console.error("Failed to update trip:", err);
+                        toast.error("Failed to update trip information");
+                      }
+                    }}>
+                    Save
+                  </button>
+                </>
+              }
               id="trip-info-popup"
               title="Trip Information"
               onClose={() => setTripInfoPopupOpen(false)}>
@@ -2816,16 +2869,17 @@ export default function TripDaysPage() {
                     <input className = "trip-name-input"
                            type="text" 
                            maxLength={44} 
-                           value={trip.trip_name}
-                           onChange={(e) => setTrip({ ...trip, trip_name: e.target.value })}>
+                           value={tripNameDraft}
+                           onChange={(e) => setTripNameDraft(e.target.value)}>
                     </input>
                   </div>
 
-                  <div className = "trip-start-date-container">
-                    <div className="trip-start-date-textview">Start Date:</div>
+                <div className="trip-start-date-container">
+                  <div className="trip-start-date-textview">Start Date:</div>
                   <DatePicker
-                    selected={trip.trip_start_date ? new Date(trip.trip_start_date) : null}
-                    onChange={(date) => setTrip({ ...trip, trip_start_date: date })}
+                    id="hi"
+                    selected={tripStartDateDraft}
+                    onChange={(date) => setTripStartDateDraft(date)}
                     placeholderText="Choose Start Date"
                     popperPlacement="bottom"
                     className="date-input"
@@ -2861,6 +2915,21 @@ export default function TripDaysPage() {
                     )}
                   />
                   </div>
+                  <div className="trip-notes-container">
+                    <div className="trip-notes-textview">Notes</div>
+                    <textarea
+                      name="tripNotes"
+                      className="textarea-notes"
+                      placeholder="Enter any notes you have about this trip!"
+                      value={tripNotesDraft}
+                      onChange={(e) => setTripNotesDraft(e.target.value)}
+                      maxLength={200}
+                    />
+
+                    <div className="char-count">
+                      {tripNotesDraft.length} / 200
+                    </div>
+                </div>
                 </div>
               </Popup>
             )}

@@ -2001,8 +2001,13 @@ html[data-theme="dark"] .time-picker {
 }
 
 .trip-name-input{
+  width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--border-light);
   border-radius: 10px;
   font-size: 14px;
+}
+
+.react-datepicker-wrapper{
+  width: 100%;
 }

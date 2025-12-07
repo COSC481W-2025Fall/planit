@@ -47,6 +47,7 @@ export async function createTrip(trip) {
 
 // Update existing trip
 export async function updateTrip(trip) {
+  console.log("Inside update trip " + JSON.stringify(trip));
   const payload = {
     trips_id: trip.trips_id,
     imageid: trip.image_id,
