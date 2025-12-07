@@ -39,6 +39,7 @@ export default function TripDaysPage() {
   const [tripNotesDraft, setTripNotesDraft] = useState("");
   const [tripNameDraft, setTripNameDraft] = useState("");
   const [tripStartDateDraft, setTripStartDateDraft] = useState(null);
+  const [tripLocationDraft, setTripLocationDraft] = useState("");
 
   //constants for UI components
   const [openMenu, setOpenMenu] = useState(null);
@@ -344,6 +345,7 @@ export default function TripDaysPage() {
     if (isTripInfoPopupOpen && trip) {
       setTripNotesDraft(trip.notes || "");
       setTripNameDraft(trip.trip_name || "");
+      setTripLocationDraft(trip.trip_location || "");
       setTripStartDateDraft(trip.trip_start_date);
     }
   }, [isTripInfoPopupOpen, trip]);
@@ -2825,6 +2827,7 @@ export default function TripDaysPage() {
                     onClick={() => {setTripNotesDraft(""); 
                                     setTripNameDraft("");
                                     setTripStartDateDraft(null);
+                                    setTripLocationDraft("");
                                     setTripInfoPopupOpen(false); 
                                     }}
                   >
@@ -2851,6 +2854,7 @@ export default function TripDaysPage() {
                         setTripStartDateDraft(null);
                         setTripNameDraft("");
                         setTripNotesDraft("");
+                        setTripLocationDraft("");
                       } catch (err) {
                         console.error("Failed to update trip:", err);
                         toast.error("Failed to update trip information");
@@ -2870,7 +2874,19 @@ export default function TripDaysPage() {
                            type="text" 
                            maxLength={44} 
                            value={tripNameDraft}
+                           required
                            onChange={(e) => setTripNameDraft(e.target.value)}>
+                    </input>
+                  </div>
+
+                  <div className="trip-location-container">
+                    <div className="trip-location-textview">Location:</div>
+                    <input className = "trip-location-input"
+                           type="text" 
+                           maxLength={36} 
+                           value={tripLocationDraft}
+                           required
+                           onChange={(e) => setTripLocationDraft(e.target.value)}>
                     </input>
                   </div>
 
@@ -2879,6 +2895,7 @@ export default function TripDaysPage() {
                   <DatePicker
                     id="hi"
                     selected={tripStartDateDraft}
+                    required
                     onChange={(date) => setTripStartDateDraft(date)}
                     placeholderText="Choose Start Date"
                     popperPlacement="bottom"
