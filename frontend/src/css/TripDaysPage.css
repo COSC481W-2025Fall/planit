@@ -96,7 +96,7 @@
 .entry-block textarea {
   padding: 10px 12px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius);
   background-color: var(--bg-white);
   color: var(--text);
   font-size: 1rem;  font-family: inherit;
@@ -122,7 +122,7 @@ html[data-theme="dark"] .entry-block textarea {
 .char-count {
   font-size: 12px;
   color: var(--muted);
-  text-align: right;
+  text-align: left;
 }
 .delete-entry-btn {
   position: absolute;
@@ -787,14 +787,13 @@ html[data-theme="dark"] .day-menu .trash-icon {
 }
 
 .textarea-notes {
-  padding: 8px 10px;
-  border: 1px solid var(--border-light);
-  border-radius: 13px;
-  font-size: 14px;
-  resize: none;
-  background: var(--bg-white);
-  color: var(--text);
-  caret-color: var(--text);
+    padding: 12px;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius);
+    font-size: 14px;
+    background: var(--bg-input);
+    color: var(--text);
+    width: 100%;
 }
 
 html[data-theme="dark"] .textarea-notes {
@@ -2001,11 +2000,13 @@ html[data-theme="dark"] .time-picker {
 }
 
 .trip-name-input, .trip-location-input{
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius);
   font-size: 14px;
+  background: var(--bg-input);
+  color: var(--text);
+  width: 100%;
 }
 
 .react-datepicker-wrapper{
