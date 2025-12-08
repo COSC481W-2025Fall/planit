@@ -40,6 +40,12 @@ export default function ExplorePage() {
 
   const [isAddCooldown, setIsAddCooldown] = useState(false);
 
+  // AI label preference
+  const [showAILabels, setShowAILabels] = useState(() => {
+    return localStorage.getItem("planit:showAILabels") !== "false";
+  });
+
+
   // search
   const [locations, setLocations] = useState([]);
   const [query, setQuery] = useState("");
@@ -528,6 +534,7 @@ export default function ExplorePage() {
                   setDateFilter={setDateFilter}
                   categoryFilter={categoryFilter}
                   setCategoryFilter={setCategoryFilter}
+                  showAILabels={showAILabels}
                 />
               </div>
             )}
@@ -619,6 +626,7 @@ export default function ExplorePage() {
                               liked={isLiked(t.trips_id)}
                               onToggleLike={handleToggleLike}
                               onOpen={handleOpenTrip}
+                              showAILabels={showAILabels}
                             />
                           ))
                         )}
@@ -665,6 +673,7 @@ export default function ExplorePage() {
                           liked={isLiked(t.trips_id)}
                           onToggleLike={handleToggleLike}
                           onOpen={handleOpenTrip}
+                          showAILabels={showAILabels}
                         />
                       ))}
 
@@ -676,6 +685,7 @@ export default function ExplorePage() {
                           liked={isLiked(t.trips_id)}
                           onToggleLike={handleToggleLike}
                           onOpen={handleOpenTrip}
+                          showAILabels={showAILabels}
                         />
                       ))}
 
@@ -687,6 +697,7 @@ export default function ExplorePage() {
                           liked={isLiked(t.trips_id)}
                           onToggleLike={handleToggleLike}
                           onOpen={handleOpenTrip}
+                          showAILabels={showAILabels}
                         />
                       ))}
                     </div>
@@ -741,6 +752,7 @@ export default function ExplorePage() {
                               liked={isLiked(t.trips_id)}
                               onToggleLike={handleToggleLike}
                               onOpen={handleOpenTrip}
+                              showAILabels={showAILabels}
                             />
                           ))}
 
@@ -752,6 +764,7 @@ export default function ExplorePage() {
                               liked={isLiked(t.trips_id)}
                               onToggleLike={handleToggleLike}
                               onOpen={handleOpenTrip}
+                              showAILabels={showAILabels}
                             />
                           ))}
 
@@ -763,6 +776,7 @@ export default function ExplorePage() {
                               liked={isLiked(t.trips_id)}
                               onToggleLike={handleToggleLike}
                               onOpen={handleOpenTrip}
+                              showAILabels={showAILabels}
                             />
                           ))}
                         </>
@@ -792,6 +806,7 @@ export default function ExplorePage() {
                           liked={isLiked(trip.trips_id)}
                           onToggleLike={handleToggleLike}
                           onOpen={handleOpenTrip}
+                          showAILabels={showAILabels}
                         />
                       ))}
                     </div>
@@ -822,6 +837,7 @@ export default function ExplorePage() {
                       liked={true}
                       onToggleLike={(id) => handleToggleLike(id, t)}
                       onOpen={handleOpenTrip}
+                      showAILabels={showAILabels}
                     />
                   ))
                 )}

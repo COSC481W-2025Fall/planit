@@ -524,7 +524,7 @@ html[data-theme="dark"] .delete-input::placeholder {
 
 #delete-account-popup .btn-rightside:disabled {
     background: var(--gray-light) !important;
-    color: var(--text-disabled) !important;
+    color: var(--text-dark2) !important;
     cursor: not-allowed !important;
     opacity: 0.6 !important;
     transform: none !important;

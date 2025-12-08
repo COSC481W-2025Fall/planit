@@ -26,6 +26,7 @@ import DatePicker from "react-datepicker";
 import { set } from "date-fns";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+const BASE_FRONTEND_URL = import.meta.env.PROD ? VITE_FRONTEND_URL : LOCAL_FRONTEND_URL
 
 export default function TripDaysPage() {
 
@@ -158,6 +159,10 @@ export default function TripDaysPage() {
   const canEdit = isOwner || isShared;
   const canManageParticipants = isOwner;
 
+  const [showAILabels, setShowAILabels] = useState(
+      localStorage.getItem("planit:showAILabels") !== "false"
+  );
+
   // Sets up Socket.IO connection, disconnect, and listeners.
   useEffect(() => {
     // don't connect until user information is loaded
@@ -188,47 +193,89 @@ export default function TripDaysPage() {
     });
 
     //Listener that listens for "createdDay" from backend.
-    socket.on("createdDay", () => {
+    socket.on("createdDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.success("New day added successfully!");
+
+      if(user.username === username){
+        toast.success("New day added successfully!");
+      }
+      else{
+        toast.success(`New day added by ${username}!`);
+      }
     });
 
-    socket.on("updatedDay", () => {
+    socket.on("updatedDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.info("Day moved");
+
+      if (user.username === username) {
+        toast.success("Day moved successfully!");
+      }
+      else {
+        toast.success(`Day moved by ${username}!`);
+      }
     });
 
-    socket.on("deletedDay", () => {
+      socket.on("deletedDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.success("Day has been deleted.");
+
+      if(user.username === username){
+        toast.success("Day deleted successfully!");
+      }
+      else{
+        toast.success(`Day deleted by ${username}!`);
+      }
     });
 
     socket.on("updatedActivity", (dayId, activityName, dayIndex, username, create) => {
       fetchDay(dayId);
-      toast.success(create ? `Day ${dayIndex} activity "${activityName}" added by ${username}!` : `Day ${dayIndex} activity "${activityName}" updated by ${username}!`);
+
+      if(user.username === username){
+        toast.success(create ? `Day ${dayIndex} activity "${activityName}" added!` : `Day ${dayIndex} activity "${activityName}" updated!`);
+      }
+      else{
+        toast.success(create ? `Day ${dayIndex} activity "${activityName}" added by ${username}!` : `Day ${dayIndex} activity "${activityName}" updated by ${username}!`);
+      }
     });
 
     socket.on("deletedActivity", (dayId, activityName, dayIndex, username) => {
       fetchDay(dayId);
-      toast.success(`Day ${dayIndex} activity "${activityName}" deleted by ${username}!`);
+
+      if(user.username === username){
+        toast.success(`Day ${dayIndex} activity "${activityName}" deleted!`);
+      }
+      else{
+        toast.success(`Day ${dayIndex} activity "${activityName}" deleted by ${username}!`);
+      }
     });
 
     socket.on("noteUpdated", (dayId, activityName, dayIndex, username, notes) => {
       if(notes != ""){
         const toastNote = notes.length > 20 ? notes.slice(0, 20) + "..." : notes;
         fetchDay(dayId);
-        toast.success(`Day ${dayIndex} activity "${activityName}" ${username} notes: "${toastNote}"`);
+
+        if(user.username === username){
+          toast.success(`Day ${dayIndex} activity "${activityName}" you note: "${toastNote}"`);
+        }
+        else{
+          toast.success(`Day ${dayIndex} activity "${activityName}" ${username} notes: "${toastNote}"`);
+        }
       }
     });
 
-    socket.on("addedParticipant", () => {
+    socket.on("addedParticipant", (username) => {
       displayParticipants();
-      toast.success("Participant added!");
+      toast.success(`Participant ${username} added!`);
     });
 
-    socket.on("removedParticipant", () => {
-      displayParticipants();
-      toast.success("Participant removed!");
+    socket.on("removedParticipant", (username) => {
+      if(user.username === username){
+        localStorage.setItem("removedToast", "You have been removed from this trip.");
+        window.location.href = `${BASE_FRONTEND_URL}/trip`;
+      }
+      else{
+        displayParticipants();
+        toast.success(`Participant ${username} removed!`);
+      }
     });
 
     socket.on("categoryApplied", (category) => {
@@ -362,6 +409,14 @@ export default function TripDaysPage() {
       setTripStartDateDraft(trip.trip_start_date ? new Date(trip.trip_start_date) : null);
     }
   }, [isTripInfoPopupOpen, trip]);
+  useEffect(() => {
+    const update = () => {
+      setShowAILabels(localStorage.getItem("planit:showAILabels") !== "false");
+    };
+    window.addEventListener("storage", update);
+    return () => window.removeEventListener("storage", update);
+  }, []);
+
 
   useEffect(() => {
     const saved = localStorage.getItem("planit:aiCollapsed");
@@ -492,7 +547,8 @@ export default function TripDaysPage() {
       if (!trip?.image_id) return;
 
       // Check if the image URL is already in localStorage global cache
-      const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+      const imageCacheKey = `image_${trip.image_id}_v1`;
+      const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
       // If the image is cached, use it
       if (cachedImageUrl) {
@@ -512,7 +568,7 @@ export default function TripDaysPage() {
         }
 
         const data = await res.json();
-        localStorage.setItem(`image_${trip.image_id}`, data);
+        localStorage.setItem(imageCacheKey, data);
         setImageUrl(data);
       } catch (err) {
         console.error("Failed to fetch image:", err);
@@ -943,7 +999,7 @@ export default function TripDaysPage() {
     if (!newDay) return;
 
     try {
-      await createDay(tripId, { day_date: newDay, newDayInsertBefore});
+      await createDay(tripId, { day_date: newDay, newDayInsertBefore}, user.username);
 
       if (newDayInsertBefore) {
         await updateTrip({
@@ -979,7 +1035,7 @@ export default function TripDaysPage() {
       // detects if first day is being deleted
       const isFirstDay = days.length > 0 && dayId === days[0].day_id;
 
-      await deleteDay(tripId, dayId, isFirstDay);
+      await deleteDay(tripId, dayId, isFirstDay, user.username);
 
       if (isFirstDay) {
         // if first day is deleted, update trip start date
@@ -1194,7 +1250,7 @@ export default function TripDaysPage() {
           await updateDay(tripId, d.day_id, { day_date: newDate, finalUpdate: false });
         }
 
-        await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date , finalUpdate: true});
+        await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date , finalUpdate: true}, user.username);
 
         setDragFromDay(null);
         setDragOverInfo({ dayId: null, dayDate: null });
@@ -1244,7 +1300,7 @@ export default function TripDaysPage() {
       }
 
       // Finally, update the date of the day we're dragging
-      await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate, finalUpdate: true });
+      await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate, finalUpdate: true }, user.username);
 
       setDragFromDay(null);
       setDragOverInfo({ dayId: null, index: null });
@@ -1424,7 +1480,7 @@ export default function TripDaysPage() {
       "duration_days": tripDuration,
       "avg_temp_high": weatherSummary.avg_high_f,
       "avg_temp_low": weatherSummary.avg_high_f,
-      "rain_chance_percent": weatherSummary.avg_rain_chance,
+      "avg_precipitation_chance": weatherSummary.avg_precipitation_chance,
       "humidity_percent": weatherSummary.avg_humidity
     }
 
@@ -1432,7 +1488,7 @@ export default function TripDaysPage() {
       "season",
       "avg_temp_high",
       "avg_temp_low",
-      "rain_chance_percent",
+      "avg_precipitation_chance",
       "humidity_percent"
     ];
 
@@ -1905,12 +1961,15 @@ export default function TripDaysPage() {
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
           <div className = "title-left">
-              <h1 className="trip-title" onClick={() => setTripInfoPopupOpen(true)}>{trip.trip_name}</h1>
-              {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
-                <Label category={trip.trip_category} />
-              )}
-            </div>
-            
+  <h1 className="trip-title" onClick={() => setTripInfoPopupOpen(true)}>{trip.trip_name}</h1>
+            {showAILabels &&
+                trip.trip_category &&
+                !hiddenLabels.includes(trip.trips_id) && (
+                    <Label category={trip.trip_category} />
+                )}
+
+          </div>
+
             <div className="title-action-row">
               {isViewer && (
                 <div className="permission-badge viewer-badge">
@@ -2394,7 +2453,7 @@ export default function TripDaysPage() {
                                   <div>
                                     <p>High: {Math.round(weatherForDay.max_temp_f)}°F</p>
                                     <p>Low: {Math.round(weatherForDay.min_temp_f)}°F</p>
-                                    <p>Prec: {Math.round(weatherForDay.rain_chance)}%</p>
+                                    <p>Prec: {Math.round(weatherForDay.avg_precipitation_chance)}%</p>
                                   </div>
                                 </div>
                               )}
@@ -2517,7 +2576,7 @@ export default function TripDaysPage() {
           </div>
           {showAIPopup && (
             <Popup
-              title="Packing AI Suggestions"
+              title="Don't forget these items..."
               onClose={() => setShowAIPopup(false)}
               buttons={
                 <>
