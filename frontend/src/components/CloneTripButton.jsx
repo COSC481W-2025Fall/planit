@@ -124,9 +124,9 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
                           <span>Trip Name</span>
                           <input
                             type="text"
+                            className = "clone-popup-input"
                             value={newTripName}
                             onChange={(e) => setNewTripName(e.target.value)}
-                            className="popup-input-field"
                             required
                           />
                       </div>
