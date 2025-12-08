@@ -385,6 +385,7 @@ export default function TripPage() {
                                                 src={imageUrls[trip.trips_id]}
                                                 alt={trip.trip_name}
                                                 className="trip-card-img"
+                                                draggable={false}
                                             />
                                         </div>
                                         <button className="remove-yourself-from-trip-btn"

@@ -1362,7 +1362,7 @@ export default function TripDaysPage() {
       "duration_days": tripDuration,
       "avg_temp_high": weatherSummary.avg_high_f,
       "avg_temp_low": weatherSummary.avg_high_f,
-      "rain_chance_percent": weatherSummary.avg_rain_chance,
+      "avg_precipitation_chance": weatherSummary.avg_precipitation_chance,
       "humidity_percent": weatherSummary.avg_humidity
     }
 
@@ -1370,7 +1370,7 @@ export default function TripDaysPage() {
       "season",
       "avg_temp_high",
       "avg_temp_low",
-      "rain_chance_percent",
+      "avg_precipitation_chance",
       "humidity_percent"
     ];
 
@@ -2320,7 +2320,7 @@ export default function TripDaysPage() {
                                   <div>
                                     <p>High: {Math.round(weatherForDay.max_temp_f)}°F</p>
                                     <p>Low: {Math.round(weatherForDay.min_temp_f)}°F</p>
-                                    <p>Prec: {Math.round(weatherForDay.rain_chance)}%</p>
+                                    <p>Prec: {Math.round(weatherForDay.avg_precipitation_chance)}%</p>
                                   </div>
                                 </div>
                               )}
@@ -2329,6 +2329,7 @@ export default function TripDaysPage() {
                                   className = "weather-icon"
                                   src={`https://${weatherForDay.condition_icon}`}
                                   alt="Weather icon"
+                                  draggable="false"
                                 />
                               ) : (
                                 <div className="empty-weather-icon" />
@@ -2442,7 +2443,7 @@ export default function TripDaysPage() {
           </div>
           {showAIPopup && (
             <Popup
-              title="Packing AI Suggestions"
+              title="Don't forget these items..."
               onClose={() => setShowAIPopup(false)}
               buttons={
                 <>

@@ -36,13 +36,14 @@ async function(request, accessToken, refreshToken, profile, done) {
     // if the length of the result we just queried is 0 , then we know this must be a  new user
     if(existingUser.length === 0)
     {
-      const newUser = await sql `
-        INSERT INTO users 
-        (first_name,last_name,email,photo) 
-        VALUES (${firstName},${lastName},${email},${photo}) 
-        RETURNING *
-      `;
-      user = newUser[0];
+        user = {
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            photo,
+            username: null,
+            isNew: true,
+        };
     } 
     else 
     {

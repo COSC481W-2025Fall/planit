@@ -38,8 +38,8 @@ export default function TopBanner({ user , isGuest}) {
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-          <Link to="/trip">
-          <img src={logo} alt="PlanIt Logo" className="logo" />
+          <Link to="/trip" draggable={false}>
+          <img src={logo} alt="PlanIt Logo" className="logo" draggable={false}/>
           </Link>
         </div>
 
@@ -63,8 +63,8 @@ export default function TopBanner({ user , isGuest}) {
 
           {!isGuest && (
             user?.photo ? (
-              <Link className="pfp-link" to="/settings">
-                <img className="pfp top-banner-pfp" src={user.photo} alt="Profile"/>
+              <Link className="pfp-link" to="/settings" draggable={false}>
+                <img className="pfp top-banner-pfp" src={user.photo} alt="Profile" draggable={false}/>
               </Link>
             ) : (
               <Link className="pfp-link" to="/settings">
