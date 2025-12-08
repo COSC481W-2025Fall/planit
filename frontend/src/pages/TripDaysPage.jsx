@@ -2902,7 +2902,7 @@ export default function TripDaysPage() {
                         setTripLocationDraft("");
                       } catch (err) {
                         console.error("Failed to update trip:", err);
-                        toast.error("Failed to update trip information");
+                        toast.error(err.response?.data?.error || "Could not update trip. Please try again.");
                       } 
                     }}>
                     Save
