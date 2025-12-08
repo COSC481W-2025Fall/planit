@@ -1,10 +1,10 @@
-import { vi } from "vitest";
+import {beforeEach, vi} from "vitest";
 import request from "supertest";
 import app from "../app.js";
 import {sql} from "../config/db.js";
 import express from "express";
 import userRouter from "../routes/userRoutes.js";
-import {readUser, deleteUser} from "../controllers/userController.js";
+import {readUser, deleteUser, createUsername} from "../controllers/userController.js";
 
 vi.mock("../config/db.js", () => ({
     sql: vi.fn(),
@@ -47,37 +47,57 @@ function TestAppWithNoUser() {
     return app;
 }
 
+function TestAppNewUser() {
+    const app = express();
+    app.use(express.json());
+    app.use((req, res, next) => {
+        req.user = {
+            first_name: "John",
+            last_name: "Test",
+            email: "test@testmail.com",
+            photo: "data:image/jpeg;base64,"
+        };
+        next();
+    });
+    return app;
+}
+
+
 describe("Username creation", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        // Keep sql scoped to this suite only; no transaction mocking here
+        if (typeof sql.mockReset === "function") {
+            sql.mockReset();
+        }
+        sql.mockImplementation(async () => []);
+    });
+
     it("should return 200 and success message when username is created", async () => {
         sql.mockResolvedValueOnce([{ user_id: 1, username: "test" }]);
 
-        const res = await request(app)
-        .post("/user/create") // adjust route if needed
-        .send({ userId: 1, createUsername: "test" });
+        const testApp = TestAppNewUser();
+        testApp.post("/user/create", createUsername);
+
+        const res = await request(testApp)
+            .post("/user/create")
+            .send({ createUsername: "test" });
 
         expect(res.status).toBe(200);
     });
 
-    it("should return 400 if username already exists", async () => {
-        sql.mockResolvedValueOnce([]);
-        const res = await request(app)
-
-        .post("/user/create")
-        .send({userId: 1, createUsername: "test"});
-
-        expect(res.status).toBe(400);
-        expect(res.body).toHaveProperty("error", "User already has a username");
-    });
-
   it("should return 500 if database throws an error", async () => {
-    sql.mockRejectedValueOnce(new Error("DB error"));
+      const testApp = TestAppNewUser();
+      testApp.post("/user/create", createUsername);
 
-    const res = await request(app)
-      .post("/user/create")
-      .send({ userId: 1, createUsername: "test" });
+      sql.mockRejectedValueOnce(new Error("DB error"));
 
-    expect(res.status).toBe(500);
-    expect(res.body).toHaveProperty("error", "Internal Server Error");
+      const res = await request(testApp)
+        .post("/user/create")
+        .send({ createUsername: "test" });
+
+      expect(res.status).toBe(500);
+      expect(res.body).toHaveProperty("error", "Internal Server Error");
   });
 });
 

@@ -9,25 +9,34 @@ const REGEX_USERNAME = /^(?!.*__)[A-Za-z0-9_]{2,20}$/;
 //This function handles the creation of a username for a user.
 export const createUsername = async (req, res) => {
     try {
-        const { userId, createUsername } = req.body;
+        const { createUsername } = req.body;
+        const sessionUser = req.user;
 
         if (!REGEX_USERNAME.test(createUsername)){
             return res.status(400).json({ error: "Invalid. Letters, numbers, and '_' only. Min length: 2, max length: 20" });
         }
 
-        const result = await sql`
-            UPDATE users
-            SET username = ${createUsername}
-            WHERE user_id = ${userId}
-            AND username IS NULL
+        let createdUser;
+
+        if (!sessionUser.user_id) {
+            const { first_name, last_name, email, photo } = sessionUser;
+
+            const result = await sql`
+            INSERT INTO users (first_name, last_name, email, photo, username)
+            VALUES (${first_name}, ${last_name}, ${email}, ${photo}, ${createUsername})
             RETURNING *
-        `
-        // If no rows were updated, it means the username already exists, send an error response
-        if (result.length === 0) {
-            return res.status(400).json({ error: "User already has a username" });
+            `;
+
+            if (result.length === 0) {
+                return res.status(500).json({ error: "Error creating user" });
+            }
+
+            createdUser = result[0];
         }
 
-        const createdUser = result[0];
+        if (typeof req.login !== "function") {
+            return res.json({ success: true, user: createdUser });
+        }
 
         req.login(createdUser, (err) => {
             if (err) {
