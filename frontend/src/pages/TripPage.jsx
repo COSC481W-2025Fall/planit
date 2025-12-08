@@ -133,6 +133,14 @@ export default function TripPage() {
           .catch((err) => console.error("Failed to fetch trips:", err));
     }, [user?.user_id]);
 
+  useEffect(() => {
+    const message = localStorage.getItem("removedToast");
+    if (message) {
+      toast.success(message);
+      localStorage.removeItem("removedToast");
+    }
+  }, []);
+
     useEffect(() => {
     if (editingTrip) {
         setStartDate(new Date(editingTrip.trip_start_date));
@@ -164,7 +172,8 @@ export default function TripPage() {
           if (!trip.image_id || trip.image_id === 0) continue;
 
           // Check if the image URL is already in localStorage global cache
-          const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+          const imageCacheKey = `image_${trip.image_id}_v1`;
+          const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
           // If the image is cached, use it
           if (cachedImageUrl) {
@@ -179,7 +188,7 @@ export default function TripPage() {
             );
 
             const data = await res.json();
-            localStorage.setItem(`image_${trip.image_id}`, data);
+            localStorage.setItem(imageCacheKey, data);
             newImageUrls[trip.trips_id] = data;
           } catch (err) {
             console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
@@ -424,7 +433,8 @@ export default function TripPage() {
         setIsModalOpen(true);
 
         if (trip.image_id && trip.image_id !== 0) {
-          const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+          const imageCacheKey = `image_${trip.image_id}_v1`;
+          const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
           if (cachedImageUrl) {
             setSelectedImage(cachedImageUrl);
@@ -437,7 +447,7 @@ export default function TripPage() {
               { credentials: "include" }
             );
             const data = await res.json();
-            localStorage.setItem(`image_${trip.image_id}`, data);
+            localStorage.setItem(imageCacheKey, data);
             setSelectedImage(data);
           } catch (err) {
             console.error("Error fetching trip image:", err);

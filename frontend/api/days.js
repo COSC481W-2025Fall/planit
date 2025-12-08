@@ -18,34 +18,34 @@ export async function getDays(tripId) {
   return handleResponse(res);
 }
 
-export async function createDay(tripId, { day_date, newDayInsertBefore}) {
+export async function createDay(tripId, { day_date, newDayInsertBefore}, username) {
   const res = await fetch(`${API_BASE_URL}/trips/${tripId}/days`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ day_date, newDayInsertBefore }),
+    body: JSON.stringify({ day_date, newDayInsertBefore, username }),
   });
   return handleResponse(res);
 }
 
-export async function updateDay(tripId, dayId, { day_date, finalUpdate }) {
+export async function updateDay(tripId, dayId, { day_date, finalUpdate }, username) {
   const res = await fetch(`${API_BASE_URL}/trips/${tripId}/days/${dayId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ day_date, finalUpdate }),
+    body: JSON.stringify({ day_date, finalUpdate, username }),
   });
   return handleResponse(res);
 }
 
-export async function deleteDay(tripId, dayId, isFirstDay) {
+export async function deleteDay(tripId, dayId, isFirstDay, username) {
   const res = await fetch(`${API_BASE_URL}/trips/${tripId}/days/${dayId}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json"
     },
     credentials: "include",
-    body: JSON.stringify({ isFirstDay: isFirstDay }),
+    body: JSON.stringify({ isFirstDay: isFirstDay, username }),
   });
   return handleResponse(res);
 }
