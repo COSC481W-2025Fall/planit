@@ -40,6 +40,7 @@ export default function TripDaysPage() {
   const [tripNameDraft, setTripNameDraft] = useState("");
   const [tripStartDateDraft, setTripStartDateDraft] = useState(null);
   const [tripLocationDraft, setTripLocationDraft] = useState("");
+  const skipFetchRef = useRef(false);
 
   //constants for UI components
   const [openMenu, setOpenMenu] = useState(null);
@@ -549,9 +550,11 @@ export default function TripDaysPage() {
   //Fetch Days
   useEffect(() => {
     // only fetch the days if the trip exists
-    if(trip){
+    if(trip && !skipFetchRef.current){
       fetchDays();
     }
+
+    skipFetchRef.current = false;
   }, [tripId, trip]);
 
   const openAddDayPopup = (baseDateStr, insertBefore = false) => {
@@ -2861,6 +2864,7 @@ export default function TripDaysPage() {
                           imageid: trip.image_id,
                           notes: tripNotesDraft
                         });
+                        skipFetchRef.current = true;
                         setTrip({ ...trip, trip_name: tripNameDraft, trip_start_date: tripStartDateDraft, trip_location: tripLocationDraft, notes: tripNotesDraft });
                         toast.success("Trip information updated!");
                         setTripInfoPopupOpen(false);
