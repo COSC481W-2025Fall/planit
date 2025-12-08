@@ -116,7 +116,7 @@ describe("SettingsPage", () => {
       expect(screen.getByText(/Cheapest Trip/i)).toBeInTheDocument();
       expect(screen.getByText("Up North")).toBeInTheDocument();
       expect(screen.getByText(/Total Money Spent/i)).toBeInTheDocument();
-      expect(screen.getByText("100")).toBeInTheDocument();
+      expect(screen.getByText("$100")).toBeInTheDocument();
       expect(screen.getByText(/Total Likes/i)).toBeInTheDocument();
       expect(screen.getByText("10")).toBeInTheDocument();
     });
@@ -220,7 +220,7 @@ describe("SettingsPage", () => {
       expect(screen.getByText("Long")).toBeInTheDocument();
       expect(screen.getByText("Expensive")).toBeInTheDocument();
       expect(screen.getByText("Cheap")).toBeInTheDocument();
-      expect(screen.getByText("250")).toBeInTheDocument();
+      expect(screen.getByText("$250")).toBeInTheDocument();
       expect(screen.getByText("42")).toBeInTheDocument();
     });
   });

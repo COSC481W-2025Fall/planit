@@ -235,15 +235,36 @@ export const readSingleActivity = async (req, res) => {
 
 export const readAllActivities = async (req, res) => {
   try {
-    const { dayId } = req.body;
+    const { dayId, canEdit } = req.body;
 
     if (!dayId) {
       return res.status(400).json({ error: "Missing required dayId" });
     }
 
-    const activities = await sql`
-      SELECT * FROM activities WHERE "day_id" = ${dayId};
-    `;
+    let activities;
+
+    if (canEdit) {
+      //full query with notes
+      activities = await sql`
+        SELECT * FROM activities WHERE "day_id" = ${dayId};
+      `;
+    } else {
+      //query excluding notes for viewers
+      activities = await sql`
+        SELECT 
+          "activity_id",
+          "day_id",
+          "activity_name",
+          "activity_rating",
+          "activity_address",
+          "activity_website",
+          "activity_startTime",
+          "activity_duration",
+          "activity_price_estimated"
+        FROM activities 
+        WHERE "day_id" = ${dayId};
+      `;
+    }
 
     res.json({
       message: "Activities retrieved successfully",

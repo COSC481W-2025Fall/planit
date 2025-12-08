@@ -5,18 +5,21 @@ import {Map, Settings, Binoculars, Users} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import { toast } from "react-toastify";
 
-export default function NavBar({isOpen}) {
+export default function NavBar({isOpen, userId, isGuest}) {
     const [hasUnseen, setHasUnseen] = useState(false);
     useEffect(() => {
+        if(userId === undefined || isGuest) return;
+        const cachedUnseen = `hasUnseen_${userId}`;
+
         // Listen for immediate updates from the SharedTripPage and update state and cache
         const handleUnseenCleared = () => {
             setHasUnseen(false);
-            localStorage.setItem("hasUnseen", "false");
+            localStorage.setItem(cachedUnseen, "false");
         };
         window.addEventListener("unseenTripsCleared", handleUnseenCleared);
 
         // Load cached value and set state if unseen is true
-        const stored = localStorage.getItem("hasUnseen");
+        const stored = localStorage.getItem(cachedUnseen);
         if (stored === "true") {
             setHasUnseen(true);
             return () => {
@@ -28,7 +31,7 @@ export default function NavBar({isOpen}) {
         const timeout = setTimeout(async () => {
             const unseen = await handleCheckSeen();
             setHasUnseen(unseen);
-            localStorage.setItem("hasUnseen", unseen);
+            localStorage.setItem(cachedUnseen, unseen);
         }, 0);
 
         //Cleanup on component dismount
@@ -36,7 +39,7 @@ export default function NavBar({isOpen}) {
             clearTimeout(timeout);
             window.removeEventListener("unseenTripsCleared", handleUnseenCleared);
         };
-    }, []);
+    }, [userId]);
 
     async function handleCheckSeen() {
         try {
@@ -59,6 +62,7 @@ export default function NavBar({isOpen}) {
         <aside className={`sidebar ${isOpen ? "open" : ""}`}>
             <nav className="nav-list">
                 <NavLink
+                    draggable={false}
                     to="/trip"
                     end
                     className={({isActive}) =>
@@ -69,6 +73,7 @@ export default function NavBar({isOpen}) {
                     <span>My Trips</span>
                 </NavLink>
                 <NavLink
+                    draggable={false}
                     to ="/sharedTrips"
                     className={({isActive}) =>
                         "nav-item" + (isActive ? " active" : "")
@@ -84,6 +89,7 @@ export default function NavBar({isOpen}) {
                 </NavLink>
 
                 <NavLink
+                    draggable={false}
                     to="/explore"
                     end
                     className={({ isActive }) =>
@@ -95,6 +101,7 @@ export default function NavBar({isOpen}) {
                 </NavLink>
 
                 <NavLink
+                    draggable={false}
                     to="/settings"
                     className={({isActive}) =>
                         "nav-item" + (isActive ? " active" : "")

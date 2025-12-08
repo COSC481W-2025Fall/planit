@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronRight, PiggyBank, Plane,Car,Train,Bus,Ship,Bed} from "lucide-react";
-import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
+import { LOCAL_BACKEND_URL, VITE_BACKEND_URL, LOCAL_FRONTEND_URL, VITE_FRONTEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
 import "../css/Popup.css";
@@ -24,6 +24,7 @@ import CloneTripButton from "../components/CloneTripButton.jsx";
 import Label from "../components/Label.jsx";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+const BASE_FRONTEND_URL = import.meta.env.PROD ? VITE_FRONTEND_URL : LOCAL_FRONTEND_URL
 
 export default function TripDaysPage() {
 
@@ -124,6 +125,8 @@ export default function TripDaysPage() {
     }
   });
 
+  const transportTypeRef = useRef(null);
+
   useEffect(() => {
     try {
       localStorage.setItem("planit:expandedDays", JSON.stringify(expandedDays));
@@ -147,6 +150,10 @@ export default function TripDaysPage() {
   const isViewer = userRole === "viewer";
   const canEdit = isOwner || isShared;
   const canManageParticipants = isOwner;
+
+  const [showAILabels, setShowAILabels] = useState(
+      localStorage.getItem("planit:showAILabels") !== "false"
+  );
 
   // Sets up Socket.IO connection, disconnect, and listeners.
   useEffect(() => {
@@ -177,50 +184,90 @@ export default function TripDaysPage() {
       setActiveUsers(users);
     });
 
-    //Listener that listens for "createdDay" from backend. Takes tripId from backend as json which is then 
-    //compared to the tripId we are currently on(this will eventually be changed once rooms are implemented)
-    //if tripIds match we retrive days and activities.
-    socket.on("createdDay", () => {
+    //Listener that listens for "createdDay" from backend.
+    socket.on("createdDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.success("New day added successfully!");
+
+      if(user.username === username){
+        toast.success("New day added successfully!");
+      }
+      else{
+        toast.success(`New day added by ${username}!`);
+      }
     });
 
-    socket.on("updatedDay", () => {
+    socket.on("updatedDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.info("Day moved");
+
+      if (user.username === username) {
+        toast.success("Day moved successfully!");
+      }
+      else {
+        toast.success(`Day moved by ${username}!`);
+      }
     });
 
-    socket.on("deletedDay", () => {
+      socket.on("deletedDay", (username) => {
       getDays(tripId).then((d) => mergeActivitiesIntoDays(d));
-      toast.success("Day has been deleted.");
+
+      if(user.username === username){
+        toast.success("Day deleted successfully!");
+      }
+      else{
+        toast.success(`Day deleted by ${username}!`);
+      }
     });
 
     socket.on("updatedActivity", (dayId, activityName, dayIndex, username, create) => {
       fetchDay(dayId);
-      toast.success(create ? `Day ${dayIndex} activity "${activityName}" added by ${username}!` : `Day ${dayIndex} activity "${activityName}" updated by ${username}!`);
+
+      if(user.username === username){
+        toast.success(create ? `Day ${dayIndex} activity "${activityName}" added!` : `Day ${dayIndex} activity "${activityName}" updated!`);
+      }
+      else{
+        toast.success(create ? `Day ${dayIndex} activity "${activityName}" added by ${username}!` : `Day ${dayIndex} activity "${activityName}" updated by ${username}!`);
+      }
     });
 
     socket.on("deletedActivity", (dayId, activityName, dayIndex, username) => {
       fetchDay(dayId);
-      toast.success(`Day ${dayIndex} activity "${activityName}" deleted by ${username}!`);
+
+      if(user.username === username){
+        toast.success(`Day ${dayIndex} activity "${activityName}" deleted!`);
+      }
+      else{
+        toast.success(`Day ${dayIndex} activity "${activityName}" deleted by ${username}!`);
+      }
     });
 
     socket.on("noteUpdated", (dayId, activityName, dayIndex, username, notes) => {
       if(notes != ""){
         const toastNote = notes.length > 20 ? notes.slice(0, 20) + "..." : notes;
         fetchDay(dayId);
-        toast.success(`Day ${dayIndex} activity "${activityName}" ${username} notes: "${toastNote}"`);
+
+        if(user.username === username){
+          toast.success(`Day ${dayIndex} activity "${activityName}" you note: "${toastNote}"`);
+        }
+        else{
+          toast.success(`Day ${dayIndex} activity "${activityName}" ${username} notes: "${toastNote}"`);
+        }
       }
     });
 
-    socket.on("addedParticipant", () => {
+    socket.on("addedParticipant", (username) => {
       displayParticipants();
-      toast.success("Participant added!");
+      toast.success(`Participant ${username} added!`);
     });
 
-    socket.on("removedParticipant", () => {
-      displayParticipants();
-      toast.success("Participant removed!");
+    socket.on("removedParticipant", (username) => {
+      if(user.username === username){
+        localStorage.setItem("removedToast", "You have been removed from this trip.");
+        window.location.href = `${BASE_FRONTEND_URL}/trip`;
+      }
+      else{
+        displayParticipants();
+        toast.success(`Participant ${username} removed!`);
+      }
     });
 
     socket.on("categoryApplied", (category) => {
@@ -231,6 +278,59 @@ export default function TripDaysPage() {
       }));
 
       toast.success("New trip category applied: " + category);
+    });
+
+    socket.on("addedTransport", (changedTransportType, username) => {
+      fetchTransportInfo(changedTransportType);
+
+      changedTransportType = changedTransportType.charAt(0).toUpperCase() + changedTransportType.slice(1);
+      toast.success(`${changedTransportType} entry has been added by ${username}!`);
+    });
+
+    socket.on("updatedTransport", async (changedTransportType, username) => {
+      fetchTransportInfo(changedTransportType);
+
+      changedTransportType = changedTransportType.charAt(0).toUpperCase() + changedTransportType.slice(1);
+      toast.success(`${changedTransportType} entry has been updated by ${username}!`);
+    });
+
+    socket.on("deletedTransport", (transportType, username, index) => {
+      refreshTransportInfo();
+
+      // Remove from current modal view
+      setEntries(prev => {
+        const updated = prev.filter((_, i) => i !== index);
+        return updated;
+      });
+
+      transportType = transportType.charAt(0).toUpperCase() + transportType.slice(1);
+      toast.success(`${transportType} entry has been deleted by ${username}!`);
+    });
+
+    socket.on("addedAccommodation", (changedAccommodationType, username) => {
+      fetchAccommodationInfo();
+
+      changedAccommodationType = changedAccommodationType.charAt(0).toUpperCase() + changedAccommodationType.slice(1);
+      toast.success(`${changedAccommodationType} entry has been added by ${username}!`);
+    });
+
+    socket.on("updatedAccommodation", (changedAccommodationType, username) => {
+      fetchAccommodationInfo();
+
+      changedAccommodationType = changedAccommodationType.charAt(0).toUpperCase() + changedAccommodationType.slice(1);
+      toast.success(`${changedAccommodationType} entry has been updated by ${username}!`);
+    });
+
+    socket.on("deletedAccommodation", (accommodationType, username, index) => {
+      refreshAccommodationInfo();
+
+      setEntries(prev => {
+        const updated = prev.filter((_, i) => i !== index);
+        return updated;
+      });
+
+      accommodationType = accommodationType.charAt(0).toUpperCase() + accommodationType.slice(1);
+      toast.success(`${accommodationType} entry has been deleted by ${username}!`);
     });
 
     socket.on("disconnect", () => {
@@ -263,10 +363,32 @@ export default function TripDaysPage() {
   }, []);
 
   const [aiHidden, setAiHidden] = useState(false);
-  const [showAIBtn] = useState(true);
   const [aiItems, setAIItems] = useState([]);
   const [showAIPopup, setShowAIPopup] = useState(false);
   const [aiExpanded, setAiExpanded] = useState(false);
+
+  const [aiDisabled, setAiDisabled] = useState(
+    localStorage.getItem("planit:disablePackingAI") === "true"
+  );
+
+
+// If the setting changes (user toggles it in settings), refresh:
+  useEffect(() => {
+    const handler = () => {
+      setAiDisabled(localStorage.getItem("planit:disablePackingAI") === "true");
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
+
+  useEffect(() => {
+    const update = () => {
+      setShowAILabels(localStorage.getItem("planit:showAILabels") !== "false");
+    };
+    window.addEventListener("storage", update);
+    return () => window.removeEventListener("storage", update);
+  }, []);
+
 
   useEffect(() => {
     const saved = localStorage.getItem("planit:aiCollapsed");
@@ -397,7 +519,8 @@ export default function TripDaysPage() {
       if (!trip?.image_id) return;
 
       // Check if the image URL is already in localStorage global cache
-      const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+      const imageCacheKey = `image_${trip.image_id}_v1`;
+      const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
       // If the image is cached, use it
       if (cachedImageUrl) {
@@ -417,7 +540,7 @@ export default function TripDaysPage() {
         }
 
         const data = await res.json();
-        localStorage.setItem(`image_${trip.image_id}`, data);
+        localStorage.setItem(imageCacheKey, data);
         setImageUrl(data);
       } catch (err) {
         console.error("Failed to fetch image:", err);
@@ -528,7 +651,7 @@ export default function TripDaysPage() {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               credentials: "include",
-              body: JSON.stringify({ dayId: day.day_id }),
+              body: JSON.stringify({ dayId: day.day_id, canEdit }),
             }
           );
           const { activities } = await res.json();
@@ -581,7 +704,7 @@ export default function TripDaysPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({dayId})
+          body: JSON.stringify({dayId, canEdit})
         }
       );
       const {activities} = await res.json();
@@ -804,7 +927,7 @@ export default function TripDaysPage() {
     if (!newDay) return;
 
     try {
-      await createDay(tripId, { day_date: newDay, newDayInsertBefore});
+      await createDay(tripId, { day_date: newDay, newDayInsertBefore}, user.username);
 
       if (newDayInsertBefore) {
         await updateTrip({
@@ -839,7 +962,7 @@ export default function TripDaysPage() {
       // detects if first day is being deleted
       const isFirstDay = days.length > 0 && dayId === days[0].day_id;
 
-      await deleteDay(tripId, dayId, isFirstDay);
+      await deleteDay(tripId, dayId, isFirstDay, user.username);
 
       if (isFirstDay) {
         // if first day is deleted, update trip start date
@@ -1053,7 +1176,7 @@ export default function TripDaysPage() {
           await updateDay(tripId, d.day_id, { day_date: newDate, finalUpdate: false });
         }
 
-        await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date , finalUpdate: true});
+        await updateDay(tripId, dragFromDay.day_id, { day_date: first.day_date , finalUpdate: true}, user.username);
 
         setDragFromDay(null);
         setDragOverInfo({ dayId: null, dayDate: null });
@@ -1103,7 +1226,7 @@ export default function TripDaysPage() {
       }
 
       // Finally, update the date of the day we're dragging
-      await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate, finalUpdate: true });
+      await updateDay(tripId, dragFromDay.day_id, { day_date: movedDayDate, finalUpdate: true }, user.username);
 
       setDragFromDay(null);
       setDragOverInfo({ dayId: null, index: null });
@@ -1283,7 +1406,7 @@ export default function TripDaysPage() {
       "duration_days": tripDuration,
       "avg_temp_high": weatherSummary.avg_high_f,
       "avg_temp_low": weatherSummary.avg_high_f,
-      "rain_chance_percent": weatherSummary.avg_rain_chance,
+      "avg_precipitation_chance": weatherSummary.avg_precipitation_chance,
       "humidity_percent": weatherSummary.avg_humidity
     }
 
@@ -1291,7 +1414,7 @@ export default function TripDaysPage() {
       "season",
       "avg_temp_high",
       "avg_temp_low",
-      "rain_chance_percent",
+      "avg_precipitation_chance",
       "humidity_percent"
     ];
 
@@ -1419,6 +1542,7 @@ export default function TripDaysPage() {
   
     setModalType(isAccommodation ? "accommodation" : "transport");
     setTransportType(isAccommodation ? null : type);
+    transportTypeRef.current = isAccommodation ? null : type;
     setIsOpen(false);
   
     try {
@@ -1489,7 +1613,70 @@ export default function TripDaysPage() {
       toast.error("Failed to load details.");
     }
   };
-  
+
+  // Called by listeners to fetch and update transport/entry states for all users
+  const fetchTransportInfo = async (changedTransportType) => {
+    // Fetch all transport info
+    const res = await fetch(
+      `${BASE_URL}/transport/readTransportInfo?trip_id=${tripId}`,
+      { credentials: "include" }
+    );
+    const data = await res.json();
+    const raw = data.transportInfo || [];
+
+    setTransportInfo(raw);
+
+    if (transportTypeRef.current !== changedTransportType) return;
+
+    const mapped = raw
+      .filter(t => t.transport_type === changedTransportType)
+      .map(t => ({
+        ticketNumber: t.transport_number || "",
+        price: t.transport_price || "",
+        transport_id: t.transport_id ?? null,
+        transport_note: t.transport_note || "",
+      }));
+
+    const finalEntries = mapped.length > 0
+      ? mapped
+      : [{ ticketNumber: "", price: "", transport_id: null, transport_note: "" }];
+
+    setEntries(finalEntries);
+    setInitialEntries(JSON.parse(JSON.stringify(finalEntries)));
+  }
+
+  // Called by listeners to fetch and update accommodation/entry states for all users
+  const fetchAccommodationInfo = async () => {
+    // fetch accommodation info
+    const res = await fetch(
+      `${BASE_URL}/transport/readAccommodationInfo?trip_id=${tripId}`,
+      { credentials: "include" }
+    );
+    const data = await res.json();
+    const raw = data.accommodationInfo || [];
+
+    // keep global state in sync
+    setAccommodationInfo(raw);
+
+    const mapped = raw.map((a) => ({
+      accommodation_type: a.accommodation_type || "",
+      accommodation_price: a.accommodation_price || "",
+      accommodation_note: a.accommodation_note || "",
+      accommodation_id: a.accommodation_id ?? null,
+    }));
+    const finalEntries = mapped.length > 0
+      ? mapped
+      : [{ accommodation_type: "", accommodation_price: "", accommodation_note: "" }];
+
+    setEntries(finalEntries);
+    setInitialEntries(JSON.parse(JSON.stringify(finalEntries)));
+
+    setEntries(
+      mapped.length > 0
+        ? mapped
+        : [{ accommodation_type: "", accommodation_price: "", accommodation_note: "" }]
+    );
+  }
 
   const handleSaveEntries = async () => {
     const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
@@ -1537,33 +1724,44 @@ export default function TripDaysPage() {
       return;
     }
     try{
-    for (const entry of entries) {
-      // Skip empty entries
-      if (
-        modalType === "transport" && !entry.ticketNumber && !entry.price ||
-        modalType === "accommodation" && !entry.accommodation_type && !entry.accommodation_price
-      ) {
-        continue;
+      const originalById = {};
+      for (const e of initialEntries) {
+        const id = modalType === "transport" ? e.transport_id : e.accommodation_id;
+        if (id) originalById[id] = e;
       }
-  
-      const isUpdate = modalType === "transport" 
-        ? !!entry.transport_id 
-        : !!entry.accommodation_id;
-  
-      const endpoint = modalType === "transport"
-        ? (isUpdate ? "/transport/updateTransportInfo" : "/transport/addTransportInfo")
-        : (isUpdate ? "/transport/updateAccommodationInfo" : "/transport/addAccommodationInfo");
-  
-      const method = isUpdate ? "PUT" : "POST";
-  
-      const body = modalType === "transport"
-        ? {
+
+      for (const entry of entries) {
+        const id = modalType === "transport" ? entry.transport_id : entry.accommodation_id;
+
+        const isUpdate = !!id;
+        const original = id ? originalById[id] : null;
+
+        const empty =
+          (modalType === "transport" && !entry.ticketNumber && !entry.price) ||
+          (modalType === "accommodation" && !entry.accommodation_type && !entry.accommodation_price);
+
+        if (empty) continue;
+
+        // Skip if entry has not changed
+        if (isUpdate && original && JSON.stringify(entry) === JSON.stringify(original)) {
+          continue;
+        }
+
+        const endpoint = modalType === "transport"
+          ? (isUpdate ? "/transport/updateTransportInfo" : "/transport/addTransportInfo")
+          : (isUpdate ? "/transport/updateAccommodationInfo" : "/transport/addAccommodationInfo");
+
+        const method = isUpdate ? "PUT" : "POST";
+
+        const body = modalType === "transport"
+          ? {
             ...(isUpdate && { transport_id: entry.transport_id }),
             trip_id: tripId,
             transport_type: transportType,
             transport_price: entry.price,
             transport_note: entry.transport_note || null,
             transport_number: entry.ticketNumber,
+            username: user.username
           }
         : {
             ...(isUpdate && { accommodation_id: entry.accommodation_id }),
@@ -1571,30 +1769,29 @@ export default function TripDaysPage() {
             accommodation_type: entry.accommodation_type,
             accommodation_price: entry.accommodation_price,
             accommodation_note: entry.accommodation_note || null,
+            username: user.username
           };
   
-  
-      await fetch(`${base}${endpoint}`, {
-        method: method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(body),
-      });
+        const response = await fetch(`${base}${endpoint}`, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          if (err.error === "Profanity detected.") {
+            toast.error("Profanity detected.");
+            return;  // do NOT close modal
+          }
+
+          throw new Error(err.error || "Failed to save entry");
+        }
     }
   
-    if (modalType === "transport") refreshTransportInfo();
-    else refreshAccommodationInfo();
   
     setShowModal(false);
-    setEntries(
-      modalType === "transport"
-        ? [{ ticketNumber: "", price: "" , transport_note: ""}]
-        : [{ accommodation_type: "", accommodation_price: "", accommodation_note: "" }]
-    );
-    const successMessage = modalType === "transport" 
-      ? "Transportation has been updated!" 
-      : "Accommodation has been updated!";
-    toast.success(successMessage);
   } catch (error) {
     console.error("Error saving entries:", error);
     const errorMessage = modalType === "transport"
@@ -1604,7 +1801,7 @@ export default function TripDaysPage() {
   }
   };
 
-  const handleDeleteEntry = async (id, index) => {
+  const handleDeleteEntry = async (id, index, type) => {
     const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 
   
@@ -1615,8 +1812,8 @@ export default function TripDaysPage() {
   
     const body =
       modalType === "transport"
-        ? { transport_id: Number(id) }
-        : { accommodation_id: Number(id) }; // normalize type
+        ? { transport_id: Number(id), trip_id: trip.trips_id, transport_type: type, username: user.username, index: index}
+        : { accommodation_id: Number(id), trip_id: trip.trips_id, accommodation_type: type, username: user.username, index: index}; // normalize type
   
     const endpoint =
       modalType === "transport"
@@ -1630,22 +1827,7 @@ export default function TripDaysPage() {
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error("Delete failed");
-  
-      // Remove from current modal view
-      setEntries(prev => {
-        const updated = prev.filter((_, i) => i !== index);
-        return updated;
-      });
-  
-     
-      // Refresh the backing arrays so the next open uses correct data
-      if (modalType === "transport") {
-        await refreshTransportInfo();
-      } else {
-        await refreshAccommodationInfo();
-      }
-  
-      toast.success("Entry deleted");
+
     } catch (err) {
       console.error("Delete error:", err);
       toast.error("Failed to delete entry");
@@ -1667,7 +1849,7 @@ export default function TripDaysPage() {
       throw err;
     }
   };
-  
+
   const refreshTransportInfo = async () => {
     const base = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
     try {
@@ -1688,15 +1870,18 @@ export default function TripDaysPage() {
       <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
 
       <div className="content-with-sidebar">
-        <NavBar />
+        <NavBar userId={user.user_id} isGuest={isGuestUser(user?.user_id)}/>
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
           <div className = "title-left">
   <h1 className="trip-title">{trip.trip_name}</h1>
-  {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
-  <Label category={trip.trip_category} />
-)}
-  </div>
+            {showAILabels &&
+                trip.trip_category &&
+                !hiddenLabels.includes(trip.trips_id) && (
+                    <Label category={trip.trip_category} />
+                )}
+
+          </div>
 
             <div className="title-action-row">
               {isViewer && (
@@ -1897,7 +2082,8 @@ export default function TripDaysPage() {
                               className="delete-entry-btn" 
                               onClick={() => handleDeleteEntry(
                                 entry.transport_id, 
-                                index
+                                index,
+                                transportType
                               )}
                               title="Delete this entry"
                             >
@@ -1959,7 +2145,8 @@ export default function TripDaysPage() {
                               className="delete-entry-btn" 
                               onClick={() => handleDeleteEntry(
                                 entry.accommodation_id, 
-                                index
+                                index,
+                                entry.accommodation_type
                               )}
                               title="Delete this entry"
                             >
@@ -2062,7 +2249,7 @@ export default function TripDaysPage() {
               </div>
             )}
           </div>
-          {showAIBtn && (
+          {!aiDisabled && (
             <div className="ai-floating-container">
               <button
                 className={`ai-expand-btn ${aiExpanded ? "expanded" : ""} ${isPackingCooldown ? "cooldown" : ""}`}
@@ -2177,7 +2364,7 @@ export default function TripDaysPage() {
                                   <div>
                                     <p>High: {Math.round(weatherForDay.max_temp_f)}°F</p>
                                     <p>Low: {Math.round(weatherForDay.min_temp_f)}°F</p>
-                                    <p>Prec: {Math.round(weatherForDay.rain_chance)}%</p>
+                                    <p>Prec: {Math.round(weatherForDay.avg_precipitation_chance)}%</p>
                                   </div>
                                 </div>
                               )}
@@ -2186,6 +2373,7 @@ export default function TripDaysPage() {
                                   className = "weather-icon"
                                   src={`https://${weatherForDay.condition_icon}`}
                                   alt="Weather icon"
+                                  draggable="false"
                                 />
                               ) : (
                                 <div className="empty-weather-icon" />
@@ -2299,7 +2487,7 @@ export default function TripDaysPage() {
           </div>
           {showAIPopup && (
             <Popup
-              title="Packing AI Suggestions"
+              title="Don't forget these items..."
               onClose={() => setShowAIPopup(false)}
               buttons={
                 <>

@@ -1,15 +1,17 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../css/SettingsPage.css";
+import { useTheme } from "../theme/ThemeProvider.jsx";
 import TopBanner from "../components/TopBanner";
 import NavBar from "../components/NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
-import { Camera } from "lucide-react";
+import { Camera, Heart } from "lucide-react";
 import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import GuestEmptyState from "../components/GuestEmptyState.jsx";
 import Croppie from "croppie";
 import "croppie/croppie.css";
 import Popup from "../components/Popup.jsx";
+
 
 export default function SettingsPage() {
     const [user, setUser] = useState(null);
@@ -19,6 +21,8 @@ export default function SettingsPage() {
     const [stats, setStats] = useState(null);
     const [groupStats, setGroupStats] = useState(null);
     const [tab, setTab] = useState("userStats"); //"user stats" || "group stats"
+    const [loadingStats, setLoadingStats] = useState(false);
+    const [loadingGroupStats, setLoadingGroupStats] = useState(false);
 
     const [pfp, setPfp] = useState(null);
 
@@ -27,6 +31,57 @@ export default function SettingsPage() {
     const [tempImage, setTempImage] = useState(null);
     const croppieElement = useRef(null);
     const croppieInstance = useRef(null);
+    const { theme, toggle } = useTheme();
+
+    const [showDeletePopup, setShowDeletePopup] = useState(false);
+    const [deleteUsername, setDeleteUsername] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
+
+
+    const [disablePackingAI, setDisablePackingAI] = useState(() => {
+        return localStorage.getItem("planit:disablePackingAI") === "true";
+    });
+
+    const [showAILabels, setShowAILabels] = useState(() => {
+        return localStorage.getItem("planit:showAILabels") !== "false";
+    });
+
+    const handleConfirmDelete = async () => {
+        if (user.user_id.toString().startsWith("guest_")) {
+            return toast.error("Guest accounts cannot be deleted.");
+        }
+
+        setIsDeleting(true);
+
+        try {
+            const backend = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
+
+            const response = await fetch(`${backend}/user/delete`, {
+                method: "DELETE",
+                credentials: "include"
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                toast.success("Account deleted successfully.");
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 500);
+            } else {
+                toast.error(data.error || "Failed to delete account.");
+            }
+
+        } catch (err) {
+            console.error("Delete error:", err);
+            toast.error("Something went wrong. Try again.");
+        }
+
+        setIsDeleting(false);
+        setShowDeletePopup(false);
+    };
+
+
 
     useEffect(() => {
         fetch(
@@ -49,11 +104,14 @@ export default function SettingsPage() {
     useEffect(() => {
         if (user && !isGuestUser(user?.user_id)) {
             const loadStats = async () => {
+                setLoadingStats(true);
                 try {
                     const statsData = await fetchUserStats(user.user_id);
                     setStats(statsData);
                 } catch (err) {
                     console.error("Error loading stats:", err);
+                } finally {
+                    setLoadingStats(false);
                 }
             };
             loadStats();
@@ -104,8 +162,15 @@ export default function SettingsPage() {
         // once we set group stats this won't be called again "!groupStats
         if (tab === "groupStats" && user && !isGuestUser(user.user_id) && !groupStats) {
             const loadGroupStats = async () => {
-                const data = await fetchGroupStats(user.user_id);
-                setGroupStats(data);
+                setLoadingGroupStats(true);
+                try {
+                    const data = await fetchGroupStats(user.user_id);
+                    setGroupStats(data);
+                } catch (err) {
+                    console.error("Error loading group stats:", err);
+                } finally {
+                    setLoadingGroupStats(false);
+                }
             };
             loadGroupStats();
         }
@@ -273,6 +338,20 @@ export default function SettingsPage() {
         return userId && userId.toString().startsWith('guest_');
     };
 
+    const formatPrice = (num) => {
+        if (num == null || isNaN(num)) return "N/A";
+        const format = (value, suffix) => {
+            const formatted = (value).toFixed(1);
+            return formatted.endsWith(".0")
+                ? Math.round(value) + suffix
+                : formatted + suffix;
+        };
+        if(num >= 1_000_000_000) return format(num / 1_000_000_000, "B");
+        if (num >= 1_000_000) return format(num / 1_000_000, "M");
+        if (num >= 1_000) return format(num / 1_000, "K");
+        return num.toString();
+    };
+
     // Loading state
     if (!user) {
         return (
@@ -315,7 +394,7 @@ export default function SettingsPage() {
         <div className="setting-page">
             <TopBanner user={user} />
             <div className="setting-with-sidebar">
-                <NavBar />
+                <NavBar userId={user.user_id} isGuest={isGuestUser(user?.user_id)}/>
                 <div className="setting-main-content">
                     {/* Header row */}
                     <div className="settings-header">
@@ -330,7 +409,8 @@ export default function SettingsPage() {
                             <h3>Update Information</h3>
                             <div className="info-card-container">
                                 <div className="profile-picture">
-                                    <img className="pfp pfp-preview" src={pfp || user.photo} alt="Profile" />
+                                    <img className="pfp pfp-preview" src={pfp || user.photo} alt="Profile"
+                                         draggable={false}/>
                                     <label htmlFor="imgupload" className="image-upload-button" title="Upload New Image"><Camera size={18} className="camera-icon"></Camera></label>
                                     <input
                                         id="imgupload"
@@ -399,7 +479,15 @@ export default function SettingsPage() {
                             {/* Display user stats */}
                             {tab === "userStats" && (
                             <div className="stats">
-                                
+                                    {loadingStats ? (
+                                        <div className="stats-loading-container">
+                                            <MoonLoader
+                                                color="var(--accent)"
+                                                size={100}
+                                            />
+                                        </div>
+                                    ) : (
+                                            <>
                                 <div className="stat-line">
                                     <span className="stat-label">Trips Made: </span>
                                     <span className="stat-value">{stats?.tripCount ?? "N/A"}</span>
@@ -422,20 +510,30 @@ export default function SettingsPage() {
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Money Spent: </span>
-                                    <span className="stat-value">{stats?.totalMoneySpent ?? "N/A"}</span>
+                                    <span className="stat-value">${formatPrice(stats?.totalMoneySpent) ?? "N/A"}</span>
                                 </div>
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Likes: </span>
-                                    <span className="stat-value">{stats?.totalLikes ?? "N/A"}</span>
+                                    <span className="stat-value"><span><Heart className = "heart-icon" size={15}/></span>{formatPrice(stats?.totalLikes) ?? "N/A"}</span>
                                 </div>
+                                        </>
+                                    )}
                             </div>
                             )}
 
                             {/*Display group stats */}
                             {tab === "groupStats" && (
                             <div className="stats">
-                                
+                                    {loadingGroupStats ? (
+                                        <div className="stats-loading-container">
+                                            <MoonLoader
+                                                color="var(--accent)"
+                                                size={100}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <>
                                 <div className="stat-line">
                                     <span className="stat-label">Trips Shared With You: </span>
                                     <span className="stat-value">{groupStats?.tripCount ?? "N/A"}</span>
@@ -458,15 +556,76 @@ export default function SettingsPage() {
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Money Spent: </span>
-                                    <span className="stat-value">{groupStats?.totalMoneySpent ?? "N/A"}</span>
+                                    <span className="stat-value">${formatPrice(groupStats?.totalMoneySpent)?? "N/A"}</span>
                                 </div>
 
                                 <div className="stat-line">
                                     <span className="stat-label">Total Likes: </span>
-                                    <span className="stat-value">{groupStats?.totalLikes ?? "N/A"}</span>
+                                    <span className="stat-value"><span><Heart className="heart-icon" size={15}/></span>{formatPrice(groupStats?.totalLikes) ?? "N/A"}</span>
                                 </div>
+                                        </>
+                                    )}
                             </div>
                             )}                            
+                        </div>
+                        <div className="settings-card pref-card">
+                            <h3>App Preferences</h3>
+
+                            {/* AI Features Group */}
+                            <div className="pref-group">
+                                <div className="pref-row inline-pref">
+                                    <span className="pref-label">Packing AI</span>
+                                    <div
+                                        className={`mini-toggle ${disablePackingAI ? "off" : "on"}`}
+                                        onClick={() => {
+                                            const val = !disablePackingAI;
+                                            setDisablePackingAI(val);
+                                            localStorage.setItem("planit:disablePackingAI", val);
+                                        }}
+                                    >
+                                        <div className="mini-thumb"></div>
+                                        <span className="mini-status">{disablePackingAI ? "OFF" : "ON"}</span>
+                                    </div>
+                                </div>
+
+                                <div className="pref-row inline-pref">
+                                    <span className="pref-label">Trip Labels</span>
+                                    <div
+                                        className={`mini-toggle ${showAILabels ? "on" : "off"}`}
+                                        onClick={() => {
+                                            const val = !showAILabels;
+                                            setShowAILabels(val);
+                                            localStorage.setItem("planit:showAILabels", val);
+                                        }}
+                                    >
+                                        <div className="mini-thumb"></div>
+                                        <span className="mini-status">{showAILabels ? "ON" : "OFF"}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* light/dark mode */}
+                            <div className="pref-row inline-pref">
+                                <span className="pref-label">Dark Mode</span>
+
+                                <div
+                                    className={`mini-toggle ${theme === "dark" ? "on" : "off"}`}
+                                    onClick={toggle}
+                                >
+                                    <div className="mini-thumb"></div>
+                                    <span className="mini-status">{theme === "dark" ? "ON" : "OFF"}</span>
+                                </div>
+                            </div>
+                            <hr className="settings-divider" />
+                            <div className="delete-card">
+                                <h3 className="danger-title">Danger Zone</h3>
+                                <button
+                                    className="delete-button"
+                                    onClick={() => setShowDeletePopup(true)}
+                                >
+                                    Delete Account
+                                </button>
+                            </div>
                         </div>
                     </div>
                     {/* Popup for cropping profile picture */}
@@ -496,6 +655,59 @@ export default function SettingsPage() {
                                     className="crop-wrapper" 
                                     style={{ width: "100%", height: "350px" }} 
                                 ></div>
+                            </div>
+                        </Popup>
+                    )}
+                    {showDeletePopup && (
+                        <Popup
+                            title="Confirm Account Deletion"
+                            onClose={() => {
+                                setDeleteUsername("");
+                                setShowDeletePopup(false);
+                            }}
+                            id="delete-account-popup"
+                            buttons={
+                                <>
+                                    {/* Keep your original cancel button styling */}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setDeleteUsername("");
+                                            setShowDeletePopup(false);
+                                        }}
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    {/* Keep your original delete button styling */}
+                                    <button
+                                        type="button"
+                                        className="btn-rightside"
+                                        disabled={isDeleting || deleteUsername.trim() !== user.username.trim()}
+                                        onClick={handleConfirmDelete}
+                                    >
+                                        {isDeleting ? "Deleting..." : "Delete"}
+                                    </button>
+                                </>
+                            }
+                        >
+                            <div className="delete-popup-content">
+                                <p className="delete-popup-text">
+                                    To confirm deletion, type your username:
+                                    <span className="delete-popup-username"> {user.username}</span>
+                                </p>
+
+                                <input
+                                    type="text"
+                                    className="delete-input"
+                                    placeholder="Enter your username"
+                                    value={deleteUsername}
+                                    onChange={(e) => setDeleteUsername(e.target.value)}
+                                />
+
+                                <p className="delete-popup-warning">
+                                    This action is permanent and cannot be undone.
+                                </p>
                             </div>
                         </Popup>
                     )}
