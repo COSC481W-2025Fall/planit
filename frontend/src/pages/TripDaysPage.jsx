@@ -1924,6 +1924,7 @@ export default function TripDaysPage() {
                   {visibleParticipants.map((p) =>
                     p.photo ? (
                       <img
+                        draggable = {false}
                         key={`${p.user_id || ''}-${p.username}`}
                         className={`participant-pfp ${isUserActive(p.username) ? 'active' : ''}`}
                         src={p.photo}
@@ -1999,6 +2000,7 @@ export default function TripDaysPage() {
 
           <div className="image-banner">
             <img
+              draggable={false}
               src={imageUrl}
               alt={trip.trip_name}
               id={`image${trip.image_id}`}
@@ -2401,6 +2403,7 @@ export default function TripDaysPage() {
                                   className = "weather-icon"
                                   src={`https://${weatherForDay.condition_icon}`}
                                   alt="Weather icon"
+                                  draggable={false}
                                 />
                               ) : (
                                 <div className="empty-weather-icon" />
@@ -2547,6 +2550,7 @@ export default function TripDaysPage() {
                 {orderedPeople.map((person) => (
                   <div key={person.user_id} className="individual-participant">
                     <img
+                      draggable = {false}
                       className={`participant-pfp ${isUserActive(person.username) ? 'active' : ''}`}
                       src={person.photo}
                       alt={person.username}
