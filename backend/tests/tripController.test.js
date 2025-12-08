@@ -3,6 +3,17 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {makeApp, makeAppUndefinedUserId} from "./appFactory.js";
 import { sql } from "../config/db.js";
 import { generateDateRange } from "../controllers/tripController.js";
+import * as db from '../config/db.js';
+import * as socket from "../socket.js";
+
+// Mock IO instance
+vi.mock("../socket.js", () => ({
+    io: {
+        to: vi.fn(() => ({
+            emit: vi.fn()
+        }))
+    }
+}));
 
 vi.mock("../config/db.js", () => {
     const sql = vi.fn(async () => []);
