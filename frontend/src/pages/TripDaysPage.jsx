@@ -449,10 +449,13 @@ export default function TripDaysPage() {
   });
 
   // total cost across the entire trip (all days & activities)
+    // total cost across the entire trip (all days & activities)
   const totalTripCost = useMemo(() => {
-    if (!Array.isArray(days)) return 0;
+  let total = 0;
 
-    return days.reduce((tripSum, day) => {
+  // Activities
+  if (Array.isArray(days)) {
+    total += days.reduce((tripSum, day) => {
       const activities = day.activities || [];
 
       const daySum = activities.reduce((acc, activity) => {
@@ -463,7 +466,26 @@ export default function TripDaysPage() {
 
       return tripSum + daySum;
     }, 0);
-  }, [days]);
+  }
+
+  // Transport
+  if (Array.isArray(transportInfo)) {
+    total += transportInfo.reduce((sum, t) => {
+      const price = Number(t.transport_price ?? 0);
+      return sum + (Number.isFinite(price) ? price : 0);
+    }, 0);
+  }
+
+  // Accommodation
+  if (Array.isArray(accommodationInfo)) {
+    total += accommodationInfo.reduce((sum, a) => {
+      const price = Number(a.accommodation_price ?? 0);
+      return sum + (Number.isFinite(price) ? price : 0);
+    }, 0);
+  }
+
+  return total;
+}, [days, transportInfo, accommodationInfo]);
 
   //responsive
   // useEffect(() => {
