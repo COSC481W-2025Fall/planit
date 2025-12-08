@@ -400,7 +400,7 @@ export default function TripPage() {
             console.error("Save trip failed:", err);
             const msg = err.response?.data?.error;
               if (msg === "Profanity detected.") {
-                toast.error("Uh oh, someone was a bad ahh boy and used a naughty word!");
+                toast.error("Profanity detected.");
                 return;
               }
             toast.error("Could not save trip. Please try again.");

@@ -18,7 +18,7 @@ axios.interceptors.response.use(
     const msg = err.response?.data?.error;
 
     if (msg === "Profanity detected.") {
-      toast.error("Uh oh, someone was a bad ahh boy and used a naughty word!");
+      toast.error("Profanity detected.");
       return Promise.reject(err);
     }
 
