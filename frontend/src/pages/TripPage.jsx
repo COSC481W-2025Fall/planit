@@ -398,6 +398,11 @@ export default function TripPage() {
             handleCloseModal();
         } catch (err) {
             console.error("Save trip failed:", err);
+            const msg = err.response?.data?.error;
+              if (msg === "Profanity detected.") {
+                toast.error("Uh oh, someone was a bad ahh boy and used a naughty word!");
+                return;
+              }
             toast.error("Could not save trip. Please try again.");
         } finally {
           setTimeout(() => setIsSaving(false), 1000);
