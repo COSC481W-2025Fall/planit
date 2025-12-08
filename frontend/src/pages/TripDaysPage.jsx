@@ -2428,7 +2428,7 @@ export default function TripDaysPage() {
           </div>
           {showAIPopup && (
             <Popup
-              title="Packing AI Suggestions"
+              title="Don't forget these items..."
               onClose={() => setShowAIPopup(false)}
               buttons={
                 <>
