@@ -3,6 +3,7 @@ For users in the database. This code uses sql`` to interact with the database.
 This code uses async/await for asynchronous operations and try/catch for error handling.
 */
 import { sql } from "../config/db.js";
+import {io} from "../socket.js";
 
 const isGuestUser = (userId) => {
     return userId && userId.toString().startsWith('guest_');
@@ -188,13 +189,12 @@ export const updateTrip = async (req, res) => {
 
         if (updates.length > 0) {
             values.push(trips_id);
-            values.push(userId);
+            // values.push(userId);
 
             const query = `
                 UPDATE trips 
                 SET ${updates.join(", ")} 
                 WHERE trips_id = $${paramCount} 
-                AND user_id = $${paramCount + 1}
                 RETURNING *`;
                 
             await sql.query(query, values);
