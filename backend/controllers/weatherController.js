@@ -1,4 +1,5 @@
 import axios from "axios";
+import {json} from "express";
 
 const WEATHER_API = process.env.WEATHER_API;
 const futureAfter14DaysUrl = "https://api.weatherapi.com/v1/future.json";
@@ -155,9 +156,9 @@ async function getData(tripLocation, dayId, dateToRetrieveData) {
 
     if (currentDate <= eachDateString) {
         if (numOfDaysDifference <= 14) {
-            isFuture = true;
-        } else {
             isForecast = true;
+        } else {
+            isFuture = true;
         }
 
     } else if (currentDate > eachDateString) {
@@ -178,21 +179,10 @@ async function getData(tripLocation, dayId, dateToRetrieveData) {
     let data;
 
     if (!isPast365Days) {
-        if (isFuture) {
+        if (isForecast) {
             const response = await axios.get(forecastWithin14DaysUrl, {
                 params: {
                     key: WEATHER_API,
-                    q: tripLocation,
-                    dateToRetrieveData,
-                },
-            });
-            data = response.data;
-        }
-        if (isForecast) {
-            const response = await axios.get(futureAfter14DaysUrl, {
-                params: {
-                    key: WEATHER_API,
-
                     q: tripLocation,
                     days: 1,
                     dt: dateToRetrieveData,
@@ -200,11 +190,20 @@ async function getData(tripLocation, dayId, dateToRetrieveData) {
             });
             data = response.data;
         }
-        if (isHistory) {
+        else if (isFuture) {
+            const response = await axios.get(futureAfter14DaysUrl, {
+                params: {
+                    key: WEATHER_API,
+                    q: tripLocation,
+                    dt: dateToRetrieveData,
+                },
+            });
+            data = response.data;
+        }
+        else if (isHistory) {
             const response = await axios.get(historyUrl, {
                 params: {
                     key: WEATHER_API,
-
                     q: tripLocation,
                     dt: dateToRetrieveData,
                 },
@@ -222,7 +221,6 @@ async function getData(tripLocation, dayId, dateToRetrieveData) {
 
     const d = forecastDay.day;
     const c = forecastDay.day.condition;
-    const precipitationChance = deriveDailyRainChance(forecastDay);
 
     return {
         date: forecastDay.date,
@@ -231,7 +229,7 @@ async function getData(tripLocation, dayId, dateToRetrieveData) {
         max_temp_f: d.maxtemp_f,
         min_temp_f: d.mintemp_f,
         avg_humidity: d.avghumidity,
-        avg_precipitation_chance: precipitationChance,
+        avg_precipitation_chance: deriveDailyRainChance(forecastDay),
         condition_icon: c.icon.split("//")[1],
         day_id: dayId
     };
