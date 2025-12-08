@@ -87,6 +87,10 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   padding: 10px 12px;
   box-shadow: var(--shadow-1);
 }
+.search-input-wrap:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-2);
+}
 .search-input-wrap input {
   flex: 1;
   border: 0;

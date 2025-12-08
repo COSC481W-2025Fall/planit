@@ -1690,6 +1690,14 @@ export default function TripDaysPage() {
         if (isUpdate && original && JSON.stringify(entry) === JSON.stringify(original)) {
           continue;
         }
+      // Validate price limits
+      const price = Number(entry.price);
+      const maxPrice = 999999999; // Same limit for both
+      
+      if (price > maxPrice) {
+        toast.error(`Price cannot exceed $999,999,999`);
+        return;
+      }
 
         const endpoint = modalType === "transport"
           ? (isUpdate ? "/transport/updateTransportInfo" : "/transport/addTransportInfo")
@@ -1702,7 +1710,7 @@ export default function TripDaysPage() {
             ...(isUpdate && { transport_id: entry.transport_id }),
             trip_id: tripId,
             transport_type: transportType,
-            transport_price: entry.price,
+            transport_price: Math.min(price, 999999999),
             transport_note: entry.transport_note || null,
             transport_number: entry.ticketNumber,
             username: user.username
@@ -1711,7 +1719,7 @@ export default function TripDaysPage() {
             ...(isUpdate && { accommodation_id: entry.accommodation_id }),
             trip_id: tripId,
             accommodation_type: entry.accommodation_type,
-            accommodation_price: entry.accommodation_price,
+            accommodation_price: Math.min(price, 999999999),
             accommodation_note: entry.accommodation_note || null,
             username: user.username
           };
@@ -2045,24 +2053,30 @@ export default function TripDaysPage() {
                                 />
                               </>
                             )}
-              
+
                             <label>Price ($)</label>
                             <input
-                              type="text"            
-                              inputMode="numeric"       
+                              type="text"
+                              inputMode="numeric"
                               value={entry.price ?? ""}
                               onChange={(e) => {
                                 const raw = e.target.value;
 
-                                const cleaned = raw.replace(/[^0-9]/g, "");
+                                // strip non-digits
+                                let cleaned = raw.replace(/[^0-9]/g, "");
+
+                                // limit to 7 digits (max 9,999,999)
+                                if (cleaned.length > 9) {
+                                  cleaned = cleaned.slice(0, 9);
+                                }
 
                                 const copy = [...entries];
                                 copy[index].price = cleaned;
                                 setEntries(copy);
                               }}
-                              placeholder="e.g. 10"
+                              placeholder="e.g. 120"
+                              autoComplete="off"
                             />
-              
                             <label>Notes</label>
                             <textarea
                               value={entry.transport_note ?? ""}
@@ -2106,20 +2120,28 @@ export default function TripDaysPage() {
                             />
                             <label>Price ($)</label>
                             <input
-                              type="text"            
-                              inputMode="numeric"       
+                              type="text"
+                              inputMode="numeric"
                               value={entry.accommodation_price ?? ""}
                               onChange={(e) => {
                                 const raw = e.target.value;
 
-                                const cleaned = raw.replace(/[^0-9]/g, "");
+                                // strip non-digits
+                                let cleaned = raw.replace(/[^0-9]/g, "");
+
+                                // limit to 9 digits (max 9,999,999)
+                                if (cleaned.length > 9) {
+                                  cleaned = cleaned.slice(0, 9);
+                                }
 
                                 const copy = [...entries];
                                 copy[index].accommodation_price = cleaned;
                                 setEntries(copy);
                               }}
-                              placeholder="e.g. 10"
+                              placeholder="e.g. 120"
+                              autoComplete="off"
                             />
+
               
                             <label>Notes</label>
                             <textarea
