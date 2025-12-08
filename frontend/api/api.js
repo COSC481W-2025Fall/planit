@@ -9,7 +9,7 @@ api.interceptors.response.use(
     const msg = err.response?.data?.error;
 
     if (msg === "Profanity detected.") {
-      toast.error("🚫 Profanity detected.");
+      toast.error("Profanity detected.");
       return Promise.reject(err);
     }
 
