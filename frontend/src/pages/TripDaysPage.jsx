@@ -2184,6 +2184,7 @@ export default function TripDaysPage() {
                                   className = "weather-icon"
                                   src={`https://${weatherForDay.condition_icon}`}
                                   alt="Weather icon"
+                                  draggable="false"
                                 />
                               ) : (
                                 <div className="empty-weather-icon" />
