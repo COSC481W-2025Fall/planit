@@ -40,7 +40,7 @@ export default function TripDaysPage() {
   const [tripNameDraft, setTripNameDraft] = useState("");
   const [tripStartDateDraft, setTripStartDateDraft] = useState(null);
   const [tripLocationDraft, setTripLocationDraft] = useState("");
-  const skipFetchRef = useRef(false);
+  const initialLoadRef = useRef(false);
 
   //constants for UI components
   const [openMenu, setOpenMenu] = useState(null);
@@ -239,6 +239,18 @@ export default function TripDaysPage() {
       }));
 
       toast.success("New trip category applied: " + category);
+    });
+
+    socket.on("tripInformation", (tripName, newStartDate , tripLocation, notes, username) => {
+      setTrip(prev => ({
+        ...prev,
+        trip_name: tripName,
+        trip_start_date: newStartDate,
+        trip_location: tripLocation,
+        notes: notes
+      }));
+
+      toast.info("Trip information has been updated by " + username);
     });
 
     socket.on("addedTransport", (changedTransportType, username) => {
@@ -550,12 +562,16 @@ export default function TripDaysPage() {
   //Fetch Days
   useEffect(() => {
     // only fetch the days if the trip exists
-    if(trip && !skipFetchRef.current){
+    if(trip && !initialLoadRef.current){
       fetchDays();
+      initialLoadRef.current = true;
     }
-
-    skipFetchRef.current = false;
   }, [tripId, trip]);
+
+  // reset the initial load flag when tripId changes
+  useEffect(() => {
+    initialLoadRef.current = false;
+  }, [tripId]);
 
   const openAddDayPopup = (baseDateStr, insertBefore = false) => {
     if (!canEdit) {
@@ -895,6 +911,7 @@ export default function TripDaysPage() {
         await updateTrip({
           ...trip,
           trip_start_date: newDay,
+          username : user.username
         });
       }
 
@@ -931,6 +948,7 @@ export default function TripDaysPage() {
         await updateTrip({
           ...trip,
           trip_start_date: days[1].day_date.split("T")[0],
+          username: user.username
         });
       }
 
@@ -2862,11 +2880,10 @@ export default function TripDaysPage() {
                           trip_location: tripLocationDraft,
                           isPrivate: trip.isPrivate,
                           imageid: trip.image_id,
-                          notes: tripNotesDraft
+                          notes: tripNotesDraft,
+                          username: user.username
                         });
-                        skipFetchRef.current = true;
                         setTrip({ ...trip, trip_name: tripNameDraft, trip_start_date: tripStartDateDraft, trip_location: tripLocationDraft, notes: tripNotesDraft });
-                        toast.success("Trip information updated!");
                         setTripInfoPopupOpen(false);
                         setTripStartDateDraft(null);
                         setTripNameDraft("");
@@ -2875,7 +2892,7 @@ export default function TripDaysPage() {
                       } catch (err) {
                         console.error("Failed to update trip:", err);
                         toast.error("Failed to update trip information");
-                      }
+                      } 
                     }}>
                     Save
                   </button>
