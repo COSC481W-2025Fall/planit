@@ -82,13 +82,14 @@ export async function cloneTrip(req, res) {
 
         //Create new trip
         const newTripRows = await sql`
-            INSERT INTO trips (user_id, trip_name, trip_location, trip_start_date, image_id)
+            INSERT INTO trips (user_id, trip_name, trip_location, trip_start_date, image_id, trip_category)
             VALUES (
                 ${userId},
                 ${newTripName || originalTrip.trip_name},
                 ${originalTrip.trip_location},
                 ${newStartDate},
-                ${originalTrip.image_id}
+                ${originalTrip.image_id},
+                ${originalTrip.trip_category}
             )
             RETURNING trips_id;
             `;
