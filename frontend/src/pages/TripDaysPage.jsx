@@ -829,6 +829,44 @@ export default function TripDaysPage() {
     }
   }
 
+  const handleSaveTripInfo = async () => {
+    try {
+      if (!tripNameDraft.trim()) {
+        toast.error("Trip name is required");
+        return;
+      }
+      if (!tripLocationDraft.trim()) {
+        toast.error("Trip location is required");
+        return;
+      }
+      if (!tripStartDateDraft) {
+        toast.error("Trip start date is required");
+        return;
+      }
+
+      const startDateString = tripStartDateDraft.toISOString().split('T')[0];
+      await updateTrip({
+        trips_id: trip.trips_id,
+        trip_name: tripNameDraft,
+        trip_start_date: startDateString,
+        trip_location: tripLocationDraft,
+        isPrivate: trip.isPrivate,
+        imageid: trip.image_id,
+        notes: tripNotesDraft,
+        username: user.username
+      });
+      setTrip({ ...trip, trip_name: tripNameDraft, trip_start_date: tripStartDateDraft, trip_location: tripLocationDraft, notes: tripNotesDraft });
+      setTripInfoPopupOpen(false);
+      setTripStartDateDraft(null);
+      setTripNameDraft("");
+      setTripNotesDraft("");
+      setTripLocationDraft("");
+    } catch (err) {
+      console.error("Failed to update trip:", err);
+      toast.error(err.response?.data?.error || "Could not update trip. Please try again.");
+    }
+  };
+
   // handle distance check when time changes
   const handleDistanceCheck = (startTime) => {
     if (!editActivity) return;
@@ -2868,43 +2906,7 @@ export default function TripDaysPage() {
                   <button
                     type="button"
                     className="btn-rightside"
-                    onClick={async () => {
-                      try {
-                        if (!tripNameDraft.trim()) {
-                          toast.error("Trip name is required");
-                          return;
-                        }
-                        if (!tripLocationDraft.trim()) {
-                          toast.error("Trip location is required");
-                          return;
-                        }
-                        if (!tripStartDateDraft) {
-                          toast.error("Trip start date is required");
-                          return;
-                        }
-
-                        const startDateString = tripStartDateDraft.toISOString().split('T')[0];
-                        await updateTrip({
-                          trips_id: trip.trips_id,
-                          trip_name: tripNameDraft,
-                          trip_start_date: startDateString,
-                          trip_location: tripLocationDraft,
-                          isPrivate: trip.isPrivate,
-                          imageid: trip.image_id,
-                          notes: tripNotesDraft,
-                          username: user.username
-                        });
-                        setTrip({ ...trip, trip_name: tripNameDraft, trip_start_date: tripStartDateDraft, trip_location: tripLocationDraft, notes: tripNotesDraft });
-                        setTripInfoPopupOpen(false);
-                        setTripStartDateDraft(null);
-                        setTripNameDraft("");
-                        setTripNotesDraft("");
-                        setTripLocationDraft("");
-                      } catch (err) {
-                        console.error("Failed to update trip:", err);
-                        toast.error(err.response?.data?.error || "Could not update trip. Please try again.");
-                      } 
-                    }}>
+                    onClick={handleSaveTripInfo}>
                     Save
                   </button>
                   )}
