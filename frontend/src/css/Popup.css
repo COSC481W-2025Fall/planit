@@ -25,6 +25,20 @@
     flex-direction: column;
     overflow: hidden;
 }
+.popup-drag-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    touch-action: none;
+    z-index: 1;
+    cursor: grab;
+}
+
+.popup-drag-handle:active {
+    cursor: grabbing;
+}
 
 @keyframes fadeIn {
     from { opacity: 0; transform: scale(0.96); }
