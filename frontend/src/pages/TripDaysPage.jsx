@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronRight, PiggyBank, Plane,Car,Train,Bus,Ship,Bed, ChevronLeft} from "lucide-react";
-import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
+import { LOCAL_BACKEND_URL, VITE_BACKEND_URL, LOCAL_FRONTEND_URL, VITE_FRONTEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
 import "../css/Popup.css";
@@ -288,14 +288,30 @@ export default function TripDaysPage() {
       toast.success("New trip category applied: " + category);
     });
 
-    socket.on("tripInformation", (tripName, newStartDate , tripLocation, notes, username) => {
-      setTrip(prev => ({
-        ...prev,
-        trip_name: tripName,
-        trip_start_date: newStartDate,
-        trip_location: tripLocation,
-        notes: notes
-      }));
+    socket.on("tripInformation", async (tripName, newStartDate, tripLocation, notes, username) => {
+      setTrip(prev => {
+        const oldStartDate = prev?.trip_start_date;
+
+        // Normalize both dates for comparison (strip time)
+        // Handle both Date objects and strings
+        const oldDateStr = oldStartDate
+          ? (typeof oldStartDate === 'string' ? oldStartDate.split('T')[0] : oldStartDate.toISOString().split('T')[0])
+          : null;
+        const newDateStr = newStartDate ? newStartDate.split('T')[0] : null;
+
+        // Only fetch days if the start date actually changed
+        if (oldDateStr && newDateStr && oldDateStr !== newDateStr) {
+          fetchDays();
+        }
+
+        return {
+          ...prev,
+          trip_name: tripName,
+          trip_start_date: newStartDate,
+          trip_location: tripLocation,
+          notes: notes
+        };
+      });
 
       toast.info("Trip information has been updated by " + username);
     });
@@ -912,6 +928,7 @@ export default function TripDaysPage() {
         username: user.username
       });
       setTrip({ ...trip, trip_name: tripNameDraft, trip_start_date: tripStartDateDraft, trip_location: tripLocationDraft, notes: tripNotesDraft });
+      await fetchDays();
       setTripInfoPopupOpen(false);
       setTripStartDateDraft(null);
       setTripNameDraft("");
