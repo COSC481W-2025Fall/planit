@@ -58,6 +58,7 @@ export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
           src={imageUrl}
           alt={trip.trip_name}
           className="trip-card-img"
+          draggable={false}
         />
       </div>
 
