@@ -1728,12 +1728,22 @@ export default function TripDaysPage() {
             username: user.username
           };
   
-      await fetch(`${base}${endpoint}`, {
-        method: method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(body),
-      });
+        const response = await fetch(`${base}${endpoint}`, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          if (err.error === "Profanity detected.") {
+            toast.error("Profanity detected.");
+            return;  // do NOT close modal
+          }
+
+          throw new Error(err.error || "Failed to save entry");
+        }
     }
   
   
