@@ -40,7 +40,11 @@ export default function Popup({ title, children, buttons, onClose, id }) {
         if (activeTag === "INPUT" || activeTag === "TEXTAREA") return;
 
         if (e.target === e.currentTarget) {
-            setTimeout(() => onClose(), 60);
+            setTimeout(() => {
+                document.activeElement?.blur();
+                onClose();
+            }, 60);
+
         }
     };
 
@@ -67,8 +71,10 @@ export default function Popup({ title, children, buttons, onClose, id }) {
         if (!isDragging) return;
 
         if (translateY > CLOSE_THRESHOLD) {
+            document.activeElement?.blur();
             onClose();
         }
+
 
         // Snap back
         setTranslateY(0);
