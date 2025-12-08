@@ -23,56 +23,12 @@ import settingsRoutes from "./routes/settingsRoutes.js";
 import travelAccommodationRoutes from "./routes/travelAccommodationRoutes.js";
 import settingsParticipantRoutes from "./routes/settingsParticipantRoutes.js";
 import weatherRoutes from "./routes/weatherRoutes.js";
-//import rateLimit from "express-rate-limit";
-
+import { profanity } from "./middleware/profanity.js";
 
 const app = express();
 
 // connect to Neon
 export const sql = neon(process.env.DATABASE_URL);
-
-// middleware
-app.use(express.json());
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://app.planit-travel.me",
-      "https://www.planit-travel.me",
-      "https://planit-travel.me",
-    ],
-    credentials: true,
-  })
-);
-
-// // short-term limit
-// const perMinuteLimiter = rateLimit({
-//   windowMs: 60 * 1000, // 1 minute
-//   max: 200,            // 100 requests/minute
-//   message: "Too many requests, please slow down.",
-// });
-
-// // medium-term limit (hourly)
-// const perHourLimiter = rateLimit({
-//   windowMs: 60 * 60 * 1000, // 1 hour
-//   max: 6000,                // 6000 requests/hour
-//   message: "Hourly rate limit reached.",
-// });
-
-// // long-term limit (daily)
-// const perDayLimiter = rateLimit({
-//   windowMs: 24 * 60 * 60 * 1000, // 24h
-//   max: 50000,                     // 50k requests/day
-//   message: "Daily rate limit reached.",
-// });
-
-// // Apply globally
-// app.use(perMinuteLimiter);
-// app.use(perHourLimiter);
-// app.use(perDayLimiter);
-
-app.use(helmet());
-app.use(morgan("dev"));
 
 app.use(
   session({
@@ -86,8 +42,28 @@ app.use(
     },
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
+
+// middleware
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://app.planit-travel.me",
+      "https://www.planit-travel.me",
+      "https://planit-travel.me",
+    ],
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+
+app.use(helmet());
+app.use(morgan("dev"));
+app.use(profanity);
 
 // routes
 app.use("/auth", authRoutes);

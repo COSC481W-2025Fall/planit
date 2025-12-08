@@ -151,6 +151,10 @@ export default function TripDaysPage() {
   const canEdit = isOwner || isShared;
   const canManageParticipants = isOwner;
 
+  const [showAILabels, setShowAILabels] = useState(
+      localStorage.getItem("planit:showAILabels") !== "false"
+  );
+
   // Sets up Socket.IO connection, disconnect, and listeners.
   useEffect(() => {
     // don't connect until user information is loaded
@@ -375,6 +379,14 @@ export default function TripDaysPage() {
     };
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
+  }, []);
+
+  useEffect(() => {
+    const update = () => {
+      setShowAILabels(localStorage.getItem("planit:showAILabels") !== "false");
+    };
+    window.addEventListener("storage", update);
+    return () => window.removeEventListener("storage", update);
   }, []);
 
 
@@ -1394,7 +1406,7 @@ export default function TripDaysPage() {
       "duration_days": tripDuration,
       "avg_temp_high": weatherSummary.avg_high_f,
       "avg_temp_low": weatherSummary.avg_high_f,
-      "rain_chance_percent": weatherSummary.avg_rain_chance,
+      "avg_precipitation_chance": weatherSummary.avg_precipitation_chance,
       "humidity_percent": weatherSummary.avg_humidity
     }
 
@@ -1402,7 +1414,7 @@ export default function TripDaysPage() {
       "season",
       "avg_temp_high",
       "avg_temp_low",
-      "rain_chance_percent",
+      "avg_precipitation_chance",
       "humidity_percent"
     ];
 
@@ -1760,12 +1772,22 @@ export default function TripDaysPage() {
             username: user.username
           };
   
-      await fetch(`${base}${endpoint}`, {
-        method: method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(body),
-      });
+        const response = await fetch(`${base}${endpoint}`, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          if (err.error === "Profanity detected.") {
+            toast.error("Profanity detected.");
+            return;  // do NOT close modal
+          }
+
+          throw new Error(err.error || "Failed to save entry");
+        }
     }
   
   
@@ -1852,12 +1874,15 @@ export default function TripDaysPage() {
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
           <div className = "title-left">
-              <h1 className="trip-title">{trip.trip_name}</h1>
-              {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
-                <Label category={trip.trip_category} />
-              )}
-            </div>
-            
+  <h1 className="trip-title">{trip.trip_name}</h1>
+            {showAILabels &&
+                trip.trip_category &&
+                !hiddenLabels.includes(trip.trips_id) && (
+                    <Label category={trip.trip_category} />
+                )}
+
+          </div>
+
             <div className="title-action-row">
               {isViewer && (
                 <div className="permission-badge viewer-badge">
@@ -2339,7 +2364,7 @@ export default function TripDaysPage() {
                                   <div>
                                     <p>High: {Math.round(weatherForDay.max_temp_f)}°F</p>
                                     <p>Low: {Math.round(weatherForDay.min_temp_f)}°F</p>
-                                    <p>Prec: {Math.round(weatherForDay.rain_chance)}%</p>
+                                    <p>Prec: {Math.round(weatherForDay.avg_precipitation_chance)}%</p>
                                   </div>
                                 </div>
                               )}
@@ -2348,6 +2373,7 @@ export default function TripDaysPage() {
                                   className = "weather-icon"
                                   src={`https://${weatherForDay.condition_icon}`}
                                   alt="Weather icon"
+                                  draggable="false"
                                 />
                               ) : (
                                 <div className="empty-weather-icon" />
@@ -2461,7 +2487,7 @@ export default function TripDaysPage() {
           </div>
           {showAIPopup && (
             <Popup
-              title="Packing AI Suggestions"
+              title="Don't forget these items..."
               onClose={() => setShowAIPopup(false)}
               buttons={
                 <>

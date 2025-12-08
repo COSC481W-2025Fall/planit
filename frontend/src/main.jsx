@@ -9,6 +9,24 @@ import { BrowserRouter } from 'react-router-dom'
 import { ToastContainer, Flip, Bounce , Zoom } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { ThemeProvider } from "./theme/ThemeProvider.jsx";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+axios.interceptors.response.use(
+  res => res,
+  err => {
+    const msg = err.response?.data?.error;
+
+    if (msg === "Profanity detected.") {
+      toast.error("Profanity detected.");
+      return Promise.reject(err);
+    }
+
+    if (msg) toast.error(msg);
+
+    return Promise.reject(err);
+  }
+);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

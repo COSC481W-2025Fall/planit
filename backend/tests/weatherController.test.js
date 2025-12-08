@@ -81,6 +81,7 @@ describe("getWeatherForecast controller tests", () => {
                                 mintemp_f: 32,
                                 avghumidity: 70,
                                 daily_chance_of_rain: 40,
+                                daily_chance_of_snow: 0,
                                 condition: {
                                     icon: "//cdn.weatherapi.com/weather/64x64/day/113.png",
                                 },
@@ -107,7 +108,7 @@ describe("getWeatherForecast controller tests", () => {
             max_temp_f: 50,
             min_temp_f: 32,
             avg_humidity: 70,
-            rain_chance: 40,
+            avg_precipitation_chance: 40,
             condition_icon: "cdn.weatherapi.com/weather/64x64/day/113.png",
             day_id: 123,
         });
@@ -119,7 +120,7 @@ describe("getWeatherForecast controller tests", () => {
                 avg_high_c: 10,
                 avg_low_c: 0,
                 avg_humidity: 70,
-                avg_rain_chance: 40,
+                avg_precipitation_chance: 40,
                 season: "winter",
             })
         );
@@ -211,7 +212,7 @@ describe("getWeatherForecast controller tests", () => {
                 max_temp_f: 50,
                 min_temp_f: 32,
                 avg_humidity: 70,
-                rain_chance: 40,
+                avg_precipitation_chance: 40,
                 condition_icon: "cdn.weatherapi.com/weather/64x64/day/113.png",
             })
         );
@@ -226,7 +227,7 @@ describe("getWeatherForecast controller tests", () => {
                 avg_high_c: expect.any(Number),
                 avg_low_c: expect.any(Number),
                 avg_humidity: expect.any(Number),
-                avg_rain_chance: expect.any(Number),
+                avg_precipitation_chance: expect.any(Number),
                 season: "winter",
             })
         );

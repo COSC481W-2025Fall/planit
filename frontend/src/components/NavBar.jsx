@@ -62,6 +62,7 @@ export default function NavBar({isOpen, userId, isGuest}) {
         <aside className={`sidebar ${isOpen ? "open" : ""}`}>
             <nav className="nav-list">
                 <NavLink
+                    draggable={false}
                     to="/trip"
                     end
                     className={({isActive}) =>
@@ -72,6 +73,7 @@ export default function NavBar({isOpen, userId, isGuest}) {
                     <span>My Trips</span>
                 </NavLink>
                 <NavLink
+                    draggable={false}
                     to ="/sharedTrips"
                     className={({isActive}) =>
                         "nav-item" + (isActive ? " active" : "")
@@ -87,6 +89,7 @@ export default function NavBar({isOpen, userId, isGuest}) {
                 </NavLink>
 
                 <NavLink
+                    draggable={false}
                     to="/explore"
                     end
                     className={({ isActive }) =>
@@ -98,6 +101,7 @@ export default function NavBar({isOpen, userId, isGuest}) {
                 </NavLink>
 
                 <NavLink
+                    draggable={false}
                     to="/settings"
                     className={({isActive}) =>
                         "nav-item" + (isActive ? " active" : "")
