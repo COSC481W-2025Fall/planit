@@ -5,7 +5,7 @@ import NavBar from "../components/NavBar";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import Popup from "../components/Popup";
 import "../css/Popup.css";
-import {Calendar, MapPin, Pencil, Trash, UserPlus, X} from "lucide-react";
+import {Calendar, MapPin, Pencil, Trash2, UserPlus, X} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
 import { getSharedTrips } from "../../api/trips";
@@ -134,15 +134,17 @@ export default function TripPage() {
     }, [dateFilter]);
 
     useEffect(() => {
+        if(user === null || isGuestUser(user?.user_id)) return;
+        const cachedUnseen = `hasUnseen_${user.user_id}`;
         async function markSeen() {await fetch(`${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/shared/markTrips`, {
                 method: "PUT",
                 credentials: "include"
             });
-            localStorage.setItem("hasUnseen", "false");
+            localStorage.setItem(cachedUnseen, "false");
             window.dispatchEvent(new Event("unseenTripsCleared"));
         }
         markSeen();
-    }, []);
+    }, [user]);
 
     const sortedFilteredTrips = useMemo(() => {
         if (!Array.isArray(trips)) return [];
@@ -313,7 +315,7 @@ export default function TripPage() {
         <div className="trip-page">
             <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
             <div className="content-with-sidebar">
-                <NavBar />
+                <NavBar userId={user.user_id} isGuest={isGuestUser(user?.user_id)}/>
                 <div className="main-content">
                     <div className="trips-section">
                         {/* Header row */}
@@ -345,12 +347,21 @@ export default function TripPage() {
                         <div className="trip-cards">
                             {sortedFilteredTrips.length === 0 ? (
                                 <div className="empty-state">
-                                    <h3>No trips have been shared with you yet!</h3>
-                                    <div>
-                                        {user
-                                            ? `${user.first_name}, no trips have been shared with you yet.`
-                                            : <MoonLoader color="var(--accent)" size={25} />}
-                                    </div>
+                                    {trips.length == 0 ? (
+                                        <>
+                                            <h3>No trips have been shared with you yet!</h3>
+                                            <div>
+                                                {user
+                                                    ? `${user.username}, no trips have been shared with you yet.`
+                                                    : <MoonLoader color="var(--accent)" size={25} />}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <h3>No trips match your filters</h3>
+                                            <div>Try adjusting your filters to see more trips</div>
+                                        </>
+                                    )}
                                 </div>
                             ) : (
                                 sortedFilteredTrips.map((trip) => (
@@ -368,7 +379,7 @@ export default function TripPage() {
                                                 setSelectedTripToRemove(trip);
                                                 setOpenRemoveYourselfPopup(true);
                                             }}>
-                                            <Trash size={16} />
+                                            <Trash2 size={16} />
                                         </button>
                                         {openDropdownId === trip.trips_id && (
                                             <div className="trip-dropdown" ref={dropdownRef}>

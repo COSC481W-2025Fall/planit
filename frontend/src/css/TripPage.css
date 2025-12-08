@@ -193,6 +193,41 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.trip-page .modal-content .textarea-notes {
+    background: var(--bg-hover2);
+    font-size: 14px;
+    color: var(--text);
+    width: 100%;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.trip-page .modal-content .textarea-notes::placeholder {
+  color: var(--text-placeholder);
+  opacity: 1;
+}
+
+.trip-page .modal-content .textarea-notes:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark2);
 }
 
 .trip-duration-badge {
@@ -373,15 +408,16 @@ html[data-theme="dark"] .modal-content input:-webkit-autofill {
 
 .image-row {
     display: flex;
+    width: 100%;
     align-items: center;
     justify-content: flex-start;
-    gap: 12px;
-    margin: 10px 0;
 }
 
 .selected-image-mini {
     width: 45px;
     height: 45px;
+    margin-left: auto;
+    margin-right: auto;
     border-radius: 6px;
     object-fit: cover;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
@@ -567,6 +603,32 @@ select:focus {
     font-weight: bold;
 }
 
+.mobile-date-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-input);
+    border-radius: 4px;
+    font-size: 14px;
+    background: var(--bg-input);
+    cursor: pointer;
+    color: var(--text);
+    user-select: none;
+}
+
+.mobile-date-input.placeholder {
+    color: var(--text-placeholder);
+}
+
+html[data-theme="dark"] .mobile-date-input.placeholder {
+    color: var(--text-placeholder) !important;
+}
+
+html[data-theme="dark"] .mobile-date-input {
+    background: var(--bg-hover2);
+    color: var(--static-white);
+    border-color: var(--border-input);
+}
+
 .privacy-toggle-btn, .remove-yourself-from-trip-btn {
     position: absolute;
     top: 10px;
@@ -592,9 +654,9 @@ select:focus {
 }
 
 .privacy-switch-container {
-    margin: -5px 0 4px 0;
     display: flex;
     align-items: center;
+    margin-left: auto;
 }
 
 .privacy-switch {
@@ -909,4 +971,9 @@ html[data-theme="dark"] .sort-select {
         padding: 0px 0 !important;
     }
 
+}
+
+.image-selector-privacy-container{
+    display: flex;
+    flex-direction: row;
 }

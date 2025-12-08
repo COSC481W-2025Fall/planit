@@ -13,6 +13,13 @@
   grid-row: 1;
 }
 
+.explore-control-bar {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  grid-column: 1 / -1;
+}
+
 .tabbar {
   display: flex;
   align-items: center;
@@ -118,7 +125,7 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   font-size: 18px;
   font-weight: 600;
   color: var(--text);
-  margin: 24px 20px 12px;
+  margin: 12px;
 }
 
 .trips-section { 
@@ -209,6 +216,7 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   font-weight: bold;
   color: var(--text-dark);
   margin: 10px 0 6px;
+  line-height: 1.1em;
 }
 
 .trip-meta {
@@ -220,7 +228,7 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   color: var(--text-medium);
 }
 .trip-meta svg { vertical-align: middle; margin-right: 2px !important; }
-.trip-date, .trip-location { color: var(--text-medium); font-size: 0.9rem; }
+.trip-date, .trip-location { color: var(--text-medium); font-size: 0.9rem; line-height: 1em; }
 
 .trip-stats {
   margin-top: 8px;
@@ -290,6 +298,26 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   padding: 0.5rem 20px 1rem;
 }
 
+.recent-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 15px;
+  overflow-y: auto;
+  padding: 0.5rem 10px 1rem 20px;
+  height: 50vh;
+  scrollbar-width: thin;
+}
+
+.recent-trips-section {
+  grid-column: 1 / -1;
+  background-color: var(--bg-surface);
+  border-radius : var(--radius);
+  box-shadow: var(--shadow-1);
+  margin-top: 10px;
+  padding-bottom: 10px;
+}
+
 .privacy-toggle {
   display: inline-flex;
   border: 1px solid var(--border);
@@ -323,7 +351,29 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   .tabbar { gap: 8px; }
   .trip-card.public { flex-basis: clamp(240px, 46vw, 280px); }
 }
+/* medium tablets */
+@media (max-width: 900px) {
+  .tabbar {
+    margin-inline: 16px;
+    grid-column: 1;
+    grid-row: 3;
+    flex-wrap: wrap;
+    row-gap: 8px;
 
+    overflow: visible !important;
+    position: relative;
+  }
+  .explore-control-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: start;
+  }
+
+  .filter-dropdown {
+    left: 0 !important;
+    transform: translateX(0) !important;
+  }
+}
 /* large phones / small tablets */
 @media (max-width: 768px) {
   .section-title { margin: 20px 16px 10px; }
@@ -352,6 +402,11 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
 
   .trip-card.public { flex-basis: clamp(240px, 80vw, 280px); }
   .trip-meta { gap: 8px; }
+
+  .recent-grid {
+    padding: 0px;
+    padding-left: 10px;
+  }
 }
 
 /* phones */

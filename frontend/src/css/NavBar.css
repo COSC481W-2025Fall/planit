@@ -102,6 +102,7 @@
 @media (max-width: 600px) {
     .sidebar {
         width: 11.53rem;
+        z-index: 1200;
     }
 
     .nav-item {

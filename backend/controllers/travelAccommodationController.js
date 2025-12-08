@@ -1,8 +1,9 @@
 import { sql } from "../config/db.js";
+import {io} from "../socket.js";
 
 export const addTransportInfo = async (req, res) => {
     try {
-        const {transport_type, trip_id, transport_price, transport_note, transport_number} = req.body;
+        const {transport_type, trip_id, transport_price, transport_note, transport_number, username} = req.body;
 
         if (!trip_id || !transport_type) {
             return res.status(400).json({ error: "Missing required fields" });
@@ -13,6 +14,8 @@ export const addTransportInfo = async (req, res) => {
             VALUES (${trip_id}, ${transport_type}, ${transport_price ?? null}, ${transport_note ?? null}, ${transport_number ?? null})
             RETURNING *
         `;
+
+        io.to(`trip_${trip_id}`).emit("addedTransport", transport_type, username);
 
         res.json({
       message: "Transport added successfully",
@@ -37,6 +40,7 @@ export const readTransportInfo = async (req, res) => {
         const result = await sql`
             SELECT * FROM transport
             WHERE trip_id = ${trip_id}
+            ORDER BY transport_id
         `;
 
         res.json({
@@ -53,7 +57,7 @@ export const readTransportInfo = async (req, res) => {
 
 export const updateTransportInfo = async (req, res) => {
     try {
-        const {transport_id, transport_type, transport_price, transport_note, transport_number} = req.body;
+        const {transport_id, transport_type, transport_price, transport_note, transport_number, trip_id, username} = req.body;
 
         if (!transport_id) {
             return res.status(400).json({ error: "Missing required fields"});
@@ -70,6 +74,7 @@ export const updateTransportInfo = async (req, res) => {
                 return res.status(404).json({ error: "Transport not found" });
     }       
 
+        io.to(`trip_${trip_id}`).emit("updatedTransport", transport_type, username);
 
         res.json({
             message: "Transport info updated successfully", 
@@ -84,7 +89,7 @@ export const updateTransportInfo = async (req, res) => {
 
 export const deleteTransportInfo = async (req, res) => {
     try {
-        const {transport_id} = req.body; 
+        const {transport_id, trip_id, transport_type, username, index} = req.body; 
 
         if (!transport_id) {
             return res.status(400).json({ error: "Missing required fields" });
@@ -94,6 +99,8 @@ export const deleteTransportInfo = async (req, res) => {
             DELETE FROM transport
             WHERE transport_id = ${transport_id}
         `;
+
+        io.to(`trip_${trip_id}`).emit("deletedTransport", transport_type, username, index);
 
         res.json({
             message: "Transport info deleted successfully"
@@ -107,7 +114,7 @@ export const deleteTransportInfo = async (req, res) => {
     
 export const addAccommodationInfo = async (req, res) => {
     try {
-        const {trip_id, accommodation_price, accommodation_note, accommodation_type} = req.body;
+        const {trip_id, accommodation_price, accommodation_note, accommodation_type, username} = req.body;
     
         if (!trip_id) {
             return res.status(400).json({error: "Missing required fields"});
@@ -118,6 +125,8 @@ export const addAccommodationInfo = async (req, res) => {
             VALUES (${trip_id}, ${accommodation_price ?? null}, ${accommodation_note ?? null}, ${accommodation_type})
             RETURNING *
         `;
+
+        io.to(`trip_${trip_id}`).emit("addedAccommodation", accommodation_type, username);
 
         res.json({
       message: "Accommodation added successfully",
@@ -141,6 +150,7 @@ export const readAccommodationInfo = async (req, res) => {
         const result = await sql`
             SELECT * FROM accommodation 
             WHERE trip_id = ${trip_id}
+            ORDER BY accommodation_id
         `;
 
         res.json({
@@ -156,7 +166,7 @@ export const readAccommodationInfo = async (req, res) => {
 
 export const updateAccommodationInfo = async (req, res) => {
     try {
-        const {accommodation_id, accommodation_price, accommodation_note, accommodation_type} = req.body;
+        const {trip_id, accommodation_id, accommodation_price, accommodation_note, accommodation_type, username} = req.body;
 
         if(!accommodation_id) {
             return res.status(400).json({ error: "Missing required fields"});
@@ -173,6 +183,8 @@ export const updateAccommodationInfo = async (req, res) => {
             return res.status(404).json ({ error: "Accommodation not found" });
         }
 
+        io.to(`trip_${trip_id}`).emit("updatedAccommodation", accommodation_type, username);
+
         res.json({
             message: "Accommodation info updated successfully",
             accommodationInfo: result[0]
@@ -186,7 +198,7 @@ export const updateAccommodationInfo = async (req, res) => {
 
 export const deleteAccommodationInfo = async (req, res) => {
     try {
-        const {accommodation_id} = req.body;
+        const {accommodation_id, trip_id, accommodation_type, username, index} = req.body;
 
         if (!accommodation_id) {
             return res.status(400).json({ error: "Missing required fields"})
@@ -196,6 +208,8 @@ export const deleteAccommodationInfo = async (req, res) => {
             DELETE FROM accommodation
             WHERE accommodation_id = ${accommodation_id}
         `;
+
+        io.to(`trip_${trip_id}`).emit("deletedAccommodation", accommodation_type, username, index);
 
         res.json({
             message: "Accommodation info deleted successfully" 

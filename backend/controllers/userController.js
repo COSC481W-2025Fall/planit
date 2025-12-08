@@ -146,7 +146,21 @@ export const deleteUser = async (req, res) => {
     if (result.length === 0)
     return res.status(400).json({ error: "User not found" });
 
-    res.json({ loggedIn: false, message: "User deleted" });
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+        return res.status(500).json({ error: "Failed to destroy session" });
+      }
+      
+      // clear the session cookie
+      res.clearCookie("connect.sid");
+      
+      // Send success response
+      res.json({ 
+        loggedIn: false, 
+        message: "Account deleted successfully" 
+      });
+    });
   } 
   catch (err) {
     console.error("Error deleting user:", err);

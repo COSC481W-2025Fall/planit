@@ -23,29 +23,12 @@ import settingsRoutes from "./routes/settingsRoutes.js";
 import travelAccommodationRoutes from "./routes/travelAccommodationRoutes.js";
 import settingsParticipantRoutes from "./routes/settingsParticipantRoutes.js";
 import weatherRoutes from "./routes/weatherRoutes.js";
-
+import { profanity } from "./middleware/profanity.js";
 
 const app = express();
 
 // connect to Neon
 export const sql = neon(process.env.DATABASE_URL);
-
-// middleware
-app.use(express.json());
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://app.planit-travel.me",
-      "https://www.planit-travel.me",
-      "https://planit-travel.me",
-    ],
-    credentials: true,
-  })
-);
-
-app.use(helmet());
-app.use(morgan("dev"));
 
 app.use(
   session({
@@ -59,8 +42,28 @@ app.use(
     },
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
+
+// middleware
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://app.planit-travel.me",
+      "https://www.planit-travel.me",
+      "https://planit-travel.me",
+    ],
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+
+app.use(helmet());
+app.use(morgan("dev"));
+app.use(profanity);
 
 // routes
 app.use("/auth", authRoutes);

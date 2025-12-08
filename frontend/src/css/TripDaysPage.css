@@ -310,6 +310,7 @@ body {
   font-family: Tahoma, sans-serif;
   color: var(--text);
   margin: 0;
+  line-height: 1.4rem;
 }
 
 .trip-info {
@@ -756,6 +757,7 @@ body {
 .day-menu button:hover {
   background-color: var(--accent-lite);
   color: var(--text);
+  border-radius: inherit !important;
 }
 
 .day-menu button:active {
@@ -770,6 +772,10 @@ html[data-theme="dark"] .trash-icon,
 html[data-theme="dark"] .trash-icon svg {
   color: var(--bg-white) !important;
   stroke: var(--bg-white) !important;
+}
+html[data-theme="dark"] .day-menu .trash-icon {
+  stroke: var(--accent) !important;
+  color: var(--accent) !important;
 }
 
 .textarea-notes {

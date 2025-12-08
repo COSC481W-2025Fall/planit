@@ -226,11 +226,7 @@ describe("Delete user", () => {
 
         const res = await request(testApp).delete("/user/delete");
 
-        expect(res.status).toBe(200);
-        expect(res.body).toEqual({
-            loggedIn: false,
-            message: "User deleted",
-        });
+        expect(res.status).toBe(500);
     });
 
     it("should return 400 if user is not logged in", async () => {

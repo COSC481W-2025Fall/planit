@@ -11,7 +11,7 @@ export async function getTrips(user_id) {
 
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.error || "Failed to fetch trips");
+    throw { response: { data: { error: error.error || "Failed to fetch trips" } } };
   }
   return await res.json();
 }
@@ -26,7 +26,8 @@ export async function createTrip(trip) {
     user_id: trip.user_id,
     days: trip.days,
     imageid: trip.image_id,
-    isPrivate: trip.isPrivate
+    isPrivate: trip.isPrivate,
+    notes: trip.notes
   };
 
   const res = await fetch(`${API_BASE_URL}/trip/create`, {
@@ -38,7 +39,7 @@ export async function createTrip(trip) {
 
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.error || "Failed to create trip");
+    throw { response: { data: { error: error.error || "Failed to create trip" } } };
   }
 
   return await res.json();
@@ -54,7 +55,8 @@ export async function updateTrip(trip) {
     tripStartDate: trip.trip_start_date,
     user_id: trip.user_id,
     days: trip.days,
-    isPrivate: trip.isPrivate
+    isPrivate: trip.isPrivate,
+    notes: trip.notes
   };
 
   const res = await fetch(`${API_BASE_URL}/trip/update`, {
@@ -66,7 +68,7 @@ export async function updateTrip(trip) {
 
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.error || "Failed to update trip");
+    throw { response: { data: { error: error.error || "Failed to update trip" } } };
   }
   return await res.json();
 }
@@ -82,7 +84,7 @@ export async function deleteTrip(trips_id) {
 
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.error || "Failed to delete trip");
+    throw { response: { data: { error: error.error || "Failed to delete trip" } } };
   }
   return await res.json();
 }
@@ -96,7 +98,7 @@ export async function getSharedTrips(user_id) {
 
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.error || "Failed to fetch trips");
+    throw { response: { data: { error: error.error || "Failed to fetch trips" } } };
   }
   return await res.json();
 }
@@ -109,7 +111,7 @@ export async function listParticipants(tripId) {
   });
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.error || "Failed to fetch participants");
+    throw { response: { data: { error: error.error || "Failed to fetch participants" } } };
   }
   return await res.json();
 }
@@ -124,7 +126,7 @@ export async function addParticipant(tripId, username) {
   });
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.error || "Failed to add participant");
+    throw { response: { data: { error: error.error || "Failed to add participant" } } };
   }
   return await res.json();
 }
@@ -139,7 +141,7 @@ export async function removeParticipant(tripId, username) {
   });
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.error || "Failed to remove participant");
+    throw { response: { data: { error: error.error || "Failed to remove participant" } } };
   }
   return await res.json();
 }
@@ -151,8 +153,8 @@ export async function getOwnerForTrip(tripId) {
     credentials: "include",
   });
   if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || "Failed to fetch owner for trip");
+  const error = await res.json();
+  throw { response: { data: { error: error.error || "Failed to fetch owner for trip" } } };
   }
   return await res.json();
 }
@@ -166,7 +168,7 @@ export async function retrievePackingItems(trip) {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `Request failed with ${res.status}`);
+    throw { response: { data: { error: err.error || `Request failed with ${res.status}` } } };
   }
   return await res.json();
 }

@@ -266,9 +266,10 @@ export default function ActivitySearch({
 
     // init from parent on mount
     useEffect(() => {
-        if (externalCityQuery) {
-            setCityQuery(externalCityQuery);
+        if (externalCityQuery && !prevCityQuery.current) {
+            // set prevCityQuery FIRST to prevent API call
             prevCityQuery.current = externalCityQuery;
+            setCityQuery(externalCityQuery);
         }
     }, []);
 
