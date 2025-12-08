@@ -4,6 +4,15 @@ import {makeApp, makeAppUndefinedUserId} from "./appFactory.js";
 import { sql } from "../config/db.js";
 import { generateDateRange } from "../controllers/tripController.js";
 
+// Mock IO instance
+vi.mock("../socket.js", () => ({
+    io: {
+        to: vi.fn(() => ({
+            emit: vi.fn()
+        }))
+    }
+}));
+
 vi.mock("../config/db.js", () => {
     const sql = vi.fn(async () => []);
 

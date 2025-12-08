@@ -392,7 +392,7 @@ export default function TripPage() {
 
     try {
       if (editingTrip) {
-        await updateTrip({ ...tripData, trips_id: editingTrip.trips_id });
+        await updateTrip({ ...tripData, trips_id: editingTrip.trips_id, username: user.username });
         toast.success("Trip updated successfully!");
       } else {
         await createTrip(tripData);
@@ -465,7 +465,7 @@ export default function TripPage() {
     const handleTogglePrivacy = async (trip) => {
         const nextPrivate = !trip.is_private;
         try {
-            await updateTrip({ trips_id: trip.trips_id, isPrivate: nextPrivate });
+            await updateTrip({ trips_id: trip.trips_id, isPrivate: nextPrivate , username: user.username});
             setTrips((prev) =>
               prev.map((t) => (t.trips_id === trip.trips_id ? { ...t, is_private: nextPrivate } : t))
             );

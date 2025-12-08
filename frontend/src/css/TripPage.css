@@ -199,12 +199,13 @@
 }
 
 .trip-page .modal-content .textarea-notes {
-    background: var(--bg-hover2);
+    padding: 12px;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius);
     font-size: 14px;
+    background: var(--bg-input);
     color: var(--text);
     width: 100%;
-    resize: none;
-    box-sizing: border-box;
 }
 
 .trip-page .modal-content .textarea-notes::placeholder {
@@ -313,10 +314,11 @@
 .modal-content input {
     padding: 12px;
     border: 1px solid var(--border-input);
-    border-radius: 4px;
+    border-radius: var(--radius);
     font-size: 14px;
     background: var(--bg-input);
     color: var(--text);
+    width: 100%;
 }
 
 .modal-content input::placeholder {

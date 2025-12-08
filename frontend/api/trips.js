@@ -56,7 +56,8 @@ export async function updateTrip(trip) {
     user_id: trip.user_id,
     days: trip.days,
     isPrivate: trip.isPrivate,
-    notes: trip.notes
+    notes: trip.notes,
+    username: trip.username
   };
 
   const res = await fetch(`${API_BASE_URL}/trip/update`, {

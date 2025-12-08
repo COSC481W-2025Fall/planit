@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronRight, PiggyBank, Plane,Car,Train,Bus,Ship,Bed} from "lucide-react";
+import { MapPin, Calendar, EllipsisVertical, Trash2, ChevronDown, ChevronUp, Plus, UserPlus, X, Eye, Luggage, ChevronRight, PiggyBank, Plane,Car,Train,Bus,Ship,Bed, ChevronLeft} from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL, LOCAL_FRONTEND_URL, VITE_FRONTEND_URL } from "../../../Constants.js";
 import "../css/TripDaysPage.css";
 import "../css/ImageBanner.css";
@@ -22,6 +22,8 @@ import io from "socket.io-client";
 import {getWeather} from "../../api/weather.js";
 import CloneTripButton from "../components/CloneTripButton.jsx";
 import Label from "../components/Label.jsx";
+import DatePicker from "react-datepicker";
+import { set } from "date-fns";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 const BASE_FRONTEND_URL = import.meta.env.PROD ? VITE_FRONTEND_URL : LOCAL_FRONTEND_URL
@@ -34,6 +36,12 @@ export default function TripDaysPage() {
   const [userRole, setUserRole] = useState(null);
   const [days, setDays] = useState([]);
   const [deleteDayId, setDeleteDayId] = useState(null);
+  const [isTripInfoPopupOpen, setTripInfoPopupOpen] = useState(false);
+  const [tripNotesDraft, setTripNotesDraft] = useState("");
+  const [tripNameDraft, setTripNameDraft] = useState("");
+  const [tripStartDateDraft, setTripStartDateDraft] = useState(null);
+  const [tripLocationDraft, setTripLocationDraft] = useState("");
+  const initialLoadRef = useRef(false);
 
   //constants for UI components
   const [openMenu, setOpenMenu] = useState(null);
@@ -133,7 +141,7 @@ export default function TripDaysPage() {
     } catch {}
   }, [expandedDays]);
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+  // const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
   const expandedInitRef = useRef(false);
 
   const menuRefs = useRef({});
@@ -280,6 +288,36 @@ export default function TripDaysPage() {
       toast.success("New trip category applied: " + category);
     });
 
+    socket.on("tripInformation", async (tripName, newStartDate, tripLocation, notes, username) => {
+      setTrip(prev => {
+        const oldStartDate = prev?.trip_start_date;
+
+        // Normalize both dates for comparison (strip time)
+        // Handle both Date objects and strings
+        const oldDateStr = oldStartDate
+          ? (typeof oldStartDate === 'string' ? oldStartDate.split('T')[0] : oldStartDate.toISOString().split('T')[0])
+          : null;
+        const newDateStr = newStartDate ? newStartDate.split('T')[0] : null;
+
+        // Only fetch days if the start date actually changed
+        if (oldDateStr && newDateStr && oldDateStr !== newDateStr) {
+          // Reset the weather ref so fetchDays will fetch weather again
+          weatherFetchedRef.current = false;
+          fetchDays();
+        }
+
+        return {
+          ...prev,
+          trip_name: tripName,
+          trip_start_date: newStartDate,
+          trip_location: tripLocation,
+          notes: notes
+        };
+      });
+
+      toast.info("Trip information has been updated by " + username);
+    });
+
     socket.on("addedTransport", (changedTransportType, username) => {
       fetchTransportInfo(changedTransportType);
 
@@ -382,6 +420,14 @@ export default function TripDaysPage() {
   }, []);
 
   useEffect(() => {
+    if (isTripInfoPopupOpen && trip) {
+      setTripNotesDraft(trip.notes || "");
+      setTripNameDraft(trip.trip_name || "");
+      setTripLocationDraft(trip.trip_location || "");
+      setTripStartDateDraft(trip.trip_start_date ? new Date(trip.trip_start_date) : null);
+    }
+  }, [isTripInfoPopupOpen, trip]);
+  useEffect(() => {
     const update = () => {
       setShowAILabels(localStorage.getItem("planit:showAILabels") !== "false");
     };
@@ -420,11 +466,11 @@ export default function TripDaysPage() {
   }, [days]);
 
   //responsive
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 600);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // useEffect(() => {
+  //   const handleResize = () => setIsMobile(window.innerWidth <= 600);
+  //   window.addEventListener("resize", handleResize);
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
 
   //outside Click Close
   useEffect(() => {
@@ -590,10 +636,16 @@ export default function TripDaysPage() {
   //Fetch Days
   useEffect(() => {
     // only fetch the days if the trip exists
-    if(trip){
+    if(trip && !initialLoadRef.current){
       fetchDays();
+      initialLoadRef.current = true;
     }
   }, [tripId, trip]);
+
+  // reset the initial load flag when tripId changes
+  useEffect(() => {
+    initialLoadRef.current = false;
+  }, [tripId]);
 
   const openAddDayPopup = (baseDateStr, insertBefore = false) => {
     if (!canEdit) {
@@ -851,6 +903,45 @@ export default function TripDaysPage() {
     }
   }
 
+  const handleSaveTripInfo = async () => {
+    try {
+      if (!tripNameDraft.trim()) {
+        toast.error("Trip name is required");
+        return;
+      }
+      if (!tripLocationDraft.trim()) {
+        toast.error("Trip location is required");
+        return;
+      }
+      if (!tripStartDateDraft) {
+        toast.error("Trip start date is required");
+        return;
+      }
+
+      const startDateString = tripStartDateDraft.toISOString().split('T')[0];
+      await updateTrip({
+        trips_id: trip.trips_id,
+        trip_name: tripNameDraft,
+        trip_start_date: startDateString,
+        trip_location: tripLocationDraft,
+        isPrivate: trip.isPrivate,
+        imageid: trip.image_id,
+        notes: tripNotesDraft,
+        username: user.username
+      });
+      setTrip({ ...trip, trip_name: tripNameDraft, trip_start_date: tripStartDateDraft, trip_location: tripLocationDraft, notes: tripNotesDraft });
+      await fetchDays();
+      setTripInfoPopupOpen(false);
+      setTripStartDateDraft(null);
+      setTripNameDraft("");
+      setTripNotesDraft("");
+      setTripLocationDraft("");
+    } catch (err) {
+      console.error("Failed to update trip:", err);
+      toast.error(err.response?.data?.error || "Could not update trip. Please try again.");
+    }
+  };
+
   // handle distance check when time changes
   const handleDistanceCheck = (startTime) => {
     if (!editActivity) return;
@@ -933,6 +1024,7 @@ export default function TripDaysPage() {
         await updateTrip({
           ...trip,
           trip_start_date: newDay,
+          username : user.username
         });
       }
 
@@ -969,6 +1061,7 @@ export default function TripDaysPage() {
         await updateTrip({
           ...trip,
           trip_start_date: days[1].day_date.split("T")[0],
+          username: user.username
         });
       }
 
@@ -1514,6 +1607,19 @@ export default function TripDaysPage() {
     }
   };
 
+  const MobileDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
+    <div
+      className={`mobile-date-input ${!value ? 'placeholder' : ''}`}
+      onClick={onClick}
+      ref={ref}
+    >
+      {value || placeholder}
+    </div>
+  ));
+
+  const isMobile = () => window.innerWidth <= 600;
+
+
   //Loading State
   if (!user || !trip) {
     return (
@@ -1874,7 +1980,7 @@ export default function TripDaysPage() {
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
           <div className = "title-left">
-  <h1 className="trip-title">{trip.trip_name}</h1>
+  <h1 className="trip-title" onClick={() => setTripInfoPopupOpen(true)}>{trip.trip_name}</h1>
             {showAILabels &&
                 trip.trip_category &&
                 !hiddenLabels.includes(trip.trips_id) && (
@@ -1896,6 +2002,7 @@ export default function TripDaysPage() {
                   {visibleParticipants.map((p) =>
                     p.photo ? (
                       <img
+                        draggable = {false}
                         key={`${p.user_id || ''}-${p.username}`}
                         className={`participant-pfp ${isUserActive(p.username) ? 'active' : ''}`}
                         src={p.photo}
@@ -1932,13 +2039,13 @@ export default function TripDaysPage() {
           <div className="trip-info">
 
             <div className="trip-left-side">
-              <div className="trip-location">
+              <div className="trip-location" onClick={() => setTripInfoPopupOpen(true)}>
                 <MapPin className="trip-info-icon" />
                 <p className="trip-location-text">{trip.trip_location}</p>
               </div>
 
               {days.length > 0 && (
-                <div className="trip-dates">
+                <div className="trip-dates" onClick={() => setTripInfoPopupOpen(true)}>
                   <Calendar className="trip-info-icon" />
                   <p className="trip-dates-text">
                     {new Date(days[0].day_date).toLocaleDateString("en-US", {
@@ -1971,6 +2078,7 @@ export default function TripDaysPage() {
 
           <div className="image-banner">
             <img
+              draggable={false}
               src={imageUrl}
               alt={trip.trip_name}
               id={`image${trip.image_id}`}
@@ -2373,7 +2481,7 @@ export default function TripDaysPage() {
                                   className = "weather-icon"
                                   src={`https://${weatherForDay.condition_icon}`}
                                   alt="Weather icon"
-                                  draggable="false"
+                                  draggable={false}
                                 />
                               ) : (
                                 <div className="empty-weather-icon" />
@@ -2520,6 +2628,7 @@ export default function TripDaysPage() {
                 {orderedPeople.map((person) => (
                   <div key={person.user_id} className="individual-participant">
                     <img
+                      draggable = {false}
                       className={`participant-pfp ${isUserActive(person.username) ? 'active' : ''}`}
                       src={person.photo}
                       alt={person.username}
@@ -2859,6 +2968,122 @@ export default function TripDaysPage() {
             </Popup>
 
           )}
+
+           {isTripInfoPopupOpen && (
+              <Popup
+               buttons={
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {setTripNotesDraft(""); 
+                                    setTripNameDraft("");
+                                    setTripStartDateDraft(null);
+                                    setTripLocationDraft("");
+                                    setTripInfoPopupOpen(false); 
+                                    }}
+                  >
+                    {isViewer ? "Close" : "Cancel"}
+                  </button>
+                  {!isViewer && (
+                  <button
+                    type="button"
+                    className="btn-rightside"
+                    onClick={handleSaveTripInfo}>
+                    Save
+                  </button>
+                  )}
+                </>
+              }
+              id="trip-info-popup"
+              title="Trip Information"
+              onClose={() => setTripInfoPopupOpen(false)}>
+                <div className = "trip-info-popup-container">
+                  <div className="trip-name-container">
+                    <div className = "trip-name-textview">Trip Name:</div>
+                    <input className = "trip-name-input"
+                           type="text" 
+                           maxLength={44} 
+                           value={tripNameDraft}
+                           disabled={isViewer}
+                           required
+                           onChange={(e) => setTripNameDraft(e.target.value)}>
+                    </input>
+                  </div>
+
+                  <div className="trip-location-container">
+                    <div className="trip-location-textview">Location:</div>
+                    <input className = "trip-location-input"
+                           type="text" 
+                           maxLength={36} 
+                           value={tripLocationDraft}
+                           disabled={isViewer}
+                           required
+                           onChange={(e) => setTripLocationDraft(e.target.value)}>
+                    </input>
+                  </div>
+
+                <div className="trip-start-date-container">
+                  <div className="trip-start-date-textview">Start Date:</div>
+                  <DatePicker
+                    id="date-picker-trip-info"
+                    selected={tripStartDateDraft}
+                    required
+                    onChange={(date) => setTripStartDateDraft(date)}
+                    placeholderText="Choose Start Date"
+                    popperPlacement="bottom"
+                    disabled={isViewer}
+                    className="date-input"
+                    dateFormat="MM-dd-yyyy"
+                    shouldCloseOnSelect={true}
+                    withPortal={isMobile()}
+                    portalId="root-portal"
+                    customInput={
+                      isMobile() ? (
+                        <MobileDateInput placeholder="Choose Start Date" />
+                      ) : undefined
+                    }
+                    onClickOutside={() =>
+                      setTimeout(() => {
+                        document.activeElement?.blur();
+                      }, 120)
+                    }
+                    renderCustomHeader={({ date, decreaseMonth, increaseMonth }) => (
+                      <div className="calendar-header">
+                        <div className="month-nav">
+                          <button type="button" className="month-btn" onClick={decreaseMonth}>
+                            <ChevronLeft size={20} />
+                          </button>
+                          <span className="month-label">
+                            {date.toLocaleString("default", { month: "long" })}{" "}
+                            {date.getFullYear()}
+                          </span>
+                          <button type="button" className="month-btn" onClick={increaseMonth}>
+                            <ChevronRight size={20} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  />
+                  </div>
+                  <div className="trip-notes-container">
+                    <div className="trip-notes-textview">Notes</div>
+                    <textarea
+                      name="tripNotes"
+                      className="textarea-notes"
+                      placeholder="Enter any notes you have about this trip!"
+                      disabled={isViewer}
+                      value={tripNotesDraft}
+                      onChange={(e) => setTripNotesDraft(e.target.value)}
+                      maxLength={200}
+                    />
+
+                    <div className="char-count">
+                      {tripNotesDraft.length} / 200
+                    </div>
+                </div>
+                </div>
+              </Popup>
+            )}
         </main>
 
         {openActivitySearch && canEdit && (
