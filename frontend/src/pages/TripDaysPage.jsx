@@ -301,6 +301,8 @@ export default function TripDaysPage() {
 
         // Only fetch days if the start date actually changed
         if (oldDateStr && newDateStr && oldDateStr !== newDateStr) {
+          // Reset the weather ref so fetchDays will fetch weather again
+          weatherFetchedRef.current = false;
           fetchDays();
         }
 
