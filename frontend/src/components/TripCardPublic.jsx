@@ -3,13 +3,9 @@ import { Heart, MapPin, Calendar } from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import Label from "../components/Label.jsx";
 
-export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
+export default function TripCardPublic({ trip, liked, onToggleLike, onOpen, showAILabels }) {
   const [imageUrl, setImageUrl] = useState(null);
 
-  const [hiddenLabels] = useState(() => {
-  const stored = localStorage.getItem("hiddenTripLabels");
-  return stored ? JSON.parse(stored) : [];
-});
 
   const onLike = (e) => {
     e.stopPropagation();
@@ -64,7 +60,7 @@ export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
       <div className="trip-card-content">
         <div className="trip-card-title-row">
           <h3 className="trip-card-title">{trip.trip_name}</h3>
-          {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
+          {showAILabels && trip.trip_category && (
             <Label category={trip.trip_category} className="trip-card-badge" />
           )}
         </div>
