@@ -1283,7 +1283,7 @@ export default function TripDaysPage() {
       "duration_days": tripDuration,
       "avg_temp_high": weatherSummary.avg_high_f,
       "avg_temp_low": weatherSummary.avg_high_f,
-      "rain_chance_percent": weatherSummary.avg_precipitation_chance,
+      "avg_precipitation_chance": weatherSummary.avg_precipitation_chance,
       "humidity_percent": weatherSummary.avg_humidity
     }
 
@@ -1291,7 +1291,7 @@ export default function TripDaysPage() {
       "season",
       "avg_temp_high",
       "avg_temp_low",
-      "rain_chance_percent",
+      "avg_precipitation_chance",
       "humidity_percent"
     ];
 
