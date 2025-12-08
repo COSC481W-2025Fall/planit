@@ -2852,8 +2852,9 @@ export default function TripDaysPage() {
                                     setTripInfoPopupOpen(false); 
                                     }}
                   >
-                    Cancel
+                    {isViewer ? "Close" : "Cancel"}
                   </button>
+                  {!isViewer && (
                   <button
                     type="button"
                     className="btn-rightside"
@@ -2896,6 +2897,7 @@ export default function TripDaysPage() {
                     }}>
                     Save
                   </button>
+                  )}
                 </>
               }
               id="trip-info-popup"
@@ -2908,6 +2910,7 @@ export default function TripDaysPage() {
                            type="text" 
                            maxLength={44} 
                            value={tripNameDraft}
+                           disabled={isViewer}
                            required
                            onChange={(e) => setTripNameDraft(e.target.value)}>
                     </input>
@@ -2919,6 +2922,7 @@ export default function TripDaysPage() {
                            type="text" 
                            maxLength={36} 
                            value={tripLocationDraft}
+                           disabled={isViewer}
                            required
                            onChange={(e) => setTripLocationDraft(e.target.value)}>
                     </input>
@@ -2933,6 +2937,7 @@ export default function TripDaysPage() {
                     onChange={(date) => setTripStartDateDraft(date)}
                     placeholderText="Choose Start Date"
                     popperPlacement="bottom"
+                    disabled={isViewer}
                     className="date-input"
                     dateFormat="MM-dd-yyyy"
                     shouldCloseOnSelect={true}
@@ -2972,6 +2977,7 @@ export default function TripDaysPage() {
                       name="tripNotes"
                       className="textarea-notes"
                       placeholder="Enter any notes you have about this trip!"
+                      disabled={isViewer}
                       value={tripNotesDraft}
                       onChange={(e) => setTripNotesDraft(e.target.value)}
                       maxLength={200}
