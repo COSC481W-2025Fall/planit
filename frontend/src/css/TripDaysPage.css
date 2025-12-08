@@ -1999,12 +1999,12 @@ html[data-theme="dark"] .time-picker {
   flex-direction: row;
 }
 
-.trip-name-input, .trip-location-input, .date-input, .clone-popup-input {
+.trip-name-input, .trip-location-input, .date-input, .clone-popup-input, .popup-input .mobile-date-input {
   padding: 12px;
   border: 1px solid var(--border-input);
   border-radius: var(--radius);
   font-size: 14px;
-  background: var(--bg-input);
+  background: var(--bg-input) !important;
   color: var(--text);
   width: 100%;
 }

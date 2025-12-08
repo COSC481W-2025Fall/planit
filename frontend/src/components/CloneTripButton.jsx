@@ -138,7 +138,7 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
                             onChange={(date) => setNewStartDate(date)}
                             placeholderText="Choose Start Date"
                             popperPlacement="bottom"
-                            className="clone-date-input"
+                            className="date-input"
                             dateFormat="MM-dd-yyyy"
                             shouldCloseOnSelect={true}
                             withPortal={isMobile()}
