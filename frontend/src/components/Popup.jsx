@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import "../css/Popup.css";
 import { X } from "lucide-react";
 
+let openPopupCount = 0;
+let savedScrollY = 0;
+
 export default function Popup({ title, children, buttons, onClose, id }) {
     const [isDragging, setIsDragging] = useState(false);
     const [startY, setStartY] = useState(0);
@@ -9,30 +12,42 @@ export default function Popup({ title, children, buttons, onClose, id }) {
     const CLOSE_THRESHOLD = window.innerHeight * 0.25;
     const dragHandleRef = useRef(null);
 
+
     // Lock body scroll when popup mounts, unlock when it unmounts
     useEffect(() => {
-        // Save current scroll position
-        const scrollY = window.scrollY;
+        // Increment counter
+        openPopupCount++;
 
-        // Lock scroll
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.left = '0';
-        document.body.style.right = '0';
-        document.body.style.overflow = 'hidden';
+        // Only save scroll position for the first popup
+        if (openPopupCount === 1) {
+            savedScrollY = window.scrollY;
 
-        // Cleanup: restore scroll when popup closes
+            // Lock scroll
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${savedScrollY}px`;
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Cleanup: restore scroll only when last popup closes
         return () => {
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.left = '';
-            document.body.style.right = '';
-            document.body.style.overflow = '';
+            openPopupCount--;
 
-            // Restore scroll position
-            window.scrollTo(0, scrollY);
+            // Only restore when no popups are open
+            if (openPopupCount === 0) {
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.left = '';
+                document.body.style.right = '';
+                document.body.style.overflow = '';
+
+                // Restore scroll position
+                window.scrollTo(0, savedScrollY);
+            }
         };
     }, []);
+
 
     const handleOverlayClick = (e) => {
         const activeTag = document.activeElement?.tagName;
