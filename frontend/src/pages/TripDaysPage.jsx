@@ -418,7 +418,7 @@ export default function TripDaysPage() {
     try {
       setLoadingDays(true);
 
-      const daysData = await getDays(tripId); // <-- USE THE REAL HELPER
+      const daysData = await getDays(tripId);
       setDays(daysData);
 
     } catch (err) {
