@@ -35,6 +35,7 @@ export default function TripDaysPage() {
   const [trip, setTrip] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [days, setDays] = useState([]);
+  const [loadingDays, setLoadingDays] = useState(true);
   const [deleteDayId, setDeleteDayId] = useState(null);
   const [isTripInfoPopupOpen, setTripInfoPopupOpen] = useState(false);
   const [tripNotesDraft, setTripNotesDraft] = useState("");
@@ -42,6 +43,7 @@ export default function TripDaysPage() {
   const [tripStartDateDraft, setTripStartDateDraft] = useState(null);
   const [tripLocationDraft, setTripLocationDraft] = useState("");
   const initialLoadRef = useRef(false);
+  const tripNotFoundRef = useRef(false);
 
   //constants for UI components
   const [openMenu, setOpenMenu] = useState(null);
@@ -408,6 +410,26 @@ export default function TripDaysPage() {
   const [aiDisabled, setAiDisabled] = useState(
     localStorage.getItem("planit:disablePackingAI") === "true"
   );
+  
+  useEffect(() => {
+  const loadDays = async () => {
+    if (!trip || !trip.trips_id) return;
+
+    try {
+      setLoadingDays(true);
+
+      const daysData = await getDays(tripId); // <-- USE THE REAL HELPER
+      setDays(daysData);
+
+    } catch (err) {
+      console.error("Error fetching days:", err);
+    } finally {
+      setLoadingDays(false);
+    }
+  };
+
+  loadDays();
+}, [tripId, trip?.trips_id]);
 
 
 // If the setting changes (user toggles it in settings), refresh:
@@ -566,19 +588,29 @@ export default function TripDaysPage() {
       { credentials: "include" }
     )
       .then((res) => {
-        if (res.status === 404 || res.status === 403) {
-          navigate('/trip');
-          return null;
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (data) {
-          setTrip(data);
-          setUserRole(data.user_role);
-        }
-      })
-      .catch((err) => console.error("Trip fetch error:", err));
+  if (res.status === 404 || res.status === 403) {
+    tripNotFoundRef.current = true;
+    toast.error("Trip not found or you don't have access");
+    navigate('/trip');
+    throw new Error("Trip not found"); // Throw to prevent further processing
+  }
+  if (!res.ok) {
+    throw new Error("Failed to fetch trip");
+  }
+  return res.json();
+})
+.then((data) => {
+  if (data && !tripNotFoundRef.current) {
+    setTrip(data);
+    setUserRole(data.user_role);
+  }
+})
+.catch((err) => {
+  console.error("Trip fetch error:", err);
+  if (err.message !== "Trip not found") {
+    navigate('/trip');
+  }
+});
   }, [tripId, navigate]);
 
   //Fetch banner image url
@@ -1992,6 +2024,14 @@ export default function TripDaysPage() {
       throw err;
     }
   };
+
+  if (loadingDays || !Array.isArray(days)) {
+  return (
+    <div className="days-loading-container" style={{ paddingTop: "40px" }}>
+      <MoonLoader size={40} />
+    </div>
+  );
+}
   
   return (
     <div className="page-layout">
