@@ -592,7 +592,7 @@ export default function TripDaysPage() {
     tripNotFoundRef.current = true;
     toast.error("Trip not found or you don't have access");
     navigate('/trip');
-    throw new Error("Trip not found"); // Throw to prevent further processing
+    throw new Error("Trip not found");
   }
   if (!res.ok) {
     throw new Error("Failed to fetch trip");
