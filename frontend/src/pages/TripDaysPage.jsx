@@ -2028,7 +2028,6 @@ export default function TripDaysPage() {
   if (loadingDays || !Array.isArray(days)) {
   return (
     <div className="days-loading-container" style={{ paddingTop: "40px" }}>
-      <MoonLoader size={40} />
     </div>
   );
 }
