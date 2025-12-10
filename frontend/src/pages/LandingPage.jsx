@@ -2,11 +2,13 @@ import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import "../css/LandingPage.css";
 import logo from "../assets/Planit_Full_Green.png";
+import LandingHeroTripCard from "../components/LandingHeroTripCard.jsx";
 import {Users, MapPin, Calendar, PiggyBank, Star, Sun, Moon} from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import { useTheme } from "../theme/ThemeProvider.jsx";
 
 export default function LandingPage() {
+    const [selectedCard, setSelectedCard] = useState(null);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const { theme, toggle } = useTheme();
@@ -48,23 +50,76 @@ export default function LandingPage() {
                   </button>
               </nav>
           </header>
-
           <section className="hero">
-              <div className="hero-inner">
-                  <h1 className="hero-title">
-                      The most effective way to <br/>
-                      plan <span className="accent">trips</span>
-                  </h1>
-                  <p className="hero-sub">
-                      Create incredible travel experiences with friends. Plan together,
-                      explore together, and make memories that last a lifetime.
-                  </p>
-                  <button
-                    className="btn btn-primary hero-cta"
-                    onClick={() => handleRedirect("/login")}
-                  >
-                      Start Planning
-                  </button>
+              <div className="hero-wrapper">
+                  <div className="hero-text">
+                      <div className="hero-badge">
+                          <MapPin size={16} />
+                          Plan together, Travel together, Explore together
+                      </div>
+
+                      <h1 className="hero-title">
+                          Where will your next <span className="accent">adventure</span> take you?
+                      </h1>
+
+                      <p className="hero-sub">
+                          Plan trips with friends in real-time. Share ideas, discover hidden gems,
+                          and create itineraries that turn dreams into unforgettable journeys.
+                      </p>
+
+                      <div className="hero-cta-row">
+                          <button className="btn btn-primary" onClick={() => handleRedirect("/login")}>
+                              <MapPin size={16} />
+                              Start Planning
+                          </button>
+                      </div>
+
+                      <div className="hero-avatars">
+                          <div className="avatar">HW</div>
+                          <div className="avatar">OM</div>
+                          <div className="avatar">JD</div>
+                          <div className="avatar">SK</div>
+                          <span className="hero-count"><strong>100+</strong> travelers planning together</span>
+                      </div>
+                  </div>
+
+                  <div className="hero-floating-cards">
+                      <div className="card-1">
+                          <LandingHeroTripCard
+                              title="Mission to Tokyo"
+                              location="Tokyo"
+                              date="1/1/2026"
+                              likes={8}
+                              selected={selectedCard === 1}
+                              onClick={() => setSelectedCard(1)}
+                              image= "https://res.cloudinary.com/diw1ntqhi/image/upload/v1760919751/city_skyline_nhmuys.png"
+                          />
+                      </div>
+
+                      <div className="card-2">
+                          <LandingHeroTripCard
+                              title="Girls Trip 2026"
+                              location="Santorini"
+                              date="8/15/2026"
+                              likes={12}
+                              selected={selectedCard === 2}
+                              onClick={() => setSelectedCard(2)}
+                              image="https://res.cloudinary.com/diw1ntqhi/image/upload/v1760919750/beach_jrlll5.png"
+                          />
+                      </div>
+
+                      <div className="card-3">
+                          <LandingHeroTripCard
+                              title="Adventure Trek"
+                              location="Peru"
+                              date="10/10/2025"
+                              likes={24}
+                              selected={selectedCard === 3}
+                              onClick={() => setSelectedCard(3)}
+                              image="https://res.cloudinary.com/diw1ntqhi/image/upload/v1760919468/rainforest_uasxj9.png"
+                          />
+                      </div>
+                  </div>
               </div>
           </section>
 
