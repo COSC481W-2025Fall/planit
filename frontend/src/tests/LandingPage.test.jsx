@@ -31,14 +31,17 @@ describe("LandingPage", () => {
         // Logo via alt text
         expect(screen.getByRole("img", { name: /planit logo/i })).toBeInTheDocument();
 
-        // H1 (it contains <br/> and a <span>, but role/name should still match)
+        // New hero heading
         expect(
-            screen.getByRole("heading", { level: 1, name: /the most effective way to/i })
+            screen.getByRole("heading", {
+                level: 1,
+                name: /where will your next adventure take you\?/i
+            })
         ).toBeInTheDocument();
 
-        // Hero sub text
+        // New hero sub text
         expect(
-            screen.getByText(/create incredible travel experiences with friends/i)
+            screen.getByText(/plan trips with friends in real-time/i)
         ).toBeInTheDocument();
 
         // A couple feature cards (spot-check)
