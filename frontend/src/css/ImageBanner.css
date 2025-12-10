@@ -1,8 +1,7 @@
-/*Flower Default image*/
+/*Default image*/
 #image1
 {
     border-radius: 0.94rem;
-    object-position: -3px -100px;
 }
 /* Mobile view */
 @media (max-width: 768px) {
@@ -171,6 +170,13 @@
 {
     border-radius: 0.94rem;
 
+}
+
+/*Flower*/
+#image22
+{
+    border-radius: 0.94rem;
+    object-position: -3px -100px;
 }
 /* Mobile view */
 @media (max-width: 768px) {

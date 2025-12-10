@@ -3,6 +3,7 @@ For users in the database. This code uses sql`` to interact with the database.
 This code uses async/await for asynchronous operations and try/catch for error handling.
 */
 import { sql } from "../config/db.js";
+import {io} from "../socket.js";
 
 const isGuestUser = (userId) => {
     return userId && userId.toString().startsWith('guest_');
@@ -104,7 +105,7 @@ export const createTrip = async (req, res) => {
 //This function handles the modification of all fields related to a trip.
 export const updateTrip = async (req, res) => {
     if (!req.user) return res.status(401).json({ loggedIn: false });
-    const { trips_id, tripName, tripStartDate, tripLocation, isPrivate, imageid, notes } = req.body;
+    const { trips_id, tripName, tripStartDate, tripLocation, isPrivate, imageid, notes, username } = req.body;
     const userId = req.user.user_id;
 
     if (userId  === undefined || trips_id === undefined) {
@@ -188,13 +189,12 @@ export const updateTrip = async (req, res) => {
 
         if (updates.length > 0) {
             values.push(trips_id);
-            values.push(userId);
+            // values.push(userId);
 
             const query = `
                 UPDATE trips 
                 SET ${updates.join(", ")} 
                 WHERE trips_id = $${paramCount} 
-                AND user_id = $${paramCount + 1}
                 RETURNING *`;
                 
             await sql.query(query, values);
@@ -224,11 +224,11 @@ export const updateTrip = async (req, res) => {
                     `);
                     currentDate.setDate(currentDate.getDate() + 1);
                 }
-
                 // Run all day-update queries in a single atomic transaction
                 await sql.transaction(() => updateQueries);
             }
         }
+        io.to(`trip_${trips_id}`).emit("tripInformation", tripName, newStartDateStr, tripLocation,notes, username);
 
         res.json("Trip updated.");
     }

@@ -45,6 +45,10 @@ export default function TripPage() {
         return stored ? JSON.parse(stored) : [];
     });
 
+    const [showAILabels, setShowAILabels] = useState(
+        localStorage.getItem("planit:showAILabels") !== "false"
+    );
+
     // Get user details
     useEffect(() => {
         fetch(
@@ -77,6 +81,15 @@ export default function TripPage() {
     };
 
     useEffect(() => {
+        const update = () => {
+            setShowAILabels(localStorage.getItem("planit:showAILabels") !== "false");
+        };
+        window.addEventListener("storage", update);
+        return () => window.removeEventListener("storage", update);
+    }, []);
+
+
+    useEffect(() => {
         if (!trips || trips.length === 0) return;
 
         const fetchImages = async () => {
@@ -86,7 +99,8 @@ export default function TripPage() {
                 if (!trip.image_id || trip.image_id === 0) continue;
 
                 // Check if the image URL is already in localStorage global cache
-                const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+                const imageCacheKey = `image_${trip.image_id}_v1`;
+                const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
                 // If the image is cached, use it
                 if (cachedImageUrl) {
@@ -101,7 +115,7 @@ export default function TripPage() {
                     );
 
                     const data = await res.json();
-                    localStorage.setItem(`image_${trip.image_id}`, data);
+                    localStorage.setItem(imageCacheKey, data);
                     newImageUrls[trip.trips_id] = data;
                 } catch (err) {
                     console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
@@ -372,6 +386,7 @@ export default function TripPage() {
                                                 src={imageUrls[trip.trips_id]}
                                                 alt={trip.trip_name}
                                                 className="trip-card-img"
+                                                draggable={false}
                                             />
                                         </div>
                                         <button className="remove-yourself-from-trip-btn"
@@ -394,9 +409,11 @@ export default function TripPage() {
                                                 <h3 className="trip-card-title">{trip.trip_name}</h3>
 
                                                 {/* Show label ONLY if category exists AND it's not marked hidden */}
-                                                {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
-                                                    <Label category={trip.trip_category} className="trip-card-badge" />
-                                                )}
+                                                {showAILabels &&
+                                                    trip.trip_category &&
+                                                    !hiddenLabels.includes(trip.trips_id) && (
+                                                        <Label category={trip.trip_category} />
+                                                    )}
                                             </div>
 
                                             <div className="trip-card-footer">
