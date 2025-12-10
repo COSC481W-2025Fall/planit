@@ -105,3 +105,33 @@ export const searchTrips = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
+export const getRecentTrips = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const isGuest = isGuestUser(userId);
+
+    const recentTrips = await sql`
+      SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, 
+             t.image_id, t.trip_updated_at, t.trip_category,
+             ${isGuest 
+                ? sql`false`
+                : sql`EXISTS (
+                    SELECT 1 FROM likes 
+                    WHERE likes.trip_id = t.trips_id 
+                    AND likes.user_id = ${userId}
+                  )`
+             } AS is_liked
+      FROM trips t
+      WHERE t.is_private = false
+      ORDER BY t.trip_updated_at DESC
+      LIMIT 50;
+    `;
+
+    return res.status(200).json(recentTrips);
+  }
+  catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};

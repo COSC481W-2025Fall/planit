@@ -3,13 +3,9 @@ import { Heart, MapPin, Calendar } from "lucide-react";
 import { LOCAL_BACKEND_URL, VITE_BACKEND_URL } from "../../../Constants.js";
 import Label from "../components/Label.jsx";
 
-export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
+export default function TripCardPublic({ trip, liked, onToggleLike, onOpen, showAILabels }) {
   const [imageUrl, setImageUrl] = useState(null);
 
-  const [hiddenLabels] = useState(() => {
-  const stored = localStorage.getItem("hiddenTripLabels");
-  return stored ? JSON.parse(stored) : [];
-});
 
   const onLike = (e) => {
     e.stopPropagation();
@@ -19,7 +15,8 @@ export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
   useEffect(() => {
     const fetchImage = async () => {
       // Check if the image URL is already in localStorage global cache
-      const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+      const imageCacheKey = `image_${trip.image_id}_v1`;
+      const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
       // If the image is cached, use it
       if(cachedImageUrl){
@@ -38,7 +35,7 @@ export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
         setImageUrl(data);
 
         // Cache the fetched image URL in localStorage for future use
-        localStorage.setItem(`image_${trip.image_id}`, data);
+        localStorage.setItem(imageCacheKey, data);
       } catch (err) {
         console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
       }
@@ -58,13 +55,14 @@ export default function TripCardPublic({ trip, liked, onToggleLike, onOpen }) {
           src={imageUrl}
           alt={trip.trip_name}
           className="trip-card-img"
+          draggable={false}
         />
       </div>
 
       <div className="trip-card-content">
         <div className="trip-card-title-row">
           <h3 className="trip-card-title">{trip.trip_name}</h3>
-          {trip.trip_category && !hiddenLabels.includes(trip.trips_id) && (
+          {showAILabels && trip.trip_category && (
             <Label category={trip.trip_category} className="trip-card-badge" />
           )}
         </div>

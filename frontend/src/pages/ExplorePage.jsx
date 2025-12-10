@@ -23,6 +23,7 @@ export default function ExplorePage() {
   const [topLiked, setTopLiked] = useState([]); // Top 10 all-time
   const [results, setResults] = useState([]);
   const [likedTrips, setLikedTrips] = useState([]); // Liked tab grid
+  const [recentTrips, setRecentTrips] = useState([]);
 
   // filter/sort for liked trips
   const [sortOption, setSortOption] = useState("recent");
@@ -38,6 +39,12 @@ export default function ExplorePage() {
   const [likeCounts, setLikeCounts] = useState(new Map());
 
   const [isAddCooldown, setIsAddCooldown] = useState(false);
+
+  // AI label preference
+  const [showAILabels, setShowAILabels] = useState(() => {
+    return localStorage.getItem("planit:showAILabels") !== "false";
+  });
+
 
   // search
   const [locations, setLocations] = useState([]);
@@ -117,6 +124,7 @@ export default function ExplorePage() {
       post(`/explore/search`, { location, userId }, opts),
     toggleLike: ({ userId, tripId }) => post(`/likes/toggle`, { userId, tripId }),
     getLikedTripsByUser: (userId) => post(`/likes/all/trip/details`, { userId }),
+    getRecentTrips: (userId) => post(`/explore/recent`, { userId }),
   };
 
   // navigate to trip details
@@ -163,24 +171,28 @@ export default function ExplorePage() {
 
     (async () => {
       try {
-        const [locs, trendingRes, topRes] = await Promise.all([
+        const [locs, trendingRes, topRes, recentRes] = await Promise.all([
           api.getAllTripLocations(),
           api.getTrendingTrips(userId),
           api.getTopLikedTrips(userId),
+          api.getRecentTrips(userId),
         ]);
 
         const safeLocs = safe(locs);
         const safeTrending = safe(trendingRes);
         const safeTop = safe(topRes);
+        const safeRecent = safe(recentRes);
 
         setLocations(safeLocs);
         setTrending(safeTrending);
         setTopLiked(safeTop);
+        setRecentTrips(safeRecent);  
 
-        ingestCounts([...safeTrending, ...safeTop]);
+        ingestCounts([...safeTrending, ...safeTop, ...safeRecent]);
         const seed = new Set([
           ...safeTrending.filter((t) => t.is_liked).map((t) => t.trips_id),
           ...safeTop.filter((t) => t.is_liked).map((t) => t.trips_id),
+          ...safeRecent.filter((t) => t.is_liked).map((t) => t.trips_id),
         ]);
         setLikedIds(seed);
       } catch (e) {
@@ -482,7 +494,7 @@ export default function ExplorePage() {
   
 
   // loading
-  if (loadingUser) {
+  if (loadingUser || trending === null || topLiked === null || recentTrips === null) {
     return (
       <div className="trip-page">
         <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
@@ -522,6 +534,7 @@ export default function ExplorePage() {
                   setDateFilter={setDateFilter}
                   categoryFilter={categoryFilter}
                   setCategoryFilter={setCategoryFilter}
+                  showAILabels={showAILabels}
                 />
               </div>
             )}
@@ -613,6 +626,7 @@ export default function ExplorePage() {
                               liked={isLiked(t.trips_id)}
                               onToggleLike={handleToggleLike}
                               onOpen={handleOpenTrip}
+                              showAILabels={showAILabels}
                             />
                           ))
                         )}
@@ -659,6 +673,7 @@ export default function ExplorePage() {
                           liked={isLiked(t.trips_id)}
                           onToggleLike={handleToggleLike}
                           onOpen={handleOpenTrip}
+                          showAILabels={showAILabels}
                         />
                       ))}
 
@@ -670,6 +685,7 @@ export default function ExplorePage() {
                           liked={isLiked(t.trips_id)}
                           onToggleLike={handleToggleLike}
                           onOpen={handleOpenTrip}
+                          showAILabels={showAILabels}
                         />
                       ))}
 
@@ -681,6 +697,7 @@ export default function ExplorePage() {
                           liked={isLiked(t.trips_id)}
                           onToggleLike={handleToggleLike}
                           onOpen={handleOpenTrip}
+                          showAILabels={showAILabels}
                         />
                       ))}
                     </div>
@@ -735,6 +752,7 @@ export default function ExplorePage() {
                               liked={isLiked(t.trips_id)}
                               onToggleLike={handleToggleLike}
                               onOpen={handleOpenTrip}
+                              showAILabels={showAILabels}
                             />
                           ))}
 
@@ -746,6 +764,7 @@ export default function ExplorePage() {
                               liked={isLiked(t.trips_id)}
                               onToggleLike={handleToggleLike}
                               onOpen={handleOpenTrip}
+                              showAILabels={showAILabels}
                             />
                           ))}
 
@@ -757,6 +776,7 @@ export default function ExplorePage() {
                               liked={isLiked(t.trips_id)}
                               onToggleLike={handleToggleLike}
                               onOpen={handleOpenTrip}
+                              showAILabels={showAILabels}
                             />
                           ))}
                         </>
@@ -775,7 +795,25 @@ export default function ExplorePage() {
                   </button>
                 </div>
               </section>
-
+                <section className="recent-trips-section">
+                  <h2 className="section-title">Explore Recent</h2>
+                  {recentTrips && recentTrips.length > 0 ? (
+                    <div className="recent-grid">
+                      {recentTrips.map(trip => (
+                        <TripCardPublic
+                          key={trip.id}
+                          trip={{ ...trip, like_count: getLikeCount(trip.trips_id, trip.like_count) }}
+                          liked={isLiked(trip.trips_id)}
+                          onToggleLike={handleToggleLike}
+                          onOpen={handleOpenTrip}
+                          showAILabels={showAILabels}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="empty-state">No recent trips.</p>
+                  )}
+                </section>
             </>
           ) : (
             // Liked tab: grid layout
@@ -799,6 +837,7 @@ export default function ExplorePage() {
                       liked={true}
                       onToggleLike={(id) => handleToggleLike(id, t)}
                       onOpen={handleOpenTrip}
+                      showAILabels={showAILabels}
                     />
                   ))
                 )}

@@ -44,7 +44,7 @@ vi.mock("../components/ActivitySearch.jsx", () => ({
                             avg_high_c: 4,
                             avg_low_c: -1,
                             avg_humidity: 70,
-                            avg_rain_chance: 30,
+                            avg_precipitation_chance: 30,
                             season: "fall",
                         },
                         daily_raw: [
@@ -55,7 +55,7 @@ vi.mock("../components/ActivitySearch.jsx", () => ({
                                 max_temp_f: 40,
                                 min_temp_f: 30,
                                 avg_humidity: 70,
-                                rain_chance: 30,
+                                avg_precipitation_chance: 30,
                                 condition_icon:
                                     "cdn.weatherapi.com/weather/64x64/day/116.png",
                             },
@@ -146,7 +146,7 @@ describe("Weather icon tests", () => {
                 avg_high_c: 4,
                 avg_low_c: -1,
                 avg_humidity: 70,
-                avg_rain_chance: 30,
+                avg_precipitation_chance: 30,
                 season: "fall",
             },
             daily_raw: [
@@ -158,7 +158,7 @@ describe("Weather icon tests", () => {
                     max_temp_f: 40,
                     min_temp_f: 30,
                     avg_humidity: 70,
-                    rain_chance: 30,
+                    avg_precipitation_chance: 30,
                     condition_icon: "cdn.weatherapi.com/weather/64x64/day/113.png",
                 },
             ],
@@ -291,17 +291,37 @@ describe("Weather icon tests", () => {
 
         // override fetch so /activities/read/all returns NO activities
         global.fetch.mockImplementation((url, options) => {
-            if (url.includes("/activities/read/all")) {
+            if (url.includes("/auth/login/details")) {
                 return Promise.resolve({
                     ok: true,
-                    json: () =>
-                        Promise.resolve({
-                            activities: [],
-                        }),
+                    json: () => Promise.resolve({
+                        loggedIn: true,
+                        user_id: 1,
+                        username: "testuser",
+                    }),
                 });
             }
 
-            // default for anything else
+            if (url.includes("/trip/read/123")) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({
+                        trips_id: 123,
+                        trip_name: "Test Trip",
+                        trip_location: "Detroit, MI",
+                        trip_start_date: "2025-01-01",
+                        user_role: "owner",
+                    }),
+                });
+            }
+
+            if (url.includes("/activities/read/all")) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({ activities: [] }),
+                });
+            }
+
             return Promise.resolve({
                 ok: true,
                 json: () => Promise.resolve({}),

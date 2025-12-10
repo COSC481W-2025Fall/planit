@@ -49,6 +49,8 @@ export const createDay = async (req, res) => {
 
   const newDayInsertBefore = req.body?.newDayInsertBefore || null;
 
+  const username = req.body?.username;
+
   // make sure we have a date
   if (!date) {
     return res.status(400).json({ error: "A valid day_date is required." });
@@ -87,7 +89,7 @@ export const createDay = async (req, res) => {
       newDay = rows[0];
     }
     //emit createdDay for frontend to listen for.
-    io.to(`trip_${tripId}`).emit("createdDay");
+    io.to(`trip_${tripId}`).emit("createdDay", username);
 
     res.status(201).json(newDay);
 
@@ -118,6 +120,8 @@ export const updateDay = async (req, res) => {
   // validate input
   const date = req.body?.day_date ?? null;
 
+  const username = req.body?.username;
+
   // update day in database
   try {
     const rows = await sql`
@@ -132,7 +136,7 @@ export const updateDay = async (req, res) => {
     }
 
     if(req.body.finalUpdate === true){
-      io.to(`trip_${tripId}`).emit("updatedDay");
+      io.to(`trip_${tripId}`).emit("updatedDay", username);
     }
 
     // return the updated day
@@ -163,6 +167,8 @@ export const deleteDay = async (req, res) => {
 
   // check if this is the first day (to determine if we should shift other days)
   const isFirstDay = req.body?.isFirstDay ?? false;
+
+  const username = req.body?.username;
 
   try {
     // get the date from the day we are deleting
@@ -201,7 +207,7 @@ export const deleteDay = async (req, res) => {
       `;
     }
 
-    io.to(`trip_${tripId}`).emit("deletedDay");
+    io.to(`trip_${tripId}`).emit("deletedDay", username);
 
     res.status(204).send();
   } catch (err) {

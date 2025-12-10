@@ -34,6 +34,7 @@ export default function TripPage() {
     const [endDate, setEndDate] = useState(null);
     const [deleteTripId, setDeleteTripId] = useState(null);
     const [privacyDraft, setPrivacyDraft] = useState(true);
+    const [tripNotesDraft, setTripNotesDraft] = useState("");
 
 
 
@@ -132,19 +133,33 @@ export default function TripPage() {
           .catch((err) => console.error("Failed to fetch trips:", err));
     }, [user?.user_id]);
 
+  useEffect(() => {
+    const message = localStorage.getItem("removedToast");
+    if (message) {
+      toast.success(message);
+      localStorage.removeItem("removedToast");
+    }
+  }, []);
+
     useEffect(() => {
-        if (editingTrip) {
-            setStartDate(new Date(editingTrip.trip_start_date));
-            if (editingTrip.trip_end_date) {
-                setEndDate(new Date(editingTrip.trip_end_date));
-            }
-            setPrivacyDraft(editingTrip.is_private ?? true);
-        } else {
-            setStartDate(null);
-            setEndDate(null);
-            setPrivacyDraft(true);
+    if (editingTrip) {
+        setStartDate(new Date(editingTrip.trip_start_date));
+        if (editingTrip.trip_end_date) {
+            setEndDate(new Date(editingTrip.trip_end_date));
         }
-    }, [editingTrip]);
+        setPrivacyDraft(editingTrip.is_private ?? true);
+
+        // preload existing trip notes
+        setTripNotesDraft(editingTrip.notes || "");
+    } else {
+        setStartDate(null);
+        setEndDate(null);
+        setPrivacyDraft(true);
+
+        // clear notes for "New Trip"
+        setTripNotesDraft("");
+    }
+}, [editingTrip]);
 
     // Fetch image URLs for trips when component loads or trips change
     useEffect(() => {
@@ -157,7 +172,8 @@ export default function TripPage() {
           if (!trip.image_id || trip.image_id === 0) continue;
 
           // Check if the image URL is already in localStorage global cache
-          const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+          const imageCacheKey = `image_${trip.image_id}_v1`;
+          const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
           // If the image is cached, use it
           if (cachedImageUrl) {
@@ -172,7 +188,7 @@ export default function TripPage() {
             );
 
             const data = await res.json();
-            localStorage.setItem(`image_${trip.image_id}`, data);
+            localStorage.setItem(imageCacheKey, data);
             newImageUrls[trip.trips_id] = data;
           } catch (err) {
             console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
@@ -315,7 +331,7 @@ export default function TripPage() {
 
 
     //Show Loader while fetching user or trips
-    if (!user || !trips) {
+    if (!user || trips === null || (Array.isArray(trips) && trips.length > 0 && Object.keys(imageUrls).length === 0)) {
       return (
         <div className="trip-page">
             <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
@@ -376,7 +392,7 @@ export default function TripPage() {
 
     try {
       if (editingTrip) {
-        await updateTrip({ ...tripData, trips_id: editingTrip.trips_id });
+        await updateTrip({ ...tripData, trips_id: editingTrip.trips_id, username: user.username });
         toast.success("Trip updated successfully!");
       } else {
         await createTrip(tripData);
@@ -391,6 +407,11 @@ export default function TripPage() {
             handleCloseModal();
         } catch (err) {
             console.error("Save trip failed:", err);
+            const msg = err.response?.data?.error;
+              if (msg === "Profanity detected.") {
+                toast.error("Profanity detected.");
+                return;
+              }
             toast.error("Could not save trip. Please try again.");
         } finally {
           setTimeout(() => setIsSaving(false), 1000);
@@ -401,7 +422,8 @@ export default function TripPage() {
         setEditingTrip(null);
         setStartDate(null);
         setEndDate(null);
-        setPrivacyDraft(true);
+        setPrivacyDraft(true);  
+        setTripNotesDraft("");
         setIsModalOpen(true);
     };
 
@@ -411,7 +433,8 @@ export default function TripPage() {
         setIsModalOpen(true);
 
         if (trip.image_id && trip.image_id !== 0) {
-          const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+          const imageCacheKey = `image_${trip.image_id}_v1`;
+          const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
           if (cachedImageUrl) {
             setSelectedImage(cachedImageUrl);
@@ -424,7 +447,7 @@ export default function TripPage() {
               { credentials: "include" }
             );
             const data = await res.json();
-            localStorage.setItem(`image_${trip.image_id}`, data);
+            localStorage.setItem(imageCacheKey, data);
             setSelectedImage(data);
           } catch (err) {
             console.error("Error fetching trip image:", err);
@@ -442,7 +465,7 @@ export default function TripPage() {
     const handleTogglePrivacy = async (trip) => {
         const nextPrivate = !trip.is_private;
         try {
-            await updateTrip({ trips_id: trip.trips_id, isPrivate: nextPrivate });
+            await updateTrip({ trips_id: trip.trips_id, isPrivate: nextPrivate , username: user.username});
             setTrips((prev) =>
               prev.map((t) => (t.trips_id === trip.trips_id ? { ...t, is_private: nextPrivate } : t))
             );
@@ -516,9 +539,9 @@ export default function TripPage() {
                                     src={imageUrls[trip.trips_id]}
                                     alt={trip.trip_name}
                                     className="trip-card-img"
+                                    draggable={false}
                                     />
                                   </div>
-
                                   <button
                                     className="privacy-toggle-btn"
                                     title={trip.is_private ? "Unprivate" : "Private"}
@@ -686,6 +709,16 @@ export default function TripPage() {
                               onSubmit={async (e) => {
                                   e.preventDefault();
                                   const formData = new FormData(e.target);
+                                  
+                                  const tripName = formData.get("name")?.trim() || "";
+                                  const words = tripName.split(/\s+/).filter(Boolean);
+                                  const tooLongWord = words.find(word => word.length > 14);
+
+                                  if (tooLongWord) {
+                                    toast.error("Each word in the trip name must be 14 characters or fewer.");
+                                    return;
+                                  }
+
                                   const tripData = {
                                       trip_name: formData.get("name"),
                                       trip_location: formData.get("location"),
@@ -693,7 +726,8 @@ export default function TripPage() {
                                       image_id: selectedImage ? selectedImage.image_id : (editingTrip?.image_id ?? 1),
                                       trip_end_date: formData.get("endDate"),
                                       user_id: user.user_id,
-                                      isPrivate: privacyDraft //PLACEHOLDER UNTIL FRONTEND IMPLEMENTS A WAY TO TRIGGER BETWEEN PUBLIC AND PRIVATE FOR TRIPS
+                                      isPrivate: privacyDraft,
+                                      notes: tripNotesDraft
                                   };
                                   if (editingTrip) tripData.trips_id = editingTrip.trips_id;
                                   console.log(tripData)
@@ -703,14 +737,14 @@ export default function TripPage() {
                                 <input
                                   name="name"
                                   placeholder="Trip Name"
-                                  maxLength="30"
+                                  maxLength="44"
                                   defaultValue={editingTrip?.trip_name || ""}
                                   required
                                 />
                                 <input
                                   name="location"
                                   placeholder="Location"
-                                  maxLength="30"
+                                  maxLength="36"
                                   defaultValue={editingTrip?.trip_location || ""}
                                   required
                                 />
@@ -797,38 +831,55 @@ export default function TripPage() {
                                   name="startDate"
                                   value={startDate ? startDate.toISOString().split("T")[0] : ""}
                                 />
-                                <ImageSelector onSelect={(img) => setSelectedImage(img)} />
-                                 <input
-                                  type="hidden"
-                                  name="endDate"
-                                  value={endDate ? endDate.toISOString().split("T")[0] : ""}
-                                />
-                              <div className="privacy-switch-container">
-                                <div
-                                  className={`privacy-switch ${privacyDraft ? "private" : "public"}`}
-                                  onClick={() => setPrivacyDraft(!privacyDraft)}
-                                >
-                                  <div
-                                    className={`privacy-icon left ${privacyDraft ? "active" : ""}`}
-                                    data-label="Private"
-                                  >
-                                    <Lock size={14} />
-                                  </div>
+                                <div className="image-selector-privacy-container">
+                                  <ImageSelector onSelect={(img) => setSelectedImage(img)} />
+                                  <input
+                                    type="hidden"
+                                    name="endDate"
+                                    value={endDate ? endDate.toISOString().split("T")[0] : ""}
+                                  />
 
-                                  <div
-                                    className={`privacy-icon right ${!privacyDraft ? "active" : ""}`}
-                                    data-label="Public"
-                                  >
-                                    <Unlock size={14} />
-                                  </div>
+                                  <div className="privacy-switch-container">
+                                    <div
+                                      className={`privacy-switch ${privacyDraft ? "private" : "public"}`}
+                                      onClick={() => setPrivacyDraft(!privacyDraft)}
+                                    >
+                                      <div
+                                        className={`privacy-icon left ${privacyDraft ? "active" : ""}`}
+                                        data-label="Private"
+                                      >
+                                        <Lock size={14} />
+                                      </div>
 
-                                  <div className="privacy-switch-knob"></div>
+                                      <div
+                                        className={`privacy-icon right ${!privacyDraft ? "active" : ""}`}
+                                        data-label="Public"
+                                      >
+                                        <Unlock size={14} />
+                                      </div>
+
+                                      <div className="privacy-switch-knob"></div>
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
+                                <label className="popup-input">
+                                  <span>Notes</span>
 
+                                  <textarea
+                                    name="tripNotes"
+                                    className="textarea-notes"
+                                    placeholder="Enter any notes you have about this trip!"
+                                    value={tripNotesDraft}
+                                    onChange={(e) => setTripNotesDraft(e.target.value)}
+                                    maxLength={200}
+                                  />
 
-                            </form>
-                        </div>
+                                  <div className="char-count">
+                                    {tripNotesDraft.length} / 200
+                                  </div>
+                                </label>
+                              </form>
+                            </div>
                     </Popup>
                   )}
               </div>
