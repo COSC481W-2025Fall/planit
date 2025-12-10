@@ -234,6 +234,11 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     opacity: 1;
 }
 
+form.was-submitted input:required:invalid {
+  border: 1px solid tomato !important;
+  box-shadow: 0 0 0 1px tomato !important;
+}
+
 .popup-input-field:focus,
 .popup-input .date-input:focus,
 .popup-input .mobile-date-input:focus,

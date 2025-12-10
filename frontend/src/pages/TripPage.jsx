@@ -35,6 +35,8 @@ export default function TripPage() {
     const [deleteTripId, setDeleteTripId] = useState(null);
     const [privacyDraft, setPrivacyDraft] = useState(true);
     const [tripNotesDraft, setTripNotesDraft] = useState("");
+    const [wasSubmitted, setWasSubmitted] = useState(false);
+
 
 
 
@@ -366,6 +368,8 @@ export default function TripPage() {
 
   // Save trip (create/update)
   const handleSaveTrip = async (tripData) => {
+    setWasSubmitted(true);
+
     if (isSaving) return;
     setIsSaving(true);
 
@@ -374,6 +378,8 @@ export default function TripPage() {
 
     const diffMs = end - start;
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+  
 
     if (diffDays > 90) {
       toast.error("Trips cannot be longer than 90 days.");
@@ -410,6 +416,7 @@ export default function TripPage() {
     };
 
     const handleNewTrip = () => {
+        setWasSubmitted(false);
         setEditingTrip(null);
         setStartDate(null);
         setEndDate(null);
@@ -419,6 +426,7 @@ export default function TripPage() {
     };
 
     const handleEditTrip = async (trip) => {
+        setWasSubmitted(false);
         setEditingTrip(trip);
         setPrivacyDraft(trip.is_private ?? true);
         setIsModalOpen(true);
@@ -686,6 +694,7 @@ export default function TripPage() {
                             form="trip-form"
                             disabled={isSaving}
                             className={`trip-submit-btn btn-rightside ${isSaving ? "saving" : ""}`}
+                            onClick={() => setWasSubmitted(true)}
                           >
                             {isSaving ? "Saving..." : "Save"}
                           </button>
@@ -696,6 +705,7 @@ export default function TripPage() {
                             <h2>{editingTrip ? "Edit Trip" : "Create New Trip"}</h2>
                             <form
                               id="trip-form"
+                              className={wasSubmitted ? "was-submitted" : ""}
                               onSubmit={async (e) => {
                                   e.preventDefault();
                                   const formData = new FormData(e.target);
