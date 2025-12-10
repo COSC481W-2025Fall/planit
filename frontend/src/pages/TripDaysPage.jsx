@@ -2025,9 +2025,23 @@ export default function TripDaysPage() {
     }
   };
 
-  if (loadingDays || !Array.isArray(days)) {
+ if (loadingDays || !Array.isArray(days)) {
   return (
-    <div className="days-loading-container" style={{ paddingTop: "40px" }}>
+    <div className="page-layout">
+      <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
+      <div className="content-with-sidebar">
+        <NavBar userId={user?.user_id} isGuest={isGuestUser(user?.user_id)}/>
+        <div className="main-content">
+          <div className="page-loading-container">
+            <MoonLoader
+              color="var(--accent)"
+              size={70}
+              speedMultiplier={0.9}
+              data-testid="loader"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
