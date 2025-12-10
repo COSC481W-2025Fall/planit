@@ -1874,14 +1874,6 @@ export default function TripDaysPage() {
         if (isUpdate && original && JSON.stringify(entry) === JSON.stringify(original)) {
           continue;
         }
-      // Validate price limits
-      const price = Number(entry.price);
-      const maxPrice = 999999999; // Same limit for both
-      
-      if (price > maxPrice) {
-        toast.error(`Price cannot exceed $999,999,999`);
-        return;
-      }
 
         const endpoint = modalType === "transport"
           ? (isUpdate ? "/transport/updateTransportInfo" : "/transport/addTransportInfo")
@@ -1894,7 +1886,7 @@ export default function TripDaysPage() {
             ...(isUpdate && { transport_id: entry.transport_id }),
             trip_id: tripId,
             transport_type: transportType,
-            transport_price: Math.min(price, 999999999),
+            transport_price: Number(entry.price),
             transport_note: entry.transport_note || null,
             transport_number: entry.ticketNumber,
             username: user.username
@@ -1903,7 +1895,7 @@ export default function TripDaysPage() {
             ...(isUpdate && { accommodation_id: entry.accommodation_id }),
             trip_id: tripId,
             accommodation_type: entry.accommodation_type,
-            accommodation_price: Math.min(price, 999999999),
+            accommodation_price: Number(entry.accommodation_price),
             accommodation_note: entry.accommodation_note || null,
             username: user.username
           };
