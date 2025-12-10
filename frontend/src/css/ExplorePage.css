@@ -372,7 +372,6 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
     position: relative;
   }
 
-  /* Liked tab: move tabs up under header on small/medium screens */
   .tabbar.tabbar-liked {
     grid-row: 2;
   }

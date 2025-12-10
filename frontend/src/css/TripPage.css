@@ -848,7 +848,6 @@ html[data-theme="dark"] .sort-select {
     background: var(--border);
 }
 
-/* highlight the active filter/sort option */
 .dropdown-item.active {
     font-weight: 600;
     color: var(--accent);
@@ -978,7 +977,6 @@ html[data-theme="dark"] .sort-select {
     flex-direction: row;
 }
 
-/* Highlight filter button when any filters are applied */
 .filter-button.filter-button--active {
   background: var(--accent);
   color: var(--bg-white);
