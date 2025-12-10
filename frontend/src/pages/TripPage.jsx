@@ -543,6 +543,7 @@ export default function TripPage() {
                                     alt={trip.trip_name}
                                     className="trip-card-img"
                                     draggable={false}
+                                    loading="lazy"
                                     />
                                   </div>
                                   <button
