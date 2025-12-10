@@ -4,17 +4,32 @@
     border-radius: 0.94rem;
     object-position: -3px -100px;
 }
+/* Mobile view */
+@media (max-width: 768px) {
+    #image1 {
+      object-position: 0px -10px; 
+      object-fit: cover; 
+
+    }
+  }
 /*Canyon*/
 #image2
 {
     border-radius: 0.94rem;
+    object-position: -3px -100px;
 
+}
+@media (max-width: 616px) {
+    #image2 {
+      object-position: 0px -1px; 
+      object-fit: cover; 
+
+    }
 }
 /*Ancient Ruins*/
 #image3
 {
     border-radius: 0.94rem;
-
 }
 /* Country Side */
 #image4
@@ -160,7 +175,7 @@
 /* Mobile view */
 @media (max-width: 768px) {
     #image10 {
-      object-position: 0px -10px; 
+      object-position: 0px -1px; 
       object-fit: cover; 
 
     }

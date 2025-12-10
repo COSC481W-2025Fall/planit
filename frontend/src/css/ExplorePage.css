@@ -91,6 +91,13 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   border-color: var(--accent);
   box-shadow: var(--shadow-2);
 }
+.search-input-wrap input:focus {
+  outline: none;
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  -webkit-focus-ring-color: transparent;
+}
+
 .search-input-wrap input {
   flex: 1;
   border: 0;

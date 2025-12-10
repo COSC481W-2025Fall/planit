@@ -719,10 +719,11 @@ export default function TripPage() {
                                       notes: tripNotesDraft
                                   };
                                   if (editingTrip) tripData.trips_id = editingTrip.trips_id;
-                                // Auto-capitalize first letter of location
-                                  tripData.trip_location = tripData.trip_location
-                                    .trim()
-                                    .replace(/^./, c => c.toUpperCase());
+                                // Auto-capitalize locations
+                                tripData.trip_location = tripData.trip_location
+                                  .trim()
+                                  .toLowerCase()
+                                  .replace(/\b\w/g, c => c.toUpperCase());                             
                                   console.log(tripData)
                                   await handleSaveTrip(tripData);
                               }}

@@ -2056,27 +2056,42 @@ export default function TripDaysPage() {
 
                             <label>Price ($)</label>
                             <input
-                              type="text"
-                              inputMode="numeric"
-                              value={entry.price ?? ""}
-                              onChange={(e) => {
-                                const raw = e.target.value;
-
-                                // strip non-digits
-                                let cleaned = raw.replace(/[^0-9]/g, "");
-
-                                // limit to 7 digits (max 9,999,999)
-                                if (cleaned.length > 9) {
-                                  cleaned = cleaned.slice(0, 9);
-                                }
-
-                                const copy = [...entries];
-                                copy[index].price = cleaned;
-                                setEntries(copy);
-                              }}
+                              type="number"
+                              min="0"
+                              max="10000000"
+                              step="1"
                               placeholder="e.g. 120"
                               autoComplete="off"
+                              inputMode="numeric"
+                              value={entry.price ?? ""}
+                              onKeyDown={(e) => {
+                                if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === ".") {
+                                  e.preventDefault();
+                                }
+                              }}
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                if (raw === "") {
+                                  const copy = [...entries];
+                                  copy[index].price = "";
+                                  setEntries(copy);
+                                  return;
+                                }
+
+                                let cleaned = raw.replace(/[^0-9]/g, "");
+                                if (cleaned === "") cleaned = "0";
+
+                                let num = parseInt(cleaned, 10);
+                                if (Number.isNaN(num)) num = 0;
+
+                                num = Math.min(10000000, Math.max(0, num));
+
+                                const copy = [...entries];
+                                copy[index].price = num.toString();
+                                setEntries(copy);
+                              }}
                             />
+
                             <label>Notes</label>
                             <textarea
                               value={entry.transport_note ?? ""}
@@ -2120,29 +2135,43 @@ export default function TripDaysPage() {
                             />
                             <label>Price ($)</label>
                             <input
-                              type="text"
+                              type="number"
+                              min="0"
+                              max="10000000"
+                              step="1"
+                              placeholder="e.g. 120"
+                              autoComplete="off"
                               inputMode="numeric"
                               value={entry.accommodation_price ?? ""}
+                              onKeyDown={(e) => {
+                                if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === ".") {
+                                  e.preventDefault();
+                                }
+                              }}
                               onChange={(e) => {
                                 const raw = e.target.value;
 
-                                // strip non-digits
-                                let cleaned = raw.replace(/[^0-9]/g, "");
-
-                                // limit to 9 digits (max 9,999,999)
-                                if (cleaned.length > 9) {
-                                  cleaned = cleaned.slice(0, 9);
+                                if (raw === "") {
+                                  const copy = [...entries];
+                                  copy[index].accommodation_price = "";
+                                  setEntries(copy);
+                                  return;
                                 }
 
+                                let cleaned = raw.replace(/[^0-9]/g, "");
+                                if (cleaned === "") cleaned = "0";
+
+                                let num = parseInt(cleaned, 10);
+                                if (Number.isNaN(num)) num = 0;
+
+                                num = Math.min(10000000, Math.max(0, num));
+
                                 const copy = [...entries];
-                                copy[index].accommodation_price = cleaned;
+                                copy[index].accommodation_price = num.toString();
                                 setEntries(copy);
                               }}
-                              placeholder="e.g. 120"
-                              autoComplete="off"
                             />
 
-              
                             <label>Notes</label>
                             <textarea
                               value={entry.accommodation_note ?? ""}
