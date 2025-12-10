@@ -82,23 +82,18 @@
     font-size: 11px;
     font-weight: 600;
 }
-
-.hero-avatars .avatar:first-child {
+.avatar-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-surface);
+    object-fit: cover;
+    margin-left: -8px;
+}
+.avatar-img:first-child {
     margin-left: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.hero-avatars .avatar:nth-child(2) {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.hero-avatars .avatar:nth-child(3) {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-.hero-avatars .avatar:nth-child(4) {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-}
 
 .hero-floating-cards {
     position: absolute;
@@ -269,7 +264,7 @@
 
 .card-3 {
     top: 350px !important;
-    left: 480px !important;
+    left: 460px !important;
 }
 
 @media (min-width: 1074px) and (max-width: 1470px) {
