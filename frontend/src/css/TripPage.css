@@ -1,7 +1,7 @@
 .trip-page {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     background: var(--bg-offwhite);
 }
 
@@ -11,12 +11,14 @@
     margin-top: var(--topbar-h);
     margin-left: 11.5rem;
     transition: margin 0.3s ease-in-out;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .main-content {
     flex: 1;
     padding: 1.5rem;
-    overflow-y: auto;
+    overflow-y: visible;
     background: var(--bg-offwhite);
 }
 

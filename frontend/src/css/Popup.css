@@ -330,3 +330,22 @@ html[data-theme="dark"] .popup-input .react-datepicker__input-container input::p
         display: none !important;
     }
 }
+.popup-screen-overlay {
+    height: 100dvh !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+.popup {
+    max-height: 90dvh !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+.popup-form {
+    -webkit-overflow-scrolling: touch !important;
+}
+
+@media (max-width: 768px) {
+    .popup {
+        max-height: 95dvh !important;
+    }
+}

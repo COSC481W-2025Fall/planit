@@ -681,3 +681,20 @@ html[data-theme="dark"] .delete-input::placeholder {
         max-width: 100% !important;
     }
 }
+/* iOS SCROLL FIXES – SETTINGS PAGE */
+
+.setting-page {
+    height: 100dvh !important;
+}
+
+.main-content {
+    height: auto !important;
+}
+
+.stats {
+    overflow: visible !important;
+}
+
+.setting-page-loading-container {
+    height: calc(100dvh - var(--topbar-h)) !important;
+}
