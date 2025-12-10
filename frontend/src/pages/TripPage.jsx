@@ -331,7 +331,7 @@ export default function TripPage() {
 
 
     //Show Loader while fetching user or trips
-    if (!user || !trips) {
+    if (!user || trips === null || (Array.isArray(trips) && trips.length > 0 && Object.keys(imageUrls).length === 0)) {
       return (
         <div className="trip-page">
             <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
