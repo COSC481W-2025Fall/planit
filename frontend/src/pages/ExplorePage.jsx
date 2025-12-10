@@ -494,7 +494,7 @@ export default function ExplorePage() {
   
 
   // loading
-  if (loadingUser) {
+  if (loadingUser || !trending || !topLiked || !recentTrips || trending.length === 0) {
     return (
       <div className="trip-page">
         <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
