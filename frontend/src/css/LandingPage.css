@@ -415,3 +415,106 @@ html, body,
         scroll-behavior: auto;
     }
 }
+
+.hero {
+    display: flex !important;
+    justify-content: center;
+    padding: 6rem 4rem;
+    text-align: left !important;
+}
+
+.hero-wrapper {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1400px;
+}
+
+.hero-text {
+    width: 50%;
+    text-align: left !important;
+}
+
+.hero-floating-cards {
+    position: absolute;
+    right: -250px;
+    top: -40px;
+    width: 1100px;
+    height: 900px;
+}
+@media (max-width: 760px) {
+
+    .hero {
+        padding: 4rem 1.25rem !important;
+        display: block !important;
+        text-align: left !important;
+    }
+
+    .hero-wrapper {
+        display: block !important;
+        padding: 0 !important;
+    }
+
+    .hero-text {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+    }
+
+    .hero-title {
+        font-size: clamp(2.4rem, 7vw, 3rem) !important;
+        line-height: 1.2 !important;
+        margin-bottom: 1.2rem !important;
+    }
+
+    .hero-sub {
+        font-size: clamp(1.05rem, 1.2rem + 0.3vw, 1.35rem) !important;
+        line-height: 1.55 !important;
+        max-width: 95% !important;
+        margin-bottom: 1.75rem !important;
+    }
+
+    .hero-cta {
+        font-size: 1.3rem !important;
+        padding: 1.25rem 2.4rem !important;
+        border-radius: 10px;
+    }
+
+    .hero-avatars {
+        font-size: 1rem !important;
+        gap: 10px !important;
+        margin-top: 1.25rem !important;
+    }
+
+    .hero-floating-cards {
+        display: none !important;
+    }
+}
+@media (max-width: 500px) {
+
+    .hero {
+        padding-top: 3rem !important;
+        padding-bottom: 2rem !important;
+    }
+    .hero-badge {
+        font-size: 13px !important;
+    }
+    .hero-wrapper {
+        margin-top: -1.5rem !important;
+    }
+
+    .hero-title {
+        margin-bottom: 0.75rem !important;
+    }
+
+    .hero-sub {
+        margin-bottom: 1.25rem !important;
+    }
+
+    .hero-cta-row {
+        margin-bottom: 1.5rem !important;
+    }
+
+}
+

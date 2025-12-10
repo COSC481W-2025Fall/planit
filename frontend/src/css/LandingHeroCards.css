@@ -1,0 +1,457 @@
+.hero-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    min-height: 600px;
+    padding: 0 40px;
+}
+
+.hero-text {
+    max-width: 600px;
+    position: relative;
+    z-index: 10;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--bg-surface);
+    border-radius: 25px;
+    font-size: 14px;
+    color: var(--text-medium);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-2);
+    border: 1px solid var(--border);
+}
+
+.hero-badge svg {
+    color: var(--accent);
+}
+
+.hero-title {
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text-dark);
+    margin-bottom: 24px;
+}
+
+.hero-title .accent {
+    color: var(--accent);
+}
+
+.hero-sub {
+    font-size: 18px;
+    color: var(--text-medium);
+    line-height: 1.6;
+    margin-bottom: 36px;
+}
+
+.hero-cta-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 48px;
+}
+
+.hero-cta-row .btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hero-avatars {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-medium);
+    font-size: 14px;
+}
+
+.hero-avatars .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-surface);
+    margin-left: -8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+}
+.avatar-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-surface);
+    object-fit: cover;
+    margin-left: -8px;
+}
+.avatar-img:first-child {
+    margin-left: 0;
+}
+
+
+.hero-floating-cards {
+    position: absolute;
+    right: 0;
+    top: -40px;
+    width: 700px;
+    height: 700px;
+}
+
+.landing-trip-card {
+    position: absolute;
+    width: 280px;
+    background: var(--bg-surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow-4);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.landing-trip-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-5);
+}
+
+.landing-trip-card.selected {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+    box-shadow: 0 20px 45px rgba(16, 185, 129, 0.35);
+}
+
+.card-1 {
+    top: 120px;
+    left: 50px;
+    z-index: 3;
+    animation: float1 6s ease-in-out infinite;
+}
+
+.card-2 {
+    top: 20px;
+    right: 80px;
+    z-index: 2;
+    animation: float2 7s ease-in-out infinite;
+}
+
+.card-3 {
+    bottom: 80px;
+    right: 0;
+    z-index: 1;
+    animation: float3 8s ease-in-out infinite;
+}
+
+@keyframes float1 {
+    0%, 100% { transform: translateY(0px) rotate(-2deg); }
+    50% { transform: translateY(-20px) rotate(-2deg); }
+}
+
+@keyframes float2 {
+    0%, 100% { transform: translateY(0px) rotate(2deg); }
+    50% { transform: translateY(-25px) rotate(2deg); }
+}
+
+@keyframes float3 {
+    0%, 100% { transform: translateY(0px) rotate(-1deg); }
+    50% { transform: translateY(-18px) rotate(-1deg); }
+}
+
+.landing-trip-card-image {
+    height: 190px;
+    overflow: hidden;
+    position: relative;
+    background: var(--accent-lite);
+}
+
+.landing-trip-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.landing-trip-card:hover .landing-trip-card-image img {
+    transform: scale(1.1);
+}
+
+.no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--accent-lite);
+}
+
+.landing-trip-card-content {
+    padding: 16px;
+    position: relative;
+}
+
+.landing-trip-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 12px;
+}
+
+.landing-trip-card-footer {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--text-medium);
+    margin-bottom: 10px;
+}
+
+.landing-trip-card-footer .location,
+.landing-trip-card-footer .date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.landing-trip-card-likes {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-medium);
+}
+
+.hero-floating-cards > div {
+    position: absolute;
+}
+
+.landing-trip-card-likes svg {
+    color: #ef4444;
+}
+
+@media (max-width: 1200px) {
+    .hero-floating-cards {
+        width: 500px;
+        right: -50px;
+    }
+
+    .landing-trip-card {
+        width: 240px;
+    }
+
+    .card-1 {
+        left: 0;
+    }
+
+    .card-2 {
+        right: 0;
+    }
+
+    .card-3 {
+        right: 40px;
+    }
+}
+
+.card-1 {
+    top: 180px !important;
+    left: -10px !important;
+}
+
+.card-2 {
+    top: 0px !important;
+    left: 320px !important;
+}
+
+.card-3 {
+    top: 350px !important;
+    left: 460px !important;
+}
+
+@media (min-width: 1074px) and (max-width: 1470px) {
+    .landing-trip-card {
+        width: 220px !important;
+        max-width: 220px !important;
+        border-radius: 14px !important;
+    }
+
+    .landing-trip-card-image {
+        height: 140px !important;
+    }
+
+    .landing-trip-card-content {
+        padding: 12px !important;
+    }
+
+    .hero-floating-cards {
+        width: 800px !important;
+        height: 650px !important;
+        right: -150px !important;
+        top: 40px !important;
+    }
+
+    .card-1 {
+        top: 180px !important;
+        left: 100px !important;
+    }
+
+    .card-2 {
+        top: 0px !important;
+        left: 360px !important;
+    }
+
+    .card-3 {
+        top: 300px !important;
+        left: 400px !important;
+    }
+}
+
+@media (min-width: 965px) and (max-width: 1073px) {
+    .landing-trip-card {
+        width: 180px !important;
+        max-width: 180px !important;
+        border-radius: 12px !important;
+    }
+
+    .landing-trip-card-image {
+        height: 115px !important;
+    }
+
+    .landing-trip-card-content {
+        padding: 10px !important;
+    }
+
+    .hero-floating-cards {
+        width: 650px !important;
+        height: 580px !important;
+        right: -120px !important;
+        top: 45px !important;
+    }
+
+    .card-1 {
+        top: 150px !important;
+        left: 80px !important;
+    }
+
+    .card-2 {
+        top: 0px !important;
+        left: 300px !important;
+    }
+
+    .card-3 {
+        top: 250px !important;
+        left: 330px !important;
+    }
+}
+
+@media (min-width: 760px) and (max-width: 964px) {
+    .landing-trip-card {
+        width: 150px !important;
+        max-width: 150px !important;
+        border-radius: 10px !important;
+    }
+
+    .landing-trip-card-image {
+        height: 95px !important;
+    }
+
+    .landing-trip-card-content {
+        padding: 8px !important;
+    }
+
+    .hero-floating-cards {
+        width: 550px !important;
+        height: 520px !important;
+        right: -90px !important;
+        top: 40px !important;
+    }
+
+    .card-1 {
+        top: 420px !important;
+        left: 180px !important;
+    }
+
+    .card-2 {
+        top: 30px !important;
+        left: 200px !important;
+    }
+
+    .card-3 {
+        top: 220px !important;
+        left: 350px !important;
+    }
+
+    .landing-trip-card-title {
+        font-size: 14px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .landing-trip-card-footer {
+        font-size: 11px !important;
+        gap: 8px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .landing-trip-card-footer svg {
+        width: 12px !important;
+        height: 12px !important;
+    }
+
+    .landing-trip-card-likes {
+        font-size: 11px !important;
+        gap: 4px !important;
+    }
+
+    .landing-trip-card-likes svg {
+        width: 12px !important;
+        height: 12px !important;
+    }
+}
+
+@media (max-width: 760px) {
+    .hero-floating-cards {
+        display: flex !important;
+        position: relative !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        width: 100% !important;
+        gap: 1.25rem !important;
+        margin-top: 2rem !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        height: auto !important;
+        transform: none !important;
+        pointer-events: auto !important;
+    }
+
+    .hero-floating-cards > div {
+        position: relative !important;
+        width: 100% !important;
+        max-width: 360px !important;
+        display: flex !important;
+        justify-content: center !important;
+        transform: none !important;
+        margin: 0 auto !important;
+    }
+
+    .landing-trip-card {
+        position: relative !important;
+        width: 90% !important;
+        max-width: 360px !important;
+        margin: 0 auto !important;
+        transform: none !important;
+        animation: none !important;
+    }
+
+    .landing-trip-card-image {
+        height: 160px !important;
+    }
+
+    .card-1,
+    .card-2,
+    .card-3 {
+        all: unset !important;
+        position: relative !important;
+    }
+}

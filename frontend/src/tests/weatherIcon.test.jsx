@@ -291,17 +291,37 @@ describe("Weather icon tests", () => {
 
         // override fetch so /activities/read/all returns NO activities
         global.fetch.mockImplementation((url, options) => {
-            if (url.includes("/activities/read/all")) {
+            if (url.includes("/auth/login/details")) {
                 return Promise.resolve({
                     ok: true,
-                    json: () =>
-                        Promise.resolve({
-                            activities: [],
-                        }),
+                    json: () => Promise.resolve({
+                        loggedIn: true,
+                        user_id: 1,
+                        username: "testuser",
+                    }),
                 });
             }
 
-            // default for anything else
+            if (url.includes("/trip/read/123")) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({
+                        trips_id: 123,
+                        trip_name: "Test Trip",
+                        trip_location: "Detroit, MI",
+                        trip_start_date: "2025-01-01",
+                        user_role: "owner",
+                    }),
+                });
+            }
+
+            if (url.includes("/activities/read/all")) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({ activities: [] }),
+                });
+            }
+
             return Promise.resolve({
                 ok: true,
                 json: () => Promise.resolve({}),
