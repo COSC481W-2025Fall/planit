@@ -31,6 +31,14 @@
   justify-self: start;
 }
 
+@media (min-width: 901px) {
+  .tabbar-liked {
+    grid-column: 1;
+    justify-self: start;
+    margin: 12px 0 12px 20px; 
+  }
+}
+
 .pill {
   --pill-bg: var(--bg-surface);
   --pill-text: var(--accent);
@@ -363,6 +371,12 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
     overflow: visible !important;
     position: relative;
   }
+
+  /* Liked tab: move tabs up under header on small/medium screens */
+  .tabbar.tabbar-liked {
+    grid-row: 2;
+  }
+
   .explore-control-bar {
     flex-direction: column;
     align-items: flex-start;
@@ -386,6 +400,10 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
     row-gap: 8px;
     overflow: visible !important;
     position: relative;
+  }
+
+  .tabbar.tabbar-liked {
+    grid-row: 2;
   }
 
   .filter-dropdown {
@@ -416,4 +434,11 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   .trip-card-image { height: clamp(132px, 40vw, 168px); }
   .tabbar { margin: 8px 12px 0; flex-wrap: wrap; }
   .explore-search { margin: 12px; max-width: 100%; }
+}
+
+.filter-button.filter-button--active {
+  background: var(--accent);
+  color: var(--bg-white);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-2);
 }

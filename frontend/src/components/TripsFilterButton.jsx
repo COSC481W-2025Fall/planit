@@ -26,19 +26,28 @@ export default function TripsFilterButton({
 
   const handleDateChange = (value) => {
     setDateFilter(value);
-    setIsOpen(false);
   };
 
   const handleSortChange = (value) => {
     setSortOption(value);
-    setIsOpen(false);
   };
+
+  const handleCategoryChange = (value) => {
+    if (setCategoryFilter) {
+      setCategoryFilter(value);
+    }
+  };
+
+  const hasActiveFilters =
+    dateFilter !== "all" ||
+    sortOption !== "recent" ||
+    (categoryFilter && categoryFilter !== "all");
 
   return (
     <div className={`filter-wrapper ${className}`} ref={wrapperRef}>
       <button
         type="button"
-        className="filter-button"
+        className={`filter-button ${hasActiveFilters ? "filter-button--active" : ""}`}
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <span className="filter-icon"></span> Filter
@@ -85,18 +94,20 @@ export default function TripsFilterButton({
 
           <button
             type="button"
-            className={`dropdown-item ${categoryFilter === "all" ? "active" : ""
-              }`}
-            onClick={() => setCategoryFilter("all")}
+            className={`dropdown-item ${
+              categoryFilter === "all" ? "active" : ""
+            }`}
+            onClick={() => handleCategoryChange("all")}
           >
             All categories
           </button>
 
           <button
             type="button"
-            className={`dropdown-item ${categoryFilter === "adventure" ? "active" : ""
-              }`}
-            onClick={() => setCategoryFilter("adventure")}
+            className={`dropdown-item ${
+              categoryFilter === "adventure" ? "active" : ""
+            }`}
+            onClick={() => handleCategoryChange("adventure")}
           >
             <Mountain size={16} style={{ marginRight: 6 }} />
             Adventure
@@ -104,9 +115,10 @@ export default function TripsFilterButton({
 
           <button
             type="button"
-            className={`dropdown-item ${categoryFilter === "relaxation" ? "active" : ""
-              }`}
-            onClick={() => setCategoryFilter("relaxation")}
+            className={`dropdown-item ${
+              categoryFilter === "relaxation" ? "active" : ""
+            }`}
+            onClick={() => handleCategoryChange("relaxation")}
           >
             <Smile size={16} style={{ marginRight: 6 }} />
             Relaxation
@@ -114,9 +126,10 @@ export default function TripsFilterButton({
 
           <button
             type="button"
-            className={`dropdown-item ${categoryFilter === "business" ? "active" : ""
-              }`}
-            onClick={() => setCategoryFilter("business")}
+            className={`dropdown-item ${
+              categoryFilter === "business" ? "active" : ""
+            }`}
+            onClick={() => handleCategoryChange("business")}
           >
             <Briefcase size={16} style={{ marginRight: 6 }} />
             Business
@@ -124,9 +137,10 @@ export default function TripsFilterButton({
 
           <button
             type="button"
-            className={`dropdown-item ${categoryFilter === "cultural" ? "active" : ""
-              }`}
-            onClick={() => setCategoryFilter("cultural")}
+            className={`dropdown-item ${
+              categoryFilter === "cultural" ? "active" : ""
+            }`}
+            onClick={() => handleCategoryChange("cultural")}
           >
             <Theater size={16} style={{ marginRight: 6 }} />
             Cultural
@@ -134,9 +148,10 @@ export default function TripsFilterButton({
 
           <button
             type="button"
-            className={`dropdown-item ${categoryFilter === "nature" ? "active" : ""
-              }`}
-            onClick={() => setCategoryFilter("nature")}
+            className={`dropdown-item ${
+              categoryFilter === "nature" ? "active" : ""
+            }`}
+            onClick={() => handleCategoryChange("nature")}
           >
             <Leaf size={16} style={{ marginRight: 6 }} />
             Nature
@@ -144,9 +159,10 @@ export default function TripsFilterButton({
 
           <button
             type="button"
-            className={`dropdown-item ${categoryFilter === "food" ? "active" : ""
-              }`}
-            onClick={() => setCategoryFilter("food")}
+            className={`dropdown-item ${
+              categoryFilter === "food" ? "active" : ""
+            }`}
+            onClick={() => handleCategoryChange("food")}
           >
             <Utensils size={16} style={{ marginRight: 6 }} />
             Food
@@ -154,9 +170,10 @@ export default function TripsFilterButton({
 
           <button
             type="button"
-            className={`dropdown-item ${categoryFilter === "nightlife" ? "active" : ""
-              }`}
-            onClick={() => setCategoryFilter("nightlife")}
+            className={`dropdown-item ${
+              categoryFilter === "nightlife" ? "active" : ""
+            }`}
+            onClick={() => handleCategoryChange("nightlife")}
           >
             <Moon size={16} style={{ marginRight: 6 }} />
             Nightlife
@@ -164,9 +181,10 @@ export default function TripsFilterButton({
 
           <button
             type="button"
-            className={`dropdown-item ${categoryFilter === "family" ? "active" : ""
-              }`}
-            onClick={() => setCategoryFilter("family")}
+            className={`dropdown-item ${
+              categoryFilter === "family" ? "active" : ""
+            }`}
+            onClick={() => handleCategoryChange("family")}
           >
             <Users size={16} style={{ marginRight: 6 }} />
             Family
@@ -174,9 +192,10 @@ export default function TripsFilterButton({
 
           <button
             type="button"
-            className={`dropdown-item ${categoryFilter === "romantic" ? "active" : ""
-              }`}
-            onClick={() => setCategoryFilter("romantic")}
+            className={`dropdown-item ${
+              categoryFilter === "romantic" ? "active" : ""
+            }`}
+            onClick={() => handleCategoryChange("romantic")}
           >
             <Heart size={16} style={{ marginRight: 6 }} />
             Romantic

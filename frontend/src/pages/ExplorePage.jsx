@@ -541,7 +541,7 @@ export default function ExplorePage() {
           </div>
 
           {/* Tabs (pill style) */}
-          <div className="tabbar">
+          <div className={`tabbar ${tab === "liked" ? "tabbar-liked" : ""}`}>
             <button
               type="button"
               className={`pill ${tab === "discover" ? "active" : ""}`}
@@ -559,41 +559,43 @@ export default function ExplorePage() {
           </div>
 
           {/* Search */}
-          <div className="explore-search closer" ref={acWrapRef}>
-            <div className="search-input-wrap">
-              <Search size={18} />
-              <input
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setShowSuggestions(true);
-                }}
-                placeholder="Search by location"
-                onFocus={() => setShowSuggestions(true)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") prevSearchRef.current = "";
-                }}
-              />
-              {isSearching && <span className="searching-dot" aria-label="searching" />}
-            </div>
+          {tab === "discover" && (
+            <div className="explore-search closer" ref={acWrapRef}>
+              <div className="search-input-wrap">
+                <Search size={18} />
+                <input
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  placeholder="Search by location"
+                  onFocus={() => setShowSuggestions(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") prevSearchRef.current = "";
+                  }}
+                />
+                {isSearching && <span className="searching-dot" aria-label="searching" />}
+              </div>
 
-            {showSuggestions && suggestions.length > 0 && (
-              <ul className="autocomplete">
-                {suggestions.map((s, i) => (
-                  <li
-                    key={i}
-                    onClick={() => {
-                      setQuery(s);
-                      setShowSuggestions(false);
-                      prevSearchRef.current = "";
-                    }}
-                  >
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+              {showSuggestions && suggestions.length > 0 && (
+                <ul className="autocomplete">
+                  {suggestions.map((s, i) => (
+                    <li
+                      key={i}
+                      onClick={() => {
+                        setQuery(s);
+                        setShowSuggestions(false);
+                        prevSearchRef.current = "";
+                      }}
+                    >
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {tab === "discover" ? (
             <>

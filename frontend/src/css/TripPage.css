@@ -977,3 +977,11 @@ html[data-theme="dark"] .sort-select {
     display: flex;
     flex-direction: row;
 }
+
+/* Highlight filter button when any filters are applied */
+.filter-button.filter-button--active {
+  background: var(--accent);
+  color: var(--bg-white);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-2);
+}
