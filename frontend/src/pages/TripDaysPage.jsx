@@ -2025,7 +2025,7 @@ export default function TripDaysPage() {
     }
   };
 
- if (loadingDays || !Array.isArray(days)) {
+ if (loadingDays || !Array.isArray(days) || days.some(day => day.activities === undefined)) {
   return (
     <div className="page-layout">
       <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
