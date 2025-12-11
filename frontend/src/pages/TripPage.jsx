@@ -35,6 +35,8 @@ export default function TripPage() {
     const [deleteTripId, setDeleteTripId] = useState(null);
     const [privacyDraft, setPrivacyDraft] = useState(true);
     const [tripNotesDraft, setTripNotesDraft] = useState("");
+    const [wasSubmitted, setWasSubmitted] = useState(false);
+
 
 
 
@@ -334,7 +336,7 @@ export default function TripPage() {
 
 
     //Show Loader while fetching user or trips
-    if (!user || trips === null) {
+    if (!user) {
       return (
         <div className="trip-page">
             <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
@@ -353,7 +355,7 @@ export default function TripPage() {
   // guest empty state if user is a guest
   if (isGuestUser(user.user_id)) {
     return (
-      <div className="trip-page">
+      <div className="trip-page no-scroll">
         <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
         <div className="content-with-sidebar">
           <NavBar />
@@ -364,6 +366,22 @@ export default function TripPage() {
       </div>
     );
   }
+
+  if (trips === null) {
+  return (
+    <div className="trip-page">
+      <TopBanner user={user} isGuest={false}/>
+      <div className="content-with-sidebar">
+        <NavBar/>
+        <div className="main-content">
+          <div className="page-loading-container">
+            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
     // Delete trip
     const handleDeleteTrip = async (trips_id) => {
         try {
@@ -378,6 +396,8 @@ export default function TripPage() {
 
   // Save trip (create/update)
   const handleSaveTrip = async (tripData) => {
+    setWasSubmitted(true);
+
     if (isSaving) return;
     setIsSaving(true);
 
@@ -386,6 +406,8 @@ export default function TripPage() {
 
     const diffMs = end - start;
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+  
 
     if (diffDays > 90) {
       toast.error("Trips cannot be longer than 90 days.");
@@ -422,6 +444,7 @@ export default function TripPage() {
     };
 
     const handleNewTrip = () => {
+        setWasSubmitted(false);
         setEditingTrip(null);
         setStartDate(null);
         setEndDate(null);
@@ -431,6 +454,7 @@ export default function TripPage() {
     };
 
     const handleEditTrip = async (trip) => {
+        setWasSubmitted(false);
         setEditingTrip(trip);
         setPrivacyDraft(trip.is_private ?? true);
         setIsModalOpen(true);
@@ -543,6 +567,7 @@ export default function TripPage() {
                                     alt={trip.trip_name}
                                     className="trip-card-img"
                                     draggable={false}
+                                    loading="lazy"
                                     />
                                   </div>
                                   <button
@@ -699,6 +724,7 @@ export default function TripPage() {
                             form="trip-form"
                             disabled={isSaving}
                             className={`trip-submit-btn btn-rightside ${isSaving ? "saving" : ""}`}
+                            onClick={() => setWasSubmitted(true)}
                           >
                             {isSaving ? "Saving..." : "Save"}
                           </button>
@@ -709,6 +735,7 @@ export default function TripPage() {
                             <h2>{editingTrip ? "Edit Trip" : "Create New Trip"}</h2>
                             <form
                               id="trip-form"
+                              className={wasSubmitted ? "was-submitted" : ""}
                               onSubmit={async (e) => {
                                   e.preventDefault();
                                   const formData = new FormData(e.target);
@@ -733,7 +760,11 @@ export default function TripPage() {
                                       notes: tripNotesDraft
                                   };
                                   if (editingTrip) tripData.trips_id = editingTrip.trips_id;
-                                  console.log(tripData)
+                                // Auto-capitalize locations
+                                tripData.trip_location = tripData.trip_location
+                                  .trim()
+                                  .toLowerCase()
+                                  .replace(/\b\w/g, c => c.toUpperCase());                             
                                   await handleSaveTrip(tripData);
                               }}
                             >

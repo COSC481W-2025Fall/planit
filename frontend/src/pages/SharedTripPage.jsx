@@ -287,46 +287,69 @@ export default function TripPage() {
     }
 
     //Show Loader while fetching user or trips
-    if (!user || trips === null) {
-        return (
-            <div className="trip-page">
-                <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
-                <div className="content-with-sidebar">
-                    <NavBar />
-                    <div className="main-content">
-                        <div className="page-loading-container">
-                            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader" />
-                        </div>
+
+     if(isLoading){
+        return(
+        <div className="trip-page">
+            <TopBanner user={user} isGuest={false} />
+            <div className="content-with-sidebar">
+                <NavBar />
+                <div className="main-content">
+                    <div className="page-loading-container">
+                        <MoonLoader color="var(--accent)" size={70} />
                     </div>
                 </div>
-            </div>
-        );
-    }
-
-    if(isLoading){
-        return(
-        <div className="main-content">
-            <div className="page-loading-container">
-                <MoonLoader color="var(--accent)" size={70} />
             </div>
         </div>
         );
     }
 
+    if (!user) {
+  return (
+    <div className="trip-page">
+      <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
+      <div className="content-with-sidebar">
+        <NavBar />
+        <div className="main-content">
+          <div className="page-loading-container">
+            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
     // guest empty state if user is a guest
     if (isGuestUser(user?.user_id)) {
         return (
-            <div className="trip-page">
+            <div className="trip-page no-scroll">
                 <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
                 <div className="content-with-sidebar">
                     <NavBar />
                     <div className="main-content">
-                        <GuestEmptyState title="Hi, Guest" description="You're currently browsing as a Guest. Sign in to create and share trips with family and friends!" />
+                        <GuestEmptyState title="Hi, Guest" description="You're currently browsing as a Guest. Sign in to create and share trips with friends!" />
                     </div>
                 </div>
             </div>
         );
     }
+
+    if (trips === null) {
+  return (
+    <div className="trip-page">
+      <TopBanner user={user} isGuest={false} />
+      <div className="content-with-sidebar">
+        <NavBar />
+        <div className="main-content">
+          <div className="page-loading-container">
+            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
     return (
         <div className="trip-page">

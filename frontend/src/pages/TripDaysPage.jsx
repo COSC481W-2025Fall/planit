@@ -1918,7 +1918,7 @@ export default function TripDaysPage() {
             ...(isUpdate && { transport_id: entry.transport_id }),
             trip_id: tripId,
             transport_type: transportType,
-            transport_price: entry.price,
+            transport_price: Number(entry.price),
             transport_note: entry.transport_note || null,
             transport_number: entry.ticketNumber,
             username: user.username
@@ -1927,7 +1927,7 @@ export default function TripDaysPage() {
             ...(isUpdate && { accommodation_id: entry.accommodation_id }),
             trip_id: tripId,
             accommodation_type: entry.accommodation_type,
-            accommodation_price: entry.accommodation_price,
+            accommodation_price: Number(entry.accommodation_price),
             accommodation_note: entry.accommodation_note || null,
             username: user.username
           };
@@ -2287,24 +2287,45 @@ export default function TripDaysPage() {
                                 />
                               </>
                             )}
-              
+
                             <label>Price ($)</label>
                             <input
-                              type="text"            
-                              inputMode="numeric"       
+                              type="number"
+                              min="0"
+                              max="10000000"
+                              step="1"
+                              placeholder="e.g. 120"
+                              autoComplete="off"
+                              inputMode="numeric"
                               value={entry.price ?? ""}
+                              onKeyDown={(e) => {
+                                if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === ".") {
+                                  e.preventDefault();
+                                }
+                              }}
                               onChange={(e) => {
                                 const raw = e.target.value;
+                                if (raw === "") {
+                                  const copy = [...entries];
+                                  copy[index].price = "";
+                                  setEntries(copy);
+                                  return;
+                                }
 
-                                const cleaned = raw.replace(/[^0-9]/g, "");
+                                let cleaned = raw.replace(/[^0-9]/g, "");
+                                if (cleaned === "") cleaned = "0";
+
+                                let num = parseInt(cleaned, 10);
+                                if (Number.isNaN(num)) num = 0;
+
+                                num = Math.min(10000000, Math.max(0, num));
 
                                 const copy = [...entries];
-                                copy[index].price = cleaned;
+                                copy[index].price = num.toString();
                                 setEntries(copy);
                               }}
-                              placeholder="e.g. 10"
                             />
-              
+
                             <label>Notes</label>
                             <textarea
                               value={entry.transport_note ?? ""}
@@ -2348,21 +2369,43 @@ export default function TripDaysPage() {
                             />
                             <label>Price ($)</label>
                             <input
-                              type="text"            
-                              inputMode="numeric"       
+                              type="number"
+                              min="0"
+                              max="10000000"
+                              step="1"
+                              placeholder="e.g. 120"
+                              autoComplete="off"
+                              inputMode="numeric"
                               value={entry.accommodation_price ?? ""}
+                              onKeyDown={(e) => {
+                                if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === ".") {
+                                  e.preventDefault();
+                                }
+                              }}
                               onChange={(e) => {
                                 const raw = e.target.value;
 
-                                const cleaned = raw.replace(/[^0-9]/g, "");
+                                if (raw === "") {
+                                  const copy = [...entries];
+                                  copy[index].accommodation_price = "";
+                                  setEntries(copy);
+                                  return;
+                                }
+
+                                let cleaned = raw.replace(/[^0-9]/g, "");
+                                if (cleaned === "") cleaned = "0";
+
+                                let num = parseInt(cleaned, 10);
+                                if (Number.isNaN(num)) num = 0;
+
+                                num = Math.min(10000000, Math.max(0, num));
 
                                 const copy = [...entries];
-                                copy[index].accommodation_price = cleaned;
+                                copy[index].accommodation_price = num.toString();
                                 setEntries(copy);
                               }}
-                              placeholder="e.g. 10"
                             />
-              
+
                             <label>Notes</label>
                             <textarea
                               value={entry.accommodation_note ?? ""}
