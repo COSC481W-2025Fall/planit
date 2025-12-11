@@ -96,7 +96,7 @@
     box-shadow: var(--shadow-4);
     cursor: pointer;
     position: relative;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
     will-change: transform;
