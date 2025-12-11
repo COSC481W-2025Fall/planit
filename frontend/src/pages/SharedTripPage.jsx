@@ -17,7 +17,7 @@ import Label from "../components/Label.jsx";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
-    const [trips, setTrips] = useState([]);
+    const [trips, setTrips] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [openDropdownId, setOpenDropdownId] = useState(null);
     const dropdownRef = useRef(null);
@@ -71,9 +71,12 @@ export default function TripPage() {
         getSharedTrips(user.user_id)
             .then((data) => {
                 const tripsArray = Array.isArray(data) ? data : data.trips;
-                setTrips(data.sharedTrips.sort((a, b) => a.trips_id - b.trips_id));
+                setTrips(data.sharedTrips.sort((a, b) => a.trips_id - b.trips_id) || []);
             })
-            .catch((err) => console.error("Failed to fetch trips:", err));
+            .catch((err) => {
+                console.error("Failed to fetch trips:", err);
+                setTrips([]); // Set empty array on error
+            });
     }, [user?.user_id]);
 
     const handleTripRedirect = (tripId) => {
@@ -148,7 +151,7 @@ export default function TripPage() {
     }, [dateFilter]);
 
     useEffect(() => {
-        if(user === null || isGuestUser(user?.user_id)) return;
+        if (!user?.user_id || isGuestUser(user.user_id)) return;
         const cachedUnseen = `hasUnseen_${user.user_id}`;
         async function markSeen() {await fetch(`${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/shared/markTrips`, {
                 method: "PUT",
@@ -284,7 +287,7 @@ export default function TripPage() {
     }
 
     //Show Loader while fetching user or trips
-    if (!user || !trips) {
+    if (!user || trips === null) {
         return (
             <div className="trip-page">
                 <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
