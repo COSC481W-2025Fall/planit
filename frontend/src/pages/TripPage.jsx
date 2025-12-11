@@ -735,7 +735,6 @@ export default function TripPage() {
                                   .trim()
                                   .toLowerCase()
                                   .replace(/\b\w/g, c => c.toUpperCase());                             
-                                  console.log(tripData)
                                   await handleSaveTrip(tripData);
                               }}
                             >
