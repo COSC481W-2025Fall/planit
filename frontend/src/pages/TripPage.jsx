@@ -743,7 +743,11 @@ export default function TripPage() {
                                       notes: tripNotesDraft
                                   };
                                   if (editingTrip) tripData.trips_id = editingTrip.trips_id;
-                                  console.log(tripData)
+                                // Auto-capitalize locations
+                                tripData.trip_location = tripData.trip_location
+                                  .trim()
+                                  .toLowerCase()
+                                  .replace(/\b\w/g, c => c.toUpperCase());                             
                                   await handleSaveTrip(tripData);
                               }}
                             >
