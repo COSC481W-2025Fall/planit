@@ -135,13 +135,13 @@
     padding: 1rem 1.5rem;
   }
 
-  .guest-empty-card h2 {
-    font-size: 1rem;
+  /* .guest-empty-card h2 {
+    font-size: .75rem;
   }
 
   .guest-message {
-    font-size: 1rem;
-  }
+    font-size: .75rem;
+  } */
 
   .guest-features {
     padding: 1.25rem;
@@ -151,11 +151,17 @@
     width: 100%;
     justify-content: center;
   }
+
+  .guest-features li, .guest-signin-btn, .guest-message, .guest-empty-card h2, .guest-explore-text{
+    font-size: 0.75rem;
+  }
 }
 @media (max-width: 420px) {
   .guest-empty-state {
     align-items: flex-start;
-    padding-top: 2rem;
-    min-height: auto;
+  }
+
+  .guest-features li, .guest-signin-btn, .guest-message, .guest-empty-card h2, .guest-explore-text{
+    font-size: 0.75rem;
   }
 }

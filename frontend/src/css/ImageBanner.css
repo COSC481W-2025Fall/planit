@@ -3,17 +3,29 @@
 {
     border-radius: 0.94rem;
 }
+#image22
+{
+    border-radius: 0.94rem;
+}
+
 /*Canyon*/
 #image2
 {
     border-radius: 0.94rem;
+    object-position: 0px -100px;
 
+}
+@media (max-width: 616px) {
+    #image2 {
+      object-position: 0px -1px; 
+      object-fit: cover; 
+
+    }
 }
 /*Ancient Ruins*/
 #image3
 {
     border-radius: 0.94rem;
-
 }
 /* Country Side */
 #image4
@@ -69,7 +81,7 @@
 
 #image10
 {
-    object-position: -3px -127px;
+    object-position: 0px -127px;
     border-radius: 0.94rem;
 
 
@@ -90,9 +102,16 @@
 #image13
 {
     border-radius: 0.94rem;
-    object-position: 5px -315px;
+    object-position: 0px -275px;
 }
-@media (max-width: 768px) {
+@media (max-width: 1110px) {
+    #image13 {
+      object-position: 0px -80px; 
+      object-fit: cover; 
+
+    }
+}
+@media (max-width: 594px) {
     #image13 {
       object-position: 0px 0px; 
       object-fit: cover; 
@@ -157,16 +176,10 @@
 
 }
 
-/*Flower*/
-#image22
-{
-    border-radius: 0.94rem;
-    object-position: -3px -100px;
-}
 /* Mobile view */
 @media (max-width: 768px) {
     #image10 {
-      object-position: 0px -10px; 
+      object-position: 0px -1px; 
       object-fit: cover; 
 
     }

@@ -743,7 +743,7 @@ export default function ActivitySearch({
                             <div className="search-bar">
                                 <input
                                     type="text"
-                                    placeholder="Search activity type..."
+                                    placeholder="Activity type or name..."
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
                                 />
