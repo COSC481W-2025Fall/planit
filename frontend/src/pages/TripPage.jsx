@@ -336,7 +336,7 @@ export default function TripPage() {
 
 
     //Show Loader while fetching user or trips
-    if (!user || trips === null) {
+    if (!user) {
       return (
         <div className="trip-page">
             <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
@@ -355,7 +355,7 @@ export default function TripPage() {
   // guest empty state if user is a guest
   if (isGuestUser(user.user_id)) {
     return (
-      <div className="trip-page">
+      <div className="trip-page no-scroll">
         <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
         <div className="content-with-sidebar">
           <NavBar />
@@ -366,6 +366,22 @@ export default function TripPage() {
       </div>
     );
   }
+
+  if (trips === null) {
+  return (
+    <div className="trip-page">
+      <TopBanner user={user} isGuest={false}/>
+      <div className="content-with-sidebar">
+        <NavBar/>
+        <div className="main-content">
+          <div className="page-loading-container">
+            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
     // Delete trip
     const handleDeleteTrip = async (trips_id) => {
         try {
@@ -551,6 +567,7 @@ export default function TripPage() {
                                     alt={trip.trip_name}
                                     className="trip-card-img"
                                     draggable={false}
+                                    loading="lazy"
                                     />
                                   </div>
                                   <button
