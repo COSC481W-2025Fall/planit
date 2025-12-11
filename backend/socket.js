@@ -53,8 +53,8 @@ io.on("connection", (socket) => {
 
   socket.on("disconnecting", () => {
     // Safeguard to check if userData is properly populated, if no userData exists, skip cleanup and return.
-    if (!socket.userData) {
-      console.log("User attempted to leave room with invalid userData");
+    if (!socket.userData?.username || !socket.roomName) {
+      console.log("User attempted to leave room with invalid username or room name");
       return;
     }
 
