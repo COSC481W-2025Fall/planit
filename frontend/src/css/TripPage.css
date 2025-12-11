@@ -89,6 +89,13 @@
     transform: translateZ(0);
 }
 
+.trip-page.no-scroll {
+  overflow: hidden;
+}
+.trip-page.no-scroll .main-content {
+  overflow: hidden;
+}
+
 .trip-card {
     background: var(--bg-surface);
     border-radius: 15px;
