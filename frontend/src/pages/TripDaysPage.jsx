@@ -1621,7 +1621,11 @@ export default function TripDaysPage() {
 
     try {
       if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) >= 365){
-        toast.info("No weather forecast available, too far in the advance.")
+        toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the future.")
+        return;
+      }
+      else if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) <= -365){
+        toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the past.")
         return;
       }
 
@@ -1636,7 +1640,7 @@ export default function TripDaysPage() {
 
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load weather data");
+      toast.info("Failed to load weather data");
     }
   }
 
