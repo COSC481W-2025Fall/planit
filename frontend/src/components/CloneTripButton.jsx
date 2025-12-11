@@ -51,6 +51,7 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
 
     async function clone() {
         if (!newStartDate) {
+            toast.error("Please select a new start date.");
             return;
         }
 
@@ -103,7 +104,7 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
                   <button
                     key="clone"
                     className="btn-rightside"
-                    disabled={loading || !newStartDate}
+                    disabled={loading}
                     onClick={clone}
                   >
                       {loading ? "Cloning..." : "Clone"}
@@ -124,9 +125,9 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
                           <span>Trip Name</span>
                           <input
                             type="text"
+                            className = "clone-popup-input"
                             value={newTripName}
                             onChange={(e) => setNewTripName(e.target.value)}
-                            className="popup-input-field"
                             required
                           />
                       </div>

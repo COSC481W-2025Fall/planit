@@ -15,7 +15,8 @@ export default function TripCardPublic({ trip, liked, onToggleLike, onOpen, show
   useEffect(() => {
     const fetchImage = async () => {
       // Check if the image URL is already in localStorage global cache
-      const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+      const imageCacheKey = `image_${trip.image_id}_v1`;
+      const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
       // If the image is cached, use it
       if(cachedImageUrl){
@@ -34,7 +35,7 @@ export default function TripCardPublic({ trip, liked, onToggleLike, onOpen, show
         setImageUrl(data);
 
         // Cache the fetched image URL in localStorage for future use
-        localStorage.setItem(`image_${trip.image_id}`, data);
+        localStorage.setItem(imageCacheKey, data);
       } catch (err) {
         console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
       }

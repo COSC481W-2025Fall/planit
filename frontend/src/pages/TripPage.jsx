@@ -19,7 +19,7 @@ import Label from "../components/Label.jsx";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
-    const [trips, setTrips] = useState([]);
+    const [trips, setTrips] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingTrip, setEditingTrip] = useState(null);
     const [openDropdownId, setOpenDropdownId] = useState(null);
@@ -35,6 +35,8 @@ export default function TripPage() {
     const [deleteTripId, setDeleteTripId] = useState(null);
     const [privacyDraft, setPrivacyDraft] = useState(true);
     const [tripNotesDraft, setTripNotesDraft] = useState("");
+    const [wasSubmitted, setWasSubmitted] = useState(false);
+
 
 
 
@@ -130,8 +132,19 @@ export default function TripPage() {
               const tripsArray = Array.isArray(data) ? data : data.trips;
               setTrips(tripsArray.sort((a, b) => a.trips_id - b.trips_id));
           })
-          .catch((err) => console.error("Failed to fetch trips:", err));
+          .catch((err) => {
+            console.error("Failed to fetch trips:", err);
+            setTrips([]);
+          });
     }, [user?.user_id]);
+
+  useEffect(() => {
+    const message = localStorage.getItem("removedToast");
+    if (message) {
+      toast.success(message);
+      localStorage.removeItem("removedToast");
+    }
+  }, []);
 
     useEffect(() => {
     if (editingTrip) {
@@ -164,7 +177,8 @@ export default function TripPage() {
           if (!trip.image_id || trip.image_id === 0) continue;
 
           // Check if the image URL is already in localStorage global cache
-          const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+          const imageCacheKey = `image_${trip.image_id}_v1`;
+          const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
           // If the image is cached, use it
           if (cachedImageUrl) {
@@ -179,7 +193,7 @@ export default function TripPage() {
             );
 
             const data = await res.json();
-            localStorage.setItem(`image_${trip.image_id}`, data);
+            localStorage.setItem(imageCacheKey, data);
             newImageUrls[trip.trips_id] = data;
           } catch (err) {
             console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
@@ -322,7 +336,7 @@ export default function TripPage() {
 
 
     //Show Loader while fetching user or trips
-    if (!user || !trips) {
+    if (!user) {
       return (
         <div className="trip-page">
             <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
@@ -341,7 +355,7 @@ export default function TripPage() {
   // guest empty state if user is a guest
   if (isGuestUser(user.user_id)) {
     return (
-      <div className="trip-page">
+      <div className="trip-page no-scroll">
         <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
         <div className="content-with-sidebar">
           <NavBar />
@@ -352,6 +366,22 @@ export default function TripPage() {
       </div>
     );
   }
+
+  if (trips === null) {
+  return (
+    <div className="trip-page">
+      <TopBanner user={user} isGuest={false}/>
+      <div className="content-with-sidebar">
+        <NavBar/>
+        <div className="main-content">
+          <div className="page-loading-container">
+            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
     // Delete trip
     const handleDeleteTrip = async (trips_id) => {
         try {
@@ -366,6 +396,8 @@ export default function TripPage() {
 
   // Save trip (create/update)
   const handleSaveTrip = async (tripData) => {
+    setWasSubmitted(true);
+
     if (isSaving) return;
     setIsSaving(true);
 
@@ -375,6 +407,8 @@ export default function TripPage() {
     const diffMs = end - start;
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
+  
+
     if (diffDays > 90) {
       toast.error("Trips cannot be longer than 90 days.");
       setIsSaving(false);
@@ -383,7 +417,7 @@ export default function TripPage() {
 
     try {
       if (editingTrip) {
-        await updateTrip({ ...tripData, trips_id: editingTrip.trips_id });
+        await updateTrip({ ...tripData, trips_id: editingTrip.trips_id, username: user.username });
         toast.success("Trip updated successfully!");
       } else {
         await createTrip(tripData);
@@ -410,6 +444,7 @@ export default function TripPage() {
     };
 
     const handleNewTrip = () => {
+        setWasSubmitted(false);
         setEditingTrip(null);
         setStartDate(null);
         setEndDate(null);
@@ -419,12 +454,14 @@ export default function TripPage() {
     };
 
     const handleEditTrip = async (trip) => {
+        setWasSubmitted(false);
         setEditingTrip(trip);
         setPrivacyDraft(trip.is_private ?? true);
         setIsModalOpen(true);
 
         if (trip.image_id && trip.image_id !== 0) {
-          const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+          const imageCacheKey = `image_${trip.image_id}_v1`;
+          const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
           if (cachedImageUrl) {
             setSelectedImage(cachedImageUrl);
@@ -437,7 +474,7 @@ export default function TripPage() {
               { credentials: "include" }
             );
             const data = await res.json();
-            localStorage.setItem(`image_${trip.image_id}`, data);
+            localStorage.setItem(imageCacheKey, data);
             setSelectedImage(data);
           } catch (err) {
             console.error("Error fetching trip image:", err);
@@ -455,7 +492,7 @@ export default function TripPage() {
     const handleTogglePrivacy = async (trip) => {
         const nextPrivate = !trip.is_private;
         try {
-            await updateTrip({ trips_id: trip.trips_id, isPrivate: nextPrivate });
+            await updateTrip({ trips_id: trip.trips_id, isPrivate: nextPrivate , username: user.username});
             setTrips((prev) =>
               prev.map((t) => (t.trips_id === trip.trips_id ? { ...t, is_private: nextPrivate } : t))
             );
@@ -530,6 +567,7 @@ export default function TripPage() {
                                     alt={trip.trip_name}
                                     className="trip-card-img"
                                     draggable={false}
+                                    loading="lazy"
                                     />
                                   </div>
                                   <button
@@ -686,6 +724,7 @@ export default function TripPage() {
                             form="trip-form"
                             disabled={isSaving}
                             className={`trip-submit-btn btn-rightside ${isSaving ? "saving" : ""}`}
+                            onClick={() => setWasSubmitted(true)}
                           >
                             {isSaving ? "Saving..." : "Save"}
                           </button>
@@ -696,6 +735,7 @@ export default function TripPage() {
                             <h2>{editingTrip ? "Edit Trip" : "Create New Trip"}</h2>
                             <form
                               id="trip-form"
+                              className={wasSubmitted ? "was-submitted" : ""}
                               onSubmit={async (e) => {
                                   e.preventDefault();
                                   const formData = new FormData(e.target);
@@ -720,7 +760,11 @@ export default function TripPage() {
                                       notes: tripNotesDraft
                                   };
                                   if (editingTrip) tripData.trips_id = editingTrip.trips_id;
-                                  console.log(tripData)
+                                // Auto-capitalize locations
+                                tripData.trip_location = tripData.trip_location
+                                  .trim()
+                                  .toLowerCase()
+                                  .replace(/\b\w/g, c => c.toUpperCase());                             
                                   await handleSaveTrip(tripData);
                               }}
                             >

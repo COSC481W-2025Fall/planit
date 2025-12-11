@@ -19,11 +19,11 @@ export default function ExplorePage() {
   const [tab, setTab] = useState("discover"); // "discover" | "liked"
 
   // datasets
-  const [trending, setTrending] = useState([]);
-  const [topLiked, setTopLiked] = useState([]); // Top 10 all-time
+  const [trending, setTrending] = useState(null);
+  const [topLiked, setTopLiked] = useState(null); 
+  const [recentTrips, setRecentTrips] = useState(null);
   const [results, setResults] = useState([]);
   const [likedTrips, setLikedTrips] = useState([]); // Liked tab grid
-  const [recentTrips, setRecentTrips] = useState([]);
 
   // filter/sort for liked trips
   const [sortOption, setSortOption] = useState("recent");
@@ -197,6 +197,9 @@ export default function ExplorePage() {
         setLikedIds(seed);
       } catch (e) {
         console.error(e);
+        setTrending([]);
+        setTopLiked([]);
+        setRecentTrips([]);
         toast.error("Failed to load explore content.");
       }
     })();
@@ -494,7 +497,7 @@ export default function ExplorePage() {
   
 
   // loading
-  if (loadingUser) {
+  if (loadingUser || trending === null || topLiked === null || recentTrips === null) {
     return (
       <div className="trip-page">
         <TopBanner user={user} isGuest={isGuestUser(user?.user_id)}/>
@@ -803,7 +806,7 @@ export default function ExplorePage() {
                     <div className="recent-grid">
                       {recentTrips.map(trip => (
                         <TripCardPublic
-                          key={trip.id}
+                          key={trip.trips_id}
                           trip={{ ...trip, like_count: getLikeCount(trip.trips_id, trip.like_count) }}
                           liked={isLiked(trip.trips_id)}
                           onToggleLike={handleToggleLike}

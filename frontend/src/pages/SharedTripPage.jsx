@@ -17,7 +17,7 @@ import Label from "../components/Label.jsx";
 
 export default function TripPage() {
     const [user, setUser] = useState(null);
-    const [trips, setTrips] = useState([]);
+    const [trips, setTrips] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [openDropdownId, setOpenDropdownId] = useState(null);
     const dropdownRef = useRef(null);
@@ -71,9 +71,12 @@ export default function TripPage() {
         getSharedTrips(user.user_id)
             .then((data) => {
                 const tripsArray = Array.isArray(data) ? data : data.trips;
-                setTrips(data.sharedTrips.sort((a, b) => a.trips_id - b.trips_id));
+                setTrips(data.sharedTrips.sort((a, b) => a.trips_id - b.trips_id) || []);
             })
-            .catch((err) => console.error("Failed to fetch trips:", err));
+            .catch((err) => {
+                console.error("Failed to fetch trips:", err);
+                setTrips([]); // Set empty array on error
+            });
     }, [user?.user_id]);
 
     const handleTripRedirect = (tripId) => {
@@ -99,7 +102,8 @@ export default function TripPage() {
                 if (!trip.image_id || trip.image_id === 0) continue;
 
                 // Check if the image URL is already in localStorage global cache
-                const cachedImageUrl = localStorage.getItem(`image_${trip.image_id}`);
+                const imageCacheKey = `image_${trip.image_id}_v1`;
+                const cachedImageUrl = localStorage.getItem(imageCacheKey);
 
                 // If the image is cached, use it
                 if (cachedImageUrl) {
@@ -114,7 +118,7 @@ export default function TripPage() {
                     );
 
                     const data = await res.json();
-                    localStorage.setItem(`image_${trip.image_id}`, data);
+                    localStorage.setItem(imageCacheKey, data);
                     newImageUrls[trip.trips_id] = data;
                 } catch (err) {
                     console.error(`Error fetching image for trip ${trip.trips_id}:`, err);
@@ -147,7 +151,7 @@ export default function TripPage() {
     }, [dateFilter]);
 
     useEffect(() => {
-        if(user === null || isGuestUser(user?.user_id)) return;
+        if (!user?.user_id || isGuestUser(user.user_id)) return;
         const cachedUnseen = `hasUnseen_${user.user_id}`;
         async function markSeen() {await fetch(`${import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL}/shared/markTrips`, {
                 method: "PUT",
@@ -283,46 +287,69 @@ export default function TripPage() {
     }
 
     //Show Loader while fetching user or trips
-    if (!user || !trips) {
-        return (
-            <div className="trip-page">
-                <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
-                <div className="content-with-sidebar">
-                    <NavBar />
-                    <div className="main-content">
-                        <div className="page-loading-container">
-                            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader" />
-                        </div>
+
+     if(isLoading){
+        return(
+        <div className="trip-page">
+            <TopBanner user={user} isGuest={false} />
+            <div className="content-with-sidebar">
+                <NavBar />
+                <div className="main-content">
+                    <div className="page-loading-container">
+                        <MoonLoader color="var(--accent)" size={70} />
                     </div>
                 </div>
-            </div>
-        );
-    }
-
-    if(isLoading){
-        return(
-        <div className="main-content">
-            <div className="page-loading-container">
-                <MoonLoader color="var(--accent)" size={70} />
             </div>
         </div>
         );
     }
 
+    if (!user) {
+  return (
+    <div className="trip-page">
+      <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
+      <div className="content-with-sidebar">
+        <NavBar />
+        <div className="main-content">
+          <div className="page-loading-container">
+            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
     // guest empty state if user is a guest
     if (isGuestUser(user?.user_id)) {
         return (
-            <div className="trip-page">
+            <div className="trip-page no-scroll">
                 <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
                 <div className="content-with-sidebar">
                     <NavBar />
                     <div className="main-content">
-                        <GuestEmptyState title="Hi, Guest" description="You're currently browsing as a Guest. Sign in to create and share trips with family and friends!" />
+                        <GuestEmptyState title="Hi, Guest" description="You're currently browsing as a Guest. Sign in to create and share trips with friends!" />
                     </div>
                 </div>
             </div>
         );
     }
+
+    if (trips === null) {
+  return (
+    <div className="trip-page">
+      <TopBanner user={user} isGuest={false} />
+      <div className="content-with-sidebar">
+        <NavBar />
+        <div className="main-content">
+          <div className="page-loading-container">
+            <MoonLoader color="var(--accent)" size={70} speedMultiplier={0.9} data-testid="loader" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
     return (
         <div className="trip-page">

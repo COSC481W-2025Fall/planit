@@ -25,7 +25,13 @@ export function profanity(req, res, next) {
   if (req.method === "GET" || req.method === "HEAD") return next();
   if (!req.body || typeof req.body !== "object") return next();
 
-  if (scanValue(req.body)) {
+  const ignoredKeys = ["customPhoto", "photo", "pfp"];
+
+  const filtered = Object.fromEntries(
+    Object.entries(req.body).filter(([key]) => !ignoredKeys.includes(key))
+  );
+
+  if (scanValue(filtered)) {
     return res.status(400).json({ error: "Profanity detected." });
   }
 

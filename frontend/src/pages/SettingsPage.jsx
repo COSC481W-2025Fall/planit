@@ -377,7 +377,7 @@ export default function SettingsPage() {
     // guest empty state if user is a guest
     if (isGuestUser(user.user_id)) {
         return (
-            <div className="trip-page">
+            <div className="trip-page no-scroll">
                 <TopBanner user={user} isGuest={isGuestUser(user?.user_id)} />
                 <div className="content-with-sidebar">
                     <NavBar />
