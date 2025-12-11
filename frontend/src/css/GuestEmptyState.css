@@ -161,7 +161,7 @@
     align-items: flex-start;
   }
 
-  .guest-features li, .guest-signin-btn, .guest-message, .guest-empty-card h2, .guest-explore-text{
+  .guest-features li, .guest-signin-btn, .guest-message, .guest-empty-card h2, .guest-explore-text, .guest-features h3 {
     font-size: 0.75rem;
   }
 }
