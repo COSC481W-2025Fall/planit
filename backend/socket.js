@@ -23,6 +23,12 @@ const activeUsers = new Map();
 
 io.on("connection", (socket) => {
   socket.on("joinTrip", (roomName, userData) => {
+    // Safeguard to check if listener was sent what is needed before attempting connection
+    if (!userData?.username || !userData?.user_id || !roomName) {
+      console.log("User attempted to join room with invalid userData or roomName");
+      return;
+    }
+
     // Add user to room
     socket.join(roomName);
 
@@ -46,6 +52,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnecting", () => {
+    // Safeguard to check if userData is properly populated, if no userData exists, skip cleanup and return.
+    if (!socket.userData?.username || !socket.roomName) {
+      console.log("User attempted to leave room with invalid username or room name");
+      return;
+    }
+
     console.log(`${socket.userData.username} disconnected from room: ${socket.roomName}`);
 
     // Loop through all rooms this socket is part of
