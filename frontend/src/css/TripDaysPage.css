@@ -66,12 +66,13 @@
 
 
 .modal-body {
-  max-height: 60vh;   
+  max-height: 60dvh;
   overflow-y: auto;   
   padding-right: 8px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  -webkit-overflow-scrolling: touch;
 }
 .entry-block {
   border: 1px solid var(--border);
@@ -196,7 +197,8 @@ html[data-theme="dark"] .delete-entry-btn:hover {
 body {
   background: var(--bg-offwhite);
   margin: 0;
-  height: 100vh;
+  height: 100dvh;
+  min-height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -213,8 +215,9 @@ body {
 .content-with-sidebar {
   display: flex;
   flex: 1;
-  height: 100vh;
-  overflow: hidden;
+  height: auto;
+  overflow: visible;
+  -webkit-overflow-scrolling: touch;
 }
 
 
@@ -921,6 +924,8 @@ html[data-theme="dark"] .textarea-notes {
   padding-right: 10px;
   border-radius: 20px;
   width: max-content;
+  max-width: 100%;
+  flex-wrap: wrap;
 }
 
 .participant-pfp {
@@ -931,6 +936,7 @@ html[data-theme="dark"] .textarea-notes {
   border: 1px solid var(--border);
   box-shadow: var(--shadow-1);
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .participant-pfp.placeholder {
@@ -941,6 +947,7 @@ html[data-theme="dark"] .textarea-notes {
   font-size: 12px;
   color: var(--muted);
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .participants-header {
@@ -2017,4 +2024,11 @@ html[data-theme="dark"] .time-picker {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+@media (max-width: 600px) {
+  .participant-photos {
+    max-width: calc(100vw - 3rem); /* Account for page padding */
+    flex-wrap: wrap;
+    width: auto;
+  }
 }
