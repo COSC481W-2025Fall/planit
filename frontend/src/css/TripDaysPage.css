@@ -207,7 +207,7 @@ body {
 .page-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
 }
 
 .content-with-sidebar {
@@ -2068,5 +2068,13 @@ button,
     position: relative;
   }
 }
+@supports not (height: 100dvh) {
+  .page-layout {
+    height: 100vh;
+  }
+}
 
-
+body:has(.popup-screen-overlay) {
+  overflow: hidden;
+  touch-action: none;
+}
