@@ -1,7 +1,7 @@
 .setting-page {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     background: var(--bg-offwhite);
 }
 
@@ -698,4 +698,9 @@ button,
 .image-upload-button {
     -webkit-user-select: none;
     user-select: none;
+}
+@supports not (height: 100dvh) {
+    .setting-page {
+        height: 100vh;
+    }
 }
