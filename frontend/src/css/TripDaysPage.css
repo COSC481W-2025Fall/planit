@@ -2018,3 +2018,22 @@ html[data-theme="dark"] .time-picker {
   flex-direction: column;
   gap: 16px;
 }
+.TripDaysPage,
+.modal-body,
+.days-scroll-zone,
+.days-container,
+.participants-list,
+.ai-items-list,
+.transportation-dropdown {
+  -webkit-overflow-scrolling: touch;
+}
+/* Prevent text selection on interactive elements */
+.day-card,
+.circle-icon-btn,
+button,
+.dropdown-item,
+.transportation-dropdown li {
+  -webkit-user-select: none;
+  user-select: none;
+}
+

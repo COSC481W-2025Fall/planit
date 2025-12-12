@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import "../css/Popup.css";
 import { X } from "lucide-react";
 
+
 export default function Popup({ title, children, buttons, onClose, id }) {
     const [isDragging, setIsDragging] = useState(false);
     const [startY, setStartY] = useState(0);

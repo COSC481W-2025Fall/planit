@@ -681,3 +681,21 @@ html[data-theme="dark"] .delete-input::placeholder {
         max-width: 100% !important;
     }
 }
+.stats,
+.settings-section {
+    -webkit-overflow-scrolling: touch;
+}
+button,
+.stats-tab,
+.delete-button,
+.image-upload-button,
+.mini-toggle {
+    touch-action: manipulation;
+}
+button,
+.stats-tab,
+.mini-toggle,
+.image-upload-button {
+    -webkit-user-select: none;
+    user-select: none;
+}
