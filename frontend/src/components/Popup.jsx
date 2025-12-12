@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import "../css/Popup.css";
 import { X } from "lucide-react";
 
+let openPopupCount = 0;
+let savedScrollY = 0;
+
 export default function Popup({ title, children, buttons, onClose, id }) {
     const [isDragging, setIsDragging] = useState(false);
     const [startY, setStartY] = useState(0);
@@ -9,7 +12,7 @@ export default function Popup({ title, children, buttons, onClose, id }) {
     const CLOSE_THRESHOLD = window.innerHeight * 0.25;
     const dragHandleRef = useRef(null);
 
-    useEffect(() => {
+  useEffect(() => {
         // Prevent body scroll when popup is open
         document.body.style.overflow = 'hidden';
         document.body.style.position = 'fixed';
