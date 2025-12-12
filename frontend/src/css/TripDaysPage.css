@@ -207,7 +207,7 @@ body {
 .page-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
 }
 
 .content-with-sidebar {
@@ -262,7 +262,6 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   min-width: 0;
-  height: 100dvh;
   transition: margin-right 0.3s ease, transform 0.3s ease;
 }
 
@@ -2070,7 +2069,7 @@ button,
   }
 }
 @supports not (height: 100dvh) {
-  .TripDaysPage {
+  .page-layout {
     height: 100vh;
   }
 }
