@@ -144,9 +144,13 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   grid-column: 1 / -1; 
 }
 
-.carousel { position: relative; }
+.carousel { 
+  position: relative;
+  overflow: visible;                 
+}
 
 .carousel-viewport {
+  position: relative;    
   overflow-x: auto;
   overflow-y: hidden;
   padding: 0 1rem 6px 1rem;
@@ -170,6 +174,7 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   pointer-events: none;
 }
 .carousel-btn {
+  z-index: 10;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -183,7 +188,6 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   display: grid;
   place-items: center;
   cursor: pointer;
-  z-index: 3;
 }
 .carousel-btn:hover { box-shadow: var(--shadow-2); }
 .carousel-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
@@ -208,6 +212,7 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   flex: 0 0 300px;
   box-shadow: var(--shadow-4);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 2;
 }
 .trip-card.public:hover {
   transform: translateY(-2px);

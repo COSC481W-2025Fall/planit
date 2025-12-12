@@ -772,7 +772,7 @@ export default function ExplorePage() {
                   <div className="recent-grid">
                     {recentTrips.map(trip => (
                       <TripCardPublic
-                        key={trip.id}
+                        key={trip.trips_id}
                         trip={{ ...trip, like_count: getLikeCount(trip.trips_id, trip.like_count) }}
                         liked={isLiked(trip.trips_id)}
                         onToggleLike={handleToggleLike}
