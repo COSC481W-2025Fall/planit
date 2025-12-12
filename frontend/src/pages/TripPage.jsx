@@ -340,7 +340,7 @@ export default function TripPage() {
       return (
         <div className="trip-page">
             <TopBanner user={user} isGuest = {isGuestUser(user?.user_id)}/>
-            <div className={`content-with-sidebar ${isModalOpen ? "modal-open" : ""}`}>>
+            <div className="content-with-sidebar">
                 <NavBar/>
                 <div className="main-content">
                     <div className="page-loading-container">
