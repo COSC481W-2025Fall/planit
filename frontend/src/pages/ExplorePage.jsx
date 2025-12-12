@@ -59,6 +59,11 @@ export default function ExplorePage() {
   const SEARCH_DEBOUNCE_MS = 800;
   const MIN_LEN = 2;
 
+  // carousel disable states
+  const [resEdge, setResEdge] = useState({ start: true, end: false });
+  const [trEdge, setTrEdge] = useState({ start: true, end: false });
+  const [topEdge, setTopEdge] = useState({ start: true, end: false });
+
   const navigate = useNavigate();
 
   // backend base
@@ -442,44 +447,41 @@ export default function ExplorePage() {
   };
 
   function scrollByOneCard(ref, dir = 1) {
-    if (isAddCooldown) return; // BLOCK SPAM CLICKS
+    if (isAddCooldown) return;
     startCooldown();
 
     const vp = ref.current;
     if (!vp) return;
 
-    const track = vp.querySelector(".carousel-track.infinite");
-    const cards = track.children;
-    const gap = parseInt(getComputedStyle(track).gap || "15", 10);
-    const cardW = cards[0].clientWidth;
-    const delta = dir * (cardW + gap);
+    const track = vp.querySelector(".carousel-track");
+    const cards = Array.from(track.children);
+    if (cards.length === 0) return;
 
-    const realCount = cards.length - 4; // we added 2 clones on each side
+    // Compute each card's offsetLeft relative to the track
+    const offsets = cards.map((c) => c.offsetLeft);
+    const widths = cards.map((c) => c.clientWidth);
 
-    // scroll to target
-    const next = vp.scrollLeft + delta;
-    vp.scrollTo({ left: next, behavior: "smooth" });
+    const curLeft = vp.scrollLeft;
 
-    // after animation completes, check if we hit clones
-    setTimeout(() => {
-      const cardWidthTotal = cardW + gap;
-
-      // If we went past the right clones → teleport back to real content
-      if (next >= cardWidthTotal * (realCount + 2)) {
-        vp.scrollTo({
-          left: cardWidthTotal * 2, // start of real first card
-          behavior: "instant"
-        });
+    // Find the card whose offset is nearest the current scrollLeft
+    let nearestIndex = 0;
+    let minDist = Infinity;
+    for (let i = 0; i < offsets.length; i++) {
+      const d = Math.abs(offsets[i] - curLeft);
+      if (d < minDist) {
+        minDist = d;
+        nearestIndex = i;
       }
-
-      // If we went past the left clones → teleport to end of real content
-      if (next <= 0) {
-        vp.scrollTo({
-          left: cardWidthTotal * realCount,
-          behavior: "instant"
-        });
-      }
-    }, 350); // slightly longer than smooth scroll duration
+    }
+    let targetIndex = Math.min(Math.max(nearestIndex + dir, 0), cards.length - 1);
+  
+    if (Math.abs(offsets[targetIndex] - curLeft) < 2 && targetIndex + dir >= 0 && targetIndex + dir < cards.length) {
+      targetIndex = Math.min(Math.max(targetIndex + dir, 0), cards.length - 1);
+    }
+  
+    const targetLeft = offsets[targetIndex];
+  
+    vp.scrollTo({ left: targetLeft, behavior: "smooth" });
   }
 
 
@@ -511,6 +513,17 @@ export default function ExplorePage() {
         </div>
       </div>
     );
+  }
+  function updateCarouselEdges(ref, setEdgeState) {
+    const vp = ref.current;
+    if (!vp) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = vp;
+
+    const atStart = scrollLeft <= 0;
+    const atEnd = scrollLeft + clientWidth >= scrollWidth - 2; 
+
+    setEdgeState({ start: atStart, end: atEnd });
   }
 
   return (
@@ -615,7 +628,7 @@ export default function ExplorePage() {
                       <ChevronLeft size={18} />
                     </button>
 
-                    <div className="carousel-viewport" ref={resRef}>
+                    <div className="carousel-viewport" ref={resRef} onScroll={() => updateCarouselEdges(resRef, setResEdge)}>
                       <div className="carousel-track">
                         {results.length === 0 ? (
                           <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
@@ -638,6 +651,7 @@ export default function ExplorePage() {
 
                     <button
                       className="carousel-btn next"
+                      disabled={resEdge.end}
                       onClick={(e) => {
                         e.stopPropagation();
                         scrollByOneCard(resRef, 1);
@@ -665,22 +679,8 @@ export default function ExplorePage() {
                       <ChevronLeft size={18} />
                     </button>
                   )}
-                  <div className="carousel-viewport" ref={trRef}>
-                    <div className="carousel-track infinite">
-
-                      {/* CLONE LAST 2 CARDS  */}
-                      {trending.slice(-2).map((t, i) => (
-                        <TripCardPublic
-                          key={`tr-clone-left-${i}`}
-                          trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
-                          liked={isLiked(t.trips_id)}
-                          onToggleLike={handleToggleLike}
-                          onOpen={handleOpenTrip}
-                          showAILabels={showAILabels}
-                        />
-                      ))}
-
-                      {/*REAL CARDS */}
+                  <div className="carousel-viewport" ref={trRef} onScroll={() => updateCarouselEdges(trRef, setTrEdge)}>
+                    <div className="carousel-track">
                       {trending.map((t) => (
                         <TripCardPublic
                           key={`tr-${t.trips_id}`}
@@ -691,53 +691,44 @@ export default function ExplorePage() {
                           showAILabels={showAILabels}
                         />
                       ))}
-
-                      {/* CLONE FIRST 2 CARDS */}
-                      {trending.slice(0, 2).map((t, i) => (
-                        <TripCardPublic
-                          key={`tr-clone-right-${i}`}
-                          trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
-                          liked={isLiked(t.trips_id)}
-                          onToggleLike={handleToggleLike}
-                          onOpen={handleOpenTrip}
-                          showAILabels={showAILabels}
-                        />
-                      ))}
                     </div>
                   </div>
 
-                  <button
-                    className="carousel-btn next"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      scrollByOneCard(trRef, 1);
-                    }}
-                  >
-                    <ChevronRight size={18} />
-                  </button>
+                  {trending.length > 0 && (
+                    <button
+                      className="carousel-btn next"
+                      disabled={trending.length === 0 || trEdge.end}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        scrollByOneCard(trRef, 1);
+                      }}
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                    
+                  )}
                 </div>
               </section>
-
 
               {/* Top 10 all-time carousel */}
               <section className="trips-section">
                 <div className="section-title">Top Trips of All-Time</div>
 
                 <div className="carousel">
-                  <button
-                    className="carousel-btn prev"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      scrollByOneCard(topRef, -1);
-                    }}
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
+                  {topLiked.length > 0 && (
+                    <button
+                      className="carousel-btn prev"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        scrollByOneCard(topRef, -1);
+                      }}
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                  )}
 
-                  <div className="carousel-viewport" ref={topRef}>
-                    <div className="carousel-track infinite">
-
-                      {/* Handle empty state */}
+                  <div className="carousel-viewport" ref={topRef} onScroll={() => updateCarouselEdges(topRef, setTopEdge)}>
+                    <div className="carousel-track">
                       {topLiked.length === 0 ? (
                         <div
                           className="empty-state"
@@ -746,77 +737,54 @@ export default function ExplorePage() {
                           No top trips yet.
                         </div>
                       ) : (
-                        <>
-                          {/* CLONE LAST 2 CARDS*/}
-                          {topLiked.slice(-2).map((t, i) => (
-                            <TripCardPublic
-                              key={`tl-clone-left-${i}`}
-                              trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
-                              liked={isLiked(t.trips_id)}
-                              onToggleLike={handleToggleLike}
-                              onOpen={handleOpenTrip}
-                              showAILabels={showAILabels}
-                            />
-                          ))}
-
-                          {/* REAL CARDS  */}
-                          {topLiked.map((t) => (
-                            <TripCardPublic
-                              key={`tl-${t.trips_id}`}
-                              trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
-                              liked={isLiked(t.trips_id)}
-                              onToggleLike={handleToggleLike}
-                              onOpen={handleOpenTrip}
-                              showAILabels={showAILabels}
-                            />
-                          ))}
-
-                          {/*  CLONE FIRST 2 CARDS (append) */}
-                          {topLiked.slice(0, 2).map((t, i) => (
-                            <TripCardPublic
-                              key={`tl-clone-right-${i}`}
-                              trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
-                              liked={isLiked(t.trips_id)}
-                              onToggleLike={handleToggleLike}
-                              onOpen={handleOpenTrip}
-                              showAILabels={showAILabels}
-                            />
-                          ))}
-                        </>
+                        topLiked.map((t) => (
+                          <TripCardPublic
+                            key={`tl-${t.trips_id}`}
+                            trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
+                            liked={isLiked(t.trips_id)}
+                            onToggleLike={handleToggleLike}
+                            onOpen={handleOpenTrip}
+                            showAILabels={showAILabels}
+                          />
+                        ))
                       )}
                     </div>
                   </div>
 
-                  <button
-                    className="carousel-btn next"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      scrollByOneCard(topRef, 1);
-                    }}
-                  >
-                    <ChevronRight size={18} />
-                  </button>
+                  {topLiked.length > 0 && (
+                    <button
+                      className="carousel-btn next"
+                      disabled={topLiked.length === 0 || topEdge.end}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        scrollByOneCard(topRef, 1);
+                      }}
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  )}
                 </div>
               </section>
-                <section className="recent-trips-section">
-                  <h2 className="section-title">Explore Recent</h2>
-                  {recentTrips && recentTrips.length > 0 ? (
-                    <div className="recent-grid">
-                      {recentTrips.map(trip => (
-                        <TripCardPublic
-                          key={trip.trips_id}
-                          trip={{ ...trip, like_count: getLikeCount(trip.trips_id, trip.like_count) }}
-                          liked={isLiked(trip.trips_id)}
-                          onToggleLike={handleToggleLike}
-                          onOpen={handleOpenTrip}
-                          showAILabels={showAILabels}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="empty-state">No recent trips.</p>
-                  )}
-                </section>
+              
+              <section className="recent-trips-section">
+                <h2 className="section-title">Explore Recent</h2>
+                {recentTrips && recentTrips.length > 0 ? (
+                  <div className="recent-grid">
+                    {recentTrips.map(trip => (
+                      <TripCardPublic
+                        key={trip.id}
+                        trip={{ ...trip, like_count: getLikeCount(trip.trips_id, trip.like_count) }}
+                        liked={isLiked(trip.trips_id)}
+                        onToggleLike={handleToggleLike}
+                        onOpen={handleOpenTrip}
+                        showAILabels={showAILabels}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="empty-state">No recent trips.</p>
+                )}
+              </section>
             </>
           ) : (
             // Liked tab: grid layout
@@ -830,7 +798,7 @@ export default function ExplorePage() {
             ) :
                 likedTrips.length === 0 ? (
                   <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
-                    You haven’t liked any trips yet.
+                    You haven't liked any trips yet.
                   </div>
                 ) : (
                   sortedFilteredLikedTrips.map((t) => (

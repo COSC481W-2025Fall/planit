@@ -165,7 +165,10 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   scroll-snap-type: x mandatory;
 }
 .carousel-track > * { scroll-snap-align: start; }
-
+.carousel-btn:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
 .carousel-btn {
   position: absolute;
   top: 50%;
