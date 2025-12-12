@@ -429,3 +429,19 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   .tabbar { margin: 8px 12px 0; flex-wrap: wrap; }
   .explore-search { margin: 12px; max-width: 100%; }
 }
+
+.explore-page .main-content,
+.carousel-viewport,
+.recent-grid,
+.autocomplete {
+  -webkit-overflow-scrolling: touch;
+}
+
+
+button,
+.pill,
+.trip-card,
+.carousel-btn,
+.like-button {
+  touch-action: manipulation;
+}

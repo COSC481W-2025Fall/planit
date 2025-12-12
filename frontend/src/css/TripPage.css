@@ -1013,5 +1013,5 @@ button,
 .trip-card,
 .chip,
 .dropdown-item {
-    touch-action: manipulation; /* Removes 300ms click delay */
+    touch-action: manipulation;
 }

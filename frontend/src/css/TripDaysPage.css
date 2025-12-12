@@ -2036,4 +2036,37 @@ button,
   -webkit-user-select: none;
   user-select: none;
 }
+@media (max-width: 600px) {
+  .title-div {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    row-gap: 6px;
+    width: 100%;
+  }
+
+  .title-left {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    overflow: hidden;
+  }
+
+  .participant-photos {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    display: flex;
+    gap: 6px;
+  }
+
+  .trip-title.mobile-ellipsis {
+    display: block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+  }
+}
+
 

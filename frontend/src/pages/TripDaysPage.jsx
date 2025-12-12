@@ -2106,7 +2106,13 @@ export default function TripDaysPage() {
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
           <div className = "title-left">
-  <h1 className="trip-title" onClick={() => setTripInfoPopupOpen(true)}>{trip.trip_name}</h1>
+            <h1
+                className="trip-title mobile-ellipsis"
+                onClick={() => setTripInfoPopupOpen(true)}
+                data-full-title={trip.trip_name}
+            >
+              {trip.trip_name}
+            </h1>
             {showAILabels &&
                 trip.trip_category &&
                 !hiddenLabels.includes(trip.trips_id) && (
