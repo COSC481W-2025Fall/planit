@@ -1011,3 +1011,31 @@ html[data-theme="dark"] .sort-select {
     display: flex;
     flex-direction: row;
 }
+/* Fix iOS scrolling */
+.trip-page,
+.content-with-sidebar,
+.main-content,
+.modal-content,
+.image-selector-grid,
+.filter-dropdown {
+    -webkit-overflow-scrolling: touch;
+}
+/* Fix button tap delays */
+.new-trip-button,
+.filter-button,
+.trip-menu-button,
+.month-btn,
+.chip,
+.dropdown-item,
+.privacy-toggle-btn,
+.remove-yourself-from-trip-btn {
+    touch-action: manipulation;
+}
+/* Stop background scroll when modal/datepicker open */
+body:has(.modal-overlay),
+body:has(.react-datepicker__portal) {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}

@@ -1,7 +1,7 @@
 .setting-page {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     background: var(--bg-offwhite);
 }
 
@@ -681,20 +681,16 @@ html[data-theme="dark"] .delete-input::placeholder {
         max-width: 100% !important;
     }
 }
-/* iOS SCROLL FIXES – SETTINGS PAGE */
-
-.setting-page {
-    height: 100dvh !important;
-}
-
-.main-content {
-    height: auto !important;
-}
-
+/* Fix iOS scrolling */
+.setting-page,
+.main-content,
+.settings-section,
 .stats {
-    overflow: visible !important;
+    -webkit-overflow-scrolling: touch;
 }
-
-.setting-page-loading-container {
-    height: calc(100dvh - var(--topbar-h)) !important;
+/* Stop background scroll when popup open */
+body.popup-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
 }

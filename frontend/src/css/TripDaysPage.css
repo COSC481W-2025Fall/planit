@@ -72,7 +72,6 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  -webkit-overflow-scrolling: touch;
 }
 .entry-block {
   border: 1px solid var(--border);
@@ -198,7 +197,6 @@ body {
   background: var(--bg-offwhite);
   margin: 0;
   height: 100dvh;
-  min-height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -215,9 +213,8 @@ body {
 .content-with-sidebar {
   display: flex;
   flex: 1;
-  height: auto;
-  overflow: visible;
-  -webkit-overflow-scrolling: touch;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 
@@ -2025,10 +2022,17 @@ html[data-theme="dark"] .time-picker {
   flex-direction: column;
   gap: 16px;
 }
-@media (max-width: 600px) {
-  .participant-photos {
-    max-width: calc(100vw - 3rem); /* Account for page padding */
-    flex-wrap: wrap;
-    width: auto;
+@media (max-width: 758px) {
+  body.sidebar-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
   }
+}
+/* Fix iOS scrolling */
+.TripDaysPage,
+.modal-body,
+.days-scroll-zone {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
