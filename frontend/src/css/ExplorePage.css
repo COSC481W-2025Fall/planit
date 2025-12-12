@@ -430,17 +430,18 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   .explore-search { margin: 12px; max-width: 100%; }
 }
 
-.explore-page {
-  min-height: 100dvh !important;
+.explore-page .main-content,
+.carousel-viewport,
+.recent-grid,
+.autocomplete {
+  -webkit-overflow-scrolling: touch;
 }
 
-.explore-page .main-content {
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-}
 
-.recent-grid {
-  height: auto !important;
-  max-height: none !important;
-  overflow-y: visible !important;
+button,
+.pill,
+.trip-card,
+.carousel-btn,
+.like-button {
+  touch-action: manipulation;
 }
