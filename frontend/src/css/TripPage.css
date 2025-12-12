@@ -112,23 +112,26 @@
 .image-selector-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    gap: 0.5rem;
     max-height: 300px;
     overflow-y: auto;
     padding: 0;
+    justify-items: center;
+    align-items: center;
 }
-  .image-selector-grid img {
+.image-selector-grid img {
     object-fit: cover;
     border-radius: 10px;
     cursor: pointer;
     transition: transform 0.2s ease;
-  }
+    width: 95%;
+
+}
   .image-selector-grid img:hover {
     transform: scale(1.05);
   }
   .selected-image-preview {
     margin-top: 10px;
-    text-align: center; /* optional – centers image and name */
   }
   .selected-image-container {
     text-align: center;
@@ -139,7 +142,7 @@
     border-radius: 6px;
     cursor: pointer;
     transition: transform 0.2s ease, border 0.2s ease;
-    border: 2px solid transparent; /* keeps layout consistent */
+    border: 2px solid transparent;
   }
   .image-selector-thumb:hover {
     transform: scale(1.05);
