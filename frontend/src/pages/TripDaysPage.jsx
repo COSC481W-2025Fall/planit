@@ -322,16 +322,26 @@ export default function TripDaysPage() {
 
     socket.on("addedTransport", (changedTransportType, username) => {
       fetchTransportInfo(changedTransportType);
-
       changedTransportType = changedTransportType.charAt(0).toUpperCase() + changedTransportType.slice(1);
-      toast.success(`${changedTransportType} entry has been added by ${username}!`);
+
+      if(user.username === username){
+        toast.success(`${changedTransportType} entry has been added!`);
+      }
+      else{
+        toast.success(`${changedTransportType} entry has been added by ${username}!`);
+      }
     });
 
     socket.on("updatedTransport", async (changedTransportType, username) => {
       fetchTransportInfo(changedTransportType);
-
       changedTransportType = changedTransportType.charAt(0).toUpperCase() + changedTransportType.slice(1);
-      toast.success(`${changedTransportType} entry has been updated by ${username}!`);
+
+      if(user.username === username){
+        toast.success(`${changedTransportType} entry has been updated!`);
+      }
+      else{
+        toast.success(`${changedTransportType} entry has been updated by ${username}!`);
+      }
     });
 
     socket.on("deletedTransport", (transportType, username, index) => {
@@ -344,21 +354,37 @@ export default function TripDaysPage() {
       });
 
       transportType = transportType.charAt(0).toUpperCase() + transportType.slice(1);
-      toast.success(`${transportType} entry has been deleted by ${username}!`);
+
+      if(user.username === username){
+        toast.success(`${transportType} entry has been deleted!`);
+      }
+      else{
+        toast.success(`${transportType} entry has been deleted by ${username}!`);
+      }
     });
 
     socket.on("addedAccommodation", (changedAccommodationType, username) => {
       fetchAccommodationInfo();
-
       changedAccommodationType = changedAccommodationType.charAt(0).toUpperCase() + changedAccommodationType.slice(1);
-      toast.success(`${changedAccommodationType} entry has been added by ${username}!`);
+
+      if(user.username === username){
+        toast.success(`${changedAccommodationType} entry has been added!`);
+      }
+      else{
+        toast.success(`${changedAccommodationType} entry has been added by ${username}!`);
+      }
     });
 
     socket.on("updatedAccommodation", (changedAccommodationType, username) => {
       fetchAccommodationInfo();
-
       changedAccommodationType = changedAccommodationType.charAt(0).toUpperCase() + changedAccommodationType.slice(1);
-      toast.success(`${changedAccommodationType} entry has been updated by ${username}!`);
+
+      if(user.username === username){
+        toast.success(`${changedAccommodationType} entry has been updated!`);
+      }
+      else{
+        toast.success(`${changedAccommodationType} entry has been updated by ${username}!`);
+      }
     });
 
     socket.on("deletedAccommodation", (accommodationType, username, index) => {
@@ -370,7 +396,13 @@ export default function TripDaysPage() {
       });
 
       accommodationType = accommodationType.charAt(0).toUpperCase() + accommodationType.slice(1);
-      toast.success(`${accommodationType} entry has been deleted by ${username}!`);
+
+      if(user.username === username){
+        toast.success(`${accommodationType} entry has been deleted!`);
+      }
+      else{
+        toast.success(`${accommodationType} entry has been deleted by ${username}!`);
+      }
     });
 
     socket.on("disconnect", () => {
@@ -1621,7 +1653,11 @@ export default function TripDaysPage() {
 
     try {
       if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) >= 365){
-        toast.info("No weather forecast available, too far in the advance.")
+        toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the future.")
+        return;
+      }
+      else if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) <= -365){
+        toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the past.")
         return;
       }
 
@@ -1636,7 +1672,7 @@ export default function TripDaysPage() {
 
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load weather data");
+      toast.info("Failed to load weather data");
     }
   }
 

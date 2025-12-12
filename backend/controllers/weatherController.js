@@ -17,9 +17,6 @@ export const getWeatherForecast = async (req, res) => {
         }
 
         const season = getSeason(tripDaysDates, tripDaysKeys)
-
-        tripDaysKeys.length !== undefined ? console.log(`Starting weather fetch between days ${tripDaysDates[0]} and ${tripDaysDates[tripDaysDates.length - 1]}...`) : console.log(`Starting weather fetch for ${tripDaysDates}...`)
-
         let dailyValues = [];
 
         if (tripDaysKeys.length !== undefined) {
@@ -170,11 +167,8 @@ async function getData(tripLocation, dayId, dateToRetrieveData) {
     }
 
     if (tripLocation === null) {
-        console.log(`No location for ${dateToRetrieveData}, therefore no forecast.`);
         return;
     }
-
-    console.log(`Fetching weather for ${tripLocation} on ${dateToRetrieveData}...`);
 
     let data;
 
@@ -215,7 +209,6 @@ async function getData(tripLocation, dayId, dateToRetrieveData) {
 
     const forecastDay = data?.forecast?.forecastday?.[0];
     if (!forecastDay || !forecastDay.day) {
-        console.log("No forecast for:", dateToRetrieveData);
         return;
     }
 
