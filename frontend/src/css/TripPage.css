@@ -1013,3 +1013,8 @@ html[data-theme="dark"] .sort-select {
         min-height: 100vh;
     }
 }
+
+body:has(.popup-screen-overlay) {
+    overflow: hidden;
+    touch-action: none;
+}
