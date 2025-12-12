@@ -63,9 +63,14 @@ export const getAllTripDetailsOfTripsLikedByUser = async (req, res) => {
         }
 
         const userLikes = await sql`
-            SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, t.image_id, t.trip_category, t.trip_updated_at, l.liked_at
+            SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, t.image_id, t.trip_category, t.trip_updated_at, l.liked_at, COALESCE(cnt.like_count, 0) AS like_count
             FROM trips AS t
             JOIN likes AS l ON t.trips_id = l.trip_id
+            LEFT JOIN (
+              SELECT trip_id, COUNT(*) AS like_count
+              FROM likes
+              GROUP BY trip_id
+            ) AS cnt ON cnt.trip_id = t.trips_id
             WHERE l.user_id = ${userId}
             AND t.is_private = false
             ORDER BY l.liked_at DESC
