@@ -455,15 +455,11 @@ export default function ExplorePage() {
 
     const track = vp.querySelector(".carousel-track");
     const cards = Array.from(track.children);
-    if (cards.length === 0) return;
+    if (!cards.length) return;
 
-    // Compute each card's offsetLeft relative to the track
-    const offsets = cards.map((c) => c.offsetLeft);
-    const widths = cards.map((c) => c.clientWidth);
-
+    const offsets = cards.map(c => c.offsetLeft);
     const curLeft = vp.scrollLeft;
 
-    // Find the card whose offset is nearest the current scrollLeft
     let nearestIndex = 0;
     let minDist = Infinity;
     for (let i = 0; i < offsets.length; i++) {
@@ -473,18 +469,17 @@ export default function ExplorePage() {
         nearestIndex = i;
       }
     }
-    let targetIndex = Math.min(Math.max(nearestIndex + dir, 0), cards.length - 1);
-  
-    if (Math.abs(offsets[targetIndex] - curLeft) < 2 && targetIndex + dir >= 0 && targetIndex + dir < cards.length) {
-      targetIndex = Math.min(Math.max(targetIndex + dir, 0), cards.length - 1);
+    let targetIndex = Math.min(
+      Math.max(nearestIndex + dir, 0),
+      cards.length - 1
+    );
+
+    if (targetIndex === 0) {
+      vp.scrollTo({ left: 0, behavior: "smooth" });
+    } else {
+      vp.scrollTo({ left: offsets[targetIndex], behavior: "smooth" });
     }
-  
-    const targetLeft = offsets[targetIndex];
-  
-    vp.scrollTo({ left: targetLeft, behavior: "smooth" });
   }
-
-
   // carousel refs
   const resRef = useRef(null);
   const trRef = useRef(null);
@@ -520,7 +515,7 @@ export default function ExplorePage() {
 
     const { scrollLeft, scrollWidth, clientWidth } = vp;
 
-    const atStart = scrollLeft <= 0;
+    const atStart = scrollLeft <= 2; // More lenient threshold
     const atEnd = scrollLeft + clientWidth >= scrollWidth - 2; 
 
     setEdgeState({ start: atStart, end: atEnd });
@@ -620,9 +615,10 @@ export default function ExplorePage() {
                   <div className="carousel">
                     <button
                       className="carousel-btn prev"
+                      disabled={resEdge.start}
                       onClick={(e) => {
                         e.stopPropagation();
-                        scrollByOneCard(resRef, -1);
+                        scrollByOneCard(resRef, -1);  
                       }}
                     >
                       <ChevronLeft size={18} />
@@ -671,6 +667,7 @@ export default function ExplorePage() {
                   {trending.length > 0 && (
                     <button
                       className="carousel-btn prev"
+                      disabled={trending.length === 0 || trEdge.start}
                       onClick={(e) => {
                         e.stopPropagation();
                         scrollByOneCard(trRef, -1);
@@ -718,6 +715,7 @@ export default function ExplorePage() {
                   {topLiked.length > 0 && (
                     <button
                       className="carousel-btn prev"
+                      disabled={topLiked.length === 0 || topEdge.start}
                       onClick={(e) => {
                         e.stopPropagation();
                         scrollByOneCard(topRef, -1);
