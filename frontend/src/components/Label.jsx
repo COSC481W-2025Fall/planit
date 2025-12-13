@@ -56,7 +56,8 @@ export default function Label({ category, className = "" }) {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "6px",
-                marginLeft: "10px"
+                flexShrink: 0,
+                whiteSpace: "nowrap"
             }} 
         >
 
