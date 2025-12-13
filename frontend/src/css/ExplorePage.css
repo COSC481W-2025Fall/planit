@@ -24,7 +24,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 12px 20px 12px 0; 
+  margin-bottom: 10px;
+  /* margin: 12px 20px 12px 0;  */
   grid-column: 2;
   grid-row: 2;            
   align-self: center;     
@@ -35,7 +36,7 @@
   .tabbar-liked {
     grid-column: 1;
     justify-self: start;
-    margin: 12px 0 12px 20px; 
+    /* margin: 12px 0 12px 20px;  */
   }
 }
 
@@ -311,7 +312,7 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   flex-wrap: wrap;
   justify-content: flex-start;
   gap: 1.5rem;
-  padding: 0.5rem 20px 1rem;
+  /* padding: 0.5rem 20px 1rem; */
 }
 
 .recent-grid {
@@ -370,11 +371,11 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
 /* medium tablets */
 @media (max-width: 900px) {
   .tabbar {
-    margin-inline: 16px;
+    /* margin-inline: 16px; */
     grid-column: 1;
     grid-row: 3;
     flex-wrap: wrap;
-    row-gap: 8px;
+    /* row-gap: 8px; */
 
     overflow: visible !important;
     position: relative;
@@ -400,11 +401,11 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   .section-title { margin: 20px 16px 10px; }
 
   .tabbar {
-    margin-inline: 16px;
+    /* margin-inline: 16px; */
     grid-column: 1;
     grid-row: 3;
     flex-wrap: wrap;
-    row-gap: 8px;
+    /* row-gap: 8px; */
     overflow: visible !important;
     position: relative;
   }
@@ -439,7 +440,10 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   .pill { padding: 10px 14px; font-size: 14px; }
   .trip-card.public { flex-basis: 88vw; }
   .trip-card-image { height: clamp(132px, 40vw, 168px); }
-  .tabbar { margin: 8px 12px 0; flex-wrap: wrap; }
+  .tabbar { 
+    /* margin: 8px 12px 0;  */
+    flex-wrap: wrap;
+   }
   .explore-search { margin: 12px; max-width: 100%; }
 }
 
@@ -472,5 +476,9 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
 @supports (-webkit-touch-callout: none) {
     .recent-trips-section {
         margin-bottom: 5.5rem;
+    }
+
+    .liked-grid {
+      padding-bottom: 5.5rem;
     }
 }
