@@ -225,6 +225,19 @@ export default function TripPage() {
       }
     }, [dateFilter]);
 
+  useEffect(() => {
+    if (isModalOpen || deleteTripId) {
+      document.body.classList.add('no-scroll');
+    } else {
+      document.body.classList.remove('no-scroll');
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('no-scroll');
+    };
+  }, [isModalOpen, deleteTripId]);
+
     // fully reset and close modal
     const handleCloseModal = () => {
         setIsModalOpen(false);
