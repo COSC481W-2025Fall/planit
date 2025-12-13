@@ -7,7 +7,6 @@
   column-gap: 20px;
   align-items: start;
   align-content: start;
-  height: 100dvh;
 }
 .trips-header {
   grid-column: 1 / -1;
@@ -88,18 +87,6 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   padding: 10px 12px;
   box-shadow: var(--shadow-1);
 }
-.search-input-wrap:hover {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-.search-input-wrap input:focus {
-  outline: none;
-  box-shadow: none;
-  -webkit-box-shadow: none;
-  -webkit-focus-ring-color: transparent;
-}
-
 .search-input-wrap input {
   flex: 1;
   border: 0;
@@ -431,14 +418,17 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   .explore-search { margin: 12px; max-width: 100%; }
 }
 
-.explore-page .main-content,
-.carousel-viewport,
-.recent-grid,
-.autocomplete {
-  -webkit-overflow-scrolling: touch;
+.explore-page {
+  min-height: 100dvh !important;
 }
-@supports not (height: 100dvh) {
-  .explore-page .main-content {
-    min-height: 100vh;
-  }
+
+.explore-page .main-content {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.recent-grid {
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: visible !important;
 }
