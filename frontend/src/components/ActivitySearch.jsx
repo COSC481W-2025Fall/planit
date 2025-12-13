@@ -11,7 +11,6 @@ import {toast} from "react-toastify";
 import OverlapWarning from "./OverlapWarning.jsx";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
-import {getWeather} from "../../api/weather.js";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 const MAPS_API_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
@@ -49,7 +48,6 @@ export default function ActivitySearch({
     onActivityAdded,
     onEditActivity,
     username,
-    onSingleDayWeather,
     cityQuery: externalCityQuery = "",
     onCityQueryChange 
 }) {
@@ -530,36 +528,6 @@ export default function ActivitySearch({
                 withCredentials: true,
             });
 
-            if (dayActivities.length === 0){
-                try {
-                    if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], dayDate) >= 365){
-                        toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the future.")
-                        return;
-                    }
-                    else if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], dayDate) <= -365){
-                        toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the past.")
-                        return;
-                    }
-
-                    const weather = await getWeather(
-                        address,
-                        dayDate,
-                        pendingDayId
-                    );
-
-                    if (typeof onSingleDayWeather === "function") {
-                        onSingleDayWeather({
-                            dayId: pendingDayId,
-                            date: dayDate,
-                            weather,          // { daily_raw: [...], summary: {...} }
-                        });
-                    }
-                } catch (err) {
-                    console.error(err);
-                    toast.error("Failed to load weather data");
-                }
-            }
-
             setShowDetails(false);
             setPendingPlace(null);
             setPendingDayId(null);
@@ -664,18 +632,6 @@ export default function ActivitySearch({
             setLoadingMore(false);
         }
     };
-
-    function getDifferenceBetweenDays (startDate, endDate) {
-        const [y1, m1, d1] = startDate.split("-").map(Number);
-        const [y2, m2, d2] = endDate.split("-").map(Number);
-
-        const t1 = Date.UTC(y1, m1 - 1, d1);
-        const t2 = Date.UTC(y2, m2 - 1, d2);
-
-        const MS_PER_DAY = 1000 * 60 * 60 * 24;
-        return Math.round((t2 - t1) / MS_PER_DAY);
-    }
-
 
     return (
         <>

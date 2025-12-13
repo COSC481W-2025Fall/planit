@@ -65,6 +65,7 @@ export default function TripDaysPage() {
   const [imageUrl, setImageUrl] = useState(null);
   const [deleteActivity, setDeleteActivity] = useState(null);
   const weatherFetchedRef = useRef(false);
+  const weatherRangeToastShownRef = useRef(false);
 
   //constants for participants
   const [openParticipantsPopup, setOpenParticipantsPopup] = useState(false);
@@ -142,6 +143,17 @@ export default function TripDaysPage() {
       localStorage.setItem("planit:expandedDays", JSON.stringify(expandedDays));
     } catch {}
   }, [expandedDays]);
+
+  useEffect(() => {
+    // Safeguards to check if days state is fully populated and has not been called since last fetchDay call
+    if (days.length === 0) return;
+    if (days.some(d => d.activities === undefined)) return;
+    if (weatherFetchedRef.current) return;
+
+    weatherFetchedRef.current = true;
+    console.log("Days: " + JSON.stringify(days))
+    fetchAndSetWeather(days);
+  }, [days]);
 
   // const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
   const expandedInitRef = useRef(false);
@@ -882,7 +894,7 @@ export default function TripDaysPage() {
           );
         }
 
-        fetchAndSetWeather(updatedDays);
+        weatherFetchedRef.current = false;
         return updatedDays;
       });
 
@@ -1645,57 +1657,83 @@ export default function TripDaysPage() {
   }
 
   async function fetchAndSetWeather(sourceDays) {
-    const actualDays = sourceDays && sourceDays.length ? sourceDays : days;
+    if (sourceDays.length === 0){
+      const sourceDay = sourceDays;
 
-    const activityLocations = actualDays.map(day => day.activities[0]?.activity_address)
-    const tripDaysDates = actualDays.map(day => day.day_date.split("T")[0]);
-    const tripDaysKeys = actualDays.map(day => day.day_id);
+      const activityLocations = sourceDay.activity_address;
+      const tripDaysDates = sourceDay.day_date;
+      const tripDaysKeys = sourceDay.day_id;
 
-    try {
-      if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) >= 365){
-        toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the future.")
-        return;
+      console.log("Activity Locations:", activityLocations);
+      console.log("Trip Day Date:", tripDaysDates);
+      console.log("Trip Day Key:", tripDaysKeys);
+
+      try {
+        if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates) >= 365){
+          if (!weatherRangeToastShownRef.current) {
+            toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the future.")
+            weatherRangeToastShownRef.current = true;
+            return;
+          }
+        }
+        else if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates) <= -365){
+          if (!weatherRangeToastShownRef.current) {
+            toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the past.")
+            weatherRangeToastShownRef.current = true;
+            return;
+          }
+        }
+
+        const weather = await getWeather(
+            activityLocations,
+            tripDaysDates,
+            tripDaysKeys
+        );
+
+        setWeatherSummary(weather.summary || []);
+        setDailyWeather(weather.daily_raw || []);
+
+      } catch (err) {
+        console.error(err);
+        toast.info("Failed to load weather data");
       }
-      else if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) <= -365){
-        toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the past.")
-        return;
+    } else {
+      const actualDays = sourceDays && sourceDays.length ? sourceDays : days;
+
+      const activityLocations = actualDays.map(day => day.activities[0]?.activity_address)
+      const tripDaysDates = actualDays.map(day => day.day_date.split("T")[0]);
+      const tripDaysKeys = actualDays.map(day => day.day_id);
+
+      try {
+        if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) >= 365) {
+          if (!weatherRangeToastShownRef.current) {
+            toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the future.")
+            weatherRangeToastShownRef.current = true;
+          }
+          return;
+        } else if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates[0]) <= -365) {
+          if (!weatherRangeToastShownRef.current) {
+            toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the past.")
+            weatherRangeToastShownRef.current = true;
+          }
+          return;
+        }
+
+        const weather = await getWeather(
+            activityLocations,
+            tripDaysDates,
+            tripDaysKeys
+        );
+
+        setWeatherSummary(weather.summary || []);
+        setDailyWeather(weather.daily_raw || []);
+
+      } catch (err) {
+        console.error(err);
+        toast.info("Failed to load weather data");
       }
-
-      const weather = await getWeather(
-        activityLocations,
-        tripDaysDates,
-        tripDaysKeys
-      );
-
-      setWeatherSummary(weather.summary || []);
-      setDailyWeather(weather.daily_raw || []);
-
-    } catch (err) {
-      console.error(err);
-      toast.info("Failed to load weather data");
     }
   }
-
-  const handleSingleDayWeather = ({ dayId, date, weather }) => {
-    const dayWeather = weather?.daily_raw?.[0];
-    if (!dayWeather) return;
-
-    const dateKey = date; // already "YYYY-MM-DD"
-
-    setDailyWeather(prev => {
-      // remove existing entry for this date (if any)
-      const filtered = prev.filter(w => w.date !== dateKey);
-
-      return [
-        ...filtered,
-        { ...dayWeather, day_id: dayId },
-      ];
-    });
-
-    if (weather?.summary) {
-      setWeatherSummary(prev => ({ ...prev, ...weather.summary }));
-    }
-  };
 
   const MobileDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
     <div
@@ -3250,7 +3288,6 @@ export default function TripDaysPage() {
                 : []}
               allDays={days}
               username = {user.username}
-              onSingleDayWeather={handleSingleDayWeather}
               onEditActivity={(activity) => {
                 setEditActivity(activity);
               }}
