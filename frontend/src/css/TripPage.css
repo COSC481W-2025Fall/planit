@@ -1,8 +1,7 @@
 .trip-page {
     display: flex;
     flex-direction: column;
-    min-height: 100dvh;
-    height: 100dvh;
+    height: 100vh;
     background: var(--bg-offwhite);
     overflow: hidden;
 }
@@ -13,15 +12,12 @@
     margin-top: var(--topbar-h);
     margin-left: 11.5rem;
     transition: margin 0.3s ease-in-out;
-    overflow: hidden;
-    height: calc(100dvh - var(--topbar-h));
 }
 
 .main-content {
     flex: 1;
     padding: 1.5rem;
     overflow-y: auto;
-    overflow-x: hidden;
     background: var(--bg-offwhite);
     -webkit-overflow-scrolling: touch;
     height: 100%;
@@ -1002,9 +998,9 @@ html[data-theme="dark"] .sort-select {
     flex-direction: row;
 }
 
-.main-content,
-.filter-dropdown,
-.modal-content {
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
+@supports (-webkit-touch-callout: none) {
+    
+    .trip-cards {
+        padding-bottom: 6rem;
+    }
 }
