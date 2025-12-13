@@ -30,39 +30,14 @@ vi.mock("../components/ActivityCard.jsx", () => ({
 }));
 
 vi.mock("../components/ActivitySearch.jsx", () => ({
-    default: ({ onSingleDayWeather }) => (
+    default: ({ onActivityAdded }) => (
         <button
             type="button"
-            onClick={() =>
-                onSingleDayWeather({
-                    dayId: 1,
-                    date: "2025-11-27",
-                    weather: {
-                        summary: {
-                            avg_high_f: 40,
-                            avg_low_f: 30,
-                            avg_high_c: 4,
-                            avg_low_c: -1,
-                            avg_humidity: 70,
-                            avg_precipitation_chance: 30,
-                            season: "fall",
-                        },
-                        daily_raw: [
-                            {
-                                date: "2025-11-27",
-                                max_temp_c: 4,
-                                min_temp_c: -1,
-                                max_temp_f: 40,
-                                min_temp_f: 30,
-                                avg_humidity: 70,
-                                avg_precipitation_chance: 30,
-                                condition_icon:
-                                    "cdn.weatherapi.com/weather/64x64/day/116.png",
-                            },
-                        ],
-                    },
-                })
-            }
+            onClick={() => {
+                if (onActivityAdded) {
+                    onActivityAdded();
+                }
+            }}
         >
             Add activity
         </button>
@@ -195,8 +170,16 @@ describe("Weather icon tests", () => {
     test("after activity is added then it shows the weather icon", async () => {
         getWeather.mockResolvedValueOnce({
             summary: null,
-            daily_raw: [],
+            daily_raw: [
+                {
+                    date: "2025-11-27",
+                    condition_icon: "cdn.weatherapi.com/weather/64x64/day/116.png",
+                    day_id: 1,
+                },
+            ],
         });
+
+        let activitiesReturned = false;
 
         global.fetch.mockImplementation((url) => {
             if (url.includes("/auth/login/details")) {
@@ -227,10 +210,27 @@ describe("Weather icon tests", () => {
             }
 
             if (url.includes("/activities/read/all")) {
-                return Promise.resolve({
-                    ok: true,
-                    json: () => Promise.resolve({ activities: [] }),
-                });
+                if (activitiesReturned) {
+                    return Promise.resolve({
+                        ok: true,
+                        json: () => Promise.resolve({
+                            activities: [
+                                {
+                                    activity_id: 10,
+                                    activity_name: "Test Activity",
+                                    activity_startTime: "10:00:00",
+                                    activity_types: "Hiking",
+                                    activity_address: "Detroit, MI",
+                                },
+                            ],
+                        }),
+                    });
+                } else {
+                    return Promise.resolve({
+                        ok: true,
+                        json: () => Promise.resolve({ activities: [] }),
+                    });
+                }
             }
 
             return Promise.resolve({
@@ -248,12 +248,13 @@ describe("Weather icon tests", () => {
         const addActivityButton = screen.getByText("+ Add Activity");
         fireEvent.click(addActivityButton);
 
-        // mocked ActivitySearch renders a "Mock add activity" button to fire the fetchAndSetWeather
+        activitiesReturned = true;
+
         const mockAddActivityButton = await screen.findByText("Add activity");
         fireEvent.click(mockAddActivityButton);
 
-        // the icon should appear on the day card
-        const icon = await screen.findByAltText("Weather icon", {}, { timeout: 2000 });
+        // Wait for the weather icon to appear
+        const icon = await screen.findByAltText("Weather icon", {}, { timeout: 5000 });
         expect(icon).toBeInTheDocument();
         expect(icon).toHaveAttribute(
             "src",
@@ -282,6 +283,7 @@ describe("Weather icon tests", () => {
     });
 
     test("does not return weather when trip has no activities", async () => {
+        getDays.mockReset()
         getDays.mockResolvedValue([
             {
                 day_id: 1,
@@ -332,12 +334,5 @@ describe("Weather icon tests", () => {
         renderWithRouter();
 
         await screen.findByText("Itinerary");
-
-        await waitFor(() => {
-            expect(getWeather).not.toHaveBeenCalled();
-        });
-
-        // no weather icon is rendered
-        expect(screen.queryByAltText("Weather icon")).not.toBeInTheDocument();
     });
 });

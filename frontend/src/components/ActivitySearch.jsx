@@ -11,7 +11,6 @@ import {toast} from "react-toastify";
 import OverlapWarning from "./OverlapWarning.jsx";
 import DistanceAndTimeInfo from "../components/DistanceAndTimeInfo.jsx";
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
-import {getWeather} from "../../api/weather.js";
 
 const BASE_URL = import.meta.env.PROD ? VITE_BACKEND_URL : LOCAL_BACKEND_URL;
 const MAPS_API_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
@@ -49,7 +48,6 @@ export default function ActivitySearch({
     onActivityAdded,
     onEditActivity,
     username,
-    onSingleDayWeather,
     cityQuery: externalCityQuery = "",
     onCityQueryChange 
 }) {
@@ -529,27 +527,6 @@ export default function ActivitySearch({
             await axios.put(`${BASE_URL}/activities/update`, updatePayload, {
                 withCredentials: true,
             });
-
-            if (dayActivities.length === 0){
-                try {
-                    const weather = await getWeather(
-                        address,
-                        dayDate,
-                        pendingDayId
-                    );
-
-                    if (typeof onSingleDayWeather === "function") {
-                        onSingleDayWeather({
-                            dayId: pendingDayId,
-                            date: dayDate,
-                            weather,          // { daily_raw: [...], summary: {...} }
-                        });
-                    }
-                } catch (err) {
-                    console.error(err);
-                    toast.error("Failed to load weather data");
-                }
-            }
 
             setShowDetails(false);
             setPendingPlace(null);
