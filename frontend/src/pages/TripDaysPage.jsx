@@ -66,6 +66,7 @@ export default function TripDaysPage() {
   const [deleteActivity, setDeleteActivity] = useState(null);
   const weatherFetchedRef = useRef(false);
   const weatherRangeToastShownRef = useRef(false);
+  const unableToLoadWeatherToastShownRef = useRef(false);
 
   //constants for participants
   const [openParticipantsPopup, setOpenParticipantsPopup] = useState(false);
@@ -151,7 +152,6 @@ export default function TripDaysPage() {
     if (weatherFetchedRef.current) return;
 
     weatherFetchedRef.current = true;
-    console.log("Days: " + JSON.stringify(days))
     fetchAndSetWeather(days);
   }, [days]);
 
@@ -1664,10 +1664,6 @@ export default function TripDaysPage() {
       const tripDaysDates = sourceDay.day_date;
       const tripDaysKeys = sourceDay.day_id;
 
-      console.log("Activity Locations:", activityLocations);
-      console.log("Trip Day Date:", tripDaysDates);
-      console.log("Trip Day Key:", tripDaysKeys);
-
       try {
         if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], tripDaysDates) >= 365){
           if (!weatherRangeToastShownRef.current) {
@@ -1695,7 +1691,7 @@ export default function TripDaysPage() {
 
       } catch (err) {
         console.error(err);
-        toast.info("Failed to load weather data");
+        toast.info("Unable to load weather data.");
       }
     } else {
       const actualDays = sourceDays && sourceDays.length ? sourceDays : days;
@@ -1730,7 +1726,10 @@ export default function TripDaysPage() {
 
       } catch (err) {
         console.error(err);
-        toast.info("Failed to load weather data");
+        if (!unableToLoadWeatherToastShownRef.current){
+          toast.info("Unable to load weather, add activities first.");
+          unableToLoadWeatherToastShownRef.current = true;
+        }
       }
     }
   }
