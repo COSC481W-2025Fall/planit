@@ -29,15 +29,9 @@ export default function TripPage() {
     // images for trip cards
     const [imageUrls, setImageUrls] = useState({})
 
-    // persist sort / filter choices for shared trips
-    const [sortOption, setSortOption] = useState(() => {
-        if (typeof window === "undefined") return "recent";
-        return localStorage.getItem("sharedTripsSortOption") || "recent";
-    });
-    const [dateFilter, setDateFilter] = useState(() => {
-        if (typeof window === "undefined") return "all";
-        return localStorage.getItem("sharedTripsDateFilter") || "all";
-    });
+    // sort / filter choices for shared trips 
+    const [sortOption, setSortOption] = useState("recent");
+    const [dateFilter, setDateFilter] = useState("all");
     const [categoryFilter, setCategoryFilter] = useState("all");
 
     const [hiddenLabels, setHiddenLabels] = useState(() => {
@@ -130,25 +124,6 @@ export default function TripPage() {
 
         fetchImages();
     }, [trips]);
-
-    // persist filter/sort selections for this page
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        if (sortOption) {
-            localStorage.setItem("sharedTripsSortOption", sortOption);
-        } else {
-            localStorage.removeItem("sharedTripsSortOption");
-        }
-    }, [sortOption]);
-
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        if (dateFilter) {
-            localStorage.setItem("sharedTripsDateFilter", dateFilter);
-        } else {
-            localStorage.removeItem("sharedTripsDateFilter");
-        }
-    }, [dateFilter]);
 
     useEffect(() => {
         if (!user?.user_id || isGuestUser(user.user_id)) return;

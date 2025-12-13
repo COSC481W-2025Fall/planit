@@ -850,7 +850,6 @@ html[data-theme="dark"] .sort-select {
     background: var(--border);
 }
 
-/* highlight the active filter/sort option */
 .dropdown-item.active {
     font-weight: 600;
     color: var(--accent);
@@ -978,6 +977,13 @@ html[data-theme="dark"] .sort-select {
 .image-selector-privacy-container{
     display: flex;
     flex-direction: row;
+}
+
+.filter-button.filter-button--active {
+  background: var(--accent);
+  color: var(--bg-white);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-2);
 }
 
 @supports (-webkit-touch-callout: none) {

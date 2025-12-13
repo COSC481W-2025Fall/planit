@@ -31,6 +31,14 @@
   justify-self: start;
 }
 
+@media (min-width: 901px) {
+  .tabbar-liked {
+    grid-column: 1;
+    justify-self: start;
+    margin: 12px 0 12px 20px; 
+  }
+}
+
 .pill {
   --pill-bg: var(--bg-surface);
   --pill-text: var(--accent);
@@ -363,6 +371,11 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
     overflow: visible !important;
     position: relative;
   }
+
+  .tabbar.tabbar-liked {
+    grid-row: 2;
+  }
+
   .explore-control-bar {
     flex-direction: column;
     align-items: flex-start;
@@ -386,6 +399,10 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
     row-gap: 8px;
     overflow: visible !important;
     position: relative;
+  }
+
+  .tabbar.tabbar-liked {
+    grid-row: 2;
   }
 
   .filter-dropdown {
@@ -418,6 +435,12 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   .explore-search { margin: 12px; max-width: 100%; }
 }
 
+.filter-button.filter-button--active {
+  background: var(--accent);
+  color: var(--bg-white);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-2);
+}
 .explore-page {
   min-height: 100dvh !important;
 }
@@ -431,4 +454,15 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   height: auto !important;
   max-height: none !important;
   overflow-y: visible !important;
+}
+
+.empty-state {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@supports (-webkit-touch-callout: none) {
+    .recent-trips-section {
+        margin-bottom: 5.5rem;
+    }
 }

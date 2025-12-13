@@ -544,7 +544,7 @@ export default function ExplorePage() {
           </div>
 
           {/* Tabs (pill style) */}
-          <div className="tabbar">
+          <div className={`tabbar ${tab === "liked" ? "tabbar-liked" : ""}`}>
             <button
               type="button"
               className={`pill ${tab === "discover" ? "active" : ""}`}
@@ -562,41 +562,43 @@ export default function ExplorePage() {
           </div>
 
           {/* Search */}
-          <div className="explore-search closer" ref={acWrapRef}>
-            <div className="search-input-wrap">
-              <Search size={18} />
-              <input
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setShowSuggestions(true);
-                }}
-                placeholder="Search by location"
-                onFocus={() => setShowSuggestions(true)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") prevSearchRef.current = "";
-                }}
-              />
-              {isSearching && <span className="searching-dot" aria-label="searching" />}
-            </div>
+          {tab === "discover" && (
+            <div className="explore-search closer" ref={acWrapRef}>
+              <div className="search-input-wrap">
+                <Search size={18} />
+                <input
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  placeholder="Search by location"
+                  onFocus={() => setShowSuggestions(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") prevSearchRef.current = "";
+                  }}
+                />
+                {isSearching && <span className="searching-dot" aria-label="searching" />}
+              </div>
 
-            {showSuggestions && suggestions.length > 0 && (
-              <ul className="autocomplete">
-                {suggestions.map((s, i) => (
-                  <li
-                    key={i}
-                    onClick={() => {
-                      setQuery(s);
-                      setShowSuggestions(false);
-                      prevSearchRef.current = "";
-                    }}
-                  >
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+              {showSuggestions && suggestions.length > 0 && (
+                <ul className="autocomplete">
+                  {suggestions.map((s, i) => (
+                    <li
+                      key={i}
+                      onClick={() => {
+                        setQuery(s);
+                        setShowSuggestions(false);
+                        prevSearchRef.current = "";
+                      }}
+                    >
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {tab === "discover" ? (
             <>
@@ -821,7 +823,6 @@ export default function ExplorePage() {
           ) : (
             // Liked tab: grid layout
             <section className="trips-section">
-              <div className="section-title">Your Liked Trips</div>
               <div className="liked-grid">
               {isGuestUser(user?.user_id) ? (
                 <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
@@ -832,7 +833,13 @@ export default function ExplorePage() {
                   <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
                     You haven’t liked any trips yet.
                   </div>
-                ) : (
+                    ) : sortedFilteredLikedTrips.length === 0 ? (
+                        <div className = "empty-state">
+                        <h3>No Trips Match Your Filters</h3>
+                        <p>Try adjusting your filters to see more of your liked trips</p>
+                        </div>
+                    ) :
+                      (
                   sortedFilteredLikedTrips.map((t) => (
                     <TripCardPublic
                       key={`lk-${t.trips_id}`}
