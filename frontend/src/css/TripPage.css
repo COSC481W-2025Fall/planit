@@ -1,8 +1,10 @@
 .trip-page {
     display: flex;
     flex-direction: column;
+    min-height: 100dvh;
     height: 100dvh;
     background: var(--bg-offwhite);
+    overflow: hidden;
 }
 
 .content-with-sidebar {
@@ -11,15 +13,20 @@
     margin-top: var(--topbar-h);
     margin-left: 11.5rem;
     transition: margin 0.3s ease-in-out;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
+    height: calc(100dvh - var(--topbar-h));
 }
 
 .main-content {
     flex: 1;
     padding: 1.5rem;
-    overflow-y: visible;
+    overflow-y: auto;
+    overflow-x: hidden;
     background: var(--bg-offwhite);
+    -webkit-overflow-scrolling: touch;
+    height: 100%;
+    position: relative;
+    will-change: scroll-position;
 }
 
 .trips-header {
@@ -80,6 +87,19 @@
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
     padding: 0.5rem 0;
+    min-height: min-content;
+}
+
+@supports (-webkit-touch-callout: none) {
+    .main-content {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        min-height: 0;
+    }
+    
+    .trip-cards {
+        padding-bottom: 5rem;
+    }
 }
 
 .trip-card {
@@ -980,4 +1000,11 @@ html[data-theme="dark"] .sort-select {
 .image-selector-privacy-container{
     display: flex;
     flex-direction: row;
+}
+
+.main-content,
+.filter-dropdown,
+.modal-content {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
