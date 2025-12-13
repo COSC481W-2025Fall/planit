@@ -532,6 +532,15 @@ export default function ActivitySearch({
 
             if (dayActivities.length === 0){
                 try {
+                    if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], dayDate) >= 365){
+                        toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the future.")
+                        return;
+                    }
+                    else if (getDifferenceBetweenDays(new Date().toISOString().split("T")[0], dayDate) <= -365){
+                        toast.info("Weather forecast unavailable. Dates cannot be more than 1 year in the past.")
+                        return;
+                    }
+
                     const weather = await getWeather(
                         address,
                         dayDate,
@@ -655,6 +664,18 @@ export default function ActivitySearch({
             setLoadingMore(false);
         }
     };
+
+    function getDifferenceBetweenDays (startDate, endDate) {
+        const [y1, m1, d1] = startDate.split("-").map(Number);
+        const [y2, m2, d2] = endDate.split("-").map(Number);
+
+        const t1 = Date.UTC(y1, m1 - 1, d1);
+        const t2 = Date.UTC(y2, m2 - 1, d2);
+
+        const MS_PER_DAY = 1000 * 60 * 60 * 24;
+        return Math.round((t2 - t1) / MS_PER_DAY);
+    }
+
 
     return (
         <>
