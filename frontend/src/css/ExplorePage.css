@@ -455,3 +455,8 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   max-height: none !important;
   overflow-y: visible !important;
 }
+
+.empty-state {
+  margin-left: auto;
+  margin-right: auto;
+}

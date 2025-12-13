@@ -823,7 +823,6 @@ export default function ExplorePage() {
           ) : (
             // Liked tab: grid layout
             <section className="trips-section">
-              <div className="section-title">Your Liked Trips</div>
               <div className="liked-grid">
               {isGuestUser(user?.user_id) ? (
                 <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
@@ -834,7 +833,13 @@ export default function ExplorePage() {
                   <div className="empty-state" style={{ padding: "8px 12px", color: "#666" }}>
                     You haven’t liked any trips yet.
                   </div>
-                ) : (
+                    ) : sortedFilteredLikedTrips.length === 0 ? (
+                        <div className = "empty-state">
+                        <h3>No Trips Match Your Filters</h3>
+                        <p>Try adjusting your filters to see more of your liked trips</p>
+                        </div>
+                    ) :
+                      (
                   sortedFilteredLikedTrips.map((t) => (
                     <TripCardPublic
                       key={`lk-${t.trips_id}`}
