@@ -212,7 +212,7 @@ export default function ExplorePage() {
 
   // refetch liked trips when opening Liked tab or likes change
   useEffect(() => {
-    if (tab !== "liked" || !user?.user_id) return;
+    if (tab !== "liked" || !user?.user_id || isGuestUser(user.user_id)) return;
     let cancelled = false;
     api
       .getLikedTripsByUser(user.user_id)
