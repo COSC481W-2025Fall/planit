@@ -1,7 +1,7 @@
 .setting-page {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     background: var(--bg-offwhite);
 }
 
@@ -681,20 +681,26 @@ html[data-theme="dark"] .delete-input::placeholder {
         max-width: 100% !important;
     }
 }
-/* iOS SCROLL FIXES – SETTINGS PAGE */
-
-.setting-page {
-    height: 100dvh !important;
+.stats,
+.settings-section {
+    -webkit-overflow-scrolling: touch;
 }
-
-.main-content {
-    height: auto !important;
+button,
+.stats-tab,
+.delete-button,
+.image-upload-button,
+.mini-toggle {
+    touch-action: manipulation;
 }
-
-.stats {
-    overflow: visible !important;
+button,
+.stats-tab,
+.mini-toggle,
+.image-upload-button {
+    -webkit-user-select: none;
+    user-select: none;
 }
-
-.setting-page-loading-container {
-    height: calc(100dvh - var(--topbar-h)) !important;
+@supports not (height: 100dvh) {
+    .setting-page {
+        height: 100vh;
+    }
 }

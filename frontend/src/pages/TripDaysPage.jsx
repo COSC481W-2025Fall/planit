@@ -991,14 +991,29 @@ export default function TripDaysPage() {
 
   const handleSaveTripInfo = async () => {
     try {
+      // Validate trip name is not empty
       if (!tripNameDraft.trim()) {
         toast.error("Trip name is required");
         return;
       }
+
+      // Validate word length (14 characters max per word)
+      const tripName = tripNameDraft.trim();
+      const words = tripName.split(/\s+/).filter(Boolean);
+      const tooLongWord = words.find(word => word.length > 14);
+
+      if (tooLongWord) {
+        toast.error("Each word in the trip name must be 14 characters or fewer.");
+        return;  // Stop execution here
+      }
+
+      // Validate location
       if (!tripLocationDraft.trim()) {
         toast.error("Trip location is required");
         return;
       }
+
+      // Validate start date
       if (!tripStartDateDraft) {
         toast.error("Trip start date is required");
         return;
@@ -2091,7 +2106,13 @@ export default function TripDaysPage() {
         <main className={`TripDaysPage ${openActivitySearch ? "drawer-open" : ""}`}>
           <div className="title-div">
           <div className = "title-left">
-  <h1 className="trip-title" onClick={() => setTripInfoPopupOpen(true)}>{trip.trip_name}</h1>
+            <h1
+                className="trip-title mobile-ellipsis"
+                onClick={() => setTripInfoPopupOpen(true)}
+                data-full-title={trip.trip_name}
+            >
+              {trip.trip_name}
+            </h1>
             {showAILabels &&
                 trip.trip_category &&
                 !hiddenLabels.includes(trip.trips_id) && (
