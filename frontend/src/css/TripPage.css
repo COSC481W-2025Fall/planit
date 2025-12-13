@@ -165,12 +165,13 @@
     color: var(--text-dark);
     font-family: Tahoma, sans-serif;
     margin: 10px 0 4px;
+    text-overflow: ellipsis;
 }
 
 .trip-card-title-row {
     display: flex;
     align-items: center;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 8px;
 }
 

@@ -24,7 +24,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 12px 20px 12px 0; 
+  margin-bottom: 12px;
+  /* margin: 12px 20px 12px 0;  */
   grid-column: 2;
   grid-row: 2;            
   align-self: center;     
@@ -35,7 +36,7 @@
   .tabbar-liked {
     grid-column: 1;
     justify-self: start;
-    margin: 12px 0 12px 20px; 
+    /* margin: 12px 0 12px 20px;  */
   }
 }
 
@@ -140,9 +141,13 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   grid-column: 1 / -1; 
 }
 
-.carousel { position: relative; }
+.carousel { 
+  position: relative;
+  overflow: visible;                 
+}
 
 .carousel-viewport {
+  position: relative;    
   overflow-x: auto;
   overflow-y: hidden;
   padding: 0 1rem 6px 1rem;
@@ -161,8 +166,12 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   scroll-snap-type: x mandatory;
 }
 .carousel-track > * { scroll-snap-align: start; }
-
+.carousel-btn:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
 .carousel-btn {
+  z-index: 10;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -176,7 +185,6 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   display: grid;
   place-items: center;
   cursor: pointer;
-  z-index: 3;
 }
 .carousel-btn:hover { box-shadow: var(--shadow-2); }
 .carousel-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
@@ -201,6 +209,7 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   flex: 0 0 300px;
   box-shadow: var(--shadow-4);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 2;
 }
 .trip-card.public:hover {
   transform: translateY(-2px);
@@ -303,7 +312,7 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   flex-wrap: wrap;
   justify-content: flex-start;
   gap: 1.5rem;
-  padding: 0.5rem 20px 1rem;
+  /* padding: 0.5rem 20px 1rem; */
 }
 
 .recent-grid {
@@ -362,11 +371,11 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
 /* medium tablets */
 @media (max-width: 900px) {
   .tabbar {
-    margin-inline: 16px;
+    /* margin-inline: 16px; */
     grid-column: 1;
     grid-row: 3;
     flex-wrap: wrap;
-    row-gap: 8px;
+    /* row-gap: 8px; */
 
     overflow: visible !important;
     position: relative;
@@ -392,11 +401,11 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   .section-title { margin: 20px 16px 10px; }
 
   .tabbar {
-    margin-inline: 16px;
+    /* margin-inline: 16px; */
     grid-column: 1;
     grid-row: 3;
     flex-wrap: wrap;
-    row-gap: 8px;
+    /* row-gap: 8px; */
     overflow: visible !important;
     position: relative;
   }
@@ -431,7 +440,10 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   .pill { padding: 10px 14px; font-size: 14px; }
   .trip-card.public { flex-basis: 88vw; }
   .trip-card-image { height: clamp(132px, 40vw, 168px); }
-  .tabbar { margin: 8px 12px 0; flex-wrap: wrap; }
+  .tabbar { 
+    /* margin: 8px 12px 0;  */
+    flex-wrap: wrap;
+   }
   .explore-search { margin: 12px; max-width: 100%; }
 }
 
@@ -464,5 +476,9 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
 @supports (-webkit-touch-callout: none) {
     .recent-trips-section {
         margin-bottom: 5.5rem;
+    }
+
+    .liked-grid {
+      padding-bottom: 5.5rem;
     }
 }
