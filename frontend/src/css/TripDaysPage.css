@@ -66,13 +66,12 @@
 
 
 .modal-body {
-  max-height: 60dvh;
+  max-height: 60vh;
   overflow-y: auto;   
   padding-right: 8px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  -webkit-overflow-scrolling: touch;
 }
 .entry-block {
   border: 1px solid var(--border);
@@ -197,8 +196,7 @@ html[data-theme="dark"] .delete-entry-btn:hover {
 body {
   background: var(--bg-offwhite);
   margin: 0;
-  height: 100dvh;
-  min-height: 100%;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -209,15 +207,14 @@ body {
 .page-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
 }
 
 .content-with-sidebar {
   display: flex;
   flex: 1;
-  height: auto;
-  overflow: visible;
-  -webkit-overflow-scrolling: touch;
+  height: 100vh;
+  overflow: hidden;
 }
 
 
@@ -924,8 +921,6 @@ html[data-theme="dark"] .textarea-notes {
   padding-right: 10px;
   border-radius: 20px;
   width: max-content;
-  max-width: 100%;
-  flex-wrap: wrap;
 }
 
 .participant-pfp {
@@ -936,7 +931,6 @@ html[data-theme="dark"] .textarea-notes {
   border: 1px solid var(--border);
   box-shadow: var(--shadow-1);
   cursor: pointer;
-  flex-shrink: 0;
 }
 
 .participant-pfp.placeholder {
@@ -947,7 +941,6 @@ html[data-theme="dark"] .textarea-notes {
   font-size: 12px;
   color: var(--muted);
   cursor: pointer;
-  flex-shrink: 0;
 }
 
 .participants-header {
@@ -2025,10 +2018,63 @@ html[data-theme="dark"] .time-picker {
   flex-direction: column;
   gap: 16px;
 }
+.TripDaysPage,
+.modal-body,
+.days-scroll-zone,
+.days-container,
+.participants-list,
+.ai-items-list,
+.transportation-dropdown {
+  -webkit-overflow-scrolling: touch;
+}
+/* Prevent text selection on interactive elements */
+.day-card,
+.circle-icon-btn,
+button,
+.dropdown-item,
+.transportation-dropdown li {
+  -webkit-user-select: none;
+  user-select: none;
+}
 @media (max-width: 600px) {
-  .participant-photos {
-    max-width: calc(100vw - 3rem); /* Account for page padding */
-    flex-wrap: wrap;
-    width: auto;
+  .title-div {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    row-gap: 6px;
+    width: 100%;
   }
+
+  .title-left {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    overflow: hidden;
+  }
+
+  .participant-photos {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    display: flex;
+    gap: 6px;
+  }
+
+  .trip-title.mobile-ellipsis {
+    display: block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+  }
+}
+@supports not (height: 100dvh) {
+  .page-layout {
+    height: 100vh;
+  }
+}
+
+body:has(.popup-screen-overlay) {
+  overflow: hidden;
+  touch-action: none;
 }

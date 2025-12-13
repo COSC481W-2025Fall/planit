@@ -56,15 +56,9 @@ export default function TripPage() {
     </div>
   ));
 
-    // persist sort / filter choices
-    const [sortOption, setSortOption] = useState(() => {
-      if (typeof window === "undefined") return "recent";
-      return localStorage.getItem("tripSortOption") || "recent"; // default: Most recently edited
-    });
-    const [dateFilter, setDateFilter] = useState(() => {
-      if (typeof window === "undefined") return "all";
-      return localStorage.getItem("tripDateFilter") || "all"; // default: All trips
-    });
+    // filter / sort choices 
+    const [sortOption, setSortOption] = useState("recent"); // default: Most recently edited
+    const [dateFilter, setDateFilter] = useState("all");    // default: All trips
     const [hiddenLabels, setHiddenLabels] = useState(() => {
       const stored = localStorage.getItem("hiddenTripLabels");
       return stored ? JSON.parse(stored) : [];
@@ -205,25 +199,6 @@ export default function TripPage() {
 
       fetchImages();
     }, [trips]);
-
-    // persist choices to localStorage whenever they change
-    useEffect(() => {
-      if (typeof window === "undefined") return;
-      if (sortOption) {
-        localStorage.setItem("tripSortOption", sortOption);
-      } else {
-        localStorage.removeItem("tripSortOption");
-      }
-    }, [sortOption]);
-
-    useEffect(() => {
-      if (typeof window === "undefined") return;
-      if (dateFilter) {
-        localStorage.setItem("tripDateFilter", dateFilter);
-      } else {
-        localStorage.removeItem("tripDateFilter");
-      }
-    }, [dateFilter]);
 
     // fully reset and close modal
     const handleCloseModal = () => {

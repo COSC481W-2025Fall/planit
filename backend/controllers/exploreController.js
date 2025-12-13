@@ -113,7 +113,7 @@ export const getRecentTrips = async (req, res) => {
 
     const recentTrips = await sql`
       SELECT t.trips_id, t.trip_name, t.trip_location, t.trip_start_date, 
-             t.image_id, t.trip_updated_at, t.trip_category,
+             t.image_id, t.trip_updated_at, t.trip_category, COUNT(l.like_id) AS like_count,
              ${isGuest 
                 ? sql`false`
                 : sql`EXISTS (
@@ -123,7 +123,9 @@ export const getRecentTrips = async (req, res) => {
                   )`
              } AS is_liked
       FROM trips t
+      LEFT JOIN likes l ON t.trips_id = l.trip_id
       WHERE t.is_private = false
+      GROUP BY t.trips_id
       ORDER BY t.trip_updated_at DESC
       LIMIT 50;
     `;
