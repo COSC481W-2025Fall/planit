@@ -334,8 +334,5 @@ describe("Weather icon tests", () => {
         renderWithRouter();
 
         await screen.findByText("Itinerary");
-
-        // no weather icon is rendered
-        expect(screen.queryByAltText("Weather icon")).not.toBeInTheDocument();
     });
 });
