@@ -70,11 +70,9 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
         });
 
         const data = await res.json();
-        setLoading(false);
 
         if (data.ok) {
             toast.success("Trip cloned successfully!");
-            setOpen(false);
             setTimeout(() => {
                 onCloned(data.newTripId);
             }, 50);
@@ -82,8 +80,9 @@ export default function CloneTripButton({ user, tripId, access, fromExplore, onC
         else {
             toast.error("Failed to clone trip.");
         }
-        } finally {
-            // regardless of what happens still set the loader off
+        } catch (e) {
+            toast.error("Failed to clone trip.");
+            setOpen(false);
             setLoading(false);
         }
     }

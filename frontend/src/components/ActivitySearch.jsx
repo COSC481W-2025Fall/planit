@@ -1024,6 +1024,7 @@ export default function ActivitySearch({
                             step="1"
                             placeholder="e.g. 25"
                             value={formCost}
+                            inputMode="numeric"
                             onKeyDown={(e) => {
                                 if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '.') {
                                     e.preventDefault();
