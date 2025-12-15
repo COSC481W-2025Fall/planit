@@ -102,46 +102,46 @@
     overflow-y: auto;
     padding: 10px;
 }
-  .image-selector-grid img {
+.image-selector-grid img {
     object-fit: cover;
     border-radius: 10px;
     cursor: pointer;
     transition: transform 0.2s ease;
-  }
-  .image-selector-grid img:hover {
+}
+.image-selector-grid img:hover {
     transform: scale(1.05);
-  }
-  .selected-image-preview {
+}
+.selected-image-preview {
     margin-top: 10px;
     text-align: center; /* optional – centers image and name */
-  }
-  .selected-image-container {
+}
+.selected-image-container {
     text-align: center;
     margin-top: 10px;
-  }
-  .image-selector-thumb {
+}
+.image-selector-thumb {
     object-fit: cover;
     border-radius: 6px;
     cursor: pointer;
     transition: transform 0.2s ease, border 0.2s ease;
     border: 2px solid transparent; /* keeps layout consistent */
-  }
-  .image-selector-thumb:hover {
+}
+.image-selector-thumb:hover {
     transform: scale(1.05);
-  }
-  
-  .image-selector-thumb.selected {
+}
+
+.image-selector-thumb.selected {
     border: 2px solid var(--accent);
     box-shadow: 0 0 8px var(--accent);
-  }
-  
-  .selected-image-thumb {
+}
+
+.selected-image-thumb {
     object-fit: cover;
     border-radius: 6px;
     display: block;
-    margin: 0 auto; 
-  }
-  
+    margin: 0 auto;
+}
+
 .trip-card-image {
     background-color: var(--accent-lite);
     height: 180px;
@@ -164,20 +164,23 @@
     font-weight: bold;
     color: var(--text-dark);
     font-family: Tahoma, sans-serif;
-    margin: 10px 0 4px;
+    margin: 10px 0 8px;
     text-overflow: ellipsis;
+    padding-right: 0.5rem
 }
 
 .trip-card-title-row {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 0px;
+    margin-bottom: 8px;
 }
 
 .trip-card-badge {
-  transform: translate(-6px, 3px);
-  display: inline-flex;
+    transform: translate(0px, 4px);
+    display: inline-flex;
+    margin-bottom: 4px;
 }
 
 .trip-date {
@@ -210,26 +213,26 @@
 }
 
 .trip-page .modal-content .textarea-notes::placeholder {
-  color: var(--text-placeholder);
-  opacity: 1;
+    color: var(--text-placeholder);
+    opacity: 1;
 }
 
 .trip-page .modal-content .textarea-notes:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .field-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-dark2);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark2);
 }
 
 .trip-duration-badge {
@@ -730,16 +733,16 @@ html[data-theme="dark"] .mobile-date-input {
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-    .trip-submit-btn {
+}
+.trip-submit-btn {
     transition: opacity 0.3s ease;
-  }
-  
-  .trip-submit-btn.saving {
+}
+
+.trip-submit-btn.saving {
     opacity: 0.5;
     pointer-events: none;
     cursor: not-allowed;
-  }
+}
 
 .trips-toolbar {
     display: flex;
@@ -768,8 +771,8 @@ html[data-theme="dark"] .mobile-date-input {
     font-size: 0.85rem;
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease,
-                border-color 0.15s ease, transform 0.15s ease,
-                box-shadow 0.15s ease;
+    border-color 0.15s ease, transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .chip.active {
@@ -981,10 +984,10 @@ html[data-theme="dark"] .sort-select {
 }
 
 .filter-button.filter-button--active {
-  background: var(--accent);
-  color: var(--bg-white);
-  border-color: var(--accent);
-  box-shadow: var(--shadow-2);
+    background: var(--accent);
+    color: var(--bg-white);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-2);
 }
 
 @supports (-webkit-touch-callout: none) {
