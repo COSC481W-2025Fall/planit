@@ -617,9 +617,11 @@ export default function ExplorePage() {
                   <div className="carousel">
                     <button
                       className="carousel-btn prev"
-                      disabled={resEdge.start}
+                      disabled={resEdge.start || isAddCooldown}
                       onClick={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();
+                        if (isAddCooldown) return;
                         scrollByOneCard(resRef, -1);  
                       }}
                     >
@@ -649,9 +651,11 @@ export default function ExplorePage() {
 
                     <button
                       className="carousel-btn next"
-                      disabled={resEdge.end}
+                      disabled={resEdge.end || isAddCooldown}
                       onClick={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();  
+                        if (isAddCooldown) return;  
                         scrollByOneCard(resRef, 1);
                       }}
                     >
@@ -669,9 +673,9 @@ export default function ExplorePage() {
                   {trending.length > 0 && (
                     <button
                       className="carousel-btn prev"
-                      disabled={trending.length === 0 || trEdge.start}
-                      onClick={(e) => {
+                      disabled={trending.length === 0 || trEdge.start || isAddCooldown}                       onClick={(e) => {
                         e.stopPropagation();
+                        if (isAddCooldown) return;  
                         scrollByOneCard(trRef, -1);
                       }}
                     >
@@ -680,34 +684,42 @@ export default function ExplorePage() {
                   )}
                   <div className="carousel-viewport" ref={trRef} onScroll={() => updateCarouselEdges(trRef, setTrEdge)}>
                     <div className="carousel-track">
-                      {trending.map((t) => (
-                        <TripCardPublic
-                          key={`tr-${t.trips_id}`}
-                          trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
-                          liked={isLiked(t.trips_id)}
-                          onToggleLike={handleToggleLike}
-                          onOpen={handleOpenTrip}
-                          showAILabels={showAILabels}
-                        />
-                      ))}
+                      {trending.length === 0 ? (
+                        <div className="empty-state-left">
+                        No trips are trending this week.
+                        </div>
+                      ) : (
+                        trending.map((t) => (
+                          <TripCardPublic
+                            key={`tr-${t.trips_id}`}
+                            trip={{ ...t, like_count: getLikeCount(t.trips_id, t.like_count) }}
+                            liked={isLiked(t.trips_id)}
+                            onToggleLike={handleToggleLike}
+                            onOpen={handleOpenTrip}
+                            showAILabels={showAILabels}
+                          />
+                        ))
+                      )}
                     </div>
                   </div>
 
                   {trending.length > 0 && (
                     <button
                       className="carousel-btn next"
-                      disabled={trending.length === 0 || trEdge.end}
+                      disabled={trending.length === 0 || trEdge.end || isAddCooldown}
                       onClick={(e) => {
                         e.stopPropagation();
+                        e.preventDefault(); 
+                        if (isAddCooldown) return;
                         scrollByOneCard(trRef, 1);
                       }}
                     >
                       <ChevronRight size={18} />
                     </button>
-                    
                   )}
                 </div>
               </section>
+
 
               {/* Top 10 all-time carousel */}
               <section className="trips-section">
@@ -717,9 +729,11 @@ export default function ExplorePage() {
                   {topLiked.length > 0 && (
                     <button
                       className="carousel-btn prev"
-                      disabled={topLiked.length === 0 || topEdge.start}
+                      disabled={topLiked.length === 0 || topEdge.start || isAddCooldown}
                       onClick={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();
+                        if (isAddCooldown) return;
                         scrollByOneCard(topRef, -1);
                       }}
                     >
@@ -732,7 +746,6 @@ export default function ExplorePage() {
                       {topLiked.length === 0 ? (
                         <div
                           className="empty-state"
-                          style={{ padding: "8px 12px", color: "#666" }}
                         >
                           No top trips yet.
                         </div>
@@ -754,9 +767,11 @@ export default function ExplorePage() {
                   {topLiked.length > 0 && (
                     <button
                       className="carousel-btn next"
-                      disabled={topLiked.length === 0 || topEdge.end}
+                      disabled={topLiked.length === 0 || topEdge.end || isAddCooldown}
                       onClick={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();
+                        if (isAddCooldown) return;
                         scrollByOneCard(topRef, 1);
                       }}
                     >
