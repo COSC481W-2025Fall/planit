@@ -2239,7 +2239,7 @@ export default function TripDaysPage() {
                 tripId={tripId}
                 access={userRole}
                 fromExplore={fromExplore}
-                onCloned={(newId) => navigate(`/days/${newId}`)}
+                onCloned={(newId) => window.location.href = `/days/${newId}`}
                 trip={trip}
               />
             </div>
@@ -3093,13 +3093,14 @@ export default function TripDaysPage() {
               </label>
 
               <label className="popup-input">
-                <span>Estimated Budget ($):</span>
+                <span>Estimated cost ($):</span>
                 <input
                   type="number"
                   min = "0"
                   max = "10000000"
                   step = "1"
                   value={editCost}
+                  inputMode="numeric"
                   onKeyDown={(e) => {
                     if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '.') {
                       e.preventDefault();
