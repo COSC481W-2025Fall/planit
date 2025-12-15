@@ -173,6 +173,12 @@ export default function TripDaysPage() {
   const canEdit = isOwner || isShared;
   const canManageParticipants = isOwner;
 
+  const MAX_DAYS = 90;
+  const dayCount = Array.isArray(days) ? days.length : 0;
+
+  const hasReachedDayLimit = dayCount >= MAX_DAYS;
+  const isAddDisabled = isAddCooldown || hasReachedDayLimit || !canEdit;
+
   const [showAILabels, setShowAILabels] = useState(
       localStorage.getItem("planit:showAILabels") !== "false"
   );
@@ -2912,8 +2918,8 @@ export default function TripDaysPage() {
                   <button
                     type="button"
                     onClick={handleAddDay}
-                    disabled={isAddCooldown}
-                    className={`add-day-button btn-rightside ${isAddCooldown ? "cooldown" : ""}`}
+                    disabled={isAddDisabled}
+                    className={`add-day-button btn-rightside ${isAddDisabled ? "cooldown" : ""}`}
 
                   >
                     Add +
@@ -2921,7 +2927,9 @@ export default function TripDaysPage() {
                 </>
               }
             >
-              <p className="popup-body-text">Do you want to add a new day to {trip?.trip_name}?</p>
+              <p className="popup-body-text"> {hasReachedDayLimit ? 
+              "This trip already has the maximum number of 90 days" 
+              : `Do you want to add a new day to ${trip?.trip_name}?`}</p>
             </Popup>
           )}
           {deleteDayId && (
