@@ -22,6 +22,17 @@ function scanValue(value) {
 }
 
 export function profanity(req, res, next) {
+  const skipProfanityPaths = [
+    "/placesAPI/search",
+    "/placesAPI/cityAutocomplete",
+  ];
+
+  const cleanUrl = req.originalUrl.split("?")[0];
+
+  if (skipProfanityPaths.some((p) => cleanUrl.startsWith(p))) {
+    return next();
+  }
+
   if (req.method === "GET" || req.method === "HEAD") return next();
   if (!req.body || typeof req.body !== "object") return next();
 
