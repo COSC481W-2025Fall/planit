@@ -140,11 +140,20 @@ export default function ExplorePage() {
   const suggestions = useMemo(() => {
     const q = (query || "").trim().toLowerCase();
     if (!q) return [];
-    return locations
+
+    // hashmaps are o(1) lookup to track unique locations
+    const seen = new Map();
+    locations
       .map((r) => r.trip_location)
       .filter(Boolean)
       .filter((loc) => loc.toLowerCase().includes(q))
-      .slice(0, 8);
+      .forEach((loc) => {
+        const key = loc.toLowerCase().trim();
+        if (!seen.has(key)) {
+          seen.set(key, loc);
+        }
+      });
+    return Array.from(seen.values()).slice(0, 8);
   }, [locations, query]);
 
   // click-outside to close suggestions
