@@ -164,7 +164,7 @@
     font-weight: bold;
     color: var(--text-dark);
     font-family: Tahoma, sans-serif;
-    margin: 10px 0 6px;
+    margin: 10px 0 8px;
     text-overflow: ellipsis;
 }
 
@@ -172,12 +172,12 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 1px;
     margin-bottom: 8px;
 }
 
 .trip-card-badge {
-  transform: translate(-4px, 4px);
+  transform: translate(4px, 4px);
   display: inline-flex;
     margin-bottom: 4px;
 }
