@@ -166,13 +166,14 @@
     font-family: Tahoma, sans-serif;
     margin: 10px 0 8px;
     text-overflow: ellipsis;
+    padding-right: 0.5rem
 }
 
 .trip-card-title-row {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 1px;
+    gap: 0px;
     margin-bottom: 8px;
 }
 
