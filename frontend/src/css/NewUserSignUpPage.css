@@ -104,7 +104,7 @@ body {
 }
 
 .error-message {
-  color: var(--error);
+  color: tomato;
   font-size: 13px;
   margin-top: 5px;
 }

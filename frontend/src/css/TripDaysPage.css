@@ -788,16 +788,12 @@ html[data-theme="dark"] .day-menu .trash-icon {
 
 .textarea-notes {
     padding: 12px;
-    border: 1px solid var(--border-input);
-    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius) !important;
     font-size: 14px;
-    background: var(--bg-input);
+    background: var(--bg-white);
     color: var(--text);
     width: 100%;
-}
-
-html[data-theme="dark"] .textarea-notes {
-  background: var(--bg-hover2);
 }
 
 .textarea-notes::placeholder {
@@ -1494,10 +1490,6 @@ html[data-theme="dark"] .time-picker {
     opacity: 0.5;
   }
 
-  .participants-list {
-    min-height: 100px;
-  }
-
   .participants-list p{
     padding-top: 25px;
   }
@@ -2001,10 +1993,10 @@ html[data-theme="dark"] .time-picker {
 
 .trip-name-input, .trip-location-input, .date-input, .clone-popup-input, .popup-input .mobile-date-input {
   padding: 12px;
-  border: 1px solid var(--border-input);
+  border: 1px solid var(--border-light);
   border-radius: var(--radius);
   font-size: 14px;
-  background: var(--bg-input) !important;
+  background: var(--bg-white) !important;
   color: var(--text);
   width: 100%;
 }
@@ -2077,4 +2069,10 @@ button,
 body:has(.popup-screen-overlay) {
   overflow: hidden;
   touch-action: none;
+}
+
+.trip-name-textview , .trip-location-textview , .trip-start-date-textview, .trip-notes-textview{
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: var(--muted)
 }
