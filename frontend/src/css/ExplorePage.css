@@ -82,6 +82,7 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   align-self: center;
   margin-top: 12px;
   margin-bottom: 12px;
+  z-index: 100;
 }
 .explore-search.closer { 
   margin-top: 12px;
@@ -97,6 +98,8 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   border-radius: var(--radius);
   padding: 10px 12px;
   box-shadow: var(--shadow-1);
+  position: relative;
+  z-index: 1;
 }
 .search-input-wrap input {
   flex: 1;
@@ -113,7 +116,7 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  z-index: 20;
+  z-index: 101;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
