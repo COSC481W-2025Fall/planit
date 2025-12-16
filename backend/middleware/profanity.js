@@ -52,6 +52,16 @@ export function profanity(req, res, next) {
   if (!req.body || typeof req.body !== "object") return next();
 
   const isActivityCreate = req.method === "POST" && cleanUrl === "/activities/create";
+  const isActivityDelete = req.method === "DELETE" && cleanUrl.startsWith("/activities/");
+  const isActivityUpdate = req.method === "PUT" && cleanUrl.startsWith("/activities/");
+
+   if (isActivityDelete) {
+    return next();
+  }
+
+  if (isActivityUpdate) {
+    return next();
+  }
 
   const bodyToScan = structuredClone(req.body);
 
@@ -61,7 +71,6 @@ export function profanity(req, res, next) {
   if (isActivityCreate) {
     removeKeys(bodyToScan, ["name", "notes"]);
   }
-
 
   if (scanValue(bodyToScan)) {
     return res.status(400).json({ error: "Profanity detected." });
