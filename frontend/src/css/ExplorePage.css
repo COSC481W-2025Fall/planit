@@ -190,6 +190,7 @@ html[data-theme="dark"] .pill.active { background: var(--accent); color: var(--b
   display: grid;
   place-items: center;
   cursor: pointer;
+  will-change: opacity;
 }
 .carousel-btn:hover { box-shadow: var(--shadow-2); }
 .carousel-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
@@ -492,6 +493,5 @@ html[data-theme="dark"] .carousel-btn:focus-visible { outline: none; box-shadow:
   .carousel-btn {
     width: 40px;
     height: 40px;
-    will-change: opacity;
   }
 }
