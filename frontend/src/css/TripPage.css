@@ -204,10 +204,10 @@
 
 .trip-page .modal-content .textarea-notes {
     padding: 12px;
-    border: 1px solid var(--border-input);
+    border: 1px solid var(--border-light);
     border-radius: var(--radius);
     font-size: 14px;
-    background: var(--bg-input);
+    background: var(--bg-white);
     color: var(--text);
     width: 100%;
 }
@@ -317,10 +317,10 @@
 
 .modal-content input {
     padding: 12px;
-    border: 1px solid var(--border-input);
+    border: 1px solid var(--border-light);
     border-radius: var(--radius);
     font-size: 14px;
-    background: var(--bg-input);
+    background: var(--bg-white);
     color: var(--text);
     width: 100%;
 }
@@ -346,11 +346,11 @@
     box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-html[data-theme="dark"] .modal-content input {
+/* html[data-theme="dark"] .modal-content input {
     background: var(--bg-hover2);
     color: var(--static-white);
     border-color: var(--border-input);
-}
+} */
 
 html[data-theme="dark"] .modal-content input::placeholder {
     color: var(--text-placeholder);
@@ -502,9 +502,9 @@ html[data-theme="dark"] .trip-page :is(
   .react-datepicker__input-container input,
   .date-input
 ) {
-    background: var(--bg-hover2) !important;
+    background: var(--bg-white) !important;
     color: var(--static-white) !important;
-    border: 1px solid var(--border-input) !important;
+    border: 1px solid var(--border-light) !important;
     box-shadow: none !important;
 }
 
@@ -612,10 +612,10 @@ select:focus {
 .mobile-date-input {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--border-input);
-    border-radius: 4px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
     font-size: 14px;
-    background: var(--bg-input);
+    background: var(--bg-white) !important;
     cursor: pointer;
     color: var(--text);
     user-select: none;

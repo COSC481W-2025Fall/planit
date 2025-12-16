@@ -111,6 +111,7 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    font-size: 1em !important;
 }
 
 .overlap-items {
@@ -120,7 +121,8 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
 .popup-input input {
     padding: 10px 12px;
     border: 1px solid var(--border-light);
-    border-radius: 10px;
+    border-radius: var(--radius);
+    background: var(--bg-white);
     font-size: 14px;
 }
 
@@ -210,8 +212,8 @@ html[data-theme="dark"] .popup-input :is(input, textarea, select):focus {
 .popup-input .react-datepicker__input-container input {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--border-input);
-    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius) !important;
     font-size: 14px;
     background: var(--bg-white) !important;
     color: var(--text);
@@ -260,14 +262,14 @@ form.was-submitted .react-datepicker-wrapper:has(input[value=""]) .mobile-date-i
     box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-html[data-theme="dark"] .popup-input-field,
+/* html[data-theme="dark"] .popup-input-field,
 html[data-theme="dark"] .popup-input .date-input,
 html[data-theme="dark"] .popup-input .mobile-date-input,
 html[data-theme="dark"] .popup-input .react-datepicker__input-container input {
     background: var(--bg-hover2) !important;
     color: var(--static-white);
     border-color: var(--border-input);
-}
+} */
 
 html[data-theme="dark"] .popup-input .mobile-date-input.placeholder,
 html[data-theme="dark"] .popup-input-field::placeholder,
