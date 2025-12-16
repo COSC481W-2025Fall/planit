@@ -65,7 +65,7 @@ export function profanity(req, res, next) {
   removeKeys(bodyToScan, ignoredKeys);
 
   if (isActivityCreate || isActivityUpdate) {
-    removeKeys(bodyToScan, ["name"]);
+    removeKeys(bodyToScan, ["name", "website"]);
   }
 
   if (scanValue(bodyToScan)) {
