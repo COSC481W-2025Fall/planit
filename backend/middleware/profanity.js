@@ -59,17 +59,13 @@ export function profanity(req, res, next) {
     return next();
   }
 
-  if (isActivityUpdate) {
-    return next();
-  }
-
   const bodyToScan = structuredClone(req.body);
 
   const ignoredKeys = ["customPhoto", "photo", "pfp"];
   removeKeys(bodyToScan, ignoredKeys);
 
-  if (isActivityCreate) {
-    removeKeys(bodyToScan, ["name", "notes"]);
+  if (isActivityCreate || isActivityUpdate) {
+    removeKeys(bodyToScan, ["name"]);
   }
 
   if (scanValue(bodyToScan)) {
