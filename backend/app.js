@@ -24,6 +24,7 @@ import travelAccommodationRoutes from "./routes/travelAccommodationRoutes.js";
 import settingsParticipantRoutes from "./routes/settingsParticipantRoutes.js";
 import weatherRoutes from "./routes/weatherRoutes.js";
 import { profanity } from "./middleware/profanity.js";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 
@@ -42,6 +43,24 @@ app.use(
     },
   })
 );
+
+// short-term limit
+const perMinuteLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10000,            // 10000 requests/minute
+  message: "Too many requests, please slow down.",
+});
+
+// long-term limit (daily)
+const perDayLimiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000, // 24h
+  max: 50000,                     // 50k requests/day
+  message: "Daily rate limit reached.",
+});
+
+// Apply globally
+app.use(perMinuteLimiter);
+app.use(perDayLimiter);
 
 app.use(passport.initialize());
 app.use(passport.session());
